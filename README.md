@@ -26,7 +26,7 @@ npm run serve    # dist/ 미리보기
 
 | 변수 | 설명 | 기본값 |
 | --- | --- | --- |
-| `SITE_URL` | 사이트 주소. 도메인을 연결하면 이 값을 바꿉니다. | `https://0mesisi0.github.io/new` |
+| `SITE_URL` | 사이트 주소. 도메인을 연결하면 이 값을 바꿉니다. | `https://mesisi.net` |
 | `ADSENSE_CLIENT` | 애드센스 게시자 ID (`ca-pub-…`). 설정하면 광고 코드와 `ads.txt`가 추가됩니다. | 없음 |
 
 GitHub에서는 저장소 Settings → Secrets and variables → Actions → Variables 에 등록합니다.
@@ -35,7 +35,7 @@ GitHub에서는 저장소 Settings → Secrets and variables → Actions → Var
 
 1. 이 브랜치를 `main`으로 병합합니다.
 2. Settings → Pages → Source를 **GitHub Actions**로 설정합니다. `main`에 푸시될 때마다 자동 배포됩니다.
-3. (권장) 도메인을 구입해 Pages에 연결하고 `SITE_URL` 변수를 그 주소로 바꿉니다. 애드센스는 `github.io` 하위 주소로는 승인받기 어렵습니다.
+3. 도메인 `mesisi.net`을 연결합니다. DNS에 A 레코드 4개(`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`)와 `www` CNAME(`0mesisi0.github.io`)을 등록하고, Settings → Pages → Custom domain에 `mesisi.net`을 입력한 뒤 Enforce HTTPS를 켭니다.
 4. Google Search Console과 네이버 서치어드바이저에 사이트를 등록하고 `sitemap.xml`을 제출합니다.
 5. 애드센스를 신청하고, 승인되면 `ADSENSE_CLIENT` 변수를 등록합니다.
 

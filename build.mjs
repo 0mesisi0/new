@@ -1,5 +1,5 @@
 // Static site generator. Usage: node build.mjs
-// Env: SITE_URL (default https://0mesisi0.github.io/new), ADSENSE_CLIENT (e.g. ca-pub-1234567890123456)
+// Env: SITE_URL (default https://mesisi.net), ADSENSE_CLIENT (e.g. ca-pub-1234567890123456)
 import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +8,7 @@ import { salary } from './src/calc.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const OUT = join(ROOT, 'dist');
-const SITE_URL = (process.env.SITE_URL || 'https://0mesisi0.github.io/new').replace(/\/+$/, '');
+const SITE_URL = (process.env.SITE_URL || 'https://mesisi.net').replace(/\/+$/, '');
 const BASE = new URL(SITE_URL).pathname.replace(/\/+$/, '');
 const ADS = /^ca-pub-\d{10,20}$/.test(process.env.ADSENSE_CLIENT || '') ? process.env.ADSENSE_CLIENT : '';
 const LANGS = ['ko', 'en'];
@@ -209,6 +209,7 @@ ${slugs.flatMap((slug) => LANGS.map((lang) => `<url><loc>${abs(path(lang, slug))
 write('sitemap.xml', sitemap);
 write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 write('.nojekyll', '');
+if (!new URL(SITE_URL).hostname.endsWith('.github.io')) write('CNAME', new URL(SITE_URL).hostname + '\n');
 if (ADS) write('ads.txt', `google.com, ${ADS.replace('ca-', '')}, DIRECT, f08c47fec0942fa0\n`);
 write('assets/favicon.svg', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0b6e4f"/><text x="32" y="45" font-size="38" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" fill="#fff">₩</text></svg>\n`);
 for (const f of ['style.css', 'app.js', 'calc.mjs']) copyFileSync(join(ROOT, 'src', f), join(OUT, 'assets', f));
