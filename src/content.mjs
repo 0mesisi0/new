@@ -8,14 +8,14 @@ export const site = {
 
 export const ui = {
   ko: {
-    home: '홈', calculators: '계산기', guides: '가이드', faq: '자주 묻는 질문', related: '다른 계산기',
+    home: '홈', calculators: '계산기', guides: '가이드', allGuides: '가이드 전체 보기', sources: '참고 자료', faq: '자주 묻는 질문', related: '다른 계산기',
     updated: '최종 업데이트', about: '소개', privacy: '개인정보처리방침', other: 'English',
     noscript: '계산기를 사용하려면 자바스크립트를 켜 주세요.',
     disclaimer: '이 계산기는 참고용 추정치를 제공합니다. 실제 금액은 회사의 급여 규정과 개인 상황에 따라 달라질 수 있으며, 법률·세무 자문이 아닙니다.',
     notFound: '페이지를 찾을 수 없습니다.',
   },
   en: {
-    home: 'Home', calculators: 'Calculators', guides: 'Guides', faq: 'Frequently asked questions', related: 'More calculators',
+    home: 'Home', calculators: 'Calculators', guides: 'Guides', allGuides: 'All guides', sources: 'Sources', faq: 'Frequently asked questions', related: 'More calculators',
     updated: 'Last updated', about: 'About', privacy: 'Privacy', other: '한국어',
     noscript: 'Please enable JavaScript to use the calculator.',
     disclaimer: 'These calculators give estimates for reference only. Actual amounts depend on your employer\'s payroll rules and your circumstances. This is not legal or tax advice.',
