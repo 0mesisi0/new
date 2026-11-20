@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>붕어빵 예산 계산기</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#302A25;background:#20343D}
+[hidden]{display:none!important}
+.app{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;overflow:hidden;display:flex;justify-content:center;
+ background:radial-gradient(circle at 20% 15%,#2f4a56 0,#20343D 55%)}
+.panel{width:100%;max-width:480px;height:100%;background:#FFF7E8;display:flex;flex-direction:column;min-height:0}
+@media(min-width:520px){.panel{box-shadow:0 0 0 6px #17262d,0 10px 40px rgba(0,0,0,.4)}}
+header{padding:12px 16px 4px}
+h1{margin:0;font-size:24px;line-height:1.2}
+#intro{margin:4px 0 0;color:#62594E}
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 12px;touch-action:pan-y;overscroll-behavior:contain}
+.art{pointer-events:none;touch-action:none;display:block;margin:0 auto 6px;width:150px;height:auto}
+@media(max-height:560px){.art{display:none}}
+.field{margin:8px 0}
+label{display:block;font-weight:600;margin-bottom:4px}
+.row{display:flex;align-items:center;gap:8px}
+input[type=text]{flex:1;min-width:0;min-height:48px;font:inherit;font-size:18px;font-variant-numeric:tabular-nums;padding:6px 12px;border:2px solid #8a7e6c;border-radius:10px;background:#fff;color:#302A25}
+input[type=text][aria-invalid=true]{border-color:#A02F32}
+.unit{min-width:2.5em;color:#62594E}
+.hint{font-size:16px;color:#62594E;margin-top:2px}
+.err{font-size:16px;color:#A02F32;font-weight:600;min-height:0}
+.err:empty{display:none}
+button{font:inherit;font-weight:700;min-height:48px;min-width:48px;padding:8px 14px;border-radius:12px;border:2px solid #155D63;background:#FFF7E8;color:#155D63;cursor:pointer;touch-action:manipulation}
+button.primary{background:#155D63;color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.press{transform:scale(.97)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,h2:focus-visible{outline:3px solid #155D63;outline-offset:2px}
+.preview{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff;border:2px dashed #b9a98c;min-height:84px}
+.preview b{display:block;margin-bottom:2px}
+.preview .sum{font-size:18px;font-variant-numeric:tabular-nums}
+.preview.fade{animation:fade .12s linear}
+.preview .emp{display:block;margin:0 auto 4px;width:64px;height:auto}
+@keyframes fade{from{opacity:.3}to{opacity:1}}
+.note{font-size:16px;color:#62594E;margin:10px 0 0}
+.bar{display:flex;gap:8px;padding:8px 16px 12px;border-top:1px solid #e6d9bf}
+.bar button{flex:1}
+.bar #viewBag{flex:2}
+#status{min-height:52px;padding:2px 16px;font-size:16px;line-height:1.4;color:#302A25}
+#status.fail{color:#A02F32;font-weight:600}
+/* result */
+.card{background:#DBAD73;border-radius:6px 6px 18px 18px;padding:0 14px 14px;margin-top:4px;color:#302A25;position:relative}
+.card.pop{animation:pop .16s ease-out}
+@keyframes pop{from{transform:scale(.98)}to{transform:scale(1)}}
+.handles{display:block;width:70%;height:auto;margin:0 auto;pointer-events:none;position:relative;top:-2px}
+.fold{height:14px;margin:0 -14px;background:#c4935a;border-radius:6px 6px 0 0}
+.card h2{margin:8px 0 6px;font-size:20px;text-align:center}
+.grp{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px dashed #8a6a3c}
+.grp svg{width:130px;flex:none;height:auto;pointer-events:none}
+.grp .sp{width:130px;flex:none}
+.cnt{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.up{font-size:16px;font-variant-numeric:tabular-nums}
+dl.sum{margin:6px 0 0;padding-top:6px;border-top:2px solid #8a6a3c}
+dl.sum div{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+dl.sum dt,dl.sum dd{margin:0}
+dl.sum .tot{font-size:24px;font-weight:800}
+.card .note{color:#302A25}
+.sig{text-align:right;font-size:16px;font-weight:700;margin-top:6px}
+h3{margin:14px 0 6px;font-size:17px}
+#combos{display:flex;flex-direction:column;gap:8px}
+#combos button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:#fff;border:2px solid #b9a98c;color:#302A25;font-variant-numeric:tabular-nums}
+#combos button[aria-pressed=true]{border:4px solid #155D63;background:#e6f2f1}
+#combos .ck{display:inline-block;width:1.2em;font-weight:900;color:#155D63}
+#combos .lf{font-weight:600;font-size:16px;color:#62594E}
+.two{display:flex;gap:8px;margin-top:12px}
+.two button{flex:1}
+#editBtn{width:100%;margin-top:8px}
+#fb{margin-top:12px;padding:10px;border:2px solid #155D63;border-radius:12px;background:#fff}
+#fb p{margin:0 0 6px}
+#fb textarea{width:100%;min-height:150px;font:inherit;font-size:16px;padding:8px;border:2px solid #8a7e6c;border-radius:8px;touch-action:pan-y}
+#fb button{margin-top:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.nomotion *{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+ <pattern id="hR" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#77465A" stroke-width="1.6" opacity=".55"/></pattern>
+ <pattern id="hC" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.2" fill="#B9861F" opacity=".7"/></pattern>
+ <symbol id="fR" viewBox="0 0 60 36"><path d="M8 18C14 6 34 4 46 14L58 6L56 18L58 30L46 22C34 32 14 30 8 18Z" fill="#E7A85B" stroke="#6B4423" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 18C14 6 34 4 46 14L58 6L56 18L58 30L46 22C34 32 14 30 8 18Z" fill="url(#hR)"/><circle cx="16" cy="15" r="1.8" fill="#302A25"/><circle cx="32" cy="18" r="5" fill="#77465A" stroke="#302A25" stroke-width="1"/></symbol>
+ <symbol id="fC" viewBox="0 0 60 36"><path d="M8 18C14 6 34 4 46 14L58 6L56 18L58 30L46 22C34 32 14 30 8 18Z" fill="#EDB868" stroke="#6B4423" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 18C14 6 34 4 46 14L58 6L56 18L58 30L46 22C34 32 14 30 8 18Z" fill="url(#hC)"/><circle cx="16" cy="15" r="1.8" fill="#302A25"/><circle cx="32" cy="18" r="5" fill="#E5B647" stroke="#302A25" stroke-width="1"/></symbol>
+</defs>
+</svg>
+<div class="app" id="app">
+<div class="panel">
+ <header><h1 id="appTitle"></h1><p id="intro"></p></header>
+
+ <form id="editScreen" novalidate style="display:contents">
+  <div class="scroll" id="editScroll">
+   <svg class="art" viewBox="0 0 130 40" aria-hidden="true"><use href="#fR" x="0" y="2" width="60" height="36"/><use href="#fC" x="68" y="2" width="60" height="36"/></svg>
+   <div class="field"><label for="budget" id="lBudget"></label><div class="row"><input type="text" id="budget" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hBudget eBudget"><span class="unit" id="uBudget"></span></div><div class="hint" id="hBudget"></div><div class="err" id="eBudget"></div></div>
+   <div class="field"><label for="red" id="lRed"></label><div class="row"><input type="text" id="red" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hRed eRed"><span class="unit" id="uRed"></span></div><div class="hint" id="hRed"></div><div class="err" id="eRed"></div></div>
+   <div class="field"><label for="custard" id="lCustard"></label><div class="row"><input type="text" id="custard" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hCustard eCustard"><span class="unit" id="uCustard"></span></div><div class="hint" id="hCustard"></div><div class="err" id="eCustard"></div></div>
+   <div class="preview" id="preview"></div>
+   <p class="note" id="noteEdit"></p>
+  </div>
+  <div class="bar" id="editBar"><button type="submit" class="primary" id="viewBag"></button><button type="button" id="resetBtn"></button></div>
+ </form>
+
+ <section id="resultScreen" hidden style="display:contents">
+  <div class="scroll" id="resScroll">
+   <div class="card" id="card">
+    <svg class="handles" viewBox="0 0 200 40" aria-hidden="true"><path d="M50 40C50 4 80 4 80 40M120 40C120 4 150 4 150 40" fill="none" stroke="#8a5a2b" stroke-width="5" stroke-linecap="round"/></svg>
+    <div class="fold"></div>
+    <h2 id="resHead" tabindex="-1"></h2>
+    <div id="cardBody"></div>
+   </div>
+   <h3 id="comboTitle"></h3>
+   <div id="combos"></div>
+   <p class="note" id="rankNote"></p>
+   <div class="two"><button type="button" id="saveBtn"></button><button type="button" id="copyBtn"></button></div>
+   <div id="fb" hidden><p id="fbMsg"></p><label for="fbText" id="fbLabel"></label><textarea id="fbText" readonly></textarea><button type="button" id="fbClose"></button></div>
+   <button type="button" id="editBtn" class="primary"></button>
+  </div>
+ </section>
+
+ <div id="status" role="status"></div>
+ <div class="sr" id="live" aria-live="polite"></div>
+</div>
+</div>
+<script>
+(function(){
+'use strict';
+var D={
+ko:{appTitle:'붕어빵 예산 계산기',intro:'예산 안에서 팥붕과 슈붕을 담아 보세요.',budgetLabel:'예산',redPriceLabel:'팥붕 한 개 가격',custardPriceLabel:'슈붕 한 개 가격',currencyUnit:'원',budgetHint:'100~30,000원, 100원 단위',priceHint:'100~10,000원, 100원 단위',previewTitle:'이렇게 담을 수 있어요',previewSummary:'팥붕 {red}개 · 슈붕 {custard}개 · 남는 돈 {left}',completeInputs:'예산과 한 개 가격을 확인해 주세요.',viewBag:'봉투 보기',resetExample:'예시로 초기화',exampleNote:'처음 가격은 예시예요. 실제 한 개 가격으로 바꿔 주세요.',unitNote:'입력한 한 개 가격 기준이며, 묶음 할인은 제외해요.',bagTitle:'내 붕어빵 봉투',red:'팥붕',custard:'슈붕',redCount:'팥붕 {n}개',custardCount:'슈붕 {n}개',unitPriceLine:'한 개 {price}',budget:'예산',total:'합계',left:'남는 돈',money:'{n}원',combinationsTitle:'가능한 조합',combination:'팥 {red} · 슈 {custard}',combinationLeft:'{left} 남아요',combinationAria:'팥붕 {red}개, 슈붕 {custard}개, 남는 돈 {left}',rankingNote:'개수 우선, 같은 개수면 반반에 가깝게 골라요.',resultAnnouncement:'팥붕 {red}개, 슈붕 {custard}개. 합계 {total}, 남는 돈 {left}.',emptyTitle:'아직 한 개를 담기엔 모자라요',emptyDetail:'가장 저렴한 한 개까지 {shortfall} 더 필요해요.',emptyHint:'예산이나 입력한 가격을 확인해 주세요.',save:'이미지 저장',saving:'이미지 만드는 중…',downloadRequested:'다운로드를 요청했어요. 저장되지 않으면 화면을 캡처해 주세요.',saveFail:'이미지를 만들지 못했어요. 화면을 캡처해 주세요.',copy:'텍스트 복사',copying:'복사 중…',copied:'복사했어요.',manualCopy:'자동 복사가 안 돼요. 아래 글을 선택해 복사해 주세요.',copyTextLabel:'공유할 글',close:'닫기',edit:'입력 수정',required:'값을 입력해 주세요.',invalidInteger:'쉼표로 구분한 정수나 숫자만 입력해 주세요.',budgetRange:'예산은 100~30,000원으로 입력해 주세요.',priceRange:'한 개 가격은 100~10,000원으로 입력해 주세요.',invalidStep:'100원 단위로 입력해 주세요.',resetDone:'예산과 가격을 예시로 되돌렸어요.',brand:'하루한판',
+ shareText:'내 붕어빵 봉투\n팥붕 {red}개 · 슈붕 {custard}개\n한 개 가격: 팥붕 {redPrice} · 슈붕 {custardPrice}\n예산: {budget}\n합계: {total}\n남는 돈: {left}\n입력한 한 개 가격 기준이며, 묶음 할인은 제외해요.\n하루한판 · play.mesisi.net'},
+en:{appTitle:'Bungeoppang Budget Calculator',intro:'Fill a red-bean and custard bag within your budget.',budgetLabel:'Budget',redPriceLabel:'Red-bean unit price',custardPriceLabel:'Custard unit price',currencyUnit:'KRW',budgetHint:'₩100–₩30,000, in steps of ₩100',priceHint:'₩100–₩10,000, in steps of ₩100',previewTitle:'Your possible bag',previewSummary:'Red bean × {red} · Custard × {custard} · {left} left',completeInputs:'Check your budget and unit prices.',viewBag:'View bag',resetExample:'Reset example',exampleNote:'Initial prices are examples. Enter actual unit prices.',unitNote:'Based on entered unit prices; bundle discounts excluded.',bagTitle:'My bungeoppang bag',red:'Red bean',custard:'Custard',redCount:'Red bean × {n}',custardCount:'Custard × {n}',unitPriceLine:'{price} each',budget:'Budget',total:'Total',left:'Money left',money:'₩{n}',combinationsTitle:'Available combinations',combination:'Red bean {red} · Custard {custard}',combinationLeft:'{left} left',combinationAria:'{red} red-bean pastries, {custard} custard pastries, {left} left',rankingNote:'Most pastries first; ties favor a more even mix.',resultAnnouncement:'Red bean: {red}. Custard: {custard}. Total: {total}. Money left: {left}.',emptyTitle:'Not quite enough for one',emptyDetail:'You need {shortfall} more for the cheapest pastry.',emptyHint:'Check your budget or entered prices.',save:'Save image',saving:'Creating image…',downloadRequested:'Download requested. If no file appears, take a screenshot.',saveFail:'Could not create the image. Please take a screenshot.',copy:'Copy text',copying:'Copying…',copied:'Copied.',manualCopy:'Automatic copy is unavailable. Select and copy the text below.',copyTextLabel:'Text to share',close:'Close',edit:'Edit inputs',required:'Enter a value.',invalidInteger:'Enter whole digits, optionally with correctly grouped commas.',budgetRange:'Enter a budget from ₩100 to ₩30,000.',priceRange:'Enter a unit price from ₩100 to ₩10,000.',invalidStep:'Enter a multiple of ₩100.',resetDone:'Budget and prices reset to the example.',brand:'Daily Toybox',
+ shareText:'My bungeoppang bag\nRed bean × {red} · Custard × {custard}\nUnit prices: Red bean {redPrice} · Custard {custardPrice}\nBudget: {budget}\nTotal: {total}\nMoney left: {left}\nBased on entered unit prices; bundle discounts excluded.\nDaily Toybox · play.mesisi.net'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+document.documentElement.lang=lang;
+var demo=location.hash==='#demo'||new URLSearchParams(location.search).get('thumb')==='1';
+if(demo)document.getElementById('app').classList.add('nomotion');
+function $(id){return document.getElementById(id)}
+function t(k,p){var s=D[lang][k];if(p)s=s.replace(/\{(\w+)\}/g,function(m,n){return p[n]});return s}
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function money(n){return t('money',{n:fmt(n)})}
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- calc ---- */
+function parse(s,max,rk){
+ s=String(s);
+ if(s.length>12)return{e:'invalidInteger'};
+ s=s.trim();
+ if(!s)return{e:'required'};
+ if(!(/^(0|[1-9]\d*)$/.test(s)||/^[1-9]\d{0,2}(,\d{3})+$/.test(s)))return{e:'invalidInteger'};
+ var n=+s.replace(/,/g,'');
+ if(n<100||n>max)return{e:rk};
+ if(n%100)return{e:'invalidStep'};
+ return{n:n};
+}
+function combosFor(b,rp,cp){
+ var a=[],r,c;
+ for(r=0;r<=Math.floor(b/rp);r++)for(c=0;c<=Math.floor((b-r*rp)/cp);c++){
+  if(r+c===0)continue;
+  var tot=r*rp+c*cp;
+  a.push({red:r,custard:c,total:tot,left:b-tot,count:r+c,imb:Math.abs(r-c)});
+ }
+ a.sort(function(x,y){return y.count-x.count||x.imb-y.imb||x.left-y.left||y.red-x.red});
+ return a.slice(0,3);
+}
+
+/* ---- state ---- */
+var KEY='bbudget:v1:prices';
+var saved={red:1000,custard:1000};
+if(!demo){try{
+ var o=JSON.parse(localStorage.getItem(KEY));
+ ['red','custard'].forEach(function(k){
+  if(o&&typeof o[k]==='number'){var p=parse(String(o[k]),10000,'priceRange');if(p.n)saved[k]=p.n}
+ });
+}catch(e){}}
+var vals={budget:'3000',red:String(saved.red),custard:String(saved.custard)};
+if(demo)vals={budget:'3000',red:'1000',custard:'1000'};
+var composing={},touched={},sel=0,screen='edit',cur=null,busy={save:false,copy:false};
+var IDS=['budget','red','custard'];
+var SPEC={budget:[30000,'budgetRange'],red:[10000,'priceRange'],custard:[10000,'priceRange']};
+
+function compute(){
+ var p={},ok=true;
+ IDS.forEach(function(k){p[k]=composing[k]?{e:'composing'}:parse(vals[k],SPEC[k][0],SPEC[k][1]);if(p[k].e)ok=false});
+ var r={p:p,ok:ok,combos:[],empty:false};
+ if(ok){
+  var b=p.budget.n,rp=p.red.n,cp=p.custard.n;
+  r.combos=combosFor(b,rp,cp);
+  if(!r.combos.length){r.empty=true;r.shortfall=Math.min(rp,cp)-b}
+ }
+ return r;
+}
+function writePrices(){
+ if(demo)return;
+ try{localStorage.setItem(KEY,JSON.stringify({red:saved.red,custard:saved.custard}))}catch(e){}
+}
+
+/* ---- status ---- */
+var stTimer=0,stLeft=0,stStart=0;
+function setStatus(msg,fail,auto){
+ clearTimeout(stTimer);stTimer=0;stLeft=0;
+ var s=$('status');s.textContent=msg||'';s.className=fail?'fail':'';
+ if(msg&&auto){stLeft=4000;if(!document.hidden)runStatus()}
+}
+function runStatus(){
+ var s=$('status');stStart=Date.now();
+ stTimer=setTimeout(function(){s.textContent='';stTimer=0;stLeft=0},Math.max(stLeft,0));
+}
+document.addEventListener('visibilitychange',function(){
+ if(document.hidden){if(stTimer){clearTimeout(stTimer);stTimer=0;stLeft-=Date.now()-stStart}}
+ else if(stLeft>0&&!stTimer)runStatus();
+});
+
+/* ---- text ---- */
+function applyLang(){
+ document.title=t('appTitle');
+ var m={appTitle:'appTitle',intro:'intro',lBudget:'budgetLabel',lRed:'redPriceLabel',lCustard:'custardPriceLabel',uBudget:'currencyUnit',uRed:'currencyUnit',uCustard:'currencyUnit',hBudget:'budgetHint',hRed:'priceHint',hCustard:'priceHint',viewBag:'viewBag',resetBtn:'resetExample',resHead:'bagTitle',comboTitle:'combinationsTitle',rankNote:'rankingNote',saveBtn:'save',copyBtn:'copy',fbMsg:'manualCopy',fbLabel:'copyTextLabel',fbClose:'close',editBtn:'edit'};
+ for(var id in m)$(id).textContent=t(m[id]);
+ $('noteEdit').textContent=t('exampleNote')+' '+t('unitNote');
+ IDS.forEach(function(k){$(k).value=vals[k]});
+}
+
+/* ---- art ---- */
+function fishRow(type,n){
+ n=Math.min(n,6);if(!n)return '<div class="sp"></div>';
+ var s='<svg viewBox="0 0 190 '+(n>3?80:40)+'" aria-hidden="true">';
+ for(var i=0;i<n;i++)s+='<use href="#'+type+'" x="'+(i%3)*64+'" y="'+Math.floor(i/3)*40+'" width="60" height="36"/>';
+ return s+'</svg>';
+}
+var EMPTY_BAG='<svg class="emp" viewBox="0 0 64 56" aria-hidden="true"><path d="M20 14C20 2 44 2 44 14" fill="none" stroke="#8a5a2b" stroke-width="3"/><path d="M8 14H56L52 54H12Z" fill="#DBAD73" stroke="#8a5a2b" stroke-width="2"/><path d="M8 14H56V20H8Z" fill="#c4935a"/></svg>';
+
+/* ---- render ---- */
+function restart(el,cls){
+ if(demo||reduce)return;
+ el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);
+}
+function update(){
+ cur=compute();
+ IDS.forEach(function(k){
+  var e=cur.p[k].e,show=touched[k]&&e&&e!=='composing';
+  $('e'+k[0].toUpperCase()+k.slice(1)).textContent=show?t(e):'';
+  $(k).setAttribute('aria-invalid',show?'true':'false');
+ });
+ var pv=$('preview'),h;
+ if(!cur.ok)h='<b>'+t('completeInputs')+'</b>';
+ else if(cur.empty)h=EMPTY_BAG+'<b>'+t('emptyTitle')+'</b>'+t('emptyDetail',{shortfall:money(cur.shortfall)})+'<br>'+t('emptyHint');
+ else{var c=cur.combos[0];h='<b>'+t('previewTitle')+'</b><span class="sum">'+t('previewSummary',{red:c.red,custard:c.custard,left:money(c.left)})+'</span>'}
+ pv.innerHTML=h;restart(pv,'fade');
+ $('viewBag').disabled=!(cur.ok&&!cur.empty);
+}
+function snapshot(){
+ var c=cur.combos[sel];
+ return{red:c.red,custard:c.custard,total:c.total,left:c.left,rp:cur.p.red.n,cp:cur.p.custard.n,budget:cur.p.budget.n,lang:lang};
+}
+function shareText(s){
+ return t('shareText',{red:s.red,custard:s.custard,redPrice:money(s.rp),custardPrice:money(s.cp),budget:money(s.budget),total:money(s.total),left:money(s.left)});
+}
+function renderCard(pop){
+ var s=snapshot();
+ $('cardBody').innerHTML=
+  '<div class="grp">'+fishRow('fR',s.red)+'<div><div class="cnt">'+t('redCount',{n:s.red})+'</div><div class="up">'+t('unitPriceLine',{price:money(s.rp)})+'</div></div></div>'+
+  '<div class="grp">'+fishRow('fC',s.custard)+'<div><div class="cnt">'+t('custardCount',{n:s.custard})+'</div><div class="up">'+t('unitPriceLine',{price:money(s.cp)})+'</div></div></div>'+
+  '<dl class="sum"><div><dt>'+t('budget')+'</dt><dd>'+money(s.budget)+'</dd></div><div class="tot"><dt>'+t('total')+'</dt><dd>'+money(s.total)+'</dd></div><div><dt>'+t('left')+'</dt><dd>'+money(s.left)+'</dd></div></dl>'+
+  '<p class="note">'+t('unitNote')+' '+t('exampleNote')+'</p><div class="sig">'+t('brand')+' · play.mesisi.net</div>';
+ if(pop)restart($('card'),'pop');
+ $('live').textContent=t('resultAnnouncement',{red:s.red,custard:s.custard,total:money(s.total),left:money(s.left)});
+ if(!$('fb').hidden)$('fbText').value=shareText(s);
+}
+function renderCombos(){
+ var h='';
+ cur.combos.forEach(function(c,i){
+  var on=i===sel;
+  h+='<button type="button" data-i="'+i+'" aria-pressed="'+on+'" aria-label="'+t('combinationAria',{red:c.red,custard:c.custard,left:money(c.left)})+'"><span><span class="ck" aria-hidden="true">'+(on?'✓':'')+'</span>'+t('combination',{red:c.red,custard:c.custard})+'</span><span class="lf">'+t('combinationLeft',{left:money(c.left)})+'</span></button>';
+ });
+ $('combos').innerHTML=h;
+}
+function markCombos(){
+ Array.prototype.forEach.call($('combos').children,function(b,i){
+  var on=i===sel;b.setAttribute('aria-pressed',on);b.firstChild.firstChild.textContent=on?'✓':'';
+ });
+}
+function show(sc){
+ screen=sc;
+ $('editScreen').hidden=sc!=='edit';$('resultScreen').hidden=sc!=='result';
+ $('intro').hidden=sc!=='edit';
+ $('editScreen').style.display=sc==='edit'?'contents':'none';
+ $('resultScreen').style.display=sc==='result'?'contents':'none';
+}
+function openResult(focus){
+ if(!cur.ok||cur.empty)return;
+ if(sel>=cur.combos.length)sel=0;
+ $('fb').hidden=true;
+ renderCombos();renderCard(true);show('result');
+ setStatus('');
+ $('resScroll').scrollTop=0;
+ if(focus)$('resHead').focus();
+}
+
+/* ---- events ---- */
+function press(e){var b=e.target.closest&&e.target.closest('button');if(b&&!b.disabled)b.classList.add('press')}
+function unpress(){Array.prototype.forEach.call(document.querySelectorAll('button.press'),function(b){b.classList.remove('press')})}
+document.addEventListener('pointerdown',press);
+['pointerup','pointercancel','pointerleave','blur'].forEach(function(n){document.addEventListener(n,unpress,true)});
+
+function commit(k){
+ var p=parse(vals[k],SPEC[k][0],SPEC[k][1]);
+ if(!p.n)return;
+ vals[k]=String(p.n);$(k).value=vals[k];
+ if(k!=='budget'&&saved[k]!==p.n){saved[k]=p.n;writePrices()}
+}
+IDS.forEach(function(k){
+ var el=$(k);
+ el.addEventListener('input',function(e){
+  sel=0;setStatus('');
+  if(e.isComposing){composing[k]=true;update();return}
+  composing[k]=false;vals[k]=el.value;
+  update();
+ });
+ el.addEventListener('compositionstart',function(){composing[k]=true;update()});
+ el.addEventListener('compositionend',function(){composing[k]=false;vals[k]=el.value;sel=0;update()});
+ el.addEventListener('blur',function(){touched[k]=true;composing[k]=false;vals[k]=el.value;commit(k);update()});
+ el.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.isComposing)e.preventDefault()});
+});
+$('editScreen').addEventListener('submit',function(e){
+ e.preventDefault();
+ IDS.forEach(function(k){touched[k]=true;commit(k)});
+ update();
+ if(cur.ok&&!cur.empty)openResult(true);
+});
+$('resetBtn').addEventListener('click',function(){
+ vals={budget:'3000',red:'1000',custard:'1000'};touched={};sel=0;
+ saved={red:1000,custard:1000};writePrices();
+ IDS.forEach(function(k){$(k).value=vals[k]});
+ update();setStatus(t('resetDone'),false,true);
+});
+$('combos').addEventListener('click',function(e){
+ var b=e.target.closest('button');if(!b)return;
+ var i=+b.getAttribute('data-i');if(i===sel)return;
+ sel=i;markCombos();renderCard(true);setStatus('');
+});
+$('editBtn').addEventListener('click',function(){
+ show('edit');setStatus('');$('budget').focus();
+});
+$('saveBtn').addEventListener('click',function(){
+ if(busy.save)return;
+ busy.save=true;$('saveBtn').disabled=true;setStatus(t('saving'));
+ var s=snapshot();
+ exportPng(s).then(function(blob){
+  var a=document.createElement('a');
+  if(lastUrl)URL.revokeObjectURL(lastUrl);
+  var url=lastUrl=URL.createObjectURL(blob);
+  a.href=url;a.download='bungeoppang-budget.png';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){if(lastUrl===url){URL.revokeObjectURL(url);lastUrl=''}},10000);
+  setStatus(t('downloadRequested'),false,true);
+ }).catch(function(){setStatus(t('saveFail'),true)}).then(function(){busy.save=false;$('saveBtn').disabled=false});
+});
+var lastUrl='';
+function legacyCopy(txt){
+ var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
+ ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+ document.body.appendChild(ta);ta.select();
+ var ok=false;try{ok=document.execCommand('copy')}catch(e){}
+ ta.remove();return ok;
+}
+$('copyBtn').addEventListener('click',function(){
+ if(busy.copy)return;
+ busy.copy=true;setStatus(t('copying'));
+ var txt=shareText(snapshot());
+ function ok(){busy.copy=false;setStatus(t('copied'),false,true);$('copyBtn').focus()}
+ function fail(){
+  busy.copy=false;setStatus('');
+  $('fbText').value=txt;$('fb').hidden=false;
+  $('fbText').focus();$('fbText').select();
+ }
+ function fallback(){legacyCopy(txt)?ok():fail()}
+ try{
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,fallback);
+  else fallback();
+ }catch(e){fallback()}
+});
+$('fbClose').addEventListener('click',function(){$('fb').hidden=true;$('copyBtn').focus()});
+
+/* ---- export ---- */
+var FISH='M8 18C14 6 34 4 46 14L58 6L56 18L58 30L46 22C34 32 14 30 8 18Z';
+function drawFish(ctx,x,y,sc,type){
+ var p=new Path2D(FISH);
+ ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+ ctx.fillStyle=type==='R'?'#E7A85B':'#EDB868';ctx.fill(p);
+ ctx.save();ctx.clip(p);
+ if(type==='R'){ctx.strokeStyle='rgba(119,70,90,.55)';ctx.lineWidth=1.6;
+  for(var i=-40;i<80;i+=6){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+36,36);ctx.stroke()}}
+ else{ctx.fillStyle='rgba(185,134,31,.7)';
+  for(var gx=3;gx<60;gx+=7)for(var gy=3;gy<36;gy+=7){ctx.beginPath();ctx.arc(gx,gy,1.2,0,7);ctx.fill()}}
+ ctx.restore();
+ ctx.lineJoin='round';ctx.strokeStyle='#6B4423';ctx.lineWidth=1.5;ctx.stroke(p);
+ ctx.fillStyle='#302A25';ctx.beginPath();ctx.arc(16,15,1.8,0,7);ctx.fill();
+ ctx.fillStyle=type==='R'?'#77465A':'#E5B647';ctx.beginPath();ctx.arc(32,18,5,0,7);ctx.fill();
+ ctx.lineWidth=1;ctx.strokeStyle='#302A25';ctx.stroke();
+ ctx.restore();
+}
+function wrap(ctx,text,maxW,byChar){
+ var units=byChar?(window.Intl&&Intl.Segmenter?Array.from(new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(text),function(x){return x.segment}):Array.from(text)):text.split(' ');
+ var lines=[],line='';
+ units.forEach(function(u){
+  var test=line?(byChar?line+u:line+' '+u):u;
+  if(line&&ctx.measureText(test).width>maxW){lines.push(byChar?line.replace(/\s+$/,''):line);line=u.replace(/^\s+/,'')}
+  else line=test;
+ });
+ if(line)lines.push(line);
+ return lines;
+}
+function exportPng(s){
+ return new Promise(function(res,rej){
+  try{
+   var L=s.lang,T=function(k,p){var x=D[L][k];if(p)x=x.replace(/\{(\w+)\}/g,function(m,n){return p[n]});return x};
+   var M=function(n){return T('money',{n:fmt(n)})};
+   var cv=document.createElement('canvas');cv.width=750;cv.height=1000;
+   var ctx=cv.getContext('2d');
+   var F='system-ui,-apple-system,"Segoe UI",sans-serif',byChar=L==='ko',INK='#302A25';
+   ctx.fillStyle='#FFF7E8';ctx.fillRect(0,0,750,1000);
+   ctx.textBaseline='alphabetic';
+   // title
+   ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 38px '+F;
+   ctx.fillText(T('appTitle'),375,66,690);
+   // bag
+   ctx.strokeStyle='#8a5a2b';ctx.lineWidth=8;ctx.lineCap='round';
+   ctx.beginPath();ctx.moveTo(250,172);ctx.bezierCurveTo(250,100,330,100,330,172);ctx.moveTo(420,172);ctx.bezierCurveTo(420,100,500,100,500,172);ctx.stroke();
+   ctx.fillStyle='#DBAD73';ctx.beginPath();ctx.roundRect(40,170,670,755,[10,10,30,30]);ctx.fill();
+   ctx.fillStyle='#c4935a';ctx.beginPath();ctx.roundRect(40,170,670,36,[10,10,0,0]);ctx.fill();
+   ctx.fillStyle=INK;ctx.font='bold 38px '+F;ctx.fillText(T('bagTitle'),375,258,620);
+   // groups
+   var groups=[['R',s.red,'redCount',s.rp,285],['C',s.custard,'custardCount',s.cp,395]];
+   groups.forEach(function(g){
+    var y=g[4];
+    ctx.strokeStyle='#8a6a3c';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.moveTo(70,y-8);ctx.lineTo(680,y-8);ctx.stroke();ctx.setLineDash([]);
+    var n=Math.min(g[1],6);
+    for(var i=0;i<n;i++)drawFish(ctx,75+(i%3)*72,y+4+Math.floor(i/3)*44,1.1,g[0]);
+    ctx.textAlign='left';ctx.fillStyle=INK;
+    ctx.font='bold 40px '+F;ctx.fillText(T(g[2],{n:g[1]}),335,y+44,355);
+    ctx.font='26px '+F;ctx.fillText(T('unitPriceLine',{price:M(g[3])}),335,y+84,355);
+   });
+   // summary
+   ctx.strokeStyle='#8a6a3c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(70,516);ctx.lineTo(680,516);ctx.stroke();
+   var rows=[['budget',s.budget,'30px',560],['total',s.total,'bold 38px',612],['left',s.left,'30px',662]];
+   rows.forEach(function(r){
+    ctx.font=r[2]+' '+F;ctx.textAlign='left';ctx.fillText(T(r[0]),75,r[3]);
+    ctx.textAlign='right';ctx.fillText(M(r[1]),675,r[3]);
+   });
+   // notes
+   ctx.textAlign='left';ctx.font='26px '+F;
+   var ly=720;
+   wrap(ctx,T('unitNote')+' '+T('exampleNote'),600,byChar).forEach(function(l){ctx.fillText(l,75,ly);ly+=34});
+   // signature
+   ctx.textAlign='center';ctx.fillStyle=INK;ctx.font='bold 28px '+F;
+   ctx.fillText(T('brand')+' · play.mesisi.net',375,970);
+   if(!cv.toBlob){rej();return}
+   cv.toBlob(function(b){b?res(b):rej()},'image/png');
+  }catch(e){rej(e)}
+ });
+}
+
+/* ---- init ---- */
+applyLang();
+update();
+if(demo){sel=0;openResult(false)}
+else show('edit');
+})();
+</script>
+</body>
+</html>
