@@ -1,9 +1,9 @@
 // Static site generator. Usage: node build.mjs
 // Env: SITE_URL (default https://calc.mesisi.net), ADSENSE_CLIENT (e.g. ca-pub-1234567890123456)
-import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, copyFileSync, rmSync, readdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { site, ui, home, pages } from './src/content.mjs';
+import { site, ui, home, pages as basePages } from './src/content.mjs';
 import { salary } from './src/calc.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -13,13 +13,22 @@ const BASE = new URL(SITE_URL).pathname.replace(/\/+$/, '');
 const ADS = /^ca-pub-\d{10,20}$/.test(process.env.ADSENSE_CLIENT || '') ? process.env.ADSENSE_CLIENT : '';
 const LANGS = ['ko', 'en'];
 
+// Extra guides live as one JSON file each in content/guides/ (see content/guides/README.md).
+const GUIDE_DIR = join(ROOT, 'content', 'guides');
+const extraGuides = existsSync(GUIDE_DIR)
+  ? readdirSync(GUIDE_DIR).filter((f) => f.endsWith('.json')).sort()
+    .map((f) => ({ type: 'guide', ...JSON.parse(readFileSync(join(GUIDE_DIR, f), 'utf8')) }))
+  : [];
+const pages = [...basePages, ...extraGuides];
+const dateOf = (p) => p.date || site.updated;
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const path = (lang, slug = '') => `${BASE}/${lang}/${slug ? slug + '/' : ''}`;
 const abs = (p) => new URL(SITE_URL).origin + p;
 const json = (o) => JSON.stringify(o).replace(/</g, '\\u003c');
 const byId = Object.fromEntries(pages.map((p) => [p.id, p]));
 const calcs = pages.filter((p) => p.type === 'calc');
-const guides = pages.filter((p) => p.type === 'guide');
+const guides = pages.filter((p) => p.type === 'guide').sort((a, b) => dateOf(b).localeCompare(dateOf(a)));
 
 function write(rel, content) {
   const file = join(OUT, rel);
@@ -128,7 +137,7 @@ function renderPage(lang, page) {
   if (page.type === 'calc') {
     schema.push({ '@context': 'https://schema.org', '@type': 'WebApplication', name: t.h1, url: abs(path(lang, page.slug)), description: t.desc, applicationCategory: 'FinanceApplication', operatingSystem: 'Any', inLanguage: lang, offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' } });
   } else if (page.type === 'guide') {
-    schema.push({ '@context': 'https://schema.org', '@type': 'Article', headline: t.h1, description: t.desc, inLanguage: lang, dateModified: site.updated, datePublished: site.updated, mainEntityOfPage: abs(path(lang, page.slug)), author: { '@type': 'Organization', name: site.name[lang] }, publisher: { '@type': 'Organization', name: site.name[lang] } });
+    schema.push({ '@context': 'https://schema.org', '@type': 'Article', headline: t.h1, description: t.desc, inLanguage: lang, dateModified: dateOf(page), datePublished: dateOf(page), mainEntityOfPage: abs(path(lang, page.slug)), author: { '@type': 'Organization', name: site.name[lang] }, publisher: { '@type': 'Organization', name: site.name[lang] } });
   }
   const parts = [
     `<p class="crumbs"><a href="${path(lang)}">${esc(u.home)}</a> › ${esc(t.nav)}</p>`,
@@ -143,9 +152,13 @@ function renderPage(lang, page) {
   if (page.table) parts.push(salaryTable(lang, t.cols), fill(t.after, lang));
   if (page.type !== 'calc' && page.type !== 'info') parts.push(adSlot());
   parts.push(faqHtml(lang, t.faq));
+  if (page.sources?.length) {
+    const safe = page.sources.filter(([, url]) => /^https:\/\//.test(url));
+    parts.push(`<h2>${esc(ui[lang].sources)}</h2><ul class="sources">${safe.map(([label, url]) => `<li><a href="${esc(url)}" rel="nofollow noopener">${esc(label)}</a></li>`).join('')}</ul>`);
+  }
   if (page.type !== 'info') {
     parts.push(relatedHtml(lang, page.id));
-    parts.push(`<p class="disclaimer">${esc(u.disclaimer)}<br><span class="updated">${esc(u.updated)}: <time datetime="${site.updated}">${site.updated}</time></span></p>`);
+    parts.push(`<p class="disclaimer">${esc(u.disclaimer)}<br><span class="updated">${esc(u.updated)}: <time datetime="${dateOf(page)}">${dateOf(page)}</time></span></p>`);
   }
   return layout({ lang, slug: page.slug, title: t.title, desc: t.desc, content: parts.filter(Boolean).join('\n'), schema, script: page.type === 'calc' });
 }
@@ -160,10 +173,21 @@ function renderHome(lang) {
 <ul class="grid">${calcs.map(card).join('')}</ul>
 ${adSlot()}
 <h2>${esc(u.guides)}</h2>
-<ul class="grid">${guides.map(card).join('')}</ul>
+<ul class="grid">${guides.slice(0, 9).map(card).join('')}</ul>
+${guides.length > 9 ? `<p><a href="${path(lang, 'guides')}">${esc(u.allGuides)} (${guides.length}) →</a></p>` : ''}
 <p class="disclaimer">${esc(u.disclaimer)}</p>`;
   const schema = [{ '@context': 'https://schema.org', '@type': 'WebSite', name: site.name[lang], url: abs(path(lang)), inLanguage: lang, description: t.desc }];
   return layout({ lang, slug: '', title: t.title, desc: t.desc, content, schema });
+}
+
+function renderGuideIndex(lang) {
+  const u = ui[lang];
+  const card = (p) => `<li><a href="${path(lang, p.slug)}"><strong>${esc(p[lang].nav)}</strong><span>${esc(p[lang].desc)}</span></a></li>`;
+  const content = `<p class="crumbs"><a href="${path(lang)}">${esc(u.home)}</a> › ${esc(u.guides)}</p>
+<h1>${esc(u.guides)}</h1>
+<ul class="grid">${guides.map(card).join('')}</ul>
+${relatedHtml(lang, '')}`;
+  return layout({ lang, slug: 'guides', title: `${u.guides} – ${site.name[lang]}`, desc: home[lang].desc, content });
 }
 
 // ---- build ----
@@ -172,7 +196,9 @@ for (const lang of LANGS) {
   write(`${lang}/index.html`, renderHome(lang));
   for (const page of pages) write(`${lang}/${page.slug}/index.html`, renderPage(lang, page));
 }
-const slugs = ['', ...pages.map((p) => p.slug)];
+for (const lang of LANGS) write(`${lang}/guides/index.html`, renderGuideIndex(lang));
+const entries = [{ slug: '', date: guides.length ? dateOf(guides[0]) : site.updated }, { slug: 'guides', date: guides.length ? dateOf(guides[0]) : site.updated }, ...pages.map((p) => ({ slug: p.slug, date: dateOf(p) }))];
+const slugs = entries.map((e) => e.slug);
 
 write('index.html', `<!doctype html>
 <html lang="en">
@@ -203,7 +229,7 @@ write('404.html', layout({ lang: 'en', slug: '', title: 'Page not found – WonC
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${slugs.flatMap((slug) => LANGS.map((lang) => `<url><loc>${abs(path(lang, slug))}</loc><lastmod>${site.updated}</lastmod>${LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${abs(path(l, slug))}"/>`).join('')}</url>`)).join('\n')}
+${entries.flatMap(({ slug, date }) => LANGS.map((lang) => `<url><loc>${abs(path(lang, slug))}</loc><lastmod>${date}</lastmod>${LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${abs(path(l, slug))}"/>`).join('')}</url>`)).join('\n')}
 </urlset>
 `;
 write('sitemap.xml', sitemap);

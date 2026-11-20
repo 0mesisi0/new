@@ -1,0 +1,38 @@
+{
+  "id": "changes2027",
+  "slug": "2027-pay-changes",
+  "date": "2026-11-20",
+  "sources": [
+    ["Taxnet: 2027년 최저임금 시간급 10,700원", "https://www.taxnet.co.kr/contents/taxnetpost/post-detail?id=4905"],
+    ["서울신문: 내년 장기요양보험료율 인상 (2026-10-30)", "https://m.seoul.co.kr/news/newsView.php?id=20261030500322"],
+    ["2027년 건강보험료율 7.19% 동결", "https://asiatop.co.kr/insurance-labor/health-insurance-rate-2027-frozen/"],
+    ["국민연금 기준소득월액 상·하한 (2026.7.1 적용)", "https://www.bizforms.co.kr/smartblock/jul2026_npscap.asp"],
+    ["2026년 4대보험 요율 인상표", "https://taxguide.im/blog/social-insurance-rate-increase-guide"]
+  ],
+  "ko": {
+    "nav": "2027년 달라지는 월급",
+    "title": "2027년 달라지는 월급·노동 제도 총정리 – 최저임금·국민연금·건강보험",
+    "desc": "2027년 1월부터 최저임금은 10,700원, 국민연금은 10.0%로 오르고 건강보험료율은 7.19%로 동결됩니다. 월급 명세서에서 무엇이 얼마나 바뀌는지 정리했습니다.",
+    "h1": "2027년에 달라지는 월급·노동 제도",
+    "lead": "2027년 1월 급여부터 최저임금과 국민연금·장기요양보험 요율이 오르고, 건강보험료율은 그대로입니다. 결과적으로 같은 월급이라면 실수령액은 조금 줄어듭니다.",
+    "body": "<h2>한눈에 보는 변화</h2><div class=\"table-scroll\"><table><thead><tr><th>항목</th><th>2026년</th><th>2027년</th></tr></thead><tbody><tr><td>최저임금 (시급)</td><td>10,320원</td><td>10,700원</td></tr><tr><td>최저임금 (월 209시간)</td><td>2,156,880원</td><td>2,236,300원</td></tr><tr><td>국민연금 (근로자 부담)</td><td>4.75%</td><td>5.0%</td></tr><tr><td>건강보험 (근로자 부담)</td><td>3.595%</td><td>3.595% (동결)</td></tr><tr><td>장기요양보험 (소득 대비 전체)</td><td>0.9448%</td><td>0.9994%</td></tr><tr><td>고용보험 (근로자 부담)</td><td>0.9%</td><td>0.9%</td></tr></tbody></table></div><h2>최저임금: 시급 10,700원</h2><p>2027년 최저임금은 2026년보다 380원(3.7%) 오른 시급 10,700원입니다. 주 40시간 일하는 근로자의 월 환산액은 2,236,300원으로 한 달에 79,420원 늘어납니다. 자세한 내용은 <a href=\"{{minwage}}\">2027년 최저임금 정리</a>에서 볼 수 있습니다.</p><h2>국민연금: 매년 0.5%p씩 인상</h2><p>연금개혁에 따라 국민연금 보험료율은 2026년 9.5%에서 2027년 10.0%로 오르고, 2033년 13%가 될 때까지 해마다 0.5%p씩 오릅니다. 회사와 절반씩 내므로 근로자 부담은 4.75%에서 5.0%가 됩니다. 기준소득월액 상한은 659만 원(2026년 7월~2027년 6월)이라 그 이상 버는 사람은 월 최대 약 16,470원이 더 빠집니다.</p><h2>건강보험은 동결, 장기요양보험은 인상</h2><p>2027년 건강보험료율은 7.19%로 그대로입니다. 반면 건강보험료와 함께 걷는 장기요양보험료율은 소득 대비 0.9448%에서 0.9994%로 오릅니다. 건강보험료 대비 비율로는 13.14%에서 13.90%입니다.</p><h2>내 월급은 얼마나 줄어드나</h2><p>과세 월급이 300만 원이라면 2027년 공제액은 2026년보다 월 약 8,300원 늘어납니다. 국민연금이 7,500원, 장기요양보험이 약 800원 더 나갑니다. 내 연봉으로 확인하려면 <a href=\"{{salary}}\">연봉 실수령액 계산기</a>에서 적용 연도를 2026년과 2027년으로 바꿔 비교해 보세요.</p><h2>그대로인 것</h2><ul><li>고용보험료율 (근로자 0.9%)</li><li>실업급여 1일 상한액 68,100원 (2026년 1월 이후 퇴사자 기준, 2027년 변경 여부는 미정)</li><li>소득세 세율 구간</li></ul>",
+    "faq": [
+      ["2027년 최저임금은 언제부터 적용되나요?", "2027년 1월 1일부터 적용됩니다. 2026년 12월분 급여까지는 10,320원 기준입니다."],
+      ["국민연금이 오르면 나중에 받는 연금도 늘어나나요?", "더 많이 낸 만큼 가입 기간 동안의 보험료 총액이 늘어 노후 연금액 산정에 반영됩니다. 다만 받는 금액은 소득대체율과 가입 기간에 따라 달라집니다."],
+      ["건강보험료가 동결이면 내 건강보험료도 그대로인가요?", "요율은 그대로지만 월급이 오르면 보험료도 그만큼 늘어납니다. 장기요양보험료는 요율이 올라 조금 더 나갑니다."]
+    ]
+  },
+  "en": {
+    "nav": "What changes in 2027",
+    "title": "What Changes for Workers in Korea in 2027: Wage, Pension, Insurance",
+    "desc": "From January 2027 Korea's minimum wage rises to ₩10,700 an hour and the National Pension rate to 10%, while the health insurance rate is frozen. Here is what it means for your payslip.",
+    "h1": "What changes for workers in Korea in 2027",
+    "lead": "From January 2027 pay, the minimum wage, the National Pension rate and the long-term care rate all go up, while the health insurance rate stays the same. For the same salary, take-home pay falls slightly.",
+    "body": "<h2>At a glance</h2><div class=\"table-scroll\"><table><thead><tr><th></th><th>2026</th><th>2027</th></tr></thead><tbody><tr><td>Minimum wage (hourly)</td><td>₩10,320</td><td>₩10,700</td></tr><tr><td>Minimum wage (209 hours/month)</td><td>₩2,156,880</td><td>₩2,236,300</td></tr><tr><td>National Pension (employee)</td><td>4.75%</td><td>5.0%</td></tr><tr><td>Health Insurance (employee)</td><td>3.595%</td><td>3.595% (frozen)</td></tr><tr><td>Long-term Care (total, % of income)</td><td>0.9448%</td><td>0.9994%</td></tr><tr><td>Employment Insurance (employee)</td><td>0.9%</td><td>0.9%</td></tr></tbody></table></div><h2>Minimum wage: ₩10,700 an hour</h2><p>The 2027 minimum wage is ₩10,700 an hour, up ₩380 (3.7%). For a 40-hour week that is ₩2,236,300 a month, ₩79,420 more than in 2026. It applies to every worker in Korea, whatever their nationality or visa. See the <a href=\"{{minwage}}\">2027 minimum wage guide</a> for daily and weekly figures.</p><h2>National Pension: up half a point a year</h2><p>Under the pension reform, the contribution rate rises from 9.5% to 10.0% in 2027 and keeps rising by 0.5 points a year until it reaches 13% in 2033. You and your employer split it, so your share goes from 4.75% to 5.0%. Contributions are capped at ₩6.59 million of monthly income, so high earners pay at most about ₩16,470 a month more.</p><p>If you are a foreign worker, check whether you can claim your pension contributions back as a lump sum when you leave Korea. That depends on your nationality.</p><h2>Health insurance frozen, long-term care up</h2><p>The health insurance rate stays at 7.19% in 2027. The long-term care premium collected with it rises from 0.9448% to 0.9994% of income (from 13.14% to 13.90% of your health premium).</p><h2>How much less will I take home?</h2><p>On ₩3 million of taxable monthly pay, deductions rise by about ₩8,300 a month: ₩7,500 more for pension and roughly ₩800 more for long-term care. Compare both years for your own salary in the <a href=\"{{salary}}\">net salary calculator</a>.</p><h2>What stays the same</h2><ul><li>Employment Insurance (0.9% employee share)</li><li>The ₩68,100 daily cap on unemployment benefit (for people who left work from January 2026; no 2027 change announced yet)</li><li>Income tax brackets</li></ul>",
+    "faq": [
+      ["When does the 2027 minimum wage start?", "On 1 January 2027. Pay for work up to 31 December 2026 uses ₩10,320."],
+      ["Do foreigners have to pay the higher pension rate?", "If you are enrolled in the National Pension, yes. Whether you are enrolled depends on your visa and on whether your home country has a reciprocal arrangement with Korea."],
+      ["Will my health insurance premium stay the same?", "The rate is frozen, but your premium still rises if your pay goes up. The long-term care part rises slightly because its rate increases."]
+    ]
+  }
+}
