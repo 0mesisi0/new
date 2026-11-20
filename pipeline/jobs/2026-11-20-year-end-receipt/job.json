@@ -2,16 +2,18 @@
   "id": "2026-11-20-year-end-receipt",
   "site": "play",
   "slug": "year-end-receipt",
-  "status": "running",
-  "stage": "build",
+  "status": "review",
+  "stage": "publish",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
-  "pr": 6,
+  "pr": 7,
   "artifacts": {
     "research": "01-research.md",
     "idea": "02-idea.md",
-    "coverPrompt": "03-cover-prompt.md"
+    "coverPrompt": "03-cover-prompt.md",
+    "build": "play/items/year-end-receipt/",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -47,6 +49,34 @@
       "status": "queued",
       "by": "claude",
       "note": "cover prompt handed to the owner via Google Drive (ChatGPT/Gemini app); optional"
+    },
+    {
+      "at": "2026-11-20T12:55:00Z",
+      "stage": "build",
+      "status": "approved",
+      "by": "claude (opus)",
+      "note": "npm test + QA pass; 53 KB"
+    },
+    {
+      "at": "2026-11-20T13:01:29Z",
+      "stage": "publish",
+      "status": "published",
+      "by": "owner",
+      "note": "PR #6 merged by the owner before the review finished; deploy run passed test + QA"
+    },
+    {
+      "at": "2026-11-20T13:02:00Z",
+      "stage": "review",
+      "status": "review",
+      "by": "claude (sonnet, fallback for codex)",
+      "note": "verdict CHANGES: 1 blocking (40 px mute button), 7 improvements"
+    },
+    {
+      "at": "2026-11-20T13:10:00Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "claude",
+      "note": "fixed blocking #1 and improvements 1-4; 5-7 deferred (snow throttle, iOS sandboxed-download fallback not needed: iframe is not sandboxed, key hints)"
     }
   ]
 }
