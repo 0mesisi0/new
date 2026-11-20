@@ -8,6 +8,7 @@ import { categories } from '../src/site.mjs';
 const ITEMS = join(dirname(fileURLToPath(import.meta.url)), '..', 'items');
 const dirs = existsSync(ITEMS) ? readdirSync(ITEMS).filter((d) => statSync(join(ITEMS, d)).isDirectory()) : [];
 const CATS = new Set(categories.map((c) => c.id));
+const MEDIA_EXT = /\.(png|jpe?g|webp|gif|svg|mp4|webm)$/i;
 const RESERVED = new Set(['c', 'items', 'assets', 'about', 'privacy', 'ko', 'en']);
 
 for (const d of dirs) {
@@ -32,7 +33,22 @@ for (const d of dirs) {
       assert.ok(t.desc.length >= 20 && t.desc.length <= 180, `${lang}.desc length ${t.desc.length}`);
     }
     const html = readFileSync(htmlFile, 'utf8');
-    assert.ok(Buffer.byteLength(html) <= 150 * 1024, 'index.html over 150 KB');
+    // Media files live flat next to index.html (the build copies top-level files only). There is no size limit.
+    const dir = join(ITEMS, d);
+    for (const f of readdirSync(dir)) {
+      assert.ok(statSync(join(dir, f)).isFile(), `${f}: subfolders are not copied by the build`);
+      if (['index.html', 'meta.json', 'thumb.png', 'cover.png'].includes(f)) continue; // site assets, not item art
+      assert.match(f, MEDIA_EXT, `${f}: allowed media types are png, jpg, webp, gif, svg, mp4, webm`);
+      if (m.kind === 'game') assert.match(f, /\.svg$/i, `${f}: games draw with SVG, canvas or CSS; raster images and video are for tools`);
+    }
+    if (m.kind === 'game') assert.doesNotMatch(html, /data:(image\/(png|jpe?g|webp|gif)|video\/)/i, 'games may not inline raster images or video');
+    // Every relative asset reference must be ./file in this folder and must exist.
+    for (const m of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']|(?<![\w$.])url\(\s*["']?([^"')]+?)["']?\s*\)/gi)) {
+      const ref = m[1] || m[2];
+      if (/^(data:|blob:|#)/i.test(ref)) continue;
+      assert.match(ref, /^\.\/[A-Za-z0-9._-]+$/, `asset reference "${ref}" must be ./file in the item folder`);
+      assert.ok(existsSync(join(dir, ref)), `referenced file ${ref} is missing`);
+    }
     assert.match(html, /<head>/i, 'needs a plain <head> tag');
     assert.match(html, /<meta[^>]+viewport/i, 'viewport meta');
     assert.doesNotMatch(html, /\b(src|href)\s*=\s*["']?(https?:)?\/\//i, 'no external src/href');

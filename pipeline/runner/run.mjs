@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 // Windows-friendly pipeline runner for the owner's PC. No dependencies; Node 20+.
 // It calls the AI CLIs that are already signed in on this PC (Codex CLI with a ChatGPT login,
-// Antigravity/Gemini CLI with a Google login), passes each one a short instruction that points
+// Claude Code CLI with a Claude login), passes each one a short instruction that points
 // at a brief file, saves the result as the next stage file, and pushes it to the `pipeline-inbox`
 // branch. Claude (cloud) picks the files up from there. No API keys, no shared credentials.
 //
 //   node pipeline/runner/run.mjs doctor              check git, node and each CLI
-//   node pipeline/runner/run.mjs daily               research (gemini) -> idea (codex) for a new job
+//   node pipeline/runner/run.mjs daily               research (claude) -> idea (codex) for a new job
 //   node pipeline/runner/run.mjs research [--job id] one stage only
 //   node pipeline/runner/run.mjs idea --job id
 //   node pipeline/runner/run.mjs review --job id     codex reviews the built item against the spec
-//   node pipeline/runner/run.mjs feedback            weekly vote analysis (gemini) + next ideas (codex)
+//   node pipeline/runner/run.mjs feedback            weekly vote analysis and next ideas (codex)
 //   node pipeline/runner/run.mjs status              list jobs
 // Flags: --no-push (local only), --dry-run (write briefs, do not call agents), --config path
 import { spawn, spawnSync } from 'node:child_process';
@@ -50,7 +50,7 @@ function newJob() {
   let id = `${today()}-pending`;
   for (let i = 2; existsSync(join(JOBS, id)); i++) id = `${today()}-pending-${i}`;
   mkdirSync(join(JOBS, id), { recursive: true });
-  const job = { id, site: 'play', slug: null, status: 'queued', stage: 'research', attempts: 0, maxAttempts: CONFIG.maxAttempts || 3, owner: 'gemini', pr: null, artifacts: {}, history: [] };
+  const job = { id, site: 'play', slug: null, status: 'queued', stage: 'research', attempts: 0, maxAttempts: CONFIG.maxAttempts || 3, owner: 'claude', pr: null, artifacts: {}, history: [] };
   saveJob(job);
   return job;
 }
@@ -91,6 +91,7 @@ function runAgent(agentName, instruction, outFile) {
     const child = isWin
       ? spawn([a.cmd, ...argv].map(quoteWin).join(' '), { cwd: REPO, shell: true, windowsHide: true })
       : spawn(a.cmd, argv, { cwd: REPO });
+    child.stdin.end(); // codex and claude wait for stdin EOF when it is a pipe, which hung every run
     let out = '';
     let err = '';
     child.stdout.on('data', (d) => { out += d; });
@@ -109,11 +110,11 @@ function runAgent(agentName, instruction, outFile) {
 // ---------- stages ----------
 const STAGES = {
   research: {
-    agent: 'gemini', file: '01-research.md', next: 'idea',
+    agent: 'claude', file: '01-research.md', next: 'idea',
     async brief(job) {
       return `# Research brief (${job.id})
 
-You are the RESEARCHER for "하루한판 / Daily Toybox" (${CONFIG.siteUrl}), a bilingual Korean/English site that publishes one original browser creation per day. Categories: games, cool pages, weird web, learn, tech, info, tools, random (pickers/ladders), radio (sound generated in the browser), fortune. Every item is ONE self-contained HTML file with no network access, and must be original (genre mechanics are fine; copying a specific product's name, characters, art or levels is not).
+You are the RESEARCHER for "하루한판 / Daily Toybox" (${CONFIG.siteUrl}), a bilingual Korean/English site that publishes one original browser creation per day. Categories: games, cool pages, weird web, learn, tech, info, tools, random (pickers/ladders), radio (sound generated in the browser), fortune. Every item is one self-contained folder (an index.html plus optional images and short video files, no network access), and must be original (genre mechanics are fine; copying a specific product's name, characters, art or levels is not).
 
 Existing items:
 ${itemsList().join('\n') || '(none)'}
@@ -180,7 +181,7 @@ Reply with ONLY a Markdown document:
     check(text) { return /## Verdict\s*\n+\s*(PASS|CHANGES)/.test(text) ? null : 'missing verdict'; },
   },
   feedback: {
-    agent: 'gemini', file: '06-feedback.md', next: null,
+    agent: 'codex', file: '06-feedback.md', next: null,
     async brief(job) {
       return `# Feedback brief (${job.id})
 
