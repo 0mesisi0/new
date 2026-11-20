@@ -6,4 +6,4 @@ compatibility_date = "2025-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "daily-toybox-votes"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "281e062b-c443-4a2a-aca7-7517865e24cb"
