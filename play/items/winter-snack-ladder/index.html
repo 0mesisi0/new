@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>겨울 간식 사다리</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFF4DE;color:#39271F;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+#app{width:100vw;height:100vh;height:100dvh;display:flex;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.col{width:min(100%,480px);height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:10px 12px}
+h1{margin:0;font-size:22px;line-height:1.2;text-align:center}
+h2{margin:0;font-size:18px;line-height:1.25}
+p{margin:0}
+.sub{font-size:14px;line-height:1.35;text-align:center}
+#main{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
+#act{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+.btn{min-height:46px;padding:8px 12px;border-radius:14px;border:3px solid #39271F;background:#FFFCF5;font-size:16px;font-weight:700;line-height:1.2}
+.btn.pri{background:#943E2E;color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible,textarea:focus-visible{outline:4px solid #315A4A;outline-offset:2px}
+.btn.big{min-height:52px;font-size:18px}
+#st{min-height:22px;font-size:14px;text-align:center;color:#315A4A;font-weight:600}
+.bags{display:grid;gap:6px}
+.bag{position:relative;min-width:48px;min-height:56px;height:60px;width:100%;max-width:84px;margin:0 auto;border:0;background:none;padding:0}
+.bag svg{width:100%;height:100%;display:block;overflow:visible}
+.bag b{position:absolute;left:0;right:0;top:44%;font-size:20px;line-height:1}
+.bag.sel{transform:translateY(3px)}
+.bag.sel path{stroke-width:5}
+.bag[aria-disabled=true]{cursor:default}
+#lad{position:relative;flex:1 1 auto;min-height:80px;touch-action:none}
+#lad svg{position:absolute;left:0;top:0;display:block}
+.res #lad{flex:0 0 84px}
+.slots{display:grid;gap:6px}
+.slot{min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:3px 2px;border-radius:10px;border:2px solid transparent;font-size:12px;line-height:1.15;text-align:center;font-weight:600;overflow-wrap:anywhere}
+.slot svg{width:30px;height:30px;flex:none}
+.slot.cov{background:#FFFCF5;border:2px dashed #39271F;justify-content:center;font-size:18px;font-weight:800}
+.slot.win{background:#FFFCF5;border:3px solid #39271F;box-shadow:0 0 0 3px #D88A16}
+.slot.pop{animation:pop .45s ease-out}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+.card{display:flex;align-items:center;gap:12px;background:#FFFCF5;border:3px solid #39271F;border-radius:16px;padding:8px 10px}
+.card .ill{width:clamp(52px,14dvh,92px);height:clamp(52px,14dvh,92px);flex:none}
+.card svg{width:100%;height:100%;display:block}
+.card .nm{font-size:20px;font-weight:800;line-height:1.2}
+.card .cp{font-size:14px;line-height:1.35;margin-top:4px}
+.pill{align-self:flex-start;background:#315A4A;color:#fff;font-size:14px;font-weight:700;border-radius:999px;padding:2px 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tg{position:relative;min-height:64px;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:14px;border:2px solid #39271F;background:#FFFCF5;font-size:15px;font-weight:700;text-align:left;line-height:1.2}
+.tg svg{width:40px;height:40px;flex:none}
+.tg i{display:none;position:absolute;right:6px;top:4px;font-style:normal;color:#fff;background:#315A4A;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:13px}
+.tg[aria-pressed=true]{border-width:5px;padding:4px 6px}
+.tg[aria-pressed=true] i{display:block}
+.cnt{font-size:14px;font-weight:700}
+textarea{width:100%;min-height:110px;flex:1 1 auto;border:3px solid #39271F;border-radius:12px;padding:10px;font:inherit;font-size:16px;background:#FFFCF5;color:#39271F;resize:none}
+h2:focus{outline:none}
+@media(max-height:620px){
+.col{gap:4px;padding:6px 10px}
+h1{font-size:18px}
+h2{font-size:16px}
+#main{gap:4px}
+.res #lad{flex-basis:44px;min-height:44px}
+.slots{gap:4px}
+.slot{min-height:38px;font-size:11px;padding:2px 1px}
+.slot svg{width:22px;height:22px}
+.card{gap:8px;padding:4px 8px;border-width:2px}
+.card .ill{width:44px;height:44px}
+.card .nm{font-size:16px}
+.card .cp{font-size:12px;line-height:1.25;margin-top:2px}
+.pill{font-size:12px;padding:1px 10px}
+.btn{min-height:44px;padding:4px 10px}
+.btn.big{min-height:44px;font-size:16px}
+#act{gap:4px}
+#st{min-height:16px;font-size:12px}
+.bag{min-height:48px;height:48px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><div class="col">
+<header><h1 id="ttl"></h1></header>
+<main id="main"></main>
+<footer id="act"></footer>
+</div></div>
+<script>
+(function(){
+'use strict';
+var T={
+ko:{coveredMark:'?',bagNumber:'{n}',appTitle:'겨울 간식 사다리',readyHint:'봉투 하나 고르면 오늘의 간식 도착!',candidateSummary:'오늘의 후보: {names}',changeSnacks:'간식 바꾸기',bagLabel:'{n}번 봉투 고르기',coveredSlotLabel:'아직 공개되지 않은 간식',editorTitle:'어떤 간식으로 고를까요?',editorHint:'후보를 2~4개 골라 주세요.',selectionCount:'{n}/4개 선택',selectionMin:'간식을 2개 이상 골라 주세요.',selectionMax:'최대 4개예요. 하나를 빼고 골라 주세요.',back:'뒤로',applySelection:'이 간식들로 고르기',drawing:'간식 찾으러 가는 중…',resultHeading:'오늘의 간식은',chosenBag:'{n}번 봉투',resultAnnouncement:'{n}번 봉투의 간식은 {snack}입니다.',copy:'결과 복사',again:'다시 뽑기',copied:'결과를 복사했어요.',copyFallbackTitle:'결과를 직접 복사해 주세요',copyFallbackHint:'아래 글을 길게 누르거나 Ctrl+C / ⌘C로 복사해 주세요.',shareTextLabel:'복사할 결과',backToResult:'결과로 돌아가기',readyDiagramLabel:'봉투를 고르면 간식으로 이어지는 사다리가 나타나요.',resultDiagramLabel:'{n}번 봉투에서 {snack}까지 이어진 사다리',
+share:'오늘의 겨울 간식: {snack}\n{n}번 봉투가 골라 줬어요.\n{caption}\n겨울 간식 사다리 · play.mesisi.net',
+names:{'red-bean':'팥 붕어빵','custard':'슈크림 붕어빵','hotteok':'호떡','sweet-potato':'군고구마','fishcake':'어묵','chestnut':'군밤'},
+caps:{'red-bean':'꼬리부터? 머리부터? 첫 입은 자유예요.','custard':'바삭한 겉옷 안에 달콤함이 숨어 있어요.','hotteok':'오늘의 동그란 행복, 한 장 나왔어요.','sweet-potato':'보랏빛 외투 속에 노란 겨울이 있어요.','fishcake':'김이 모락모락, 겨울 간식 등장!','chestnut':'작은 밤 한 알에 겨울을 담았어요.'}},
+en:{coveredMark:'?',bagNumber:'{n}',appTitle:'Winter Snack Ladder',readyHint:'Pick a bag to find your winter snack!',candidateSummary:'Today’s candidates: {names}',changeSnacks:'Change snacks',bagLabel:'Choose bag {n}',coveredSlotLabel:'Unrevealed snack',editorTitle:'Which snacks are in?',editorHint:'Choose 2–4 snacks.',selectionCount:'{n}/4 selected',selectionMin:'Choose at least 2 snacks.',selectionMax:'Up to 4 snacks. Remove one before adding another.',back:'Back',applySelection:'Use these snacks',drawing:'Following the trail to your snack…',resultHeading:'Your winter snack is',chosenBag:'Bag {n}',resultAnnouncement:'Bag {n} leads to {snack}.',copy:'Copy result',again:'Draw again',copied:'Result copied.',copyFallbackTitle:'Copy your result manually',copyFallbackHint:'Touch and hold the text, or press Ctrl+C / ⌘C to copy.',shareTextLabel:'Result text to copy',backToResult:'Back to result',readyDiagramLabel:'Pick a bag to reveal its ladder route to a snack.',resultDiagramLabel:'Ladder from bag {n} to {snack}',
+share:'My winter snack: {snack}\nPicked by bag {n}.\n{caption}\nWinter Snack Ladder · play.mesisi.net',
+names:{'red-bean':'Red-bean pastry','custard':'Custard pastry','hotteok':'Hotteok','sweet-potato':'Roasted sweet potato','fishcake':'Fish cake','chestnut':'Roasted chestnuts'},
+caps:{'red-bean':'Tail first or head first? Your first bite, your rules.','custard':'A crisp little coat with a sweet surprise inside.','hotteok':'One round serving of happiness, coming right up.','sweet-potato':'A little golden winter inside a purple coat.','fishcake':'A curl of steam, and your winter snack appears!','chestnut':'A tiny chestnut carrying a little winter.'}}
+};
+var lang=new URLSearchParams(location.search).get('lang');
+if(lang!=='ko'&&lang!=='en')lang=(navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en';
+var L=T[lang];
+document.documentElement.lang=lang;
+document.title=L.appTitle;
+function f(s,v){return s.replace(/\{(\w+)\}/g,function(m,k){return v&&v[k]!=null?v[k]:''})}
+
+var POOL=['red-bean','custard','hotteok','sweet-potato','fishcake','chestnut'];
+var DEF=['red-bean','custard','hotteok','sweet-potato'];
+var KEY='wsl:v1:candidates';
+var ART={
+'red-bean':'<path d="M90 60 L110 42 L106 60 L110 78 Z" fill="#d98236"/><path d="M52 28 C64 20 74 22 76 32" fill="#d98236"/><path d="M52 92 C64 100 74 98 76 88" fill="#d98236"/><path d="M12 60 C12 36 38 26 66 30 C82 32 92 46 92 60 C92 74 82 88 66 90 C38 94 12 84 12 60 Z" fill="#f3a64b"/><path d="M40 35 C45 48 45 72 40 85" fill="none"/><circle cx="28" cy="52" r="3" fill="#3b2418" stroke="none"/><path d="M56 54 C62 46 74 48 75 56 C76 64 66 72 58 68 C52 65 52 58 56 54 Z" fill="#7c2929" stroke-width="4"/>',
+'custard':'<path d="M84 44 C94 24 110 22 106 38 C102 48 92 50 86 52 Z" fill="#e59838"/><path d="M84 54 C96 52 112 62 104 74 C98 80 88 68 82 62 Z" fill="#e59838"/><path d="M40 28 C44 16 60 16 64 28" fill="#e59838"/><path d="M14 68 C10 46 30 26 58 28 C76 29 88 42 86 56 C84 74 64 92 38 90 C22 89 16 80 14 68 Z" fill="#f9c252"/><path d="M36 36 C42 46 42 66 34 78" fill="none"/><circle cx="26" cy="56" r="3" fill="#3b2418" stroke="none"/><path d="M58 58 C58 54 64 54 64 58 C64 64 54 64 54 58 C54 48 70 48 70 58 C70 70 50 70 49 58" fill="none" stroke="#fff3c4" stroke-width="5"/>',
+'hotteok':'<path d="M12 56 L12 68 A48 35 0 0 0 108 68 L108 56 Z" fill="#c7762c"/><ellipse cx="60" cy="56" rx="48" ry="35" fill="#f0a848"/><path d="M60 56 C60 52 67 52 67 56 C67 62 53 62 53 56 C53 46 75 46 75 56 C75 68 45 68 44 56" fill="none" stroke="#6b2e14" stroke-width="5"/><ellipse cx="44" cy="40" rx="3.5" ry="2.5" fill="#fff2cc" stroke="none"/><ellipse cx="78" cy="42" rx="3.5" ry="2.5" fill="#fff2cc" stroke="none"/>',
+'sweet-potato':'<path d="M16 94 C12 76 34 46 66 32 L84 56 C62 84 32 102 16 94 Z" fill="#823456"/><path d="M74 26 C88 18 106 24 106 38 C106 50 96 58 84 56 L66 32 C68 29 71 27 74 26 Z" fill="#f6c645"/><ellipse cx="83" cy="41" rx="14" ry="18" transform="rotate(-35 83 41)" fill="#fde073"/><path d="M34 76 L44 70 M48 62 L56 58" fill="none" stroke-width="4"/>',
+'fishcake':'<line x1="22" y1="98" x2="88" y2="32" stroke="#c88d55" stroke-width="6"/><path d="M36 74 C28 66 38 56 46 64 C54 72 64 62 56 54 C48 46 58 36 66 44 C74 52 84 42 76 34 L86 24 C96 34 86 48 76 56 C66 64 76 74 66 84 C56 94 46 84 36 74 Z" fill="#f3c57b"/><path d="M32 42 C24 34 38 26 30 16" fill="none" stroke="#9ec5cf" stroke-width="4"/><path d="M48 30 C42 22 54 16 48 8" fill="none" stroke="#9ec5cf" stroke-width="4"/>',
+'chestnut':'<path d="M38 22 C54 22 68 38 68 58 C68 72 56 80 38 80 C20 80 10 72 10 58 C10 38 22 22 38 22 Z" fill="#7a3b24"/><path d="M16 70 C24 64 52 64 60 70 C54 78 46 80 38 80 C30 80 22 78 16 70 Z" fill="#d9b282"/><path d="M78 42 C96 42 110 58 110 78 C110 92 98 100 78 100 C58 100 46 92 46 78 C46 58 60 42 78 42 Z" fill="#8f462b"/><path d="M52 90 C62 84 94 84 104 90 C96 98 88 100 78 100 C68 100 60 98 52 90 Z" fill="#e6c396"/><path d="M64 64 Q78 72 92 64" fill="none" stroke="#fbd45b" stroke-width="5"/>'
+};
+function icon(id){return '<svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g stroke="#3b2418" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">'+ART[id]+'</g></svg>'}
+
+var DEMO=location.hash==='#demo';
+function loadCands(){
+  if(DEMO)return DEF.slice();
+  try{
+    var a=JSON.parse(localStorage.getItem(KEY));
+    if(Array.isArray(a)&&a.length>=2&&a.length<=4&&new Set(a).size===a.length&&a.every(function(x){return POOL.indexOf(x)>=0}))
+      return POOL.filter(function(x){return a.indexOf(x)>=0});
+  }catch(e){}
+  return DEF.slice();
+}
+function saveCands(c){try{localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}}
+
+function rnd(n){
+  try{
+    var lim=Math.floor(4294967296/n)*n,a=new Uint32Array(1);
+    do{crypto.getRandomValues(a)}while(a[0]>=lim);
+    return a[0]%n;
+  }catch(e){return Math.floor(Math.random()*n)}
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function step(pos,p){return pos===p?p+1:pos===p+1?p:pos}
+
+var DUR=1600;
+var cands=loadCands(),view='ready',prev='ready',draft=[],draw=null;
+var elapsed=0,last=0,raf=0,copying=false,ct=0;
+var $=function(s){return document.querySelector(s)};
+var main=$('#main'),act=$('#act');
+$('#ttl').textContent=L.appTitle;
+var rmq=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
+
+function setStatus(t){clearTimeout(ct);var s=$('#st');if(s)s.textContent=t||''}
+
+function startDraw(bag){
+  if(view!=='ready'||bag<0||bag>=cands.length)return;
+  view='draw';
+  var N=cands.length,rows=[];
+  for(var k=0;k<12;k++)rows.push(rnd(N-1));
+  setDraw(bag,rows,shuffle(cands.slice()));
+  elapsed=0;
+  if(rmq.matches){finish(false);return}
+  render();run();
+}
+function setDraw(bag,rows,bottom){
+  var pos=bag;rows.forEach(function(p){pos=step(pos,p)});
+  draw={bag:bag,rows:rows,bottom:bottom,end:pos,win:bottom[pos],pop:false};
+}
+function finish(anim){
+  if(raf){cancelAnimationFrame(raf);raf=0}
+  view='result';draw.pop=anim;
+  render('#rh');
+  setStatus(f(L.resultAnnouncement,{n:draw.bag+1,snack:L.names[draw.win]}));
+  draw.pop=false;
+}
+function tick(t){
+  raf=0;
+  if(view!=='draw'||document.hidden)return;
+  var dt=last?Math.min(50,t-last):0;last=t;elapsed+=dt;
+  if(elapsed>=DUR){finish(true);return}
+  ladder();raf=requestAnimationFrame(tick);
+}
+function run(){if(raf||view!=='draw'||document.hidden)return;last=0;raf=requestAnimationFrame(tick)}
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){if(raf){cancelAnimationFrame(raf);raf=0}}else run();
+});
+if(rmq.addEventListener)rmq.addEventListener('change',function(){if(rmq.matches&&view==='draw')finish(false)});
+window.addEventListener('resize',ladder);
+
+function bagSvg(){return '<svg viewBox="0 0 60 64" aria-hidden="true" focusable="false"><g stroke="#39271F" stroke-width="3.5" stroke-linejoin="round"><path d="M8 18 L52 18 L56 58 Q56 62 52 62 L8 62 Q4 62 4 58 Z" fill="#E5B879"/><path d="M8 18 L16 5 L44 5 L52 18 Z" fill="#C99A5B"/></g></svg>'}
+
+function ladder(){
+  var lad=$('#lad');if(!lad)return;
+  var w=lad.clientWidth,h=lad.clientHeight;if(!w||!h)return;
+  var N=cands.length,cm=h<150,rw=cm?3:4;
+  var xs=[],ys=[],k;
+  for(k=0;k<N;k++)xs.push((k+.5)*w/N);
+  for(k=0;k<12;k++)ys.push(4+(k+.5)*(h-8)/12);
+  var s='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" '+(view==='ready'?'role="img" aria-label="'+L.readyDiagramLabel+'"':view==='result'?'role="img" aria-label="'+f(L.resultDiagramLabel,{n:draw.bag+1,snack:L.names[draw.win]})+'"':'aria-hidden="true"')+'><g stroke="#39271F" stroke-linecap="round" fill="none">';
+  xs.forEach(function(x){s+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+h+'" stroke-width="'+rw+'"/>'});
+  if(draw){
+    draw.rows.forEach(function(p,i){s+='<line x1="'+xs[p]+'" y1="'+ys[i]+'" x2="'+xs[p+1]+'" y2="'+ys[i]+'" stroke-width="'+rw+'"/>'});
+    var pos=draw.bag,pts=[[xs[pos],0]];
+    draw.rows.forEach(function(p,i){pts.push([xs[pos],ys[i]]);pos=step(pos,p);pts.push([xs[pos],ys[i]])});
+    pts.push([xs[pos],h]);
+    var fr=view==='draw'?Math.min(1,elapsed/DUR):1;
+    var d='M'+pts.map(function(p){return p[0]+' '+p[1]}).join(' L');
+    var da=(fr*1000)+' 1000';
+    s+='<path d="'+d+'" pathLength="1000" stroke-dasharray="'+da+'" stroke-width="'+(cm?9:11)+'" stroke-linejoin="round"/>';
+    s+='<path d="'+d+'" pathLength="1000" stroke-dasharray="'+da+'" stroke="#D88A16" stroke-width="'+(cm?5:7)+'" stroke-linejoin="round"/>';
+    var m=at(pts,fr);
+    s+='<circle cx="'+m[0]+'" cy="'+m[1]+'" r="'+(cm?7:9)+'" fill="#D88A16" stroke-width="3"/>';
+  }
+  lad.innerHTML=s+'</g></svg>';
+}
+function at(pts,fr){
+  var tot=0,i,seg=[];
+  for(i=1;i<pts.length;i++){var l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);tot+=l}
+  var t=fr*tot;
+  for(i=0;i<seg.length;i++){
+    if(t<=seg[i]||i===seg.length-1){var u=seg[i]?Math.min(1,t/seg[i]):1;return [pts[i][0]+(pts[i+1][0]-pts[i][0])*u,pts[i][1]+(pts[i+1][1]-pts[i][1])*u]}
+    t-=seg[i];
+  }
+  return pts[0];
+}
+
+function slotsHtml(){
+  var N=cands.length,s='<div class="slots" style="grid-template-columns:repeat('+N+',minmax(0,1fr))">';
+  for(var i=0;i<N;i++){
+    if(view==='ready')s+='<div class="slot cov" role="img" aria-label="'+L.coveredSlotLabel+'">'+L.coveredMark+'</div>';
+    else{var id=draw.bottom[i],win=view==='result'&&i===draw.end;
+      s+='<div class="slot'+(win?' win'+(draw.pop?' pop':''):'')+'">'+icon(id)+'<span>'+L.names[id]+'</span></div>'}
+  }
+  return s+'</div>';
+}
+function bagsHtml(){
+  var N=cands.length,s='<div class="bags" style="grid-template-columns:repeat('+N+',minmax(0,1fr))">';
+  for(var i=0;i<N;i++){
+    var sel=view==='draw'&&draw.bag===i;
+    s+='<button class="bag'+(sel?' sel':'')+'" data-act="bag" data-i="'+i+'"'+(view==='draw'?' aria-disabled="true"':'')+' aria-label="'+f(L.bagLabel,{n:i+1})+'">'+bagSvg()+'<b>'+f(L.bagNumber,{n:i+1})+'</b></button>';
+  }
+  return s+'</div>';
+}
+function btn(a,t,c,x){return '<button class="btn '+(c||'')+'" data-act="'+a+'"'+(x||'')+'>'+t+'</button>'}
+function shareText(){
+  return f(L.share,{snack:L.names[draw.win],n:draw.bag+1,caption:L.caps[draw.win]});
+}
+
+function render(focus){
+  setStatus('');
+  var m='',a='';
+  if(view==='ready'||view==='draw'){
+    m='<p class="sub">'+(view==='ready'?L.readyHint:L.drawing)+'</p>';
+    m+='<p class="sub">'+(view==='ready'?f(L.candidateSummary,{names:cands.map(function(c){return L.names[c]}).join(' · ')}):'')+'</p>';
+    m+=bagsHtml()+'<div id="lad"></div>'+slotsHtml();
+    if(view==='ready')a=btn('edit',L.changeSnacks);
+  }else if(view==='result'){
+    m='<h2 id="rh" tabindex="-1">'+L.resultHeading+'</h2><div class="card"><div class="ill">'+icon(draw.win)+'</div><div><div class="nm">'+L.names[draw.win]+'</div><div class="cp">'+L.caps[draw.win]+'</div></div></div><div class="pill">'+f(L.chosenBag,{n:draw.bag+1})+'</div><div id="lad"></div>'+slotsHtml();
+    a='<div class="row">'+btn('copy',L.copy)+btn('again',L.again,'pri big')+'</div>'+btn('edit',L.changeSnacks);
+  }else if(view==='edit'){
+    m='<h2>'+L.editorTitle+'</h2><p class="sub" style="text-align:left">'+L.editorHint+'</p><p class="cnt" id="cnt"></p><div class="grid">';
+    POOL.forEach(function(id){m+='<button class="tg" data-act="tg" data-id="'+id+'" aria-pressed="false">'+icon(id)+'<span>'+L.names[id]+'</span><i aria-hidden="true">✓</i></button>'});
+    m+='</div>';
+    a='<div class="row">'+btn('back',L.back)+btn('apply',L.applySelection,'pri',' id="ap"')+'</div>';
+  }else{
+    m='<h2>'+L.copyFallbackTitle+'</h2><p class="sub" style="text-align:left">'+L.copyFallbackHint+'</p><textarea id="ta" readonly aria-label="'+L.shareTextLabel+'"></textarea>';
+    a=btn('back-result',L.backToResult,'pri');
+  }
+  main.className=view==='result'?'res':'';
+  main.innerHTML=m;
+  act.innerHTML=a+'<div id="st" role="status" aria-live="polite"></div>';
+  if(view==='edit')syncEdit();
+  if(view==='copy')$('#ta').value=shareText();
+  ladder();
+  if(focus){var el=$(focus);if(el){el.focus();if(focus==='#ta')el.select()}}
+}
+function syncEdit(){
+  document.querySelectorAll('.tg').forEach(function(b){b.setAttribute('aria-pressed',draft.indexOf(b.dataset.id)>=0?'true':'false')});
+  $('#cnt').textContent=f(L.selectionCount,{n:draft.length});
+  $('#ap').disabled=draft.length<2;
+}
+function toggle(id){
+  var i=draft.indexOf(id);
+  if(i>=0){draft.splice(i,1);syncEdit();setStatus(draft.length<2?L.selectionMin:'')}
+  else if(draft.length>=4){setStatus(L.selectionMax)}
+  else{draft.push(id);syncEdit();setStatus(draft.length<2?L.selectionMin:'')}
+}
+function openEdit(){
+  if(view!=='ready'&&view!=='result')return;
+  prev=view;draft=cands.slice();view='edit';render('.tg');
+}
+function backEdit(){
+  if(view!=='edit')return;
+  view=prev;render('[data-act=edit]');
+}
+function apply(){
+  if(view!=='edit'||draft.length<2)return;
+  cands=POOL.filter(function(x){return draft.indexOf(x)>=0});
+  saveCands(cands);draw=null;view='ready';render('.bag');
+}
+function again(){if(view!=='result')return;draw=null;view='ready';render('.bag')}
+function fallback(){view='copy';render('#ta')}
+function copy(){
+  if(copying||view!=='result')return;
+  var d=draw;
+  if(!navigator.clipboard||!navigator.clipboard.writeText){fallback();return}
+  var p;
+  try{p=navigator.clipboard.writeText(shareText())}catch(e){fallback();return}
+  copying=true;
+  p.then(function(){
+    copying=false;
+    if(draw===d&&view==='result'){setStatus(L.copied);ct=setTimeout(function(){setStatus('')},2500)}
+  },function(){
+    copying=false;
+    if(draw===d&&view==='result')fallback();
+  });
+}
+function backResult(){if(view!=='copy')return;view='result';render('[data-act=copy]')}
+
+document.getElementById('app').addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('button[data-act]');if(!b)return;
+  var a=b.dataset.act;
+  if(a==='bag')startDraw(+b.dataset.i);
+  else if(a==='edit')openEdit();
+  else if(a==='tg')toggle(b.dataset.id);
+  else if(a==='back')backEdit();
+  else if(a==='apply')apply();
+  else if(a==='again')again();
+  else if(a==='copy')copy();
+  else if(a==='back-result')backResult();
+});
+document.addEventListener('keydown',function(e){
+  if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
+  var k=e.key;
+  if(k==='Escape'&&view==='copy'){e.preventDefault();backResult();return}
+  if(e.target&&e.target.tagName==='TEXTAREA')return;
+  if(k==='Escape'){
+    if(view==='edit'){e.preventDefault();backEdit()}
+    else if(view==='copy'){e.preventDefault();backResult()}
+  }else if(view==='ready'&&/^[1-4]$/.test(k)){
+    if(+k<=cands.length){e.preventDefault();startDraw(+k-1)}
+  }else if(view==='result'){
+    if(k==='r'||k==='R'){e.preventDefault();again()}
+    else if(k==='c'||k==='C'){e.preventDefault();copy()}
+  }
+});
+
+if(DEMO){
+  setDraw(1,[0,1,2,1,0,2,1,0,2,1,0,2],DEF.slice());
+  view='result';
+}
+render();
+})();
+</script>
+</body>
+</html>

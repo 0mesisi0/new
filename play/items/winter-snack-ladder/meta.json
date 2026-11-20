@@ -1,0 +1,29 @@
+{
+  "slug": "winter-snack-ladder",
+  "date": "2026-11-20",
+  "category": "random",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "겨울 간식 사다리",
+    "desc": "붕어빵부터 호떡까지, 오늘 먹을 겨울 간식이 고민된다면? 봉투 하나를 고르고 사다리를 따라가 보세요. 후보도 직접 바꿀 수 있어요.",
+    "howto": "봉투 하나를 누르면 간식이 나와요. ‘간식 바꾸기’에서 후보를 2~4개 고를 수 있어요. 키보드는 Tab과 Enter 또는 봉투 번호 1~4를 사용하세요.",
+    "about": "겨울 간식을 가볍게 골라 주는 무작위 사다리예요. 모든 후보의 당첨 확률은 같고, 선택한 후보만 이 기기에 저장해요.",
+    "tags": [
+      "사다리타기",
+      "간식추천",
+      "겨울간식"
+    ]
+  },
+  "en": {
+    "title": "Winter Snack Ladder",
+    "desc": "Pick a paper bag and follow the ladder to your winter snack. Choose your candidates, reveal a treat, and copy the result to share.",
+    "howto": "Pick a bag to reveal a snack. Use “Change snacks” to choose 2–4 candidates. Use Tab and Enter, or bag number keys 1–4.",
+    "about": "A playful random picker for winter snacks. Every candidate has an equal chance. Only your candidate selection is saved on this device.",
+    "tags": [
+      "ladder",
+      "snack-picker",
+      "winter"
+    ]
+  }
+}
