@@ -4,7 +4,7 @@
   "maxAttempts": 3,
   "timeoutMinutes": 25,
   "agents": {
-    "codex": { "cmd": "codex", "args": ["exec", "--sandbox", "read-only", "-o", "{out}", "{instruction}"] },
+    "codex": { "cmd": "codex", "args": ["exec", "-m", "gpt-6.2-sol", "--sandbox", "read-only", "-o", "{out}", "{instruction}"] },
     "claude": { "cmd": "claude", "args": ["-p", "{instruction}", "--model", "sonnet", "--effort", "medium", "--tools", "Read,Glob,Grep,WebSearch,WebFetch", "--allowedTools", "Read,Glob,Grep,WebSearch,WebFetch", "--strict-mcp-config", "--no-session-persistence"] }
   }
 }
