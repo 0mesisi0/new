@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>올해 결산 영수증 · Year-End Receipt</title>
+<style>
+  :root {
+    --desk1: #1d2433; --desk2: #2a3550; --paper: #fbfaf5; --ink: #23262d; --gray: #8a8f98; --red: #e0453d;
+    --line: rgba(251, 250, 245, .2); --rw: 320px;
+    --mono: ui-monospace, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    background: radial-gradient(120% 55% at 50% 0%, rgba(255, 206, 140, .10), transparent 62%), linear-gradient(180deg, var(--desk1), var(--desk2));
+    color: var(--paper); user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; overscroll-behavior: none;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  button:focus { outline: none; }
+  button:focus-visible { outline: 3px solid #ffd27a; outline-offset: 2px; }
+  #snow { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; z-index: 0; }
+  #app { position: fixed; top: 0; bottom: 0; left: 0; right: 0; margin: 0 auto; max-width: 480px; z-index: 1; }
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .screen[hidden] { display: none; }
+
+  .mute {
+    flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(251, 250, 245, .1);
+    font-size: 19px; line-height: 44px; text-align: center; transition: background .15s;
+  }
+  .mute:hover { background: rgba(251, 250, 245, .18); }
+
+  /* ---------- start ---------- */
+  #sStart { overflow-y: auto; padding: 56px 16px 18px; touch-action: pan-y; }
+  #sStart > .mute { position: absolute; top: 10px; right: 12px; }
+  .inner { margin: auto 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; width: 100%; }
+  .bot { position: relative; width: 176px; height: 146px; flex: none; }
+  .bot .body {
+    position: absolute; left: 0; right: 0; top: 0; height: 80px; z-index: 2; border-radius: 26px 26px 16px 16px;
+    background: linear-gradient(#f6f1e6, #ddd5c4); box-shadow: inset 0 -7px 0 rgba(0, 0, 0, .08), inset 0 2px 0 #fff, 0 12px 26px rgba(0, 0, 0, .4);
+  }
+  .bot i { position: absolute; display: block; }
+  .bot .led { right: 18px; top: 14px; width: 9px; height: 9px; border-radius: 50%; background: #5be38a; box-shadow: 0 0 9px #5be38a; animation: blink 1.6s steps(2) infinite; }
+  .bot .eye { top: 25px; width: 10px; height: 13px; border-radius: 50%; background: var(--ink); animation: wink 4s infinite; }
+  .bot .eye.l { left: 62px; } .bot .eye.r { right: 62px; }
+  .bot .mouth { top: 39px; left: 50%; width: 16px; height: 8px; margin-left: -8px; border: 3px solid var(--ink); border-top: 0; border-radius: 0 0 12px 12px; }
+  .bot .blush { top: 40px; width: 15px; height: 8px; border-radius: 50%; background: #f2a39b; }
+  .bot .blush.l { left: 40px; } .bot .blush.r { right: 40px; }
+  .bot .slot { left: 22px; right: 22px; bottom: 9px; height: 7px; border-radius: 4px; background: #2a2d35; }
+  .bot .paper {
+    left: 38px; right: 38px; top: 62px; height: 82px; z-index: 1; background: var(--paper);
+    background-image: repeating-linear-gradient(180deg, transparent 0 12px, #d8d5cc 12px 14px);
+    background-size: 70% 100%; background-repeat: no-repeat; background-position: 14px 22px;
+    clip-path: polygon(0 0, 100% 0, 100% 92%, 95% 100%, 90% 92%, 85% 100%, 80% 92%, 75% 100%, 70% 92%, 65% 100%, 60% 92%, 55% 100%, 50% 92%, 45% 100%, 40% 92%, 35% 100%, 30% 92%, 25% 100%, 20% 92%, 15% 100%, 10% 92%, 5% 100%, 0 92%);
+    animation: feed 2.4s ease-in-out infinite;
+  }
+  .bot .paper::after {
+    content: ""; position: absolute; right: 10px; bottom: 14px; width: 30px; height: 18px; border: 2px solid var(--red);
+    border-radius: 5px; transform: rotate(-10deg); opacity: .85;
+  }
+  @keyframes feed { 0%, 100% { transform: translateY(-10px); } 55% { transform: translateY(0); } }
+  @keyframes blink { 50% { opacity: .35; } }
+  @keyframes wink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.15); } }
+  .yr { font: 700 12px var(--mono); letter-spacing: .5px; color: #ffc2bd; background: rgba(224, 69, 61, .18); padding: 5px 12px; border-radius: 999px; }
+  #sStart h1 { font-size: clamp(28px, 8.6vw, 38px); line-height: 1.15; font-weight: 900; letter-spacing: -.5px; word-break: keep-all; }
+  .sub { font-size: 15px; line-height: 1.45; color: rgba(251, 250, 245, .78); max-width: 22em; word-break: keep-all; }
+  #name {
+    width: min(100%, 320px); height: 50px; border-radius: 14px; border: 1.5px solid var(--line); background: rgba(251, 250, 245, .08);
+    color: var(--paper); font: inherit; font-size: 16px; font-weight: 600; text-align: center; outline: none; padding: 0 14px;
+    user-select: text; -webkit-user-select: text; touch-action: manipulation;
+  }
+  #name::placeholder { color: rgba(251, 250, 245, .45); font-weight: 500; }
+  #name:focus { border-color: rgba(251, 250, 245, .6); background: rgba(251, 250, 245, .12); }
+  .primary {
+    width: min(100%, 320px); min-height: 56px; border: 0; border-radius: 16px; background: var(--red); color: #fff;
+    font-size: 18px; font-weight: 800; box-shadow: 0 5px 0 #a92c26, 0 12px 24px rgba(224, 69, 61, .3); transition: transform .08s, box-shadow .08s;
+  }
+  .primary:active { transform: translateY(3px); box-shadow: 0 2px 0 #a92c26; }
+  .foot { font-size: 12px; color: rgba(251, 250, 245, .5); }
+
+  /* ---------- quiz ---------- */
+  #sQuiz { overflow-y: auto; padding: 10px 16px 18px; touch-action: pan-y; }
+  .top { display: flex; align-items: center; gap: 8px; min-height: 48px; flex: none; }
+  .back {
+    flex: none; min-width: 72px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line);
+    background: transparent; font-weight: 700; font-size: 15px;
+  }
+  .back:hover { background: rgba(251, 250, 245, .08); }
+  .prog { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .prog b { font: 700 13px var(--mono); color: rgba(251, 250, 245, .75); }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(251, 250, 245, .2); transition: background .2s; }
+  .dots i.done { background: var(--red); }
+  .dots i.now { background: var(--paper); box-shadow: 0 0 0 3px rgba(251, 250, 245, .22); }
+  .qwrap { margin: auto 0; padding-top: 18px; display: flex; flex-direction: column; gap: 16px; width: 100%; }
+  .card {
+    position: relative; background: var(--paper); color: var(--ink); border-radius: 0 0 16px 16px; padding: 16px 18px 20px;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, .32);
+  }
+  .card::before {
+    content: ""; position: absolute; left: 0; right: 0; top: -7px; height: 7px;
+    background: linear-gradient(-45deg, var(--paper) 5px, transparent 0) 0 0 / 12px 7px repeat-x, linear-gradient(45deg, var(--paper) 5px, transparent 0) 0 0 / 12px 7px repeat-x;
+  }
+  .qn { font: 800 13px var(--mono); color: var(--red); letter-spacing: 1px; }
+  #qText { font-size: 20px; line-height: 1.38; font-weight: 800; margin-top: 6px; word-break: keep-all; overflow-wrap: anywhere; }
+  .opts { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; text-align: left;
+    border: 1.5px solid var(--line); background: rgba(251, 250, 245, .07); font-size: 16px; font-weight: 650;
+    transition: background .12s, border-color .12s, transform .12s;
+  }
+  .opt:hover { background: rgba(251, 250, 245, .13); }
+  .opt:active { transform: scale(.985); }
+  .opt .k { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font: 700 13px var(--mono); opacity: .8; }
+  .opt .t { flex: 1; line-height: 1.3; word-break: keep-all; overflow-wrap: anywhere; }
+  .opt .m { flex: none; display: flex; gap: 2px; align-items: flex-end; height: 16px; }
+  .opt .m i { display: block; width: 4px; border-radius: 2px; background: rgba(251, 250, 245, .2); }
+  .opt .m i:nth-child(1) { height: 6px; } .opt .m i:nth-child(2) { height: 9px; } .opt .m i:nth-child(3) { height: 12px; } .opt .m i:nth-child(4) { height: 16px; }
+  .opt .m i.on { background: #ffb3ad; }
+  .opt.was { border-color: rgba(255, 179, 173, .7); }
+  .opt.picked { background: var(--red); border-color: var(--red); color: #fff; animation: pop .15s ease-out; }
+  .opt.picked .m i.on { background: #fff; }
+  @keyframes pop { 0% { transform: scale(.96); } 60% { transform: scale(1.025); } 100% { transform: scale(1); } }
+  .in { animation: cin .22s ease-out both; }
+  .inb { animation: cinb .22s ease-out both; }
+  @keyframes cin { from { opacity: 0; transform: translateX(22px); } }
+  @keyframes cinb { from { opacity: 0; transform: translateX(-22px); } }
+
+  /* ---------- print / result ---------- */
+  #sPrint { padding-top: 8px; }
+  .pbar {
+    position: relative; z-index: 2; flex: none; margin: 0 auto; width: calc(var(--rw) + 28px); max-width: calc(100% - 8px); height: 54px;
+    border-radius: 18px 18px 12px 12px; background: linear-gradient(#3d4862, #29314a); display: flex; align-items: center; gap: 10px;
+    padding: 0 5px 8px 16px; box-shadow: 0 10px 20px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .14);
+  }
+  .pbar .led { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #5be38a; box-shadow: 0 0 9px #5be38a; }
+  .pbar .led.busy { background: #ffb547; box-shadow: 0 0 9px #ffb547; animation: blink .5s steps(2) infinite; }
+  .pbar span { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; color: rgba(251, 250, 245, .86); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pbar .mute { width: 40px; height: 40px; line-height: 40px; font-size: 17px; background: rgba(0, 0, 0, .2); }
+  .pbar .slot { position: absolute; left: 10px; right: 10px; bottom: 5px; height: 6px; border-radius: 3px; background: #0b0e15; box-shadow: inset 0 2px 2px #000; }
+  #scroller {
+    position: relative; flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain;
+    padding-bottom: 18px; scrollbar-width: thin; scrollbar-color: rgba(251, 250, 245, .25) transparent; cursor: grab;
+  }
+  #scroller.drag { cursor: grabbing; }
+  #scroller::-webkit-scrollbar { width: 6px; }
+  #scroller::-webkit-scrollbar-thumb { background: rgba(251, 250, 245, .25); border-radius: 3px; }
+  .shade { position: sticky; top: 0; z-index: 1; height: 14px; margin-bottom: -14px; pointer-events: none; background: linear-gradient(rgba(8, 10, 16, .55), transparent); }
+  #paperwrap { margin: 0 auto; width: calc(var(--rw) + 28px); padding: 0 14px; overflow: hidden; height: 0; }
+  #rc { display: block; width: var(--rw); filter: drop-shadow(0 6px 9px rgba(0, 0, 0, .38)); }
+  .shake { animation: shk .12s linear; }
+  @keyframes shk { 0% { transform: translate(0, 0); } 25% { transform: translate(-4px, 2px); } 50% { transform: translate(4px, -2px); } 75% { transform: translate(-3px, 1px); } 100% { transform: translate(0, 0); } }
+  .bar { flex: none; display: flex; gap: 8px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(rgba(22, 27, 40, 0), rgba(22, 27, 40, .92) 28%); }
+  .bar button { flex: 1; min-width: 0; min-height: 50px; border-radius: 14px; border: 0; font-weight: 800; font-size: 15px; line-height: 1.15; padding: 6px 6px; word-break: keep-all; transition: transform .08s, box-shadow .08s, opacity .2s; }
+  .bar button:disabled { opacity: .3; cursor: default; }
+  #bSave { background: var(--red); color: #fff; box-shadow: 0 4px 0 #a92c26; }
+  #bCopy { background: var(--paper); color: var(--ink); box-shadow: 0 4px 0 #c4bfb0; }
+  #bAgain { background: rgba(251, 250, 245, .06); border: 1.5px solid var(--line); }
+  #bSave:not(:disabled):active, #bCopy:not(:disabled):active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, .2); }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 92px; z-index: 10; transform: translate(-50%, 12px); max-width: calc(100% - 32px);
+    background: var(--ink); color: var(--paper); border: 1px solid rgba(255, 255, 255, .16); padding: 11px 18px; border-radius: 999px;
+    font-size: 14px; font-weight: 800; text-align: center; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #toast.bad { background: var(--red); }
+
+  @media (max-height: 600px) {
+    #sStart { padding-top: 48px; }
+    .bot { transform: scale(.72); margin: -20px 0 -22px; }
+    .inner { gap: 10px; }
+    .qwrap { padding-top: 8px; gap: 12px; }
+  }
+  @media (max-width: 340px) {
+    .bar { padding-left: 12px; padding-right: 12px; gap: 6px; }
+    .bar button { font-size: 14px; }
+    .opt { font-size: 15px; gap: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<canvas id="snow" aria-hidden="true"></canvas>
+<div id="app">
+  <section id="sStart" class="screen">
+    <button class="mute" type="button"></button>
+    <div class="inner">
+      <div class="bot" aria-hidden="true">
+        <i class="paper"></i>
+        <div class="body"><i class="led"></i><i class="eye l"></i><i class="eye r"></i><i class="blush l"></i><i class="blush r"></i><i class="mouth"></i><i class="slot"></i></div>
+      </div>
+      <div class="yr" id="yr"></div>
+      <h1 id="tTitle"></h1>
+      <p class="sub" id="tSub"></p>
+      <input id="name" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+      <button id="bStart" class="primary" type="button"></button>
+      <p class="foot" id="tFoot"></p>
+    </div>
+  </section>
+
+  <section id="sQuiz" class="screen" hidden>
+    <div class="top">
+      <button id="bBack" class="back" type="button"></button>
+      <div class="prog"><b id="pNum"></b><div class="dots" id="dots"></div></div>
+      <button class="mute" type="button"></button>
+    </div>
+    <div class="qwrap">
+      <div class="card" id="card"><div class="qn" id="qn"></div><h2 id="qText"></h2></div>
+      <div class="opts" id="opts"></div>
+    </div>
+  </section>
+
+  <section id="sPrint" class="screen" hidden>
+    <div class="pbar"><i class="led" id="led"></i><span id="pStatus"></span><button class="mute" type="button"></button><i class="slot"></i></div>
+    <div id="scroller"><div class="shade"></div><div id="paperwrap"><canvas id="rc" role="img"></canvas></div></div>
+    <div class="bar"><button id="bSave" type="button"></button><button id="bCopy" type="button"></button><button id="bAgain" type="button"></button></div>
+  </section>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const params = new URLSearchParams(location.search);
+  const LANG = (params.get('lang') || navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+  document.documentElement.lang = LANG;
+  const DEMO = params.get('thumb') === '1' || location.hash === '#demo';
+  const DEMO_ANSWERS = [1, 1, 2, 1, 2, 1, 1, 2, 1];
+  const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // ---------- data ----------
+  const DATA = [
+    { Q: [10, 60, 150, 300], price: 1200 },
+    { Q: [30, 120, 300, 600], price: 4500 },
+    { Q: [20, 100, 300, 700], price: 300 },
+    { Q: [2, 8, 20, 40], price: 35000 },
+    { Q: [5, 30, 80, 160], price: 18000 },
+    { Q: [3, 15, 40, 90], price: 1000 },
+    { Q: [5, 40, 100, 200], price: 2500 },
+    { Q: [52, 156, 312, 520], price: 500 },
+    { Q: [5, 30, 80, 200], price: 2000 },
+  ];
+  const TIERS = [0.2, 0.4, 0.6, 0.8, Infinity];
+  const STEMS = '갑을병정무기경신임계';
+  const BRANCHES = '자축인묘진사오미신유술해';
+  const ANIMAL_EMOJI = ['🐭', '🐮', '🐯', '🐰', '🐲', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷'];
+
+  const I18N = {
+    ko: {
+      appTitle: '올해 결산 영수증',
+      startSub: '올해 나는 얼마나 달렸을까? 9번 누르면 영수증이 나와요',
+      namePh: '이름 또는 닉네임 (선택)',
+      startBtn: '영수증 출력 시작',
+      foot: '모든 금액은 재미로 만든 가짜예요',
+      back: '이전',
+      soundOn: '소리 켜기', soundOff: '소리 끄기',
+      printing: '영수증 출력 중...',
+      save: '이미지 저장', copy: '텍스트 복사', again: '다시 하기',
+      saved: '이미지를 저장했어요', saveFail: '저장에 실패했어요. 화면을 캡처해 주세요',
+      copied: '복사했어요', copyFail: '복사하지 못했어요',
+      guest: '손님',
+      shopName: '하루한판 결산상점',
+      receiptOf: '{y}년 한 해 영수증',
+      customer: '고객',
+      colItem: '품목', colAmount: '금액',
+      subtotal: '소계', discount: '웃음 할인', tax: '한숨세 (10%)', total: '총 청구액',
+      forecastHeadGeneric: '내년의 한 줄',
+      note1: '※ 모든 금액은 재미로 만든 가짜입니다',
+      note2: '※ 새해 다짐은 환불이 되지 않습니다',
+      thanks: '감사합니다, 내년에도 만나요',
+      forecastHead: (next, idx) => `${next} ${STEMS[(next - 4) % 10]}${BRANCHES[idx]}년 ${ANIMAL_EMOJI[idx]}의 한 줄`,
+      shareHead: (name, y, guest) => `🧾 ${name}${guest ? '' : '님'}의 ${y} 결산 영수증`,
+      titleLabel: '칭호',
+      nameLabel: '이름',
+      receiptLabel: '영수증',
+      qs: [
+        { q: '올해 야근, 얼마나 했나요?', o: ['거의 없음', '가끔', '자주', '회사가 내 집'], label: '야근', unit: '시간' },
+        { q: '올해 커피는 몇 잔?', o: ['하루 한 잔 이하', '주 3~4잔', '거의 매일', '혈관에 커피'], label: '커피', unit: '잔' },
+        { q: '"괜찮아요"라고 거짓말한 횟수는?', o: ['거의 없음', '가끔', '자주', '입버릇'], label: '"괜찮아요"', unit: '회' },
+        { q: '송년회·회식은 몇 번?', o: ['안 갔다', '몇 번', '많이', '매주'], label: '회식·모임', unit: '회' },
+        { q: '배달앱 주문은?', o: ['요리파', '가끔', '자주', '앱이 내 냉장고'], label: '배달', unit: '건' },
+        { q: '"다음에 밥 한번 먹자" 약속은?', o: ['거의 없음', '가끔', '자주', '인사말'], label: '공수표', unit: '장' },
+        { q: '잠 못 들고 깨어있던 밤은?', o: ['꿀잠', '가끔', '자주', '새벽이 일상'], label: '불면의 밤', unit: '밤' },
+        { q: '월요일에 한숨 쉰 횟수는?', o: ['한 번도 안 쉼', '월요일마다 한 번', '여러 번', '월요일은 한숨의 날'], label: '월요일 한숨', unit: '번' },
+        { q: '올해 크게 웃은 날은?', o: ['손에 꼽음', '달에 한 번쯤', '일주일에 한 번쯤', '자주'], label: '웃음 쿠폰', unit: '일' },
+      ],
+      titles: [['평온한 한 해의 주인', '🍵'], ['적당히 버틴 직장인', '🧣'], ['올해도 열일한 사람', '☕'], ['연말정산 전에 정산부터 필요한 사람', '🔥'], ['올해의 생존자', '🏆']],
+      hidden: ['전설의 칼퇴러', '🌈'],
+      sheep: [
+        '양 한 마리, 양 두 마리... 2027년엔 잠을 제때 잡니다.',
+        '새해엔 구름 같은 양털 이불이 당신의 퇴근길을 따뜻하게 해요.',
+        '올해 한숨은 내년 웃음 쿠폰으로 환전됩니다.',
+        '2027년, 월요일이 생각보다 괜찮은 날이 됩니다.',
+        '뜻밖의 점심 약속이 진짜로 잡히는 해예요.',
+        '커피는 줄이고 낮잠은 늘리면 운이 오릅니다.',
+        '양처럼 순한 한 해, 단 칼퇴 앞에서만 사나워지세요.',
+        '올해의 무게는 내려놓고, 가볍게 폴짝 뛰어가세요.',
+      ],
+      generic: [
+        '새해엔 오늘보다 한 걸음만 더 가벼워집니다.',
+        '올해 버틴 당신에게 내년은 조금 다정할 거예요.',
+        '작은 쉼표 하나가 운을 바꿉니다.',
+        '뜻밖의 좋은 소식이 월요일에 도착해요.',
+      ],
+    },
+    en: {
+      appTitle: 'Year-End Receipt',
+      startSub: 'How hard was your year? Tap 9 times and get your receipt.',
+      namePh: 'Name or nickname (optional)',
+      startBtn: 'Start printing',
+      foot: 'All amounts are made up for fun',
+      back: 'Back',
+      soundOn: 'Sound on', soundOff: 'Sound off',
+      printing: 'Printing your receipt...',
+      save: 'Save image', copy: 'Copy text', again: 'Start over',
+      saved: 'Image saved', saveFail: 'Could not save. Please take a screenshot.',
+      copied: 'Copied', copyFail: 'Could not copy',
+      guest: 'Guest',
+      shopName: 'Daily Toybox Year-End Shop',
+      receiptOf: '{y} Year in Receipt',
+      customer: 'Customer',
+      colItem: 'Item', colAmount: 'Amount',
+      subtotal: 'Subtotal', discount: 'Laughter discount', tax: 'Sigh tax (10%)', total: 'TOTAL DUE',
+      forecastHeadGeneric: "Next year's line",
+      note1: '* All amounts are made up for fun',
+      note2: "* New Year's resolutions are non-refundable",
+      thanks: 'Thank you, see you next year',
+      forecastHead: (next, idx) => `${next} Year of the ${['Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Sheep', 'Monkey', 'Rooster', 'Dog', 'Pig'][idx]} ${ANIMAL_EMOJI[idx]}: one-liner`,
+      shareHead: (name, y) => `🧾 ${name}'s ${y} Year-End Receipt`,
+      titleLabel: 'Title',
+      nameLabel: 'Name',
+      receiptLabel: 'Receipt',
+      qs: [
+        { q: 'How much overtime did you do?', o: ['Barely any', 'Sometimes', 'Often', 'The office is my home'], label: 'Overtime', unit: 'h' },
+        { q: 'How many coffees this year?', o: ['One a day or less', '3-4 a week', 'Nearly daily', 'Coffee runs in my veins'], label: 'Coffee', unit: ' cups' },
+        { q: 'Times you said "I\'m fine" but weren\'t?', o: ['Hardly ever', 'Sometimes', 'Often', "It's my catchphrase"], label: '"I\'m fine"', unit: ' times' },
+        { q: 'How many parties and team dinners?', o: ['Skipped them', 'A few', 'Lots', 'Every week'], label: 'Parties', unit: ' times' },
+        { q: 'Delivery orders?', o: ['I cook', 'Sometimes', 'Often', 'The app is my fridge'], label: 'Delivery', unit: ' orders' },
+        { q: '"Let\'s grab a meal sometime" promises?', o: ['Hardly any', 'A few', 'Many', "It's my greeting"], label: 'Empty promises', unit: ' IOUs' },
+        { q: 'Nights you could not sleep?', o: ['Slept like a baby', 'Sometimes', 'Often', 'Dawn is my normal'], label: 'Sleepless nights', unit: ' nights' },
+        { q: 'Sighs on Mondays?', o: ['Never sighed', 'Once each Monday', 'Several each Monday', 'Monday is Sigh Day'], label: 'Monday sighs', unit: ' sighs' },
+        { q: 'Days you really laughed?', o: ['Countable on one hand', 'About monthly', 'About weekly', 'Often'], label: 'Laughter coupon', unit: ' days' },
+      ],
+      titles: [['Master of a Calm Year', '🍵'], ['The Balanced Survivor', '🧣'], ['Worked-Hard-Again Award', '☕'], ['Needs a Settlement Before the Year Ends', '🔥'], ['Survivor of the Year', '🏆']],
+      hidden: ['Legendary Clock-Out', '🌈'],
+      sheep: [
+        'Count sheep, count sheep... in 2027 you actually sleep on time.',
+        'A cloud-soft wool blanket warms every walk home next year.',
+        "This year's sighs convert into laughter coupons in 2027.",
+        'In 2027, Mondays turn out to be better than expected.',
+        'That vague lunch promise finally gets a real date.',
+        'Less coffee, more naps: your luck goes up.',
+        'A gentle sheep of a year, fierce only when it is time to clock out.',
+        "Set this year's weight down and hop lightly onward.",
+      ],
+      generic: [
+        'Next year you feel one step lighter than today.',
+        'You held on this year, and next year is a bit kinder.',
+        'One small pause changes your luck.',
+        'Unexpected good news arrives on a Monday.',
+      ],
+    },
+  };
+  const T = I18N[LANG];
+  document.title = T.appTitle;
+
+  const PAPER = '#fbfaf5', INK = '#23262d', GRAY = '#8a8f98', RED = '#e0453d', RED_SOFT = 'rgba(224,69,61,.78)';
+  const SANS = 'system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif';
+  const MONO = 'ui-monospace, "Courier New", monospace';
+  const RW = 360; // logical receipt width
+  const STEP = 0.235; // seconds per printed line
+
+  // ---------- storage ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('yer:' + k); return v == null ? d : v; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('yer:' + k, String(v)); } catch (e) { /* storage blocked */ } },
+  };
+
+  // ---------- dom ----------
+  const $ = (id) => document.getElementById(id);
+  const sStart = $('sStart'), sQuiz = $('sQuiz'), sPrint = $('sPrint');
+  const nameIn = $('name'), card = $('card'), optsEl = $('opts'), dotsEl = $('dots');
+  const scroller = $('scroller'), wrap = $('paperwrap'), rc = $('rc'), led = $('led'), pStatus = $('pStatus');
+  const bSave = $('bSave'), bCopy = $('bCopy'), bAgain = $('bAgain'), toastEl = $('toast');
+  const muteBtns = Array.from(document.querySelectorAll('.mute'));
+  const app = $('app');
+
+  const now0 = new Date();
+  const YEAR = now0.getFullYear(), NEXT = YEAR + 1, BRANCH = (NEXT - 4) % 12;
+
+  $('tTitle').textContent = T.appTitle;
+  $('tSub').textContent = T.startSub;
+  $('tFoot').textContent = T.foot;
+  $('yr').textContent = `${YEAR} → ${NEXT} ${ANIMAL_EMOJI[BRANCH]}`;
+  nameIn.placeholder = T.namePh;
+  nameIn.setAttribute('aria-label', T.nameLabel);
+  $('bStart').textContent = T.startBtn;
+  $('bBack').textContent = '‹ ' + T.back;
+  bSave.textContent = T.save; bCopy.textContent = T.copy; bAgain.textContent = T.again;
+  dotsEl.innerHTML = '<i></i>'.repeat(9);
+  const dotEls = Array.from(dotsEl.children);
+
+  const optBtns = [0, 1, 2, 3].map((i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'opt';
+    b.innerHTML = `<span class="k">${i + 1}</span><span class="t"></span><span class="m">${[0, 1, 2, 3].map((j) => `<i class="${j <= i ? 'on' : ''}"></i>`).join('')}</span>`;
+    b.addEventListener('click', () => pick(i));
+    optsEl.appendChild(b);
+    return b;
+  });
+
+  // ---------- sound ----------
+  let soundOn = store.get('sound', '0') === '1';
+  let ac = null;
+  function ensureAudio() {
+    if (!soundOn) return;
+    try {
+      if (!ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) ac = new AC(); }
+      if (ac && ac.state === 'suspended') { const p = ac.resume(); if (p && p.catch) p.catch(() => {}); }
+    } catch (e) { ac = null; }
+  }
+  addEventListener('pointerdown', ensureAudio, true);
+  addEventListener('keydown', ensureAudio, true);
+  function tone(type, freq, dur, vol) {
+    if (!soundOn || !ac || ac.state !== 'running') return;
+    try {
+      const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (type === 'sine') o.frequency.exponentialRampToValueAtTime(freq * 0.6, t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) { /* audio unavailable */ }
+  }
+  const tick = () => tone('square', 1800, 0.025, 0.04);
+  const thump = () => tone('sine', 90, 0.08, 0.12);
+  function renderMute() {
+    for (const b of muteBtns) {
+      b.textContent = soundOn ? '🔊' : '🔇';
+      const label = soundOn ? T.soundOff : T.soundOn;
+      b.setAttribute('aria-label', label); b.title = label;
+    }
+  }
+  function toggleSound() {
+    soundOn = !soundOn;
+    store.set('sound', soundOn ? '1' : '0');
+    renderMute();
+    if (soundOn) { ensureAudio(); setTimeout(tick, 30); }
+  }
+  for (const b of muteBtns) b.addEventListener('click', toggleSound);
+  renderMute();
+
+  // ---------- toast ----------
+  let toastTimer = 0;
+  function toast(msg, bad) {
+    toastEl.textContent = msg;
+    toastEl.className = 'show' + (bad ? ' bad' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.className = bad ? 'bad' : ''; }, 1800);
+  }
+
+  // ---------- deterministic receipt ----------
+  function fnv1a(str) {
+    const bytes = new TextEncoder().encode(str);
+    let h = 0x811c9dc5;
+    for (let i = 0; i < bytes.length; i++) { h ^= bytes[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function totals(qtys) {
+    const amounts = qtys.map((q, i) => q * DATA[i].price);
+    const subtotal = amounts.slice(0, 8).reduce((a, b) => a + b, 0);
+    const discount = amounts[8];
+    const tax = Math.round(0.1 * (subtotal - discount));
+    return { amounts, subtotal, discount, tax, total: Math.max(10000, subtotal - discount + tax) };
+  }
+  const MIN = totals(DATA.map((d) => d.Q[0])).total;
+  const MAX = totals(DATA.map((d) => d.Q[3])).total;
+
+  function compute(rawName, answers) {
+    const nm = rawName.trim();
+    const rnd = mulberry32(fnv1a(nm + '|' + answers.join(',')));
+    const jit = []; for (let i = 0; i < 9; i++) jit.push(0.9 + 0.2 * rnd());
+    const fr = rnd();
+    const bars = []; for (let i = 0; i < 40; i++) bars.push(1 + Math.floor(rnd() * 3));
+    const no = String(Math.floor(rnd() * 100000)).padStart(5, '0');
+    const qtys = DATA.map((d, i) => Math.round(d.Q[answers[i]] * jit[i]));
+    const tt = totals(qtys);
+    const f = Math.min(1, Math.max(0, (tt.total - MIN) / (MAX - MIN)));
+    const tier = answers.every((a) => a === 0) ? T.hidden : T.titles[TIERS.findIndex((lim) => f < lim)];
+    const pool = BRANCH === 7 ? T.sheep : T.generic;
+    const d = new Date(), p2 = (n) => String(n).padStart(2, '0');
+    return {
+      name: nm || T.guest, guest: !nm, year: YEAR, no, bars, qtys, f,
+      lines: qtys.map((q, i) => ({ qty: q, price: DATA[i].price, amount: tt.amounts[i] })),
+      subtotal: tt.subtotal, discount: tt.discount, tax: tt.tax, total: tt.total,
+      title: tier[0], emoji: tier[1],
+      fHead: T.forecastHead(NEXT, BRANCH), sentence: pool[Math.min(pool.length - 1, Math.floor(fr * pool.length))],
+      date: `${d.getFullYear()}.${p2(d.getMonth() + 1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`,
+    };
+  }
+  const num = (n) => Math.round(n).toLocaleString('en-US');
+
+  function wrapText(ctx, s, maxW, font, byChar) {
+    ctx.font = font;
+    const tokens = byChar ? Array.from(s) : s.split(/(\s+)/);
+    const out = []; let cur = '';
+    for (const tk of tokens) {
+      if (!tk) continue;
+      const test = cur + tk;
+      if (cur.trim() && ctx.measureText(test.trimEnd()).width > maxW) { out.push(cur.trim()); cur = tk.trimStart(); }
+      else cur = test;
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+
+  // Build the receipt as a list of draw ops in logical px (360 wide).
+  function layout(R, mctx) {
+    const W = RW, P = 24, IW = W - 2 * P;
+    const ops = [], steps = [];
+    const text = (s, x, y, font, color, align) => ops.push({ k: 't', s, x, y, font, color, align: align || 'left' });
+    const lr = (l, r, y, lf, rf, color) => { text(l, P, y, lf, color); ops.push({ k: 'r', s: r, x: W - P, y, font: rf, color }); };
+    const dash = (y, solid) => ops.push({ k: 'd', y, solid });
+    let y = 20;
+    y += 24; text(T.shopName, W / 2, y, `800 19px ${SANS}`, INK, 'center');
+    y += 21; text(T.receiptOf.replace('{y}', R.year), W / 2, y, `500 13px ${SANS}`, GRAY, 'center');
+    y += 15; dash(y);
+    steps.push(y + 4);
+    y += 23; lr(`${T.customer}  ${R.name}`, `No.${R.no}`, y, `600 13px ${SANS}`, `600 13px ${MONO}`, INK);
+    y += 19; text(R.date, P, y, `12px ${MONO}`, GRAY);
+    y += 14; dash(y);
+    y += 20; lr(T.colItem, T.colAmount, y, `800 13px ${SANS}`, `800 13px ${SANS}`, INK);
+    y += 10; dash(y);
+    steps.push(y + 4);
+    R.lines.forEach((it, i) => {
+      const disc = i === 8, col = disc ? RED : INK, q = T.qs[i];
+      y += 25; lr(q.label, (disc ? '−' : '') + num(it.amount), y, `650 15px ${SANS}`, `600 15px ${MONO}`, col);
+      y += 17; text(`${num(it.qty)}${q.unit} × ${disc ? '−' : ''}${num(it.price)}`, P, y, `12px ${SANS}`, disc ? RED_SOFT : GRAY);
+      steps.push(y + 6);
+    });
+    y += 14; dash(y);
+    y += 23; lr(T.subtotal, '₩' + num(R.subtotal), y, `14px ${SANS}`, `14px ${MONO}`, INK);
+    y += 21; lr(T.discount, '−₩' + num(R.discount), y, `14px ${SANS}`, `14px ${MONO}`, RED);
+    y += 21; lr(T.tax, (R.tax < 0 ? '−₩' : '₩') + num(Math.abs(R.tax)), y, `14px ${SANS}`, `14px ${MONO}`, INK);
+    y += 13; dash(y, true);
+    steps.push(y + 5);
+    // grand total, 24px bold, label shrinks only if it would collide
+    y += 36;
+    const amt = '₩' + num(R.total);
+    mctx.font = `800 24px ${MONO}`; const aw = mctx.measureText(amt).width;
+    let lsz = 24; mctx.font = `900 ${lsz}px ${SANS}`;
+    while (lsz > 16 && mctx.measureText(T.total).width + aw + 12 > IW) { lsz -= 1; mctx.font = `900 ${lsz}px ${SANS}`; }
+    lr(T.total, amt, y, `900 ${lsz}px ${SANS}`, `800 24px ${MONO}`, INK);
+    const totalY = y;
+    y += 14;
+    steps.push(y);
+    // stamp
+    const sFont = `900 18px ${SANS}`;
+    const sLines = wrapText(mctx, R.title, 214, sFont, false);
+    mctx.font = sFont;
+    const sw = Math.max(156, Math.max(...sLines.map((l) => mctx.measureText(l).width)) + 50);
+    const sh = 24 + 32 + 8 + sLines.length * 22 + 14;
+    const ang = 8 * Math.PI / 180;
+    const sbox = sw * Math.sin(ang) + sh * Math.cos(ang);
+    const stamp = { cx: W / 2, cy: y + 10 + sbox / 2, w: sw, h: sh, lines: sLines, font: sFont, emoji: R.emoji, box: sbox };
+    ops.push({ k: 's', y: y, st: stamp });
+    y += sbox + 26;
+    // forecast box
+    const fFont = `14px ${SANS}`;
+    const fl = wrapText(mctx, R.sentence, IW - 32, fFont, LANG === 'ko');
+    const hFont = `800 14px ${SANS}`;
+    const bh = 18 + 16 + 10 + fl.length * 21 + 8;
+    ops.push({ k: 'b', y, h: bh });
+    text(R.fHead, W / 2, y + 18 + 13, hFont, INK, 'center');
+    fl.forEach((ln, i) => text(ln, W / 2, y + 18 + 16 + 10 + 13 + i * 21, fFont, INK, 'center'));
+    y += bh;
+    steps.push(y + 8);
+    // footer: barcode and notes
+    y += 24;
+    const gap = 2, bw = R.bars.reduce((a, b) => a + b, 0) + gap * (R.bars.length - 1);
+    ops.push({ k: 'c', y, h: 40, x: (W - bw) / 2, bars: R.bars, gap });
+    y += 40 + 15; text(`* ${R.year} ${R.no} *`, W / 2, y, `600 11px ${MONO}`, GRAY, 'center');
+    y += 25; text(T.note1, W / 2, y, `11.5px ${SANS}`, GRAY, 'center');
+    y += 17; text(T.note2, W / 2, y, `11.5px ${SANS}`, GRAY, 'center');
+    y += 27; text(T.thanks, W / 2, y, `800 13px ${SANS}`, INK, 'center');
+    y += 19; text('play.mesisi.net', W / 2, y, `12px ${MONO}`, GRAY, 'center');
+    y += 28;
+    steps.push(y);
+    return { ops, steps, H: y, totalY, stamp };
+  }
+
+  // ---------- drawing ----------
+  const TW = 12, TH = 5; // zig-zag tooth width / height
+  function paperPath(ctx, W, H, cut) {
+    const bottom = cut >= H ? H - TH : cut;
+    ctx.beginPath();
+    ctx.moveTo(0, TH);
+    for (let x = 0; x < W; x += TW) { ctx.lineTo(x + TW / 2, 0); ctx.lineTo(Math.min(W, x + TW), TH); }
+    ctx.lineTo(W, bottom);
+    for (let x = W; x > 0; x -= TW) { ctx.lineTo(x - TW / 2, bottom + TH); ctx.lineTo(Math.max(0, x - TW), bottom); }
+    ctx.closePath();
+  }
+  function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function drawStamp(ctx, st, p) {
+    let sc = 1, rot = -8 * Math.PI / 180, alpha = 0.92;
+    if (p < 1) {
+      const hit = 0.65;
+      if (p < hit) { const e = p / hit; sc = 2.2 - 1.2 * e * e; alpha = 0.92 * Math.min(1, e * 1.5); rot -= (1 - e * e) * 7 * Math.PI / 180; }
+      else { const e = (p - hit) / (1 - hit); sc = 1 - 0.045 * Math.sin(e * Math.PI); }
+    }
+    const w = st.w, h = st.h;
+    ctx.save();
+    ctx.translate(st.cx, st.cy); ctx.rotate(rot); ctx.scale(sc, sc);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(224,69,61,.06)'; rrect(ctx, -w / 2, -h / 2, w, h, 13); ctx.fill();
+    ctx.strokeStyle = RED; ctx.lineWidth = 3.4; ctx.stroke();
+    ctx.lineWidth = 1.4; rrect(ctx, -w / 2 + 6, -h / 2 + 6, w - 12, h - 12, 8); ctx.stroke();
+    ctx.fillStyle = RED; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.font = `800 11px ${MONO}`;
+    ctx.fillText(`★ ${YEAR} ★`, 0, -h / 2 + 24);
+    ctx.font = `28px ${SANS}`;
+    ctx.fillText(st.emoji, 0, -h / 2 + 24 + 32);
+    ctx.font = st.font;
+    st.lines.forEach((ln, i) => ctx.fillText(ln, 0, -h / 2 + 24 + 32 + 8 + 17 + i * 22));
+    ctx.restore();
+  }
+  function drawReceipt(ctx, Lx, reveal, stampP) {
+    const W = RW, P = 24, H = Lx.H, cut = Math.min(reveal, H);
+    ctx.save();
+    paperPath(ctx, W, H, cut);
+    ctx.fillStyle = PAPER; ctx.fill();
+    ctx.clip();
+    const g = ctx.createLinearGradient(0, 0, W, 0);
+    g.addColorStop(0, 'rgba(60,50,30,.07)'); g.addColorStop(0.06, 'rgba(60,50,30,0)'); g.addColorStop(0.94, 'rgba(60,50,30,0)'); g.addColorStop(1, 'rgba(60,50,30,.07)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, cut + TH);
+    ctx.textBaseline = 'alphabetic';
+    for (const op of Lx.ops) {
+      if (op.y - 30 > cut) break;
+      if (op.k === 't') {
+        ctx.font = op.font; ctx.fillStyle = op.color; ctx.textAlign = op.align; ctx.fillText(op.s, op.x, op.y);
+      } else if (op.k === 'r') {
+        ctx.font = op.font; ctx.fillStyle = op.color; ctx.textAlign = 'left';
+        ctx.fillText(op.s, op.x - ctx.measureText(op.s).width, op.y);
+      } else if (op.k === 'd') {
+        ctx.save(); ctx.strokeStyle = 'rgba(35,38,45,.5)'; ctx.lineWidth = 1;
+        if (op.solid) { ctx.beginPath(); ctx.moveTo(P, op.y - 1.5); ctx.lineTo(W - P, op.y - 1.5); ctx.moveTo(P, op.y + 1.5); ctx.lineTo(W - P, op.y + 1.5); ctx.stroke(); }
+        else { ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(P, op.y); ctx.lineTo(W - P, op.y); ctx.stroke(); }
+        ctx.restore();
+      } else if (op.k === 'b') {
+        ctx.save(); rrect(ctx, P, op.y, W - 2 * P, op.h, 10);
+        ctx.fillStyle = 'rgba(35,38,45,.035)'; ctx.fill();
+        ctx.setLineDash([5, 4]); ctx.strokeStyle = 'rgba(35,38,45,.45)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+      } else if (op.k === 'c') {
+        ctx.fillStyle = INK; let x = op.x;
+        for (const b of op.bars) { ctx.fillRect(x, op.y, b, op.h); x += b + op.gap; }
+      } else if (op.k === 's') {
+        if (stampP != null && stampP > 0) drawStamp(ctx, op.st, stampP);
+      }
+    }
+    ctx.restore();
+  }
+
+  // ---------- state ----------
+  let state = 'start', qi = 0, answers = [], lockUntil = 0, advTimer = 0;
+  let R = null, L = null, reveal = 0, stampP = null, printT = 0, stepIdx = -1, stampAnim = null;
+  let k = 1, dpr = 1;
+
+  nameIn.value = DEMO ? '' : store.get('name', '');
+
+  function show(el) {
+    for (const s of [sStart, sQuiz, sPrint]) s.hidden = s !== el;
+    const a = document.activeElement;
+    if (a && a !== document.body && a.closest && a.closest('[hidden]')) a.blur();
+  }
+  function showStart() {
+    state = 'start'; clearTimeout(advTimer); stampAnim = null;
+    show(sStart);
+  }
+  function start() {
+    if (state !== 'start') return;
+    const nm = Array.from(nameIn.value.trim()).slice(0, 8).join('');
+    nameIn.value = nm;
+    store.set('name', nm);
+    nameIn.blur();
+    state = 'quiz'; qi = 0; answers = []; lockUntil = performance.now() + 180;
+    show(sQuiz);
+    renderQuestion(1);
+  }
+  function restart(e) {
+    if (state !== 'result') return;
+    if (e && e.preventDefault) e.preventDefault();
+    answers = []; R = null; L = null; stampP = null; stampAnim = null;
+    showStart();
+  }
+
+  function renderQuestion(dir) {
+    const q = T.qs[qi];
+    $('pNum').textContent = `${qi + 1}/9`;
+    $('qn').textContent = 'Q' + (qi + 1);
+    $('qText').textContent = q.q;
+    optBtns.forEach((b, i) => {
+      b.querySelector('.t').textContent = q.o[i];
+      b.classList.remove('picked');
+      b.classList.toggle('was', answers[qi] === i);
+    });
+    dotEls.forEach((d, i) => { d.className = i < qi ? 'done' : i === qi ? 'now' : ''; });
+    for (const el of [card, optsEl]) {
+      el.classList.remove('in', 'inb'); void el.offsetWidth; el.classList.add(dir < 0 ? 'inb' : 'in');
+    }
+  }
+  function pick(i) {
+    if (state !== 'quiz' || performance.now() < lockUntil) return;
+    lockUntil = Infinity;
+    answers[qi] = i;
+    optBtns[i].classList.add('picked');
+    tick();
+    advTimer = setTimeout(() => {
+      if (state !== 'quiz') return;
+      if (qi < 8) { qi++; renderQuestion(1); lockUntil = performance.now() + 180; }
+      else { lockUntil = 0; startPrint(false); }
+    }, 150);
+  }
+  function back() {
+    if (state !== 'quiz' || performance.now() < lockUntil) return;
+    if (qi === 0) { showStart(); return; }
+    qi--; renderQuestion(-1); lockUntil = performance.now() + 180;
+  }
+  function moveFocus(d) {
+    const cur = optBtns.indexOf(document.activeElement);
+    const n = cur < 0 ? (d > 0 ? 0 : 3) : (cur + d + 4) % 4;
+    optBtns[n].focus();
+  }
+
+  // ---------- print ----------
+  function sizeCanvas() {
+    const colW = app.clientWidth || innerWidth;
+    const rw = Math.max(200, Math.floor(Math.min(innerWidth * 0.92, 420, colW - 32)));
+    app.style.setProperty('--rw', rw + 'px');
+    k = rw / RW;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (!L) return;
+    rc.width = Math.round(rw * dpr);
+    rc.height = Math.round(L.H * k * dpr);
+    rc.style.height = (L.H * k) + 'px';
+  }
+  function paint() {
+    if (!L) return;
+    const c = rc.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, rc.width, rc.height);
+    c.setTransform(k * dpr, 0, 0, k * dpr, 0, 0);
+    drawReceipt(c, L, reveal, stampP);
+    const vis = reveal >= L.H ? L.H : reveal + TH;
+    wrap.style.height = Math.ceil(vis * k + 18) + 'px';
+  }
+  function startPrint(instant) {
+    R = compute(nameIn.value, answers);
+    L = layout(R, rc.getContext('2d'));
+    rc.setAttribute('aria-label', shareText());
+    state = 'print'; printT = 0; stepIdx = -1; reveal = 0; stampP = null; stampAnim = null;
+    if (!DEMO) store.set('count', (parseInt(store.get('count', '0'), 10) || 0) + 1);
+    show(sPrint);
+    for (const b of [bSave, bCopy, bAgain]) b.disabled = true;
+    pStatus.textContent = T.printing; led.classList.add('busy');
+    sizeCanvas();
+    scroller.scrollTop = 0;
+    if (instant || REDUCED) { finishPrint(true); return; }
+    paint();
+  }
+  function updatePrint(dt) {
+    printT += dt;
+    const n = L.steps.length;
+    if (printT >= n * STEP) { finishPrint(false); return; }
+    const s = Math.min(n - 1, Math.floor(printT / STEP));
+    if (s > stepIdx) { stepIdx = s; tick(); }
+    const prev = s === 0 ? 0 : L.steps[s - 1];
+    const fr = Math.min(1, ((printT - s * STEP) / STEP) * 2.2);
+    reveal = prev + (L.steps[s] - prev) * (1 - Math.pow(1 - fr, 3));
+    paint();
+    const off = wrap.offsetTop;
+    scroller.scrollTop = Math.max(0, off + (reveal + TH) * k + 22 - scroller.clientHeight);
+  }
+  function targetScroll() {
+    const ch = scroller.clientHeight, off = wrap.offsetTop;
+    const top = off + (L.totalY - 40) * k;
+    const bot = off + (L.stamp.cy + L.stamp.box / 2 + 8) * k;
+    let t = (top + bot) / 2 - ch * 0.42;
+    t = Math.min(t, top - 6);
+    return Math.max(0, Math.min(scroller.scrollHeight - ch, t));
+  }
+  function finishPrint(instant) {
+    state = 'result'; reveal = L.H;
+    for (const b of [bSave, bCopy, bAgain]) b.disabled = false;
+    pStatus.textContent = T.appTitle; led.classList.remove('busy');
+    if (instant || REDUCED) {
+      stampP = 1; paint();
+      scroller.scrollTop = targetScroll();
+      return;
+    }
+    stampP = null; paint();
+    const top = targetScroll();
+    try { scroller.scrollTo({ top, behavior: 'smooth' }); } catch (e) { scroller.scrollTop = top; }
+    stampAnim = { t: -0.45, hit: false };
+  }
+  function updateStamp(dt) {
+    stampAnim.t += dt;
+    if (stampAnim.t < 0) return;
+    stampP = Math.min(1, Math.max(0.001, stampAnim.t / 0.34));
+    if (!stampAnim.hit && stampP >= 0.65) {
+      stampAnim.hit = true; thump();
+      wrap.classList.remove('shake'); void wrap.offsetWidth; wrap.classList.add('shake');
+    }
+    paint();
+    if (stampP >= 1) stampAnim = null;
+  }
+
+  // ---------- export / copy ----------
+  function shareText() {
+    if (!R) return '';
+    return [
+      T.shareHead(R.name, R.year, R.guest),
+      `${T.total} ₩${num(R.total)}`,
+      `${T.titleLabel}: ${R.emoji} ${R.title}`,
+      `${T.forecastHeadGeneric}: ${R.sentence}`,
+      'play.mesisi.net',
+    ].join('\n');
+  }
+  function saveImage() {
+    if (state !== 'result' || !L) return;
+    try {
+      const sc = 750 / RW, pad = 40;
+      const w = Math.round(RW * sc) + pad * 2, h = Math.round(L.H * sc) + pad * 2;
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      const c = cv.getContext('2d');
+      c.fillStyle = '#1d2433'; c.fillRect(0, 0, w, h);
+      c.save(); c.translate(pad, pad); c.scale(sc, sc);
+      c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
+      paperPath(c, RW, L.H, L.H); c.fillStyle = PAPER; c.fill(); c.restore();
+      drawReceipt(c, L, L.H, 1);
+      c.restore();
+      c.font = `12px ${SANS}`; c.fillStyle = GRAY; c.textAlign = 'right'; c.textBaseline = 'alphabetic';
+      c.fillText('play.mesisi.net', w - pad, h - 14);
+      cv.toBlob((blob) => {
+        if (!blob) { toast(T.saveFail, true); return; }
+        try {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'year-end-receipt.png'; a.style.display = 'none';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          toast(T.saved);
+        } catch (e) { toast(T.saveFail, true); }
+      }, 'image/png');
+    } catch (e) { toast(T.saveFail, true); }
+  }
+  function copyText() {
+    if (state !== 'result' || !R) return;
+    const text = shareText();
+    const fallback = () => {
+      let ok = false;
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;user-select:text;-webkit-user-select:text';
+        document.body.appendChild(ta); ta.select();
+        ok = document.execCommand('copy');
+        ta.remove();
+      } catch (e) { ok = false; }
+      toast(ok ? T.copied : T.copyFail, !ok);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast(T.copied), fallback);
+      else fallback();
+    } catch (e) { fallback(); }
+  }
+
+  // ---------- snow ----------
+  const snowCv = $('snow'), sctx = snowCv.getContext('2d');
+  let sw = 0, sh = 0, sdpr = 1, snowT = 0;
+  const flakes = [];
+  function sizeSnow() {
+    sdpr = Math.min(2, window.devicePixelRatio || 1);
+    sw = innerWidth; sh = innerHeight;
+    snowCv.width = Math.round(sw * sdpr); snowCv.height = Math.round(sh * sdpr);
+  }
+  function seedFlakes() {
+    const n = REDUCED ? 20 : 60;
+    for (let i = 0; i < n; i++) {
+      flakes.push({
+        x: Math.random(), y: Math.random() * sh, r: 0.8 + Math.random() * 2.4,
+        vy: REDUCED ? 6 + Math.random() * 8 : 16 + Math.random() * 34,
+        amp: 6 + Math.random() * 18, ph: Math.random() * 6.28, fq: 0.3 + Math.random() * 0.9,
+      });
+    }
+  }
+  function stepSnow(dt) {
+    snowT += dt;
+    sctx.setTransform(sdpr, 0, 0, sdpr, 0, 0);
+    sctx.clearRect(0, 0, sw, sh);
+    sctx.fillStyle = 'rgba(255,255,255,.7)';
+    sctx.beginPath();
+    for (const f of flakes) {
+      f.y += f.vy * dt * (0.6 + f.r / 4);
+      if (f.y > sh + 6) { f.y = -6; f.x = Math.random(); }
+      const x = f.x * sw + Math.sin(f.ph + snowT * f.fq) * f.amp;
+      sctx.moveTo(x + f.r, f.y); sctx.arc(x, f.y, f.r, 0, 6.2832);
+    }
+    sctx.fill();
+  }
+
+  // ---------- input ----------
+  $('bStart').addEventListener('click', start);
+  $('bBack').addEventListener('click', back);
+  bSave.addEventListener('click', saveImage);
+  bCopy.addEventListener('click', copyText);
+  bAgain.addEventListener('click', restart);
+
+  let drag = null;
+  scroller.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    drag = { y: e.clientY, top: scroller.scrollTop };
+    try { scroller.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    scroller.classList.add('drag');
+  });
+  scroller.addEventListener('pointermove', (e) => { if (drag && state === 'result') scroller.scrollTop = drag.top - (e.clientY - drag.y); });
+  const endDrag = () => { drag = null; scroller.classList.remove('drag'); };
+  scroller.addEventListener('pointerup', endDrag);
+  scroller.addEventListener('pointercancel', endDrag);
+
+  addEventListener('keydown', (e) => {
+    if (e.isComposing || e.keyCode === 229) return;
+    const tag = (e.target && e.target.tagName) || '';
+    const key = e.key, code = e.code || '';
+    const mod = e.ctrlKey || e.metaKey || e.altKey;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      if (key === 'Enter' && state === 'start') { e.preventDefault(); start(); }
+      return;
+    }
+    const onBtn = tag === 'BUTTON';
+    if (code === 'KeyM' && !mod) { e.preventDefault(); toggleSound(); return; }
+    if (state === 'start') {
+      if ((key === 'Enter' || key === ' ') && !onBtn) { e.preventDefault(); if (key === 'Enter') start(); }
+    } else if (state === 'quiz') {
+      if (key >= '1' && key <= '4' && key.length === 1 && !mod) { e.preventDefault(); pick(+key - 1); }
+      else if (key === 'Backspace' || key === 'ArrowLeft') { e.preventDefault(); back(); }
+      else if (key === 'ArrowDown' || key === 'ArrowUp') { e.preventDefault(); moveFocus(key === 'ArrowDown' ? 1 : -1); }
+      else if ((key === 'Enter' || key === ' ') && !onBtn) e.preventDefault();
+    } else if (state === 'result') {
+      const page = scroller.clientHeight * 0.85;
+      const by = { ArrowDown: 60, ArrowUp: -60, PageDown: page, PageUp: -page, Home: -1e6, End: 1e6 }[key];
+      if (by) { e.preventDefault(); scroller.scrollTop += by; }
+      else if (code === 'KeyS' && !mod) { e.preventDefault(); saveImage(); }
+      else if (code === 'KeyC' && !mod) { e.preventDefault(); copyText(); }
+      else if ((code === 'KeyR' && !mod) || (key === 'Enter' && !onBtn)) restart(e);
+      else if (key === ' ' && !onBtn) e.preventDefault();
+    } else if (key.startsWith('Arrow') || key === ' ' || key.startsWith('Page')) e.preventDefault();
+  });
+
+  addEventListener('resize', () => {
+    sizeSnow();
+    if (L && (state === 'print' || state === 'result')) { sizeCanvas(); paint(); }
+  });
+
+  // ---------- loop ----------
+  let last = performance.now();
+  function frame(ts) {
+    let dt = (ts - last) / 1000;
+    last = ts;
+    if (!(dt > 0)) dt = 0;
+    if (dt > 0.05) dt = 0.05;
+    if (!document.hidden) {
+      stepSnow(dt);
+      if (state === 'print') updatePrint(dt);
+      else if (stampAnim) updateStamp(dt);
+    }
+    requestAnimationFrame(frame);
+  }
+  document.addEventListener('visibilitychange', () => { last = performance.now(); });
+
+  sizeSnow(); seedFlakes(); stepSnow(0);
+  sizeCanvas();
+  if (DEMO) {
+    state = 'quiz'; answers = DEMO_ANSWERS.slice();
+    startPrint(true);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

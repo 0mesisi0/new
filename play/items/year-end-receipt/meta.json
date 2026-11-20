@@ -1,0 +1,27 @@
+{
+  "slug": "year-end-receipt",
+  "date": "2026-11-20",
+  "category": "fortune",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "올해 결산 영수증 만들기",
+    "desc": "올해 야근·커피·송년회·배달 횟수를 고르면 한 해 청구서가 영수증으로 출력돼요. 칭호와 2027 정미년 한 줄 예언까지, 이미지로 저장해 자랑하세요.",
+    "howto": "질문 9개에 가장 가까운 답을 누르세요(숫자키 1~4도 돼요). 영수증이 출력되면 '이미지 저장'이나 '텍스트 복사'로 친구에게 보여 주세요. 같은 이름과 같은 답이면 영수증도 똑같이 나와요.",
+    "about": "모든 금액은 재미로 만든 가짜예요. 입력한 이름과 답은 이 기기 밖으로 나가지 않아요. 2027년은 정미년, 양의 해입니다.",
+    "tags": [
+      "연말결산",
+      "영수증"
+    ]
+  },
+  "en": {
+    "title": "Year-End Receipt Maker",
+    "desc": "Tap through your year in coffees, overtime and parties, then print it as a receipt with a silly title and a one-line 2027 forecast. Save it as an image.",
+    "howto": "Answer 9 quick questions by tapping the closest option (keys 1-4 work too). When the receipt prints, save it as an image or copy the text to share. Same name and same answers always print the same receipt.",
+    "about": "All amounts are made up for fun. Your name and answers never leave this device. 2027 is the year of the sheep (Jeongmi).",
+    "tags": [
+      "year-end",
+      "receipt"
+    ]
+  }
+}
