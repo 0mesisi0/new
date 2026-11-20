@@ -1,0 +1,41 @@
+{
+  "id": "2026-11-21-bungeoppang-budget",
+  "site": "play",
+  "slug": "bungeoppang-budget",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-20T19:10:03.182Z",
+      "stage": "research",
+      "status": "running",
+      "by": "gemini"
+    },
+    {
+      "at": "2026-11-20T19:12:14.272Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "gemini"
+    },
+    {
+      "at": "2026-11-20T19:12:14.886Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-20T19:15:35.828Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ]
+}
