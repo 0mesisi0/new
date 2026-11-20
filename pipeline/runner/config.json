@@ -1,0 +1,10 @@
+{
+  "siteUrl": "https://play.mesisi.net",
+  "branch": "pipeline-inbox",
+  "maxAttempts": 3,
+  "timeoutMinutes": 20,
+  "agents": {
+    "codex": { "cmd": "codex", "args": ["exec", "--sandbox", "read-only", "-o", "{out}", "{instruction}"] },
+    "gemini": { "cmd": "agy", "args": ["-p", "{instruction}"] }
+  }
+}

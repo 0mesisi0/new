@@ -20,14 +20,15 @@ const path = (lang, slug = '') => `${BASE}/${lang}/${slug ? slug + '/' : ''}`;
 const abs = (p) => new URL(SITE_URL).origin + p;
 const catPath = (lang, id) => path(lang, `c/${id}`);
 const itemSrc = (it, lang) => `${BASE}/items/${it.slug}/?lang=${lang}`;
-const thumb = (it) => (it.hasThumb ? `${BASE}/items/${it.slug}/thumb.png` : '');
+// A hand-made cover (owner-generated in ChatGPT/Gemini, see docs/PLATFORM.md) wins over the QA screenshot.
+const thumb = (it) => (it.hasCover ? `${BASE}/items/${it.slug}/cover.png` : it.hasThumb ? `${BASE}/items/${it.slug}/thumb.png` : '');
 const ratio = (a) => { const [w, h] = String(a).split('/').map(Number); return w > 0 && h > 0 ? w / h : 1; };
 
 export function loadItems() {
   if (!existsSync(ITEMS)) return [];
   return readdirSync(ITEMS)
     .filter((d) => existsSync(join(ITEMS, d, 'meta.json')))
-    .map((d) => ({ ...JSON.parse(readFileSync(join(ITEMS, d, 'meta.json'), 'utf8')), hasThumb: existsSync(join(ITEMS, d, 'thumb.png')) }))
+    .map((d) => ({ ...JSON.parse(readFileSync(join(ITEMS, d, 'meta.json'), 'utf8')), hasThumb: existsSync(join(ITEMS, d, 'thumb.png')), hasCover: existsSync(join(ITEMS, d, 'cover.png')) }))
     .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
 }
 

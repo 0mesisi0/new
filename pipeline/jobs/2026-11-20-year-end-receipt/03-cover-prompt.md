@@ -1,0 +1,5 @@
+# Cover image prompt (owner generates in ChatGPT or Gemini app)
+
+Handoff: this prompt is also in Google Drive `My Drive/하루한판/표지이미지`. The owner generates the image in the ChatGPT or Gemini app (subscription, no API) and uploads it there as `year-end-receipt.png`. Claude picks it up, resizes it to 1200×900, and commits it as `play/items/year-end-receipt/cover.png` in a PR. It is published only when the owner merges that PR. Without a cover, the QA screenshot thumbnail is used.
+
+**Prompt (en):** A warm, cute flat illustration in 4:3 landscape. A snowy winter night. On a deep navy desk sits a small ivory receipt printer, with a long curling thermal-paper receipt printing out of it. A red rounded-rectangle rubber stamp mark sits tilted on the receipt. Snowflakes drift past the window. Next to the printer sits a small fluffy white wool sheep plush. There is a steaming coffee mug and a tiny star-shaped lamp. The palette is mostly navy (#1d2433), ivory (#fbfaf5) and red (#e0453d). Soft flat shapes, gentle shadows. No text, letters, numbers or logos anywhere in the image. No real brands or people.
