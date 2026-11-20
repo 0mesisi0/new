@@ -513,7 +513,8 @@
 
   function wrapText(ctx, s, maxW, font, byChar) {
     ctx.font = font;
-    const tokens = byChar ? Array.from(s) : s.split(/(\s+)/);
+    // Korean wraps by character, but digit/Latin runs stay whole and punctuation sticks to the char before it.
+    const tokens = byChar ? (s.match(/[A-Za-z0-9]+[.,!?…]*|\s+|.[.,!?…]*/gu) || []) : s.split(/(\s+)/);
     const out = []; let cur = '';
     for (const tk of tokens) {
       if (!tk) continue;

@@ -77,6 +77,17 @@ Sunday 04:00 runner feedback ── agy + codex ─▶ reads /api/stats ─▶ j
 - Jules (Gemini) gets **improvement tasks** as GitHub issues labelled `jules`, for example "make item X work better on small screens (votes: 12 👍 / 9 👎)". Its PRs pass through the same test, Codex review and owner-merge gate.
 - If an agent is unavailable, Claude takes the stage (marked `by: "claude (fallback for …)"`), so a day is never lost.
 
+### Google Drive handoff (manual subscription steps, available now)
+
+Until the Windows runner exists, two Gemini and ChatGPT steps go through the owner's Google Drive. Claude reads and writes Drive through its connector.
+
+| Folder (`My Drive/하루한판/…`) | Claude puts | Owner does | Claude then |
+|---|---|---|---|
+| `조사` | A weekly Gemini Deep Research question | Runs it in the Gemini app and exports the result to Docs in this folder | Reads it, checks the sources, and writes `01-research.md` |
+| `표지이미지` | A cover prompt per item (`03-cover-prompt.md`) | Generates the image in the ChatGPT or Gemini app and uploads `<slug>.png` | Resizes it to 1200×900 and commits `play/items/<slug>/cover.png` in a PR |
+
+Drive links and IDs are not stored in this public repository.
+
 ## 5. Stage contracts
 
 Each stage reads the previous files, writes exactly one output file, and updates `job.json`.

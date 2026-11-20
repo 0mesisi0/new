@@ -7,15 +7,46 @@
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
-  "pr": null,
+  "pr": 6,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "coverPrompt": "03-cover-prompt.md"
   },
   "history": [
-    { "at": "2026-11-20T12:20:00Z", "stage": "research", "status": "approved", "by": "claude (fallback for gemini)", "note": "12 findings, seasonal hooks; most sources are evergreen lists" },
-    { "at": "2026-11-20T12:30:00Z", "stage": "idea", "status": "approved", "by": "claude (fallback for codex)", "note": "3 concepts scored; picked Year-End Receipt (fortune)" },
-    { "at": "2026-11-20T12:35:00Z", "stage": "design", "status": "approved", "by": "claude", "note": "visual spec merged into 02-idea.md (palette, layout, motion)" },
-    { "at": "2026-11-20T12:36:00Z", "stage": "build", "status": "running", "by": "claude" }
+    {
+      "at": "2026-11-20T12:20:00Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude (fallback for gemini)",
+      "note": "12 findings, seasonal hooks; most sources are evergreen lists"
+    },
+    {
+      "at": "2026-11-20T12:30:00Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude (fallback for codex)",
+      "note": "3 concepts scored; picked Year-End Receipt (fortune)"
+    },
+    {
+      "at": "2026-11-20T12:35:00Z",
+      "stage": "design",
+      "status": "approved",
+      "by": "claude",
+      "note": "visual spec merged into 02-idea.md (palette, layout, motion)"
+    },
+    {
+      "at": "2026-11-20T12:36:00Z",
+      "stage": "build",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-20T12:51:00Z",
+      "stage": "design",
+      "status": "queued",
+      "by": "claude",
+      "note": "cover prompt handed to the owner via Google Drive (ChatGPT/Gemini app); optional"
+    }
   ]
 }
