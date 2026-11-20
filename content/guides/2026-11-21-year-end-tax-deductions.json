@@ -1,0 +1,91 @@
+{
+  "id": "yearendDeductions",
+  "slug": "year-end-tax-deductions",
+  "date": "2026-11-21",
+  "sources": [
+    [
+      "국회예산정책처: 2025년 개정세법 심의 결과 및 주요 내용 (2025-12)",
+      "https://www.nabo.go.kr/board/file/bulkDown.do?idx=9022&bid=19"
+    ],
+    [
+      "한국경제: 고향사랑기부 세액공제 확대",
+      "https://www.hankyung.com/article/2025111667771"
+    ],
+    [
+      "뉴시스: 자녀세액공제·고향사랑기부금 상향, 올해 연말정산 뭐가 달라질까 (2025-12-17)",
+      "https://mobile.newsis.com/view/NISX20251217_0003444516"
+    ],
+    [
+      "베이비뉴스: 자녀세액공제 금액",
+      "https://www.ibabynews.com/news/articleView.html?idxno=145301"
+    ],
+    [
+      "삼쩜삼 고객센터: 연말정산 신고할 때 자주 놓치는 공제 항목",
+      "https://help.3o3.co.kr/hc/ko/articles/4414288099481"
+    ],
+    [
+      "The Korea Times: Tax agency urges foreign workers to take advantage of exclusive benefits (2026-01-07)",
+      "https://www.koreatimes.co.kr/amp/economy/20260107/tax-agency-urges-foreign-workers-to-take-advantage-of-exclusive-benefits-for-year-end-tax-filing"
+    ],
+    [
+      "Asia Economy: Foreign workers also eligible for housing savings income deduction (2026-01)",
+      "https://view.asiae.co.kr/en/article/2026010709522291133"
+    ],
+    [
+      "PwC Worldwide Tax Summaries: Korea, individual income determination",
+      "https://taxsummaries.pwc.com/republic-of-korea/individual/income-determination"
+    ],
+    [
+      "KPMG GMS Flash Alert 2026-235: Korea 2026 tax reform proposal",
+      "https://kpmg.com/xx/en/our-insights/gms-flash-alert/2026/flash-alert-2026-235.html"
+    ],
+    [
+      "삼쩜삼 고객센터: 연말정산 누락분 경정청구로 돌려받는 방법",
+      "https://help.3o3.co.kr/hc/ko/articles/44381945978265"
+    ]
+  ],
+  "ko": {
+    "nav": "연말정산 놓치기 쉬운 공제",
+    "title": "2026년 귀속 연말정산 환급 늘리는 공제 항목 – 달라진 점과 놓치기 쉬운 공제",
+    "desc": "2026년 귀속 연말정산(2027년 1~2월)부터 자녀가 있으면 신용카드 공제 한도가 최대 100만 원 늘고, 고향사랑기부 공제율도 올랐습니다. 자주 놓치는 공제까지 정리했습니다.",
+    "h1": "연말정산 환급 늘리는 공제 항목 (2026년 귀속)",
+    "lead": "2027년 1~2월에 하는 2026년 귀속 연말정산에서는 두 가지가 달라집니다. 자녀가 있으면 신용카드 등 소득공제 한도가 늘고, 고향사랑기부금 10만 원 초과분 공제율이 15%에서 40%로 오릅니다. 여기에 해마다 많이 놓치는 공제를 챙기면 환급액이 달라집니다.",
+    "body": "<h2>2026년 귀속부터 달라지는 점</h2><div class=\"table-scroll\"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>신용카드 등 소득공제 한도</td><td>기본 한도에 자녀 1명당 50만 원 추가, 최대 100만 원 (총급여 7천만 원 초과자는 자녀 1명당 25만 원)</td></tr><tr><td>고향사랑기부금</td><td>10만 원 초과 20만 원 이하 구간 세액공제율 15% → 40%. 20만 원을 기부하면 지방소득세를 포함해 14만 4천 원 공제</td></tr></tbody></table></div><p>두 가지 모두 2025년 12월 국회를 통과한 개정 세법 내용입니다. 신용카드 등 소득공제는 적용 기한도 2028년까지 늘었습니다.</p><h2>자녀세액공제 (2025년 귀속부터 인상)</h2><p>기본공제 대상인 8~20세 자녀가 1명이면 25만 원, 2명이면 55만 원, 3명이면 95만 원을 세금에서 바로 빼 줍니다. 넷째부터는 1명당 40만 원씩 늘어납니다.</p><h2>해마다 많이 놓치는 공제</h2><ul><li><strong>소득이 조금 있는 부양가족:</strong> 부모님이나 배우자에게 소득이 있어도 연간 소득금액이 100만 원 이하라면 기본공제를 받을 수 있습니다. 따로 사는 부모님도 실제로 부양하고 있다면 대상입니다.</li><li><strong>장애인 추가공제:</strong> 부양가족 중 세법상 장애인이 있으면 1명당 연 200만 원을 더 공제합니다.</li><li><strong>의료비:</strong> 총급여의 3%를 넘게 쓴 부분부터 공제됩니다. 실손보험금으로 돌려받은 금액은 빼야 하고, 안경·콘택트렌즈는 1인당 연 50만 원까지입니다.</li><li><strong>월세:</strong> 무주택 세대주라면 월세 세액공제를 받을 수 있지만 간소화 자료에 잘 잡히지 않습니다. 임대차계약서와 이체 내역을 직접 회사에 내야 합니다.</li><li><strong>교복·체육복, 취학 전 학원비:</strong> 간소화 자료에 빠지는 경우가 많아 영수증을 따로 챙겨야 합니다.</li></ul><h2>일정과 준비</h2><p>국세청 홈택스의 연말정산 미리보기로 1~9월 카드 사용액을 보고 남은 기간의 사용 계획을 세울 수 있습니다. 간소화 자료는 예년에 1월 15일 전후로 열렸습니다. 정확한 날짜는 홈택스 공지를 확인하세요. 내 월급에서 실제로 떼이는 세금은 <a href=\"{{salary}}\">연봉 실수령액 계산기</a>로 확인할 수 있습니다.</p>",
+    "faq": [
+      [
+        "자녀가 둘이면 신용카드 공제 한도가 얼마나 늘어나나요?",
+        "총급여 7천만 원 이하라면 자녀 1명당 50만 원씩 100만 원이 늘어납니다. 총급여 7천만 원을 넘으면 자녀 1명당 25만 원씩입니다. 2026년 사용분부터 적용됩니다."
+      ],
+      [
+        "부모님이 국민연금을 받으시는데 부양가족 공제가 되나요?",
+        "연간 소득금액이 100만 원 이하라면 됩니다. 연금 종류와 금액에 따라 소득금액 계산이 달라지므로 홈택스 간소화 자료나 회사 담당자에게 확인하세요."
+      ],
+      [
+        "연말정산 때 빠뜨린 공제는 어떻게 하나요?",
+        "5월 종합소득세 신고 기간에 직접 신고하거나, 5년 안에 경정청구를 하면 돌려받을 수 있습니다."
+      ]
+    ]
+  },
+  "en": {
+    "nav": "Year-end tax deductions",
+    "title": "Korea Year-End Tax Settlement 2026: Deductions Foreign Workers Miss",
+    "desc": "What changes in Korea's year-end tax settlement for 2026 income, the deductions people most often miss, and how the 19% flat tax option for foreign workers works.",
+    "h1": "Year-end tax settlement: deductions worth claiming (2026 income)",
+    "lead": "Foreign employees in Korea go through the same year-end tax settlement (연말정산) as Korean staff, in January and February 2027 for 2026 income. Two credits are larger this time, and several common deductions are easy to miss. The first choice to make is whether the 19% flat tax option suits you.",
+    "body": "<h2>First decide: flat 19% or the normal rates?</h2><p>A foreign employee can choose a flat 19% income tax rate instead of the progressive rates for up to 20 years from the year they first work in Korea. Local income tax is added on top, and the option does not apply if you work for a related-party company. Under the flat rate you <strong>cannot claim any deductions or credits</strong>, so it usually only pays off for high earners. If you take the normal rates, everything below applies to you.</p><p>A 2026 government proposal would raise the flat rate to 21% from 2027. Treat it as a proposal until it is passed into law.</p><h2>What is new for 2026 income</h2><ul><li><strong>Card spending deduction:</strong> the limit goes up by ₩500,000 per child, up to ₩1 million, if your total salary is ₩70 million or less. Above that it is ₩250,000 per child.</li><li><strong>Hometown Love donations (고향사랑기부금):</strong> the credit rate on the portion between ₩100,000 and ₩200,000 rises from 15% to 40%. A ₩200,000 donation now gives ₩144,000 back, including local tax.</li></ul><h2>Child tax credit</h2><p>For children aged 8 to 20 who are your dependents, the credit is ₩250,000 for one child, ₩550,000 for two and ₩950,000 for three, plus ₩400,000 for each additional child. These amounts have applied since 2025 income.</p><h2>Deductions people often miss</h2><ul><li><strong>Dependents with a small income:</strong> a spouse or parent with up to ₩1 million of annual income (after deductions) can still be your dependent.</li><li><strong>Medical costs:</strong> only the part above 3% of your total salary counts. Money paid back by private insurance does not count, and glasses are capped at ₩500,000 per person.</li><li><strong>Monthly rent:</strong> if you are a non-homeowning head of household, you may claim a rent credit. It often does not appear in the simplified data, so give your employer your lease and transfer records.</li><li><strong>Housing savings:</strong> from 2025 income, foreign workers can also claim the housing savings income deduction.</li></ul><h2>Timing</h2><p>The simplified data on Hometax has opened around 15 January in recent years. Check Hometax for the exact date. To see how much tax comes out of your pay each month, use the <a href=\"{{salary}}\">net salary calculator</a>.</p>",
+    "faq": [
+      [
+        "Do foreigners have to do the year-end tax settlement?",
+        "Yes. If you are paid a salary by a Korean employer, the settlement follows the same schedule and procedure as for Korean employees."
+      ],
+      [
+        "Should I choose the 19% flat rate?",
+        "Compare both. The flat rate removes all deductions and credits, so it mainly helps people on high salaries with few deductions. Your employer or a tax accountant can run both calculations."
+      ],
+      [
+        "I missed a deduction. Can I still claim it?",
+        "Yes. You can file it yourself during the May income tax filing period, or request a correction (경정청구) within five years."
+      ]
+    ]
+  }
+}
