@@ -50,3 +50,7 @@ GitHub에서는 저장소 Settings → Secrets and variables → Actions → Var
 ## 매일 자동 글 추가
 
 예약 작업이 매일 `content/topics.md`에서 다음 주제를 골라 `content/guides/`에 가이드 1편(한국어·영어)을 추가하고 PR을 병합합니다. 병합되면 사이트가 자동 배포됩니다. 글 형식과 작성 규칙은 `content/guides/README.md`에 있습니다. 주제를 바꾸고 싶으면 `content/topics.md`를 고치면 됩니다.
+
+## play/ (play.mesisi.net)
+
+`play/`는 별도 사이트 "하루한판"입니다. 게임, 멋진 페이지, 별난 사이트, 교육, 기술, 생활 정보, 유틸, 생성기, 라디오, 운세를 매일 하나씩 올리고, 좋아요·별로예요 투표를 받습니다. Cloudflare Pages(정적 파일 + `/api` 투표 함수 + D1)로 배포합니다. 작품 규칙은 `play/ITEMS.md`, 매일 작업 흐름(리서처·기획자·디자이너·개발자·검토자)은 `play/PIPELINE.md`에 있습니다.

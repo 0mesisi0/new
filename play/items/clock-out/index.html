@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>칼퇴 버튼 · Clock Out!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: linear-gradient(#cfe3f5, #eef4f8 55%, #d8c7ae 55%, #c9b494);
+    color: #1d1a14; user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+  #hud { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #1d1a14; color: #fff; font-weight: 700; z-index: 3; }
+  #clock { font-variant-numeric: tabular-nums; font-size: 1.25rem; letter-spacing: 1px; background: #000; color: #ff5a4f; padding: 2px 8px; border-radius: 6px; text-shadow: 0 0 6px #ff3b30; }
+  #dots { display: flex; gap: 5px; flex: 1; justify-content: center; }
+  #dots i { width: 11px; height: 11px; border-radius: 50%; background: #4a443a; display: block; }
+  #dots i.on { background: #ffcf33; }
+  #dots i.now { background: #fff; box-shadow: 0 0 0 3px #ffcf3366; }
+  #time { font-variant-numeric: tabular-nums; min-width: 4.2em; text-align: right; }
+  #mute { background: none; border: 0; font-size: 1.2rem; cursor: pointer; width: 36px; height: 36px; }
+  #field { position: relative; flex: 1; overflow: hidden; }
+  #field::before { /* window */
+    content: ""; position: absolute; left: 8%; top: 8%; width: 34%; height: 30%;
+    background: linear-gradient(135deg, #ffb46b, #ff7f6b 60%, #6b5bd6); border: 6px solid #fff; border-radius: 6px; opacity: .85;
+  }
+  #field::after { /* desk */
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22%;
+    background: repeating-linear-gradient(90deg, #a07a52 0 40px, #9a744d 40px 80px); border-top: 6px solid #7d5c3b;
+  }
+  .btn {
+    position: absolute; left: 0; top: 0; border: 0; border-radius: 16px; font: inherit; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; z-index: 2;
+    box-shadow: 0 6px 0 rgba(0,0,0,.25), 0 10px 18px rgba(0,0,0,.18); will-change: transform; white-space: nowrap;
+  }
+  .btn.leave { background: #2fbf71; color: #fff; }
+  .btn.ot { background: #ff5a4f; color: #fff; }
+  .btn:active { box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .jumpy .btn { transition: transform .13s ease-out; }
+  #boss {
+    position: absolute; left: 0; right: 0; top: 0; z-index: 4; pointer-events: none;
+    text-align: center; font-weight: 800; color: #fff; padding: 10px; background: #c62828;
+    transform: translateY(-110%); transition: transform .2s;
+  }
+  #boss.warn { transform: translateY(0); background: #ef8c00; }
+  #boss.on { transform: translateY(0); }
+  #tint { position: absolute; inset: 0; background: rgba(198, 40, 40, .18); opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 1; }
+  #tint.on { opacity: 1; }
+  #eyes { position: absolute; right: 6%; top: 10%; font-size: clamp(40px, 12vw, 90px); opacity: 0; transition: opacity .2s, transform .2s; transform: scale(.6); z-index: 1; pointer-events: none; }
+  #eyes.on { opacity: 1; transform: scale(1); }
+  #toast {
+    position: absolute; left: 50%; top: 18%; transform: translate(-50%, -10px); z-index: 5; pointer-events: none;
+    background: #1d1a14; color: #fff; padding: 8px 16px; border-radius: 999px; font-weight: 800; opacity: 0; transition: opacity .15s, transform .15s; white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #toast.bad { background: #c62828; }
+  #fx { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+  .shake { animation: shake .3s; }
+  @keyframes shake { 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(4px); } }
+  #screen {
+    position: absolute; inset: 0; z-index: 7; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 24px; text-align: center; background: rgba(255, 250, 240, .94); cursor: pointer;
+  }
+  #screen[hidden] { display: none; }
+  #screen h1 { font-size: clamp(2rem, 9vw, 3.4rem); line-height: 1.1; }
+  #screen .big { font-size: clamp(2.6rem, 12vw, 4.2rem); font-weight: 900; font-variant-numeric: tabular-nums; }
+  #screen .rank { display: inline-block; background: #ffcf33; padding: 4px 14px; border-radius: 999px; font-weight: 800; transform: rotate(-3deg); }
+  #screen p { max-width: 26em; color: #5d564a; }
+  #screen .go { margin-top: 6px; background: #2fbf71; color: #fff; border: 0; border-radius: 999px; padding: 14px 28px; font: inherit; font-weight: 800; font-size: 1.15rem; box-shadow: 0 5px 0 #1e8a50; cursor: pointer; }
+  #screen .nb { color: #c62828; font-weight: 900; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud"><div id="clock">18:00</div><div id="dots"></div><div id="time">0.0s</div><button id="mute" aria-label="sound">🔊</button></div>
+  <div id="field"><div id="tint"></div><div id="eyes">👀</div><div id="boss"></div></div>
+  <div id="toast"></div>
+  <canvas id="fx"></canvas>
+  <div id="screen"></div>
+</div>
+<script>
+(() => {
+  const qs = new URLSearchParams(location.search).get('lang');
+  const LANG = (qs || navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+  document.documentElement.lang = LANG;
+  const T = {
+    ko: {
+      title: '칼퇴 버튼', sub: '6시 정각. 도망치는 퇴근 버튼을 잡아라!',
+      howto: '초록 퇴근 버튼을 누르면 다음 단계. 빨간 야근 버튼은 +3초, 부장님이 보고 있을 때 누르면 +5초.',
+      start: '탭해서 출근', leave: '퇴근', ot: '야근', bossWarn: '…발소리가 들린다', boss: '👀 부장님 순찰 중! 아무것도 누르지 마',
+      caught: '부장님: 어디 가나? +5초', decoy: '야근 확정! +3초', clear: ['좋아!', '한 단계 더', '거의 다 왔다', '마지막!'],
+      done: '퇴근 성공!', time: '걸린 시간', best: '최고 기록', newBest: '신기록!', retry: '다시 출근하기', sec: '초',
+      ranks: [[10, '칼퇴의 신'], [16, '칼퇴 장인'], [26, '평범한 직장인'], [40, '눈치 없는 신입'], [Infinity, '야근 요정']],
+    },
+    en: {
+      title: 'Clock Out!', sub: "It's 6 PM. Catch the runaway Leave button!",
+      howto: 'Hit the green Leave button to clear a stage. Red Overtime buttons cost +3s. Clicking while the boss is watching costs +5s.',
+      start: 'Tap to clock in', leave: 'Leave', ot: 'Overtime', bossWarn: '…footsteps in the hall', boss: "👀 The boss is watching! Don't touch anything",
+      caught: 'Boss: Going somewhere? +5s', decoy: 'Overtime confirmed! +3s', clear: ['Nice!', 'Keep going', 'Almost there', 'Last one!'],
+      done: 'You clocked out!', time: 'Time', best: 'Best', newBest: 'New best!', retry: 'Clock in again', sec: 's',
+      ranks: [[10, 'Clock-out legend'], [16, 'Seasoned escapee'], [26, 'Average employee'], [40, 'Clueless new hire'], [Infinity, 'Overtime fairy']],
+    },
+  }[LANG];
+  document.title = T.title;
+
+  const STAGES = [
+    { speed: 240, radius: 110, size: 1.00, decoys: 0, boss: false, jump: 1.3, shuffle: 0 },
+    { speed: 320, radius: 130, size: 0.95, decoys: 2, boss: false, jump: 1.1, shuffle: 0 },
+    { speed: 380, radius: 140, size: 0.85, decoys: 3, boss: false, jump: 1.0, shuffle: 1.9 },
+    { speed: 400, radius: 145, size: 0.82, decoys: 3, boss: true, jump: 0.95, shuffle: 0 },
+    { speed: 450, radius: 155, size: 0.75, decoys: 4, boss: true, jump: 0.85, shuffle: 1.7 },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const field = $('field'), screen = $('screen'), toastEl = $('toast'), bossEl = $('boss'), tint = $('tint'), eyes = $('eyes');
+  const timeEl = $('time'), dotsEl = $('dots'), muteBtn = $('mute'), clockEl = $('clock');
+  const fx = $('fx'), ctx = fx.getContext('2d');
+
+  let best = null, muted = false;
+  try { best = Number(localStorage.getItem('clockout.best')) || null; muted = localStorage.getItem('clockout.muted') === '1'; } catch (e) { /* storage blocked */ }
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+
+  // ---------- sound ----------
+  let ac = null;
+  function beep(freq, dur = 0.08, type = 'square', vol = 0.06, slide = 0) {
+    if (muted) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) { /* audio unavailable */ }
+  }
+  muteBtn.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    muted = !muted; muteBtn.textContent = muted ? '🔇' : '🔊';
+    try { localStorage.setItem('clockout.muted', muted ? '1' : '0'); } catch (err) { /* ignore */ }
+  });
+
+  // ---------- state ----------
+  let state = 'menu', stageIdx = 0, elapsed = 0, penalty = 0, transition = 0;
+  let leave = null, decoys = [], px = -9999, py = -9999, touchMode = matchMedia('(hover: none)').matches;
+  let jumpT = 0, shuffleT = 0, cornerT = 0, bossPhase = 'idle', bossT = 0;
+  let W = 0, H = 0, scale = 1, dpr = 1;
+  const parts = [];
+
+  function measure() {
+    const r = field.getBoundingClientRect();
+    W = r.width; H = r.height;
+    scale = Math.min(1.35, Math.max(0.8, Math.min(W, H) / 420));
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    fx.width = Math.round(innerWidth * dpr); fx.height = Math.round(innerHeight * dpr);
+    fx.style.width = innerWidth + 'px'; fx.style.height = innerHeight + 'px';
+    for (const b of all()) { sizeBtn(b); clamp(b); place(b); }
+  }
+  const all = () => (leave ? [leave, ...decoys] : decoys);
+
+  function makeBtn(kind) {
+    const el = document.createElement('button');
+    el.className = 'btn ' + kind;
+    el.type = 'button';
+    el.innerHTML = kind === 'leave' ? `🏃 <span>${T.leave}</span>` : `🌙 <span>${T.ot}</span>`;
+    field.appendChild(el);
+    const b = { el, kind, x: 0, y: 0, w: 0, h: 0, vx: 0, vy: 0, wob: Math.random() * 6 };
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); hit(b, e); });
+    sizeBtn(b);
+    return b;
+  }
+  function sizeBtn(b) {
+    const s = STAGES[stageIdx].size * scale;
+    b.w = Math.round((b.kind === 'leave' ? 124 : 116) * s); b.h = Math.round(54 * s);
+    b.el.style.width = b.w + 'px'; b.el.style.height = b.h + 'px'; b.el.style.fontSize = (19 * s).toFixed(1) + 'px';
+  }
+  function clamp(b) {
+    const pad = 6, top = 44;
+    const nx = Math.min(Math.max(b.x, pad), W - b.w - pad), ny = Math.min(Math.max(b.y, top), H - b.h - pad);
+    const cornered = nx !== b.x && ny !== b.y;
+    b.x = nx; b.y = ny;
+    return cornered;
+  }
+  function place(b) { b.el.style.transform = `translate(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px)`; }
+  function randomSpot(b, awayX = -1e4, awayY = -1e4) {
+    let bestSpot = null, bestScore = -1;
+    for (let i = 0; i < 24; i++) {
+      const x = 6 + Math.random() * Math.max(1, W - b.w - 12), y = 44 + Math.random() * Math.max(1, H - b.h - 50);
+      let score = Math.hypot(x + b.w / 2 - awayX, y + b.h / 2 - awayY);
+      for (const o of all()) if (o !== b) score = Math.min(score, Math.hypot(x - o.x, y - o.y) * 1.4);
+      if (score > bestScore) { bestScore = score; bestSpot = [x, y]; }
+    }
+    b.x = bestSpot[0]; b.y = bestSpot[1]; clamp(b); place(b);
+  }
+
+  function setupStage() {
+    const st = STAGES[stageIdx];
+    for (const b of all()) b.el.remove();
+    decoys = [];
+    leave = makeBtn('leave');
+    for (let i = 0; i < st.decoys; i++) decoys.push(makeBtn('ot'));
+    for (const b of all()) randomSpot(b, px, py);
+    jumpT = 0; shuffleT = 0; cornerT = 0; bossPhase = 'idle'; bossT = 1.6 + Math.random();
+    setBoss('idle');
+    field.classList.toggle('jumpy', touchMode);
+    dotsEl.innerHTML = STAGES.map((_, i) => `<i class="${i < stageIdx ? 'on' : i === stageIdx ? 'now' : ''}"></i>`).join('');
+  }
+
+  function setBoss(p) {
+    bossPhase = p;
+    bossEl.className = p === 'warn' ? 'warn' : p === 'watch' ? 'on' : '';
+    bossEl.textContent = p === 'warn' ? T.bossWarn : p === 'watch' ? T.boss : '';
+    tint.classList.toggle('on', p === 'watch');
+    eyes.classList.toggle('on', p === 'watch');
+  }
+
+  let toastTimer = 0;
+  function toast(msg, bad) {
+    toastEl.textContent = msg; toastEl.className = 'show' + (bad ? ' bad' : '');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { toastEl.className = ''; }, 900);
+  }
+  function shake() { field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake'); }
+
+  function burst(x, y, colors, n = 36) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 160 + Math.random() * 360;
+      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 200, life: 0.9 + Math.random() * 0.5, c: colors[i % colors.length], s: 4 + Math.random() * 5, r: Math.random() * 6 });
+    }
+  }
+
+  function hit(b, e) {
+    if (state !== 'play' || transition > 0) return;
+    const r = b.el.getBoundingClientRect();
+    if (bossPhase === 'watch') {
+      penalty += 5; toast(T.caught, true); shake(); beep(140, 0.35, 'sawtooth', 0.08, -60);
+      if (navigator.vibrate) navigator.vibrate(120);
+      return;
+    }
+    if (b.kind === 'ot') {
+      penalty += 3; toast(T.decoy, true); shake(); beep(220, 0.25, 'sawtooth', 0.07, -120);
+      randomSpot(b, e.clientX, e.clientY);
+      return;
+    }
+    burst(r.left + r.width / 2, r.top + r.height / 2, ['#2fbf71', '#ffcf33', '#ff5a4f', '#4f8cff', '#fff']);
+    beep(660, 0.09, 'square', 0.06); setTimeout(() => beep(990, 0.12, 'square', 0.06), 80);
+    if (stageIdx === STAGES.length - 1) return finish();
+    toast(T.clear[stageIdx] || T.clear[0]);
+    stageIdx++;
+    transition = 0.55;
+    for (const x of all()) x.el.style.opacity = '0.3';
+  }
+
+  // Taps that miss (touch): the button may dodge, and boss can catch you.
+  field.addEventListener('pointerdown', (e) => {
+    if (e.pointerType) touchMode = e.pointerType !== 'mouse';
+    field.classList.toggle('jumpy', touchMode);
+    if (state !== 'play' || transition > 0) return;
+    const fr = field.getBoundingClientRect();
+    px = e.clientX - fr.left; py = e.clientY - fr.top;
+    if (bossPhase === 'watch') { penalty += 5; toast(T.caught, true); shake(); beep(140, 0.35, 'sawtooth', 0.08, -60); return; }
+    if (touchMode && stageIdx > 0 && leave) {
+      const d = Math.hypot(leave.x + leave.w / 2 - px, leave.y + leave.h / 2 - py);
+      if (d < 90 * scale && Math.random() < 0.5) { randomSpot(leave, px, py); jumpT = 0; beep(880, 0.05, 'triangle', 0.04, 300); }
+    }
+  });
+  addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'mouse') touchMode = false;
+    const fr = field.getBoundingClientRect();
+    px = e.clientX - fr.left; py = e.clientY - fr.top;
+  });
+  field.addEventListener('pointerleave', () => { px = -9999; py = -9999; });
+
+  function update(dt) {
+    if (state !== 'play') return;
+    if (transition > 0) {
+      transition -= dt;
+      if (transition <= 0) { setupStage(); }
+      return;
+    }
+    elapsed += dt;
+    const st = STAGES[stageIdx];
+    if (!touchMode) {
+      const cx = leave.x + leave.w / 2, cy = leave.y + leave.h / 2;
+      const dx = cx - px, dy = cy - py, d = Math.hypot(dx, dy) || 1;
+      if (d < st.radius * scale) {
+        const push = st.speed * scale * (1.1 - d / (st.radius * scale) * 0.6);
+        const wob = Math.sin(elapsed * 9 + leave.wob) * 0.45;
+        leave.x += (dx / d - dy / d * wob) * push * dt;
+        leave.y += (dy / d + dx / d * wob) * push * dt;
+      } else {
+        leave.x += Math.sin(elapsed * 2 + leave.wob) * 12 * dt;
+      }
+      if (clamp(leave)) {
+        cornerT += dt;
+        if (cornerT > (stageIdx >= 3 ? 0.55 : 0.9)) { randomSpot(leave, px, py); cornerT = 0; beep(880, 0.05, 'triangle', 0.04, 300); }
+      } else cornerT = Math.max(0, cornerT - dt);
+      place(leave);
+    } else {
+      jumpT += dt;
+      if (jumpT > st.jump) { jumpT = 0; randomSpot(leave, leave.x, leave.y); }
+    }
+    for (const b of decoys) {
+      b.x += Math.sin(elapsed * 1.7 + b.wob) * 22 * dt; b.y += Math.cos(elapsed * 1.3 + b.wob) * 16 * dt;
+      clamp(b); place(b);
+    }
+    if (st.shuffle) {
+      shuffleT += dt;
+      if (shuffleT > st.shuffle && decoys.length) {
+        shuffleT = 0;
+        const o = decoys[(Math.random() * decoys.length) | 0];
+        [leave.x, o.x] = [o.x, leave.x]; [leave.y, o.y] = [o.y, leave.y];
+        clamp(leave); clamp(o); place(leave); place(o);
+      }
+    }
+    if (st.boss) {
+      bossT -= dt;
+      if (bossT <= 0) {
+        if (bossPhase === 'idle') { setBoss('warn'); bossT = 0.7; beep(330, 0.06, 'triangle', 0.04); }
+        else if (bossPhase === 'warn') { setBoss('watch'); bossT = 1.5 + Math.random() * 0.6; beep(196, 0.2, 'triangle', 0.05); }
+        else { setBoss('idle'); bossT = 2.0 + Math.random() * 1.6; }
+      }
+    }
+    timeEl.textContent = (elapsed + penalty).toFixed(1) + T.sec;
+    const m = Math.floor(elapsed / 6);
+    clockEl.textContent = `18:${String(Math.min(59, m)).padStart(2, '0')}`;
+  }
+
+  function drawFx(dt) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.life -= dt; if (p.life <= 0) { parts.splice(i, 1); continue; }
+      p.vy += 900 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt * 8;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = Math.min(1, p.life * 2);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore();
+    }
+  }
+
+  let last = 0;
+  function frame(ts) {
+    const dt = Math.min(0.05, (ts - last) / 1000 || 0);
+    last = ts;
+    if (!document.hidden) { update(dt); drawFx(dt); }
+    requestAnimationFrame(frame);
+  }
+
+  function rankFor(t) { return T.ranks.find(([lim]) => t < lim)[1]; }
+
+  function showMenu() {
+    state = 'menu';
+    screen.hidden = false;
+    screen.innerHTML = `<div style="font-size:clamp(48px,14vw,80px)">🏃‍♂️💨</div><h1>${T.title}</h1><p><b>${T.sub}</b></p><p>${T.howto}</p>` +
+      (best ? `<p>${T.best}: <b>${best.toFixed(1)}${T.sec}</b></p>` : '') + `<button class="go" type="button">${T.start}</button>`;
+  }
+
+  function start() {
+    state = 'play'; stageIdx = 0; elapsed = 0; penalty = 0; transition = 0;
+    screen.hidden = true;
+    measure(); setupStage();
+    timeEl.textContent = '0.0' + T.sec;
+    beep(523, 0.08); setTimeout(() => beep(784, 0.1), 90);
+  }
+
+  function finish() {
+    state = 'over';
+    setBoss('idle');
+    const total = elapsed + penalty;
+    let isBest = false;
+    if (!best || total < best) { best = total; isBest = true; try { localStorage.setItem('clockout.best', String(total)); } catch (e) { /* ignore */ } }
+    dotsEl.querySelectorAll('i').forEach((i) => { i.className = 'on'; });
+    burst(innerWidth / 2, innerHeight / 2, ['#2fbf71', '#ffcf33', '#ff5a4f', '#4f8cff', '#fff'], 120);
+    beep(523, 0.1); setTimeout(() => beep(659, 0.1), 110); setTimeout(() => beep(784, 0.1), 220); setTimeout(() => beep(1047, 0.25), 330);
+    setTimeout(() => {
+      screen.hidden = false;
+      screen.innerHTML = `<div style="font-size:clamp(44px,13vw,72px)">🎉🏠</div><h1>${T.done}</h1>` +
+        `<div>${T.time}</div><div class="big">${total.toFixed(1)}${T.sec}</div><div class="rank">${rankFor(total)}</div>` +
+        (isBest ? `<p class="nb">${T.newBest}</p>` : `<p>${T.best}: <b>${best.toFixed(1)}${T.sec}</b></p>`) +
+        `<button class="go" type="button">${T.retry}</button>`;
+    }, 650);
+  }
+
+  screen.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (state === 'menu' || state === 'over') start();
+  });
+  addEventListener('keydown', (e) => {
+    if (['Space', 'Enter'].includes(e.code)) { e.preventDefault(); if (state === 'menu' || state === 'over') start(); }
+    if (e.code.startsWith('Arrow')) e.preventDefault();
+  });
+  addEventListener('resize', measure);
+  document.addEventListener('visibilitychange', () => { last = performance.now(); });
+
+  measure();
+  showMenu();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

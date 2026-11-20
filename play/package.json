@@ -1,0 +1,15 @@
+{
+  "name": "daily-toybox",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build": "node build.mjs",
+    "qa": "node build.mjs && node scripts/qa.cjs",
+    "dev": "node build.mjs && wrangler pages dev",
+    "deploy": "node build.mjs && wrangler pages deploy --project-name daily-toybox --branch main --commit-dirty=true"
+  },
+  "devDependencies": {
+    "wrangler": "4.156.0"
+  }
+}

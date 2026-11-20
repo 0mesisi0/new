@@ -1,0 +1,27 @@
+{
+  "slug": "clock-out",
+  "date": "2026-11-20",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "칼퇴 버튼",
+    "desc": "6시 정각, 도망치는 퇴근 버튼을 잡아라. 야근 버튼과 순찰 도는 부장님을 피해 5단계를 가장 빨리 통과하면 칼퇴의 신!",
+    "howto": "초록색 퇴근 버튼을 누르면 다음 단계로 넘어갑니다. 버튼은 마우스를 피해 도망가고, 휴대폰에서는 순간이동합니다. 빨간 야근 버튼을 누르면 3초, 부장님이 보고 있을 때 아무거나 누르면 5초가 추가됩니다. 5단계를 끝낸 시간이 기록입니다.",
+    "about": "구석으로 몰면 잡기 쉽습니다. 단, 오래 몰려 있으면 버튼이 순간이동합니다.",
+    "tags": [
+      "병맛",
+      "반응속도"
+    ]
+  },
+  "en": {
+    "title": "Clock Out!",
+    "desc": "It's 6 PM and the Leave button keeps running away. Dodge the Overtime buttons and the patrolling boss, and clock out in record time.",
+    "howto": "Hit the green Leave button to clear each of the five stages. It runs from your mouse, and on phones it teleports. Red Overtime buttons add 3 seconds, and touching anything while the boss is watching adds 5. Your score is your total time.",
+    "about": "Trap the button in a corner to catch it, but don't wait too long: cornered buttons teleport.",
+    "tags": [
+      "silly",
+      "reflex"
+    ]
+  }
+}
