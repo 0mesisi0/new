@@ -147,7 +147,7 @@
   #scroller.drag { cursor: grabbing; }
   #scroller::-webkit-scrollbar { width: 6px; }
   #scroller::-webkit-scrollbar-thumb { background: rgba(251, 250, 245, .25); border-radius: 3px; }
-  .shade { position: sticky; top: 0; z-index: 1; height: 14px; margin-bottom: -14px; pointer-events: none; background: linear-gradient(rgba(8, 10, 16, .55), transparent); }
+  .shade { position: sticky; top: 0; z-index: 1; height: 14px; margin: 0 auto -14px; width: calc(var(--rw) + 28px); pointer-events: none; background: linear-gradient(rgba(8, 10, 16, .55), transparent); }
   #paperwrap { margin: 0 auto; width: calc(var(--rw) + 28px); padding: 0 14px; overflow: hidden; height: 0; }
   #rc { display: block; width: var(--rw); filter: drop-shadow(0 6px 9px rgba(0, 0, 0, .38)); }
   .shake { animation: shk .12s linear; }
@@ -525,6 +525,15 @@
     return out;
   }
 
+  // Same line count as a greedy wrap, but with lines of even length (no one-word orphans).
+  function balanced(ctx, s, maxW, font, byChar) {
+    const base = wrapText(ctx, s, maxW, font, byChar);
+    if (base.length < 2) return base;
+    let lo = 0, hi = maxW;
+    for (let i = 0; i < 12; i++) { const mid = (lo + hi) / 2; if (wrapText(ctx, s, mid, font, byChar).length <= base.length) hi = mid; else lo = mid; }
+    return wrapText(ctx, s, hi, font, byChar);
+  }
+
   // Build the receipt as a list of draw ops in logical px (360 wide).
   function layout(R, mctx) {
     const W = RW, P = 24, IW = W - 2 * P;
@@ -567,7 +576,7 @@
     steps.push(y);
     // stamp
     const sFont = `900 18px ${SANS}`;
-    const sLines = wrapText(mctx, R.title, 214, sFont, false);
+    const sLines = balanced(mctx, R.title, 214, sFont, false);
     mctx.font = sFont;
     const sw = Math.max(156, Math.max(...sLines.map((l) => mctx.measureText(l).width)) + 50);
     const sh = 24 + 32 + 8 + sLines.length * 22 + 14;
@@ -578,7 +587,7 @@
     y += sbox + 26;
     // forecast box
     const fFont = `14px ${SANS}`;
-    const fl = wrapText(mctx, R.sentence, IW - 32, fFont, LANG === 'ko');
+    const fl = balanced(mctx, R.sentence, IW - 32, fFont, LANG === 'ko');
     const hFont = `800 14px ${SANS}`;
     const bh = 18 + 16 + 10 + fl.length * 21 + 8;
     ops.push({ k: 'b', y, h: bh });
@@ -742,6 +751,7 @@
     qi--; renderQuestion(-1); lockUntil = performance.now() + 180;
   }
   function moveFocus(d) {
+    kbNav = true;
     const cur = optBtns.indexOf(document.activeElement);
     const n = cur < 0 ? (d > 0 ? 0 : 3) : (cur + d + 4) % 4;
     optBtns[n].focus();
@@ -932,6 +942,9 @@
   bCopy.addEventListener('click', copyText);
   bAgain.addEventListener('click', restart);
 
+  let kbNav = false; // true when focus was moved by keyboard (Tab/arrows), false after any pointer press
+  addEventListener('pointerdown', () => { kbNav = false; }, true);
+
   let drag = null;
   scroller.addEventListener('pointerdown', (e) => {
     if (e.pointerType !== 'mouse' || e.button !== 0) return;
@@ -953,7 +966,8 @@
       if (key === 'Enter' && state === 'start') { e.preventDefault(); start(); }
       return;
     }
-    const onBtn = tag === 'BUTTON';
+    if (key === 'Tab') kbNav = true;
+    const onBtn = tag === 'BUTTON' && kbNav;
     if (code === 'KeyM' && !mod) { e.preventDefault(); toggleSound(); return; }
     if (state === 'start') {
       if ((key === 'Enter' || key === ' ') && !onBtn) { e.preventDefault(); if (key === 'Enter') start(); }
