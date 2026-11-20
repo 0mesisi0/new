@@ -1,5 +1,5 @@
 // Static site generator. Usage: node build.mjs
-// Env: SITE_URL (default https://mesisi.net), ADSENSE_CLIENT (e.g. ca-pub-1234567890123456)
+// Env: SITE_URL (default https://calc.mesisi.net), ADSENSE_CLIENT (e.g. ca-pub-1234567890123456)
 import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +8,7 @@ import { salary } from './src/calc.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const OUT = join(ROOT, 'dist');
-const SITE_URL = (process.env.SITE_URL || 'https://mesisi.net').replace(/\/+$/, '');
+const SITE_URL = (process.env.SITE_URL || 'https://calc.mesisi.net').replace(/\/+$/, '');
 const BASE = new URL(SITE_URL).pathname.replace(/\/+$/, '');
 const ADS = /^ca-pub-\d{10,20}$/.test(process.env.ADSENSE_CLIENT || '') ? process.env.ADSENSE_CLIENT : '';
 const LANGS = ['ko', 'en'];
