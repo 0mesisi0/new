@@ -710,6 +710,7 @@
 
   function renderQuestion(dir) {
     const q = T.qs[qi];
+    if (optBtns.includes(document.activeElement)) document.activeElement.blur(); // each question starts with no highlight
     $('pNum').textContent = `${qi + 1}/9`;
     $('qn').textContent = 'Q' + (qi + 1);
     $('qText').textContent = q.q;
