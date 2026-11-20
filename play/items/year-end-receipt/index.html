@@ -6,7 +6,7 @@
 <title>올해 결산 영수증 · Year-End Receipt</title>
 <style>
   :root {
-    --desk1: #1d2433; --desk2: #2a3550; --paper: #fbfaf5; --ink: #23262d; --gray: #8a8f98; --red: #e0453d;
+    --desk1: #1d2433; --desk2: #2a3550; --paper: #fbfaf5; --ink: #23262d; --gray: #8a8f98; --red: #e0453d; --red-btn: #c9372f;
     --line: rgba(251, 250, 245, .2); --rw: 320px;
     --mono: ui-monospace, "Courier New", monospace;
   }
@@ -120,7 +120,7 @@
   .opt .m i:nth-child(1) { height: 6px; } .opt .m i:nth-child(2) { height: 9px; } .opt .m i:nth-child(3) { height: 12px; } .opt .m i:nth-child(4) { height: 16px; }
   .opt .m i.on { background: #ffb3ad; }
   .opt.was { border-color: rgba(255, 179, 173, .7); }
-  .opt.picked { background: var(--red); border-color: var(--red); color: #fff; animation: pop .15s ease-out; }
+  .opt.picked { background: var(--red-btn); border-color: var(--red-btn); color: #fff; animation: pop .15s ease-out; }
   .opt.picked .m i.on { background: #fff; }
   @keyframes pop { 0% { transform: scale(.96); } 60% { transform: scale(1.025); } 100% { transform: scale(1); } }
   .in { animation: cin .22s ease-out both; }
@@ -138,7 +138,7 @@
   .pbar .led { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #5be38a; box-shadow: 0 0 9px #5be38a; }
   .pbar .led.busy { background: #ffb547; box-shadow: 0 0 9px #ffb547; animation: blink .5s steps(2) infinite; }
   .pbar span { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; color: rgba(251, 250, 245, .86); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pbar .mute { width: 40px; height: 40px; line-height: 40px; font-size: 17px; background: rgba(0, 0, 0, .2); }
+  .pbar .mute { width: 44px; height: 44px; line-height: 44px; font-size: 17px; background: rgba(0, 0, 0, .2); }
   .pbar .slot { position: absolute; left: 10px; right: 10px; bottom: 5px; height: 6px; border-radius: 3px; background: #0b0e15; box-shadow: inset 0 2px 2px #000; }
   #scroller {
     position: relative; flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain;
@@ -155,7 +155,7 @@
   .bar { flex: none; display: flex; gap: 8px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(rgba(22, 27, 40, 0), rgba(22, 27, 40, .92) 28%); }
   .bar button { flex: 1; min-width: 0; min-height: 50px; border-radius: 14px; border: 0; font-weight: 800; font-size: 15px; line-height: 1.15; padding: 6px 6px; word-break: keep-all; transition: transform .08s, box-shadow .08s, opacity .2s; }
   .bar button:disabled { opacity: .3; cursor: default; }
-  #bSave { background: var(--red); color: #fff; box-shadow: 0 4px 0 #a92c26; }
+  #bSave { background: var(--red-btn); color: #fff; box-shadow: 0 4px 0 #a92c26; }
   #bCopy { background: var(--paper); color: var(--ink); box-shadow: 0 4px 0 #c4bfb0; }
   #bAgain { background: rgba(251, 250, 245, .06); border: 1.5px solid var(--line); }
   #bSave:not(:disabled):active, #bCopy:not(:disabled):active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, .2); }
@@ -197,7 +197,7 @@
       <div class="yr" id="yr"></div>
       <h1 id="tTitle"></h1>
       <p class="sub" id="tSub"></p>
-      <input id="name" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+      <input id="name" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
       <button id="bStart" class="primary" type="button"></button>
       <p class="foot" id="tFoot"></p>
     </div>
@@ -291,10 +291,10 @@
       titles: [['평온한 한 해의 주인', '🍵'], ['적당히 버틴 직장인', '🧣'], ['올해도 열일한 사람', '☕'], ['연말정산 전에 정산부터 필요한 사람', '🔥'], ['올해의 생존자', '🏆']],
       hidden: ['전설의 칼퇴러', '🌈'],
       sheep: [
-        '양 한 마리, 양 두 마리... 2027년엔 잠을 제때 잡니다.',
+        '양 한 마리, 양 두 마리... {next}년엔 잠을 제때 잡니다.',
         '새해엔 구름 같은 양털 이불이 당신의 퇴근길을 따뜻하게 해요.',
         '올해 한숨은 내년 웃음 쿠폰으로 환전됩니다.',
-        '2027년, 월요일이 생각보다 괜찮은 날이 됩니다.',
+        '{next}년, 월요일이 생각보다 괜찮은 날이 됩니다.',
         '뜻밖의 점심 약속이 진짜로 잡히는 해예요.',
         '커피는 줄이고 낮잠은 늘리면 운이 오릅니다.',
         '양처럼 순한 한 해, 단 칼퇴 앞에서만 사나워지세요.',
@@ -348,10 +348,10 @@
       titles: [['Master of a Calm Year', '🍵'], ['The Balanced Survivor', '🧣'], ['Worked-Hard-Again Award', '☕'], ['Needs a Settlement Before the Year Ends', '🔥'], ['Survivor of the Year', '🏆']],
       hidden: ['Legendary Clock-Out', '🌈'],
       sheep: [
-        'Count sheep, count sheep... in 2027 you actually sleep on time.',
+        'Count sheep, count sheep... in {next} you actually sleep on time.',
         'A cloud-soft wool blanket warms every walk home next year.',
-        "This year's sighs convert into laughter coupons in 2027.",
-        'In 2027, Mondays turn out to be better than expected.',
+        "This year's sighs convert into laughter coupons in {next}.",
+        'In {next}, Mondays turn out to be better than expected.',
         'That vague lunch promise finally gets a real date.',
         'Less coffee, more naps: your luck goes up.',
         'A gentle sheep of a year, fierce only when it is time to clock out.',
@@ -368,7 +368,7 @@
   const T = I18N[LANG];
   document.title = T.appTitle;
 
-  const PAPER = '#fbfaf5', INK = '#23262d', GRAY = '#8a8f98', RED = '#e0453d', RED_SOFT = 'rgba(224,69,61,.78)';
+  const PAPER = '#fbfaf5', INK = '#23262d', GRAY = '#6b707a', RED = '#e0453d', RED_SOFT = 'rgba(224,69,61,.78)';
   const SANS = 'system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif';
   const MONO = 'ui-monospace, "Courier New", monospace';
   const RW = 360; // logical receipt width
@@ -384,6 +384,10 @@
   const $ = (id) => document.getElementById(id);
   const sStart = $('sStart'), sQuiz = $('sQuiz'), sPrint = $('sPrint');
   const nameIn = $('name'), card = $('card'), optsEl = $('opts'), dotsEl = $('dots');
+  nameIn.addEventListener('input', () => {
+    const chars = Array.from(nameIn.value);
+    if (chars.length > 8) nameIn.value = chars.slice(0, 8).join('');
+  });
   const scroller = $('scroller'), wrap = $('paperwrap'), rc = $('rc'), led = $('led'), pStatus = $('pStatus');
   const bSave = $('bSave'), bCopy = $('bCopy'), bAgain = $('bAgain'), toastEl = $('toast');
   const muteBtns = Array.from(document.querySelectorAll('.mute'));
@@ -505,7 +509,7 @@
       lines: qtys.map((q, i) => ({ qty: q, price: DATA[i].price, amount: tt.amounts[i] })),
       subtotal: tt.subtotal, discount: tt.discount, tax: tt.tax, total: tt.total,
       title: tier[0], emoji: tier[1],
-      fHead: T.forecastHead(NEXT, BRANCH), sentence: pool[Math.min(pool.length - 1, Math.floor(fr * pool.length))],
+      fHead: T.forecastHead(NEXT, BRANCH), sentence: pool[Math.min(pool.length - 1, Math.floor(fr * pool.length))].replace('{next}', String(NEXT)),
       date: `${d.getFullYear()}.${p2(d.getMonth() + 1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`,
     };
   }
