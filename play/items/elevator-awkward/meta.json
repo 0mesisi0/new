@@ -1,0 +1,17 @@
+{
+  "slug": "elevator-awkward",
+  "date": "2026-11-21",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "엘리베이터 눈치게임",
+    "desc": "부장님과 옆집 주민이 동시에 탔다. 층 숫자, 꺼진 폰, 천장 사이로 시선을 옮겨 42초 동안 어색함을 식혀 보자.",
+    "howto": "빨간 표시가 뜨면 아무도 안 보는 다른 곳을 누르세요. 한 번의 신호에 한 번만 고를 수 있어요. 빨리 피할수록 점수가 높고 어색함이 줄어요."
+  },
+  "en": {
+    "title": "Awkward Elevator",
+    "desc": "Your boss and your neighbor just got in. Dodge their gaze for 42 seconds with a dead phone, a floor display, and one fascinating ceiling.",
+    "howto": "When the red markers appear, tap a different spot nobody is looking at. You get one choice per cue. React quickly to score more and lower the awkwardness."
+  }
+}
