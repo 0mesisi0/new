@@ -158,7 +158,7 @@ Show the empty-state message and shortfall. Do not suggest a zero-pastry bag as 
 |---|---|
 | 3,000 / 1,000 / 1,000 | Ranked combinations: `(2,1)`, `(1,2)`, `(3,0)`; each costs 3,000 |
 | 3,000 / 700 / 1,000 | First combination `(4,0)`; total 2,800; left 200; quantity outranks balance |
-| 1,500 / 1,000 / 1,500 | `(1,0)` precedes `(0,1)`; same count and balance, but more money remains |
+| 1,500 / 1,000 / 1,500 | `(0,1)` precedes `(1,0)` because count and balance tie and it leaves ₩0 versus ₩500 |
 | 500 / 1,000 / 1,500 | EMPTY; shortfall 500 |
 | 100 / 100 / 100 | Two combinations only: `(1,0)`, `(0,1)` |
 | 30,000 / 100 / 100 | First combination `(150,150)`; total 30,000; left 0 |
@@ -489,7 +489,7 @@ npm run qa -- --thumbs
 
 Acceptance requires:
 
-- Every reference calculation above produces the specified result.
+- Every reference calculation above produces the specified result, including the lower remaining amount first when count and balance tie.
 - Both languages work at 320 × 480 and desktop sizes without page overflow.
 - The default result is available immediately and requires at most one activation to open.
 - Touch, pointer and keyboard users can edit, select, copy and return to the editor.

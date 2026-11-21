@@ -13,8 +13,9 @@ h1{margin:0;font-size:22px;line-height:1.2;text-align:center}
 h2{margin:0;font-size:18px;line-height:1.25}
 p{margin:0}
 .sub{font-size:14px;line-height:1.35;text-align:center}
-#main{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
-#act{display:grid;gap:8px}
+#main{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:6px}
+footer,#act{display:grid;gap:8px}
+#act:empty{display:none}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
 .btn{min-height:46px;padding:8px 12px;border-radius:14px;border:3px solid #39271F;background:#FFFCF5;font-size:16px;font-weight:700;line-height:1.2}
@@ -56,23 +57,24 @@ button:focus-visible,textarea:focus-visible{outline:4px solid #315A4A;outline-of
 textarea{width:100%;min-height:110px;flex:1 1 auto;border:3px solid #39271F;border-radius:12px;padding:10px;font:inherit;font-size:16px;background:#FFFCF5;color:#39271F;resize:none}
 h2:focus{outline:none}
 @media(max-height:620px){
-.col{gap:4px;padding:6px 10px}
-h1{font-size:18px}
+.col{gap:4px;padding:6px 12px}
 h2{font-size:16px}
 #main{gap:4px}
 .res #lad{flex-basis:44px;min-height:44px}
 .slots{gap:4px}
-.slot{min-height:38px;font-size:11px;padding:2px 1px}
-.slot svg{width:22px;height:22px}
+.slot{min-height:38px;font-size:14px;padding:2px 1px}
+.slot svg{width:20px;height:20px}
 .card{gap:8px;padding:4px 8px;border-width:2px}
-.card .ill{width:44px;height:44px}
+.card .ill{width:40px;height:40px}
 .card .nm{font-size:16px}
-.card .cp{font-size:12px;line-height:1.25;margin-top:2px}
-.pill{font-size:12px;padding:1px 10px}
+.card .cp{line-height:1.25;margin-top:2px}
+.pill{padding:1px 10px}
+.tg{gap:6px;font-size:16px}
+.tg svg{width:28px;height:28px}
 .btn{min-height:44px;padding:4px 10px}
 .btn.big{min-height:44px;font-size:16px}
-#act{gap:4px}
-#st{min-height:16px;font-size:12px}
+footer,#act{gap:4px}
+#st{min-height:2.7em;line-height:1.35}
 .bag{min-height:48px;height:48px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -82,7 +84,7 @@ h2{font-size:16px}
 <div id="app"><div class="col">
 <header><h1 id="ttl"></h1></header>
 <main id="main"></main>
-<footer id="act"></footer>
+<footer><div id="act"></div><div id="st" role="status" aria-live="polite"></div></footer>
 </div></div>
 <script>
 (function(){
@@ -143,11 +145,11 @@ var DUR=1600;
 var cands=loadCands(),view='ready',prev='ready',draft=[],draw=null;
 var elapsed=0,last=0,raf=0,copying=false,ct=0;
 var $=function(s){return document.querySelector(s)};
-var main=$('#main'),act=$('#act');
+var main=$('#main'),act=$('#act'),status=$('#st');
 $('#ttl').textContent=L.appTitle;
 var rmq=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 
-function setStatus(t){clearTimeout(ct);var s=$('#st');if(s)s.textContent=t||''}
+function setStatus(t){clearTimeout(ct);status.textContent=t||''}
 
 function startDraw(bag){
   if(view!=='ready'||bag<0||bag>=cands.length)return;
@@ -248,7 +250,7 @@ function render(focus){
   var m='',a='';
   if(view==='ready'||view==='draw'){
     m='<p class="sub">'+(view==='ready'?L.readyHint:L.drawing)+'</p>';
-    m+='<p class="sub">'+(view==='ready'?f(L.candidateSummary,{names:cands.map(function(c){return L.names[c]}).join(' · ')}):'')+'</p>';
+    if(view==='ready')m+='<p class="sub">'+f(L.candidateSummary,{names:cands.map(function(c){return L.names[c]}).join(' · ')})+'</p>';
     m+=bagsHtml()+'<div id="lad"></div>'+slotsHtml();
     if(view==='ready')a=btn('edit',L.changeSnacks);
   }else if(view==='result'){
@@ -265,7 +267,7 @@ function render(focus){
   }
   main.className=view==='result'?'res':'';
   main.innerHTML=m;
-  act.innerHTML=a+'<div id="st" role="status" aria-live="polite"></div>';
+  act.innerHTML=a;
   if(view==='edit')syncEdit();
   if(view==='copy')$('#ta').value=shareText();
   ladder();

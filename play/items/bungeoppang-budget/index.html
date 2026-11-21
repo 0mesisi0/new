@@ -153,7 +153,7 @@ function parse(s,max,rk){
  if(s.length>12)return{e:'invalidInteger'};
  s=s.trim();
  if(!s)return{e:'required'};
- if(!(/^(0|[1-9]\d*)$/.test(s)||/^[1-9]\d{0,2}(,\d{3})+$/.test(s)))return{e:'invalidInteger'};
+ if(!(/^\d+$/.test(s)||/^[1-9]\d{0,2}(,\d{3})+$/.test(s)))return{e:'invalidInteger'};
  var n=+s.replace(/,/g,'');
  if(n<100||n>max)return{e:rk};
  if(n%100)return{e:'invalidStep'};
@@ -181,7 +181,7 @@ if(!demo){try{
 }catch(e){}}
 var vals={budget:'3000',red:String(saved.red),custard:String(saved.custard)};
 if(demo)vals={budget:'3000',red:'1000',custard:'1000'};
-var composing={},touched={},sel=0,screen='edit',cur=null,busy={save:false,copy:false};
+var composing={},touched={},sel=0,screen='edit',cur=null,busy={save:false,copy:null};
 var IDS=['budget','red','custard'];
 var SPEC={budget:[30000,'budgetRange'],red:[10000,'priceRange'],custard:[10000,'priceRange']};
 
@@ -287,6 +287,7 @@ function markCombos(){
 }
 function show(sc){
  screen=sc;
+ if(sc!=='result')busy.copy=null;
  $('editScreen').hidden=sc!=='edit';$('resultScreen').hidden=sc!=='result';
  $('intro').hidden=sc!=='edit';
  $('editScreen').style.display=sc==='edit'?'contents':'none';
@@ -370,16 +371,21 @@ function legacyCopy(txt){
  ta.remove();return ok;
 }
 $('copyBtn').addEventListener('click',function(){
- if(busy.copy)return;
- busy.copy=true;setStatus(t('copying'));
+ if(screen!=='result'||busy.copy)return;
+ var request=busy.copy={};
+ setStatus(t('copying'));
  var txt=shareText(snapshot());
- function ok(){busy.copy=false;setStatus(t('copied'),false,true);$('copyBtn').focus()}
- function fail(){
-  busy.copy=false;setStatus('');
+ function ok(){
+  if(busy.copy!==request)return;
+  busy.copy=null;setStatus(t('copied'),false,true);$('copyBtn').focus();
+ }
+ function fallback(){
+  if(busy.copy!==request)return;
+  if(legacyCopy(txt)){ok();return}
+  busy.copy=null;setStatus('');
   $('fbText').value=txt;$('fb').hidden=false;
   $('fbText').focus();$('fbText').select();
  }
- function fallback(){legacyCopy(txt)?ok():fail()}
  try{
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,fallback);
   else fallback();
