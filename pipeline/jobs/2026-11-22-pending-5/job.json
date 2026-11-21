@@ -1,0 +1,44 @@
+{
+  "id": "2026-11-22-pending-5",
+  "site": "play",
+  "slug": "puffer-zip-challenge",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 3,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T22:43:07.124Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T22:45:02.061Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-21T22:47:36.276Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-21T22:49:51.008Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
