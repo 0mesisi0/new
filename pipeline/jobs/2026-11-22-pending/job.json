@@ -1,0 +1,28 @@
+{
+  "id": "2026-11-22-pending",
+  "site": "play",
+  "slug": null,
+  "status": "approved",
+  "stage": "feedback",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "feedback": "06-feedback.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T18:40:02.940Z",
+      "stage": "feedback",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T18:40:30.278Z",
+      "stage": "feedback",
+      "status": "approved",
+      "by": "codex"
+    }
+  ]
+}
