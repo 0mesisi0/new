@@ -1,0 +1,4 @@
+*.log
+*.png
+.playwright-mcp/
+codex-out*.log
