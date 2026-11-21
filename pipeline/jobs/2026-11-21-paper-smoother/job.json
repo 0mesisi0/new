@@ -1,0 +1,41 @@
+{
+  "id": "2026-11-21-paper-smoother",
+  "site": "play",
+  "slug": "paper-smoother",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T00:27:43.311Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-21T00:28:37.970Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-21T00:28:38.567Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T00:30:04.590Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ]
+}
