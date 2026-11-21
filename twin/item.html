@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b36">
+  <link rel="icon" href="data:,">
+  <title></title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font: 15px/1.4 system-ui, sans-serif;
+      color: #edf3f3;
+      background: #172b36;
+      --muted: #c6d6da;
+      --accent: #ffd088;
+      --line: #47616c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; }
+    main {
+      height: 100vh;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+    }
+    header, footer { padding: .6rem clamp(.75rem, 3vw, 1.5rem); }
+    header { border-bottom: 1px solid var(--line); }
+    h1 { margin: 0 0 .15rem; font-size: clamp(1.25rem, 3vw, 1.85rem); letter-spacing: -.03em; }
+    .help, .attribution { margin: 0; color: var(--muted); font-size: .8rem; }
+    .viewer { position: relative; overflow: hidden; background: #a6c7d8; }
+    #viewport, canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    canvas { display: block; touch-action: none; cursor: grab; outline-offset: -3px; }
+    .status, .panel { position: absolute; padding: .6rem .8rem; background: #172b36; }
+    .status { inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: max-content; max-width: 85%; margin: 0; text-align: center; }
+    .panel { inset: auto .75rem .75rem; width: fit-content; border-left: 3px solid var(--accent); pointer-events: none; }
+    .panel h2 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+    .panel p { margin: .2rem 0 0; color: var(--muted); font-size: .83rem; }
+    footer { border-top: 1px solid var(--line); }
+    .controls { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem 1.2rem; }
+    .weather { display: flex; gap: .25rem; }
+    button {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 .55rem;
+      border: 1px solid var(--line);
+      border-radius: .4rem;
+      background: #213b48;
+      color: inherit;
+      font: inherit;
+      font-size: .87rem;
+      cursor: pointer;
+    }
+    button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #202b2e; }
+    .live-time, .time { display: flex; align-items: center; min-height: 44px; gap: .35rem; }
+    .live-time { font-size: .83rem; cursor: pointer; }
+    input { margin: 0; accent-color: var(--accent); }
+    .time { flex: 1 1 14rem; max-width: 26rem; }
+    .time label { font-weight: 700; }
+    input[type="range"] { flex: 1; min-width: 0; height: 44px; }
+    output { color: var(--accent); font: 600 .95rem ui-monospace, Consolas, monospace; }
+    .attribution { margin-top: .2rem; }
+    :focus-visible { outline: 2px solid var(--accent); }
+    @media (max-width: 25rem) {
+      .controls { column-gap: .65rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 data-copy="title"></h1>
+      <p class="help" id="map-help" data-copy="help"></p>
+    </header>
+    <section class="viewer" data-label="map">
+      <div id="viewport"></div>
+      <p class="status" id="status" role="status" data-copy="loading"></p>
+      <section class="panel" id="building" data-label="selection" aria-live="polite" hidden>
+        <h2 id="building-name"></h2>
+        <p id="building-height"></p>
+      </section>
+    </section>
+    <footer>
+      <div class="controls">
+        <div class="weather" role="group" data-label="weather">
+          <button type="button" data-weather="sunny" data-copy="sunny" aria-pressed="true"></button>
+          <button type="button" data-weather="cloudy" data-copy="cloudy" aria-pressed="false"></button>
+          <button type="button" data-weather="rain" data-copy="rain" aria-pressed="false"></button>
+        </div>
+        <label class="live-time"><input id="live-time" type="checkbox"><span data-copy="liveTime"></span></label>
+        <div class="time">
+          <label for="time" data-copy="time"></label>
+          <input id="time" type="range" min="0" max="1439" step="1" value="900">
+          <output id="clock" for="time"></output>
+        </div>
+      </div>
+      <p class="attribution" data-copy="attribution"></p>
+    </footer>
+  </main>
+  <!-- TWIN_BUNDLE -->
+</body>
+</html>

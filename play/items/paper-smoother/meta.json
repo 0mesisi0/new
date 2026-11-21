@@ -1,0 +1,21 @@
+{
+  "slug": "paper-smoother",
+  "date": "2026-11-21",
+  "category": "cool",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "종이 주름 펴기",
+    "desc": "구겨진 종이를 손끝으로 쓸어 주름을 펴 보세요. 열두 칸이 모두 펴지면 파도, 빗방울, 은행잎 중 한 장의 그림이 완성돼요.",
+    "howto": "종이 위를 쓸거나 칸을 하나씩 누르세요. 키보드로는 방향키로 칸을 고르고 Enter나 스페이스바로 펼 수 있어요.",
+    "about": "시간 제한 없이 즐기는 종이 장난감이에요. 마지막으로 고른 종이만 이 기기에 기억해요.",
+    "tags": ["말랑이", "힐링", "종이"]
+  },
+  "en": {
+    "title": "Paper Smoother",
+    "desc": "Sweep across crumpled paper to flatten its folds. Smooth all 12 squares to reveal a picture of waves, raindrops, or ginkgo leaves.",
+    "howto": "Sweep across the paper or press one square at a time. With a keyboard, use the arrow keys to choose a square and Enter or Space to smooth it.",
+    "about": "Take your time with this little paper toy. Only your last paper choice is remembered on this device.",
+    "tags": ["texture", "paper", "relaxing"]
+  }
+}

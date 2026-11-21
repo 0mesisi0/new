@@ -1,0 +1,7 @@
+{
+  "name": "daewon-twin",
+  "private": true,
+  "type": "module",
+  "scripts": { "build:item": "node build-item.mjs" },
+  "dependencies": { "esbuild": "^0.28.2", "three": "^0.160.0" }
+}

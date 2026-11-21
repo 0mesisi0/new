@@ -11,9 +11,73 @@ const clock = document.querySelector('#clock');
 const liveTime = document.querySelector('#live-time');
 const weatherStatus = document.querySelector('#weather-status');
 
-const response = await fetch('./data/area.json');
-if (!response.ok) throw new Error(`Map data: HTTP ${response.status}`);
-const area = await response.json();
+const params = new URLSearchParams(location.search);
+const attribution = '© OpenStreetMap contributors (ODbL)';
+const copy = {
+  ko: {
+    title: '대원동 3D 트윈',
+    help: '드래그로 회전 · 휠 또는 두 손가락으로 확대·축소 · 방향키로 이동',
+    map: '대원동 3D 지도',
+    loading: '지도를 불러오는 중…',
+    unavailable: '지도를 열 수 없어요. 브라우저의 WebGL 지원을 확인해 주세요.',
+    selection: '선택한 장소 정보',
+    weather: '날씨',
+    sunny: '맑음',
+    cloudy: '흐림',
+    rain: '비',
+    liveTime: '서울 현재 시각',
+    time: '시각',
+    unnamedStop: '이름 없는 정류장',
+    unnamedBuilding: '이름 없는 건물',
+    suppliedHeight: '원본 높이 (실측 여부 미상)',
+    estimatedHeight: '추정 높이',
+    height: '높이',
+    attribution,
+  },
+  en: {
+    title: 'Daewon-dong 3D Twin',
+    help: 'Drag to orbit · Scroll or pinch to zoom · Arrow keys to pan',
+    map: '3D map of Daewon-dong',
+    loading: 'Loading the map…',
+    unavailable: 'Unable to open the map. Check your browser’s WebGL support.',
+    selection: 'Selected place details',
+    weather: 'Weather',
+    sunny: 'Sunny',
+    cloudy: 'Cloudy',
+    rain: 'Rain',
+    liveTime: 'Seoul live time',
+    time: 'Time',
+    unnamedStop: 'Unnamed bus stop',
+    unnamedBuilding: 'Unnamed building',
+    suppliedHeight: 'Source height (measurement unverified)',
+    estimatedHeight: 'Estimated height',
+    height: 'Height',
+    attribution,
+  },
+};
+
+let lang = 'ko';
+let area;
+if (typeof ITEM !== 'undefined' && ITEM) {
+  const requested = params.get('lang');
+  lang = requested === 'ko' || requested === 'en'
+    ? requested
+    : navigator.language.toLowerCase().startsWith('ko') ? 'ko' : 'en';
+  document.documentElement.lang = lang;
+  document.title = copy[lang].title;
+  for (const element of document.querySelectorAll('[data-copy]')) {
+    element.textContent = copy[lang][element.dataset.copy];
+  }
+  for (const element of document.querySelectorAll('[data-label]')) {
+    element.setAttribute('aria-label', copy[lang][element.dataset.label]);
+  }
+  area = ITEM_AREA;
+} else {
+  const response = await fetch('./data/area.json');
+  if (!response.ok) throw new Error(`Map data: HTTP ${response.status}`);
+  area = await response.json();
+}
+const labels = copy[lang];
 const [south, west, north, east] = area.bbox;
 const features = key => Array.isArray(area[key]) ? area[key].filter(Boolean) : [];
 const midLat = (south + north) / 2;
@@ -30,13 +94,19 @@ const bounds = new THREE.Box2(
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color();
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+} catch (error) {
+  if (typeof ITEM !== 'undefined' && ITEM) status.textContent = labels.unavailable;
+  throw error;
+}
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate = false;
 const canvas = renderer.domElement;
-canvas.setAttribute('aria-label', '대원동 3D 지도');
+canvas.setAttribute('aria-label', labels.map);
 canvas.setAttribute('aria-describedby', 'map-help');
 viewport.append(canvas);
 
@@ -48,6 +118,10 @@ controls.enableDamping = true;
 controls.minDistance = 45;
 controls.maxDistance = span * 6;
 controls.maxPolarAngle = Math.PI / 2 - 0.08;
+if (typeof ITEM !== 'undefined' && ITEM) {
+  canvas.tabIndex = 0;
+  controls.listenToKeyEvents(canvas);
+}
 controls.update();
 
 const hemisphere = new THREE.HemisphereLight(0xe4f2ff, 0x7e8275, 1.35);
@@ -348,25 +422,39 @@ function advanceRain(seconds) {
   rainPositions.needsUpdate = true;
 }
 
-const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=35.2297&longitude=128.6525&current=temperature_2m,precipitation,cloud_cover,wind_speed_10m,weather_code&timezone=Asia%2FSeoul';
-const weatherNumber = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 });
-async function refreshWeather() {
-  try {
-    const result = await fetch(weatherUrl, { signal: AbortSignal.timeout(15000) });
-    if (!result.ok) throw new Error(`Weather: HTTP ${result.status}`);
-    const { current } = await result.json();
-    const { temperature_2m: temperature, precipitation, cloud_cover: clouds, wind_speed_10m: wind } = current ?? {};
-    if (![temperature, precipitation, clouds, wind].every(Number.isFinite)) throw new Error('Missing current weather');
-    weatherStatus.textContent = `기온 ${weatherNumber.format(temperature)} °C · 강수량 ${weatherNumber.format(precipitation)} mm · 풍속 ${weatherNumber.format(wind)} km/h`;
-    cloudCover = THREE.MathUtils.clamp(clouds / 100, 0, 1);
-    rain.visible = precipitation > 0;
-    updateTime();
-  } catch {
-    weatherStatus.textContent = '날씨를 불러오지 못했어요';
+if (typeof ITEM !== 'undefined' && ITEM) {
+  const weatherButtons = document.querySelectorAll('[data-weather]');
+  const clouds = { sunny: 0, cloudy: 0.75, rain: 1 };
+  for (const button of weatherButtons) {
+    button.addEventListener('click', () => {
+      const weather = button.dataset.weather;
+      cloudCover = clouds[weather];
+      rain.visible = weather === 'rain';
+      for (const option of weatherButtons) option.setAttribute('aria-pressed', String(option === button));
+      updateTime();
+    });
   }
+} else {
+  const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=35.2297&longitude=128.6525&current=temperature_2m,precipitation,cloud_cover,wind_speed_10m,weather_code&timezone=Asia%2FSeoul';
+  const weatherNumber = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 });
+  async function refreshWeather() {
+    try {
+      const result = await fetch(weatherUrl, { signal: AbortSignal.timeout(15000) });
+      if (!result.ok) throw new Error(`Weather: HTTP ${result.status}`);
+      const { current } = await result.json();
+      const { temperature_2m: temperature, precipitation, cloud_cover: clouds, wind_speed_10m: wind } = current ?? {};
+      if (![temperature, precipitation, clouds, wind].every(Number.isFinite)) throw new Error('Missing current weather');
+      weatherStatus.textContent = `기온 ${weatherNumber.format(temperature)} °C · 강수량 ${weatherNumber.format(precipitation)} mm · 풍속 ${weatherNumber.format(wind)} km/h`;
+      cloudCover = THREE.MathUtils.clamp(clouds / 100, 0, 1);
+      rain.visible = precipitation > 0;
+      updateTime();
+    } catch {
+      weatherStatus.textContent = '날씨를 불러오지 못했어요';
+    }
+  }
+  refreshWeather();
+  setInterval(refreshWeather, 10 * 60 * 1000);
 }
-refreshWeather();
-setInterval(refreshWeather, 10 * 60 * 1000);
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -389,12 +477,13 @@ function showFeature(mesh) {
   panel.hidden = !mesh;
   if (mesh) {
     const { name, height, supplied, stop } = mesh.userData;
-    nameLabel.textContent = name || (stop ? '이름 없는 정류장' : '이름 없는 건물');
+    nameLabel.textContent = name || (stop ? labels.unnamedStop : labels.unnamedBuilding);
+    nameLabel.lang = name ? 'ko' : lang;
     heightLabel.hidden = Boolean(stop);
     if (!stop) {
       mesh.material.emissive.setHex(0x473619);
-      const source = supplied ? '원본 높이 (실측 여부 미상)' : '추정 높이';
-      heightLabel.textContent = `높이 ${height.toLocaleString('ko-KR', { maximumFractionDigits: 1 })} m · ${source}`;
+      const source = supplied ? labels.suppliedHeight : labels.estimatedHeight;
+      heightLabel.textContent = `${labels.height} ${height.toLocaleString(lang, { maximumFractionDigits: 1 })} m · ${source}`;
     }
   }
   dirty = true;
@@ -404,9 +493,11 @@ function select(i) {
   selected = Number.isInteger(i) ? buildings[i] : undefined;
   showFeature(selected);
 }
-window.__twin = { scene, camera, buildings, select };
-const initialSelection = new URLSearchParams(location.search).get('select');
-if (/^\d+$/.test(initialSelection ?? '')) select(Number(initialSelection));
+if (!(typeof ITEM !== 'undefined' && ITEM)) {
+  window.__twin = { scene, camera, buildings, select };
+  const initialSelection = params.get('select');
+  if (/^\d+$/.test(initialSelection ?? '')) select(Number(initialSelection));
+}
 
 canvas.addEventListener('pointerdown', event => {
   press = event.isPrimary && event.button === 0
@@ -436,10 +527,10 @@ canvas.addEventListener('pointerleave', () => {
 canvas.addEventListener('pointercancel', () => { press = undefined; });
 
 controls.update();
-renderer.render(scene, camera);
+if (!document.hidden) renderer.render(scene, camera);
 status.hidden = true;
 let lastFrame;
-renderer.setAnimationLoop(timestamp => {
+function renderFrame(timestamp) {
   controls.update();
   const seconds = lastFrame === undefined ? 0 : Math.min((timestamp - lastFrame) / 1000, 0.05);
   lastFrame = timestamp;
@@ -450,4 +541,10 @@ renderer.setAnimationLoop(timestamp => {
   if (!dirty) return;
   renderer.render(scene, camera);
   dirty = false;
-});
+}
+function updateAnimation() {
+  lastFrame = undefined;
+  renderer.setAnimationLoop(document.hidden ? null : renderFrame);
+}
+document.addEventListener('visibilitychange', updateAnimation);
+updateAnimation();
