@@ -1,0 +1,17 @@
+{
+  "slug": "cat-vs-keyboard",
+  "date": "2026-11-21",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "고양이 vs 키보드",
+    "desc": "퇴근 45초 전, 부장님께 보낼 메일을 고양이가 먼저 쓰기 시작했다. 간식, 장난감, 쿠션으로 공동 작성자를 회유하자.",
+    "howto": "고양이가 원하는 물건을 끌어다 놓거나 톡 누르세요. 키보드가 비면 메일이 자동으로 완성됩니다. 키보드로는 1·2·3을 누르세요."
+  },
+  "en": {
+    "title": "Cat vs Keyboard",
+    "desc": "You have 45 seconds to email your boss. Your cat has already started drafting. Distract your co-author with treats, toys and a cushion.",
+    "howto": "Drag the requested item onto the cat or tap it. Emails finish typing while the keyboard is free. On a keyboard, use 1, 2 or 3."
+  }
+}

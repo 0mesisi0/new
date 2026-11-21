@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#163e49">
+<title></title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ffad6d' stroke='%23283932' stroke-width='2' d='M4 21V5l8 6h8l8-6v16q-1 7-12 7T4 21Z'/%3E%3Cpath stroke='%23283932' stroke-width='2' d='M11 19h2m6 0h2'/%3E%3C/svg%3E">
+<style>
+  :root {
+    font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    color: #233b3a;
+    --ink: #233b3a;
+    --navy: #163e49;
+    --paper: #fff9e7;
+    --mint: #bde2ce;
+    --orange: #ffac70;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+  body { background: repeating-linear-gradient(135deg, var(--navy) 0 10px, #1a4550 10px 11px); }
+  [hidden] { display: none !important; }
+  h1, h2, p { margin: 0; }
+  button, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; touch-action: manipulation; }
+  button:focus-visible, textarea:focus-visible { outline: 3px solid #b74736; outline-offset: 3px; }
+  #app {
+    height: 100vh;
+    height: 100dvh;
+    width: min(100vw, 580px);
+    margin: auto;
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+    background: var(--paper);
+    box-shadow: 0 0 70px #071c25a0;
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
+  }
+  .gutter { padding-inline: clamp(13px, 4.3vw, 28px); }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-block: clamp(6px, 1.5vh, 16px);
+    background: var(--navy);
+    color: var(--paper);
+  }
+  h1 { font-size: clamp(20px, 5.4vw, 34px); font-weight: 950; letter-spacing: -.055em; line-height: 1.05; }
+  #setting { display: block; margin-bottom: 5px; color: #c0e1d5; font-size: 12px; font-weight: 800; }
+  #mute { flex: 0 0 44px; height: 44px; border: 1px solid #8db5ad; border-radius: 12px; background: #244e57; }
+  #mute svg { width: 23px; height: 23px; vertical-align: middle; }
+  #mute[aria-pressed="false"] .off, #mute[aria-pressed="true"] .on { display: none; }
+  .dispatch { padding-block: clamp(7px, 1.6vh, 17px); background: #f3e8cc; }
+  .stats { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 4px; font-size: 12px; font-weight: 800; }
+  .stats strong { margin-inline-start: 4px; font: 900 19px/1 ui-monospace, monospace; }
+  #clock { font: 900 clamp(20px, 3.3vh, 30px)/1 ui-monospace, monospace; }
+  #clock.urgent { color: #ad352d; }
+  .time-track { height: 5px; margin-bottom: clamp(6px, 1.3vh, 13px); overflow: hidden; border-radius: 4px; background: #d5c7a9; }
+  #time-bar { height: 100%; background: #387767; transform-origin: left; }
+  .dispatch:has(.urgent) #time-bar { background: #ad352d; }
+  .mail { border: 2px solid var(--ink); border-radius: 9px; background: #fffdf4; box-shadow: 2px 3px 0 var(--ink); overflow: hidden; }
+  .mail-top { display: flex; justify-content: space-between; padding: 4px 9px; background: var(--mint); border-bottom: 1px solid var(--ink); font-size: 11px; font-weight: 850; }
+  .mail-body { position: relative; padding: 5px 9px 7px; font-size: clamp(12px, 2vh, 16px); line-height: 1.27; }
+  #subject { color: #46665b; font-size: .8em; font-weight: 800; }
+  #draft { display: block; min-height: 2.55em; }
+  #draft::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 3px; background: currentColor; vertical-align: -.1em; }
+  #draft.blocked { color: #a33c2b; }
+  #line-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; transform-origin: left; background: #66ac88; }
+  #stage {
+    position: relative;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: repeating-linear-gradient(4deg, #eccc98 0 24px, #e7bf84 24px 25px);
+    border-block: 2px solid var(--ink);
+  }
+  #illustration { display: block; width: 100%; height: 100%; min-height: 0; }
+  #cat-art { animation: breathe 2.4s ease-in-out infinite; transform-origin: 0 8px; }
+  #tail { animation: swish 1.8s ease-in-out infinite alternate; transform-origin: 47px 15px; }
+  #eyes { animation: blink 4.7s infinite; transform-origin: 0 -34px; }
+  #happy, #grumpy, #backfire, #spark { display: none; }
+  #stage[data-mood="happy"] :is(#happy, #spark), #stage[data-mood="grumpy"] :is(#grumpy, #backfire) { display: inline; }
+  #stage[data-mood="happy"] :is(#eyes, #request), #stage[data-mood="grumpy"] #eyes { display: none; }
+  #notice {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 14px);
+    width: max-content;
+    padding: 4px 10px;
+    border: 1px solid var(--ink);
+    border-radius: 20px;
+    background: var(--paper);
+    font-size: clamp(11px, 2vh, 14px);
+    line-height: 1.2;
+    font-weight: 850;
+    text-align: center;
+    pointer-events: none;
+  }
+  #notice.good { background: var(--mint); }
+  #notice.bad { background: #ffd1b4; }
+  .shelf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2vw, 11px); padding-block: clamp(7px, 1.45vh, 15px); background: #f3e8cc; }
+  .bait {
+    min-height: 48px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    padding: 2px 3px 4px;
+    background: #ffedce;
+    border: 2px solid var(--ink);
+    border-radius: 11px 9px 10px 8px;
+    box-shadow: 1px 3px 0 var(--ink);
+    font-size: clamp(11px, 2vh, 15px);
+    font-weight: 850;
+    touch-action: none;
+  }
+  .bait:nth-child(2) { background: #fbe0d2; }
+  .bait:nth-child(3) { background: #e7e1f2; }
+  .bait:disabled { opacity: 1; cursor: default; }
+  .bait.active { box-shadow: 0 0 0 3px #44866f; }
+  .bait svg { width: clamp(25px, 5.3vh, 45px); height: clamp(21px, 4.8vh, 41px); pointer-events: none; }
+  .bait kbd { position: absolute; top: 3px; left: 6px; color: #4c6259; font-size: 10px; }
+  #drag-icon { position: fixed; inset: 0 auto auto 0; z-index: 4; width: 54px; height: 54px; pointer-events: none; filter: drop-shadow(2px 4px 1px #263e3b60); }
+  footer { display: grid; gap: 5px; padding-block: 4px clamp(8px, 1.5vh, 17px); text-align: center; }
+  .action {
+    min-height: 44px;
+    width: 100%;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    padding: 5px 9px;
+    background: var(--orange);
+    box-shadow: 2px 3px 0 var(--ink);
+    font-weight: 900;
+    font-size: clamp(13px, 2.3vh, 18px);
+  }
+  .action:active { transform: translateY(2px); box-shadow: 1px 1px 0 var(--ink); }
+  #hint { min-height: 1.2em; font-size: clamp(11px, 2vh, 14px); font-weight: 750; }
+  #results { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 15px; background: #163e49be; }
+  .receipt {
+    width: min(100%, 400px);
+    display: grid;
+    gap: clamp(7px, 1.8vh, 18px);
+    padding: clamp(12px, 4vw, 24px);
+    text-align: center;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    box-shadow: 5px 6px 0 var(--ink);
+  }
+  .stamp { width: 55px; height: 45px; margin: auto; transform: rotate(-8deg); }
+  #grade { font-size: clamp(23px, 6vw, 34px); line-height: 1.1; letter-spacing: -.04em; }
+  #quip { font-size: 13px; font-weight: 700; }
+  #total { display: block; font: 900 clamp(25px, 5vh, 40px)/1 ui-monospace, monospace; }
+  #record { margin-top: 4px; font-size: 13px; font-weight: 800; }
+  .actions { display: grid; grid-template-columns: 1.15fr 1fr; gap: 8px; }
+  #share { background: var(--mint); }
+  #share-text { width: 100%; height: 54px; resize: none; user-select: text; background: #fffdf4; border: 1px solid var(--ink); border-radius: 5px; font-size: 12px; }
+  #stage.hit #illustration { animation: rattle .25s ease-out; }
+  #stage.success #spark { animation: burst .45s ease-out both; transform-box: fill-box; transform-origin: center; }
+  @keyframes breathe { 50% { transform: translateY(-2px) scaleY(1.025); } }
+  @keyframes swish { to { transform: rotate(-11deg); } }
+  @keyframes blink { 0%, 43%, 48%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.12); } }
+  @keyframes rattle { 25% { transform: translateX(4px); } 65% { transform: translateX(-3px); } }
+  @keyframes burst { from { opacity: .25; transform: scale(.55); } to { opacity: 1; transform: scale(1); } }
+  @media (max-height: 540px) {
+    #setting, .bait kbd { display: none; }
+    .dispatch { padding-block: 5px 7px; }
+    .time-track { margin-bottom: 5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; }
+    .action:active { transform: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="treat-art" viewBox="0 0 56 48">
+      <g stroke="#233b3a" stroke-width="2.5" stroke-linejoin="round">
+        <path d="M8 10 45 5l-2 7 5 4 2 21-38 6 1-6-5-6 2-14Z" fill="#f7a956"/>
+        <path d="M10 17 43 12m-30 25 36-6" fill="none"/>
+        <path d="M18 25q9-9 16-1l6-5 1 9-7-3q-6 8-16 0Z" fill="#fff1c9" stroke-width="1.6"/>
+        <circle cx="23" cy="24" r="1" fill="#233b3a" stroke="none"/>
+      </g>
+    </symbol>
+    <symbol id="toy-art" viewBox="0 0 56 48">
+      <g stroke="#233b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 36Q26 5 45 8q3 0 3 14l-7 9" fill="none"/>
+        <path d="m7 42 17-27" stroke="#c75e4b" stroke-width="5"/>
+        <path d="M40 28q14-7 9 4l-4 4 1 2-8 5-5 1 1-8Z" fill="#ee877d"/>
+        <path d="m33 44 12-12m-8 8 0-6m3 4 7-2" fill="none" stroke-width="1.4"/>
+      </g>
+    </symbol>
+    <symbol id="cushion-art" viewBox="0 0 56 48">
+      <g stroke="#233b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 13Q26 5 43 12l6-3-1 8q5 9-1 18l3 5-8-1q-16 6-32-2l-5 2 2-7q-4-10 2-15L7 9Z" fill="#bba9df"/>
+        <path d="m14 19 6 2m18 9 5 2m-29 0 5-3m17-11 5-2" fill="none" stroke-width="1.5"/>
+        <path d="m28 19 1 4 4 1-4 1-1 4-1-4-4-1 4-1Z" fill="#faedff" stroke-width="1.2"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+<main id="app">
+  <header class="gutter">
+    <div><span id="setting" data-text="setting"></span><h1 data-text="title"></h1></div>
+    <button type="button" id="mute" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9h4l5-4v14l-5-4H3Z"/><path class="on" d="M15 9q3 3 0 6m3-9q5 6 0 12"/><path class="off" d="m16 9 6 6m0-6-6 6"/>
+      </svg>
+    </button>
+  </header>
+  <section class="dispatch gutter">
+    <div class="stats">
+      <div><span data-text="sent"></span><strong id="score">0</strong></div>
+      <div><span data-text="best"></span><strong id="best">0</strong></div>
+      <div id="clock"></div>
+    </div>
+    <div class="time-track"><div id="time-bar"></div></div>
+    <div class="mail">
+      <div class="mail-top"><span data-text="compose"></span><span data-text="recipient"></span></div>
+      <div class="mail-body"><div id="subject"></div><strong id="draft"></strong><div id="line-bar"></div></div>
+    </div>
+  </section>
+  <section id="stage" data-mood="idle">
+    <svg id="illustration" viewBox="0 0 440 248" aria-hidden="true">
+      <defs>
+        <pattern id="keys" width="28" height="21" patternUnits="userSpaceOnUse">
+          <rect x="2" y="2" width="24" height="17" rx="3" fill="#fff3d7" stroke="#38504a" stroke-width="1.5"/>
+          <path d="M7 7h4" fill="none" stroke="#9c967c" stroke-width="1.3" stroke-linecap="round"/>
+        </pattern>
+      </defs>
+      <g stroke="#233b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 75q100-12 182 1m102 139q46 5 110-5M39 220l32-1m278-149 57 1m-40 155h47M15 103l35-2" fill="none" stroke="#bc8e59" stroke-width="1.2"/>
+        <g transform="translate(13 72) rotate(-13 47 38)">
+          <path d="M9 8h76v61H8q4-29 1-61Z" fill="#d99c64" stroke="none" transform="translate(4 6)"/>
+          <path d="M9 8h76v57L70 78 8 76q4-32 1-68Z" fill="#ffdf7c"/>
+          <path d="m70 78 1-14 14 1" fill="#edac60"/>
+          <path d="m20 23 5 5 8-11m4 8 29-1m-44 17 43-1m-43 13 30 1" fill="none" stroke="#8d633e" stroke-width="1.7"/>
+        </g>
+        <g transform="translate(332 72) rotate(11 40 26)">
+          <ellipse cx="43" cy="42" rx="45" ry="32" fill="#bd8e60" stroke="none"/>
+          <path d="M22 24q-14-13-21 1-6 13 16 17l7-8q-16-2-13-7 2-4 10 4Z" fill="#f5f0df"/>
+          <ellipse cx="44" cy="31" rx="33" ry="34" fill="#fff7e5"/>
+          <ellipse cx="44" cy="31" rx="25" ry="26" fill="#7a4b39"/>
+          <path d="M45 45q-19-4-16-14 3-6 10-1-2-8 4-10 10-4 12 5 0 10-10 20Z" fill="#efb581" stroke="none"/>
+          <path d="M44 37q-5-2-7-5m13-6q1 5-5 10" fill="none" stroke="#fff0cd" stroke-width="1.5"/>
+        </g>
+        <g transform="translate(87 135) rotate(-5 137 44)">
+          <path d="M12 3 261 4q10 1 11 10l9 63q1 12-9 17L9 94q-13-3-11-14L2 14Q3 4 12 3Z" fill="#ac875f" stroke="none" transform="translate(2 7)"/>
+          <path d="M12 6 261 5q10 0 11 9l9 63q2 9-8 13L9 90q-13-1-12-11L2 16Q3 7 12 6Z" fill="#416b65"/>
+          <path d="M12 1 260 0q10 0 11 9l9 63q1 9-10 11L8 83q-11-1-10-10L2 12Q4 2 12 1Z" fill="#84a99a"/>
+          <rect x="12" y="10" width="251" height="58" rx="4" fill="url(#keys)" stroke="none"/>
+          <rect x="77" y="55" width="122" height="21" rx="5" fill="#fff3d7"/>
+          <rect x="232" y="13" width="29" height="14" rx="3" fill="#f9ad78"/>
+          <path d="m241 18 10 1m-5-4 5 4-5 4" fill="none" stroke-width="1.3"/>
+        </g>
+        <g id="cat" transform="translate(207 121)">
+          <ellipse cx="8" cy="47" rx="81" ry="13" fill="#233b3a" opacity=".2" stroke="none"/>
+          <g id="cat-art">
+            <path id="tail" d="M44 30q45-7 45-43-1-17 12-13 17 4 6 32-12 33-51 45Z" fill="#f5a65d"/>
+            <path d="M13-21q37-15 62 11 15 15 4 45-6 16-40 15-27-2-41-24Z" fill="#ffad6d"/>
+            <path d="M38-21q23 0 35 13l-12 8q-10-13-23-21Zm31 31 13-6q4 8 1 15l-13 1Z" fill="#d37945" stroke="none"/>
+            <path d="M-50-44q-10-22-2-43 3-7 10-2l23 19q21-7 41 0l20-18q7-5 10 2 9 20 1 42 13 13 5 31-7 19-30 22l-57 1q-31-2-35-22-5-18 14-32Z" fill="#ffb478"/>
+            <path d="M-47-76q-4 10 0 20l15-7Zm92-1q4 10 0 20l-14-7Z" fill="#ed8c80" stroke-width="1.5"/>
+            <path d="m-15-69 5 11m8-12 2 14m8-14-2 11M-57-39l12 3m-15 8 11 1m107-12-10 4m13 6-12 1" fill="none" stroke="#ad613e"/>
+            <path d="M-1-26q12-8 22 5 19 1 19 13-2 13-38 13-36 0-39-12-3-14 18-14 9-12 18-5Z" fill="#fff0ce" stroke="none"/>
+            <g id="eyes" fill="none" stroke-width="3.6">
+              <path d="M-26-39v5m49-5v5"/><path d="M-28-47q5-3 9 0m39 0q5-3 9 0" stroke-width="1.5"/>
+            </g>
+            <path id="happy" d="M-32-34q6-9 12 0m37 0q6-9 12 0" fill="none" stroke-width="3"/>
+            <path id="grumpy" d="m-31-42 12 5m49-5-12 5" fill="none" stroke-width="3"/>
+            <path d="M-6-26q6-3 12 0l-6 5Z" fill="#a95143" stroke-width="1.7"/>
+            <path d="M0-21v4m-11 0q6 8 11 0 6 8 12 0" fill="none" stroke-width="1.7"/>
+            <path d="m-40-20-26-5m25 11-25 1m104-7 26-5m-26 11 26 1" fill="none" stroke-width="1.55"/>
+            <path d="M-28 2q-10 9-15 29-3 10 7 12l18 1q11-1 9-9l7-26m29-5q11 9 13 27 2 13-10 13H14q-9-2-7-11L8 9" fill="#ffc18a"/>
+            <path d="m-35 36 1 6m7-6 1 7m42-6 1 6m6-6 1 6" fill="none" stroke-width="1.4"/>
+          </g>
+          <g id="request" transform="translate(82 -75) rotate(7)">
+            <path d="M-22 15q-12-6-12-22 0-25 34-26 34 0 35 25 1 26-31 27h-10l-14 13 3-15Z" fill="#fff9e7"/>
+            <use id="want-icon" href="#treat-art" x="-23" y="-25" width="48" height="39"/>
+          </g>
+          <g id="backfire" fill="none" stroke="#a33c2b" stroke-width="3"><path d="m-79-30-8-9m8 20-13 1M64-51l7-10"/></g>
+          <g id="spark" fill="#fff1a7" stroke-width="1.5">
+            <path d="m-78-44 4 8 8 2-8 4-2 9-4-8-9-2 8-4Zm140-26 3 7 7 2-7 3-2 8-4-7-7-2 7-3Zm-9 78 3 7 7 1-7 4-2 6-3-7-7-2 6-3Z"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+    <div id="notice" role="status"></div>
+  </section>
+  <div class="shelf gutter">
+    <button class="bait" type="button" disabled><kbd aria-hidden="true">1</kbd><svg viewBox="0 0 56 48" aria-hidden="true"><use href="#treat-art"/></svg><span></span></button>
+    <button class="bait" type="button" disabled><kbd aria-hidden="true">2</kbd><svg viewBox="0 0 56 48" aria-hidden="true"><use href="#toy-art"/></svg><span></span></button>
+    <button class="bait" type="button" disabled><kbd aria-hidden="true">3</kbd><svg viewBox="0 0 56 48" aria-hidden="true"><use href="#cushion-art"/></svg><span></span></button>
+  </div>
+  <footer class="gutter">
+    <button class="action" type="button" id="start" data-text="start"></button>
+    <p id="hint" data-text="hint"></p>
+  </footer>
+  <svg id="drag-icon" viewBox="0 0 56 48" aria-hidden="true" hidden><use id="drag-art" href="#treat-art"/></svg>
+  <section id="results" aria-labelledby="grade" hidden>
+    <div class="receipt">
+      <svg class="stamp" viewBox="0 0 56 46" aria-hidden="true" stroke="#945141" stroke-width="2.5" stroke-linejoin="round">
+        <path d="M8 23V8l10 6q10-5 20 0l10-6v15q5 16-19 16T8 23Z" fill="#ffba83"/>
+        <path d="m18 24 4-2 4 3m5 0 4-3 4 2m-16 8q5 4 10 0" fill="none" stroke-linecap="round"/>
+      </svg>
+      <h2 id="grade"></h2>
+      <p id="quip"></p>
+      <div><strong id="total"></strong><p id="record"></p></div>
+      <div class="actions">
+        <button class="action" type="button" id="retry" data-text="retry"></button>
+        <button class="action" type="button" id="share" data-text="share"></button>
+      </div>
+      <textarea id="share-text" readonly hidden></textarea>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+
+const copy = {
+  ko: {
+    title: "고양이 vs 키보드", setting: "퇴근 45초 전", sent: "보낸 메일", best: "최고",
+    compose: "✉ 새 메일", recipient: "받는 사람　부장님", subject: "제목　",
+    start: "메일 쓰기", retry: "한 판 더", share: "결과 공유", copied: "결과 복사 완료", shareText: "공유할 결과",
+    hint: "고양이가 원하는 물건을 끌어다 놓거나 톡!",
+    intro: "부장님은 답장을, 고양이는 간식을 기다립니다.",
+    mute: "소리 끄기", unmute: "소리 켜기", baits: ["간식", "장난감", "쿠션"],
+    wants: ["간식 내놔옹", "낚싯대 흔들어 봐", "쿠션은 폭신한 걸로"],
+    calm: ["간식 검수 중. 지금이다!", "낚였다. 오늘도 낚였다.", "착석 완료. 재택근무 시작."],
+    wrong: ["그걸로 결재 안 납니다.", "고양이님이 반려했습니다.", "잘못된 첨부파일입니다."],
+    dropped: "물건을 고양이 위에 놓으세요.", sentNotice: "발송 완료! 다음 메일이 기다립니다.",
+    gibberish: ["ㄴㅇㄹㄴㅇㄹ…", "ㅁㅑㅏㅏㅏㅏ!", "사료사료ㅛㅛㅛ", "퇴근ㅇㅇㅇㅇㅇ", "Ctrl+A… 꾹."],
+    lines: [
+      ["회의록 공유", "회의 결론은 다음 회의에서 정하기로 했습니다."],
+      ["첨부파일 재송부", "이번에는 첨부파일을 첨부했습니다."],
+      ["재택근무 보고", "상사는 책상 위에, 저는 책상 아래에 있습니다."],
+      ["최종본 전달", "최종_진짜최종_금일최종본입니다."],
+      ["법인카드 내역", "고양이 간식 12개는 협력사 접대비입니다."],
+      ["좌석 배치 변경", "제 의자는 현재 임원 전용입니다."],
+      ["금일 장애 보고", "스페이스바 위에 4.8kg이 올라갔습니다."],
+      ["휴가 신청", "사유는 키보드 압류입니다."],
+      ["점심 메뉴 투표", "참치가 1표, 참치가 4발입니다."],
+      ["업무 인수인계", "인수자는 마우스에만 관심이 있습니다."],
+      ["퇴근 보고", "부장님도 어서 퇴근하세요. 진심입니다."]
+    ],
+    grades: [
+      ["키보드 압수당한 인턴", "보낸 편지함은 비었고 사료 그릇도 비었습니다."],
+      ["고양이 비서 3급", "고양이님이 메일 일부를 결재했습니다."],
+      ["간식 협상 전문 대리", "합의 조건은 하루 두 번, 선불입니다."],
+      ["퇴근 승인받은 집사", "부장님보다 고양이 결재가 어려웠습니다."]
+    ],
+    count: n => n + "통 발송", record: n => "최고 기록 " + n + "통"
+  },
+  en: {
+    title: "Cat vs Keyboard", setting: "45 seconds till clock-out", sent: "Sent", best: "Best",
+    compose: "✉ New email", recipient: "To: The boss", subject: "Subject: ",
+    start: "Write the email", retry: "Play again", share: "Share result", copied: "Result copied", shareText: "Result to share",
+    hint: "Drag the item the cat wants onto it, or just tap it.",
+    intro: "The boss wants a reply. The cat wants snacks.",
+    mute: "Mute sound", unmute: "Turn sound on", baits: ["Treat", "Toy", "Cushion"],
+    wants: ["Hand over the treats", "Make the bird dance", "Fluff my cushion"],
+    calm: ["Treat inspection. Type!", "Fell for it. Again.", "Working from cushion."],
+    wrong: ["Request denied by management.", "Your cat sent it back.", "Wrong attachment."],
+    dropped: "Drop the item onto the cat.", sentNotice: "Sent! Next email up.",
+    gibberish: ["asdfghjkl…", "mrrrRRR!", "snackkkkkkk", "logggggg off", "Ctrl+A… held."],
+    lines: [
+      ["Meeting minutes", "We agreed to make a decision at the next meeting."],
+      ["Missing attachment", "This time I've attached the attachment."],
+      ["Working from home", "My supervisor is on the desk. I am under it."],
+      ["Final draft", "Attached: final_FINAL_for_real_this_time."],
+      ["Company card", "Twelve cat treats fall under client relations."],
+      ["Seating changes", "My chair is now reserved for senior management."],
+      ["Incident report", "The space bar is under eleven pounds of cat."],
+      ["Leave request", "Reason: keyboard repossessed."],
+      ["Lunch poll", "Tuna won by one vote and four paws."],
+      ["Handover", "My replacement is only interested in the mouse."],
+      ["End of day", "Please go home too, boss. I mean it."]
+    ],
+    grades: [
+      ["Intern, keyboard confiscated", "Your outbox is empty. So is the food bowl."],
+      ["Junior cat secretary", "Management approved a few of your emails."],
+      ["Senior treat negotiator", "Terms are two treats a day, paid up front."],
+      ["Cleared to clock out", "Getting the boss to sign off was the easy part."]
+    ],
+    count: n => n + (n === 1 ? " email sent" : " emails sent"), record: n => "Personal best: " + n
+  }
+};
+
+const params = new URLSearchParams(location.search);
+const lang = (params.get("lang") || navigator.language || "").toLowerCase().startsWith("ko") ? "ko" : "en";
+const t = copy[lang];
+const $ = id => document.getElementById(id);
+const baitButtons = [...document.querySelectorAll(".bait")];
+const art = ["#treat-art", "#toy-art", "#cushion-art"];
+const duration = 45;
+const secondsPerMail = 2.25;
+const storageKey = "toybox.cat-vs-keyboard.";
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const svg = $("illustration");
+const stage = $("stage");
+let muted = false, best = 0;
+try {
+  muted = localStorage.getItem(storageKey + "muted") === "1";
+  best = Math.max(0, Number(localStorage.getItem(storageKey + "best")) || 0);
+} catch {}
+let audio;
+let mode = "ready";
+let score = 0, elapsed = 0, progress = 0, wanted = 0, away = 0, grumpy = 0;
+let changeAt = 0, quipUntil = 0, previousTime = 0, frame = 0;
+let catX = 207, catY = 121, targetX = 207, targetY = 121;
+let pointer = null;
+
+document.documentElement.lang = lang;
+document.title = t.title;
+document.querySelectorAll("[data-text]").forEach(el => { el.textContent = t[el.dataset.text]; });
+baitButtons.forEach((button, i) => { button.querySelector("span").textContent = t.baits[i]; });
+$("share-text").setAttribute("aria-label", t.shareText);
+
+function refreshMute() {
+  const button = $("mute");
+  button.setAttribute("aria-pressed", String(muted));
+  button.setAttribute("aria-label", muted ? t.unmute : t.mute);
+}
+
+function unlockAudio() {
+  if (muted) return;
+  const Audio = window.AudioContext || window.webkitAudioContext;
+  if (!Audio) return;
+  try {
+    audio ||= new Audio();
+    if (audio.state === "suspended") audio.resume().catch(() => {});
+  } catch {}
+}
+
+function sound(notes, wave = "sine") {
+  if (muted || !audio || audio.state !== "running") return;
+  notes.forEach((frequency, i) => {
+    const start = audio.currentTime + i * .075;
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.type = wave;
+    oscillator.frequency.setValueAtTime(frequency, start);
+    if (wave === "triangle") oscillator.frequency.exponentialRampToValueAtTime(frequency * .68, start + .12);
+    gain.gain.setValueAtTime(.001, start);
+    gain.gain.exponentialRampToValueAtTime(.09, start + .014);
+    gain.gain.exponentialRampToValueAtTime(.001, start + .14);
+    oscillator.connect(gain).connect(audio.destination);
+    oscillator.start(start);
+    oscillator.stop(start + .15);
+  });
+}
+
+function setText(id, text) {
+  const element = $(id);
+  if (element.textContent !== text) element.textContent = text;
+}
+
+function notice(text, style = "", seconds = 0) {
+  setText("notice", text);
+  $("notice").className = style;
+  quipUntil = elapsed + seconds;
+}
+
+function animate(name) {
+  stage.classList.remove("hit", "success");
+  if (!reduceMotion.matches) {
+    void stage.offsetWidth;
+    stage.classList.add(name);
+  }
+}
+
+function renderDraft(text, topic, blocked) {
+  setText("draft", text);
+  setText("subject", t.subject + topic);
+  $("draft").classList.toggle("blocked", blocked);
+  $("line-bar").style.transform = "scaleX(" + (progress / secondsPerMail) + ")";
+}
+
+function renderCounters() {
+  const remaining = Math.max(0, Math.ceil(duration - elapsed));
+  setText("clock", String(remaining).padStart(2, "0") + "s");
+  $("clock").classList.toggle("urgent", remaining <= 10);
+  $("time-bar").style.transform = "scaleX(" + (1 - elapsed / duration) + ")";
+}
+
+function pick(next) {
+  wanted = next;
+  $("want-icon").setAttribute("href", art[wanted]);
+  notice(t.wants[wanted]);
+}
+
+function newRequest() {
+  pick((wanted + 1 + Math.floor(Math.random() * 2)) % 3);
+  targetX = [165, 208, 250][wanted];
+  targetY = 121;
+  changeAt = elapsed + (elapsed >= 30 ? 2.65 : 4);
+}
+
+function putCat() {
+  $("cat").setAttribute("transform", "translate(" + catX.toFixed(2) + " " + catY.toFixed(2) + ")");
+}
+
+function start() {
+  unlockAudio();
+  clearDrag();
+  cancelAnimationFrame(frame);
+  mode = "playing";
+  score = elapsed = progress = away = grumpy = previousTime = 0;
+  catX = targetX = 207;
+  catY = targetY = 121;
+  changeAt = 15;
+  stage.dataset.mood = "idle";
+  stage.classList.remove("hit", "success");
+  putCat();
+  $("results").hidden = true;
+  $("share").textContent = t.share;
+  $("share-text").hidden = true;
+  $("start").hidden = true;
+  $("score").textContent = "0";
+  baitButtons.forEach(button => { button.disabled = false; });
+  pick(0);
+  renderDraft("", t.lines[0][0], false);
+  renderCounters();
+  baitButtons[0].focus({ preventScroll: true });
+  if (!document.hidden) frame = requestAnimationFrame(loop);
+}
+
+function useBait(i) {
+  if (mode !== "playing" || away > 0) return;
+  unlockAudio();
+  if (i !== wanted) {
+    grumpy = .55;
+    progress = Math.max(0, progress - .38);
+    stage.dataset.mood = "grumpy";
+    notice(t.wrong[i], "bad", .65);
+    animate("hit");
+    sound([225, 166], "triangle");
+    return;
+  }
+  away = [5.9, 4.15, 2.95][Math.floor(elapsed / 15)];
+  grumpy = 0;
+  targetX = i === 1 ? 304 : 114;
+  targetY = 91;
+  stage.dataset.mood = "happy";
+  notice(t.calm[i], "good", 1.25);
+  animate("success");
+  sound([435, 580, 730], "triangle");
+}
+
+function finish() {
+  mode = "done";
+  clearDrag();
+  if (score > best) {
+    best = score;
+    try { localStorage.setItem(storageKey + "best", String(best)); } catch {}
+  }
+  $("best").textContent = best;
+  const grade = score >= 15 ? 3 : score >= 9 ? 2 : score > 0 ? 1 : 0;
+  const [title, joke] = t.grades[grade];
+  $("grade").textContent = title;
+  $("quip").textContent = joke;
+  $("total").textContent = t.count(score);
+  $("record").textContent = t.record(best);
+  const link = new URL("../../" + lang + "/cat-vs-keyboard/", location.href);
+  $("share-text").value = t.title + "\n" + title + " · " + t.count(score) + "\n" + link.href;
+  baitButtons.forEach(button => { button.disabled = true; });
+  $("results").hidden = false;
+  $("retry").focus({ preventScroll: true });
+  sound([392, 523, 659, 784]);
+}
+
+function loop(now) {
+  if (mode !== "playing" || document.hidden) return;
+  const delta = previousTime ? Math.min((now - previousTime) / 1000, .05, duration - elapsed) : 0;
+  previousTime = now;
+  elapsed += delta;
+  renderCounters();
+  if (grumpy > 0) {
+    grumpy -= delta;
+    if (grumpy <= 0) stage.dataset.mood = "idle";
+  }
+  if (away > 0) {
+    progress += Math.min(away, delta);
+    away -= delta;
+    if (progress >= secondsPerMail) {
+      progress -= secondsPerMail;
+      $("score").textContent = ++score;
+      notice(t.sentNotice, "good", .9);
+      sound([660, 880]);
+    }
+    if (away <= 0) {
+      stage.dataset.mood = "idle";
+      newRequest();
+    } else if (elapsed >= quipUntil) {
+      notice(t.calm[wanted], "good");
+    }
+  } else if (elapsed >= 15 && elapsed >= changeAt) {
+    newRequest();
+  } else if (elapsed >= quipUntil) {
+    notice(t.wants[wanted]);
+  }
+  const move = reduceMotion.matches ? 1 : Math.min(delta * 11, 1);
+  if (Math.abs(targetX - catX) + Math.abs(targetY - catY) > .1) {
+    catX += (targetX - catX) * move;
+    catY += (targetY - catY) * move;
+    putCat();
+  }
+  const [topic, body] = t.lines[score % t.lines.length];
+  const tick = Math.floor(elapsed * (elapsed >= 30 ? 4 : 2.8));
+  const draft = away > 0
+    ? body.slice(0, Math.floor(body.length * progress / secondsPerMail))
+    : t.gibberish[tick % t.gibberish.length];
+  renderDraft(draft, topic, away <= 0);
+  if (elapsed >= duration) finish();
+  else frame = requestAnimationFrame(loop);
+}
+
+function clearDrag() {
+  if (!pointer) return;
+  const { button, id } = pointer;
+  pointer = null;
+  if (button.hasPointerCapture(id)) button.releasePointerCapture(id);
+  button.classList.remove("active");
+  $("drag-icon").hidden = true;
+}
+
+baitButtons.forEach((button, i) => {
+  button.addEventListener("pointerdown", event => {
+    if (mode !== "playing" || pointer || event.button !== 0) return;
+    event.preventDefault();
+    pointer = { id: event.pointerId, button, x: event.clientX, y: event.clientY, moved: false };
+    button.setPointerCapture(event.pointerId);
+    button.classList.add("active");
+    $("drag-art").setAttribute("href", art[i]);
+  });
+  button.addEventListener("pointermove", event => {
+    if (pointer?.id !== event.pointerId) return;
+    if (!pointer.moved && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) < 9) return;
+    pointer.moved = true;
+    $("drag-icon").hidden = false;
+    $("drag-icon").style.transform = "translate(" + (event.clientX - 27) + "px," + (event.clientY - 27) + "px)";
+  });
+  button.addEventListener("pointerup", event => {
+    if (pointer?.id !== event.pointerId) return;
+    event.preventDefault();
+    const moved = pointer.moved;
+    clearDrag();
+    if (!moved) {
+      useBait(i);
+      return;
+    }
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(svg.getScreenCTM().inverse());
+    if (point.x >= catX - 80 && point.x <= catX + 104 && point.y >= catY - 97 && point.y <= catY + 57) {
+      useBait(i);
+    } else if (away <= 0) {
+      notice(t.dropped, "", 1);
+    }
+  });
+  for (const type of ["pointercancel", "lostpointercapture"]) {
+    button.addEventListener(type, event => {
+      if (pointer?.id === event.pointerId) clearDrag();
+    });
+  }
+  button.addEventListener("click", event => {
+    if (event.detail === 0) useBait(i);
+  });
+});
+
+$("start").addEventListener("click", start);
+$("retry").addEventListener("click", start);
+$("mute").addEventListener("click", () => {
+  muted = !muted;
+  try { localStorage.setItem(storageKey + "muted", muted ? "1" : "0"); } catch {}
+  refreshMute();
+  unlockAudio();
+  sound([550]);
+});
+$("share").addEventListener("click", async () => {
+  const field = $("share-text");
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error();
+    await navigator.clipboard.writeText(field.value);
+    if (mode === "done") $("share").textContent = t.copied;
+  } catch {
+    if (mode !== "done") return;
+    field.hidden = false;
+    field.focus({ preventScroll: true });
+    field.select();
+  }
+});
+
+window.addEventListener("keydown", event => {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.target === $("share-text")) return;
+  const key = event.key;
+  if (mode === "playing" && ["1", "2", "3"].includes(key)) {
+    event.preventDefault();
+    if (!event.repeat) useBait(Number(key) - 1);
+  } else if ((key === " " || key === "Enter") && event.target.tagName !== "BUTTON") {
+    event.preventDefault();
+    if (mode !== "playing" && !event.repeat) start();
+  } else if (key.startsWith("Arrow")) {
+    event.preventDefault();
+  }
+});
+document.addEventListener("visibilitychange", () => {
+  cancelAnimationFrame(frame);
+  previousTime = 0;
+  if (document.hidden) clearDrag();
+  else if (mode === "playing") frame = requestAnimationFrame(loop);
+});
+
+refreshMute();
+$("best").textContent = best;
+renderCounters();
+renderDraft(t.lines[0][1], t.lines[0][0], false);
+notice(t.intro);
+</script>
+</body>
+</html>
