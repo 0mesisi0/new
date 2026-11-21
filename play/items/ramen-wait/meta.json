@@ -1,0 +1,17 @@
+{
+  "slug": "ramen-wait",
+  "date": "2026-11-21",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "라면 3분 참기",
+    "desc": "배꼽시계와 팀 채팅과 ‘한 입만’을 견디며 컵라면을 딱 3분에 열어 보세요. 점심시간에 치르는 인내심 인사평가!",
+    "howto": "물 붓기를 누른 뒤, 시계 없이 감으로 뚜껑을 여세요. 첫 판은 실제 30초가 라면 속 3분입니다. 다음 판부터 기다릴 시간과 방해가 늘어납니다."
+  },
+  "en": {
+    "title": "The Three-Minute Ramen",
+    "desc": "A growling stomach, a hungry coworker, and a team ping stand between you and lunch. Can you lift the lid at exactly 3:00?",
+    "howto": "Pour the water, then lift the lid by feel. On round one, 30 real seconds equals three ramen minutes. Later rounds take longer and throw more distractions at you."
+  }
+}
