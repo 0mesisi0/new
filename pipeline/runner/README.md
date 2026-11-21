@@ -1,13 +1,13 @@
 # PC runner
 
-Runs the Gemini and Codex stages on the owner's Windows PC with the CLIs already signed in there. The results go to the `pipeline-inbox` branch, and Claude (cloud) continues from there.
+Runs the Claude and Codex stages on the owner's Windows PC with the CLIs already signed in there. The results go to the `pipeline-inbox` branch, and Claude (cloud) continues from there.
 
 | Command | What it does |
 |---|---|
-| `node pipeline/runner/run.mjs doctor` | Checks git, node, `codex` and `agy` |
-| `node pipeline/runner/run.mjs daily` | Creates a new job: Gemini does the research, then Codex writes the idea and spec. Pushes the job to `pipeline-inbox` |
+| `node pipeline/runner/run.mjs doctor` | Checks git, node, `codex` and `claude` |
+| `node pipeline/runner/run.mjs daily` | Creates a new job: Claude does the research, then Codex writes the idea and spec. Pushes the job to `pipeline-inbox` |
 | `node pipeline/runner/run.mjs review --job <id>` | Codex reviews a built item against its spec |
-| `node pipeline/runner/run.mjs feedback` | Gemini analyses the weekly votes and suggests the next ideas |
+| `node pipeline/runner/run.mjs feedback` | Codex analyses the weekly votes and suggests the next ideas |
 | `node pipeline/runner/run.mjs status` | Lists jobs |
 
 Flags:
@@ -21,7 +21,9 @@ Each agent gets one short instruction ("read `pipeline/jobs/<id>/00-brief-<stage
 Configuration:
 
 - `config.json` holds the defaults.
-- Put PC-specific changes, such as the exact non-interactive flags of your `agy` version, in `config.local.json`. Git ignores that file, and it overrides the defaults.
+- Put PC-specific changes, such as the exact non-interactive flags of your CLI versions, in `config.local.json`. Git ignores that file, and when it exists it replaces `config.json` completely (it is not merged).
+- Both agents run read-only. Codex uses `--sandbox read-only`. Claude is limited to `Read,Glob,Grep,WebSearch,WebFetch` with `--tools`, and `--strict-mcp-config` turns off every MCP server from your personal settings (`--tools` alone does not, so MCP file-writing tools would still work).
+- The runner closes each agent's stdin. Without that, `codex exec` and `claude -p` wait for input forever.
 - `{instruction}` is replaced with the instruction text.
 - If an agent's arguments contain `{out}`, the agent writes the result file itself. Otherwise the runner saves the agent's standard output as the result.
 

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b36">
+  <link rel="icon" href="data:,">
+  <title>창원 대원동 3D 트윈</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font: 15px/1.5 "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      color: #edf3f3;
+      background: #172b36;
+      --muted: #bacbd0;
+      --accent: #ffd088;
+      --line: #3e535b;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .shell {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    header, footer {
+      padding: .72rem clamp(.9rem, 3vw, 2.4rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .55rem 1.5rem;
+      flex-wrap: wrap;
+    }
+    header { border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: clamp(1.22rem, 2.5vw, 1.85rem); letter-spacing: -.055em; }
+    .help, footer { color: var(--muted); font-size: .83rem; }
+    .viewer { position: relative; min-height: 19rem; overflow: hidden; background: #9ebfcf; }
+    #viewport, #viewport canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    canvas { display: block; touch-action: none; outline-offset: -3px; }
+    .panel {
+      position: absolute;
+      inset: auto auto 1rem 1rem;
+      max-width: min(23rem, calc(100% - 2rem));
+      padding: .75rem 1rem;
+      background: #172b36;
+      border-left: 3px solid var(--accent);
+      pointer-events: none;
+    }
+    .panel h2 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+    .panel p { margin: .24rem 0 0; color: var(--muted); }
+    .weather {
+      position: absolute;
+      top: .75rem;
+      right: .75rem;
+      max-width: calc(100% - 1.5rem);
+      padding: .65rem .85rem;
+      border: 1px solid var(--line);
+      border-radius: .45rem;
+      background: #172b36;
+      font-size: .83rem;
+    }
+    .weather h2 { margin: 0; font-size: 1rem; }
+    .weather p { margin: .2rem 0 .35rem; color: var(--muted); }
+    .weather label { display: flex; align-items: center; gap: .35rem; }
+    .weather input { accent-color: var(--accent); }
+    .status {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: max-content;
+      max-width: calc(100% - 2rem);
+      margin: 0;
+      padding: .7rem 1rem;
+      background: #172b36;
+      text-align: center;
+    }
+    footer { border-top: 1px solid var(--line); }
+    .time { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem .85rem; }
+    .time label { color: #edf3f3; font-weight: 700; }
+    input[type="range"] { width: clamp(7rem, 23vw, 18rem); margin: 0; accent-color: var(--accent); }
+    output { color: var(--accent); font: 600 .95rem ui-monospace, Consolas, monospace; }
+    a { color: inherit; text-underline-offset: .22em; }
+    :focus-visible { outline: 2px solid var(--accent); }
+    @media (max-width: 36rem) {
+      .time { width: 100%; }
+      input[type="range"] { flex: 1; min-width: 6rem; }
+      .panel { left: .75rem; bottom: .75rem; }
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>창원 대원동 3D 트윈</h1>
+      <span class="help" id="map-help">드래그로 회전 · 휠 또는 두 손가락으로 확대·축소 · 건물과 정류장 선택</span>
+    </header>
+    <section class="viewer" aria-label="대원동 3D 지도">
+      <div id="viewport"></div>
+      <p class="status" id="status" role="status">지도를 불러오는 중…</p>
+      <section class="panel" id="building" aria-label="지도 선택 정보" aria-live="polite" hidden>
+        <h2 id="building-name"></h2>
+        <p id="building-height"></p>
+      </section>
+      <section class="weather" aria-labelledby="weather-title">
+        <h2 id="weather-title">지금 대원동</h2>
+        <p id="weather-status" role="status">날씨를 불러오는 중…</p>
+        <label><input id="live-time" type="checkbox"> 실시간 시각 연동</label>
+      </section>
+    </section>
+    <footer>
+      <div class="time">
+        <label for="time">시각</label>
+        <input id="time" type="range" min="0" max="1439" step="1" value="900" aria-valuetext="15:00">
+        <output id="clock" for="time">15:00</output>
+      </div>
+      <span>지도 데이터 <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap 기여자</a> ·
+        <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a></span>
+    </footer>
+  </main>
+  <script type="module">
+    import('./twin.js').catch(error => {
+      console.error(error);
+      document.querySelector('#status').textContent = '지도를 열 수 없습니다. 인터넷 연결과 브라우저의 WebGL 지원을 확인해 주세요.';
+    });
+  </script>
+</body>
+</html>

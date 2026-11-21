@@ -47,7 +47,7 @@ The repository is `0mesisi0/new` (default branch `main`). It holds three areas.
 - `play/build.mjs`: the generator (layout, cards, item page, sitemap, hreflang, AdSense switch)
 - `play/lib/votes.mjs` + `functions/api/*`: the D1 access pattern, voter hashing and a tested API
 - `play/scripts/qa.cjs`: the headless player, which already acts as the automated review gate
-- `play/test/items.test.mjs`: static rules (single file, no network, no dialogs, ko/en)
+- `play/test/items.test.mjs`: static rules (no size limit, optional flat media files, games SVG-only, relative asset references that exist, no network, no dialogs, ko/en)
 - `play/ITEMS.md`: the build contract every builder (Claude, Codex, Jules) must follow
 - The calc site generator, its guide JSON format and its tests: untouched
 
@@ -58,7 +58,7 @@ GitHub is the shared desk. Every hand-off is a file in `pipeline/jobs/<id>/`, an
 ```
 Windows PC (Task Scheduler)            GitHub (shared files + approval)           Claude (scheduled cloud session)
 ──────────────────────────             ────────────────────────────────           ───────────────────────────────
-04:00 runner research  ── agy  ──▶  jobs/<id>/01-research.md  (queued→running)
+04:00 runner research  ── claude ─▶  jobs/<id>/01-research.md  (queued→running)
 04:20 runner idea      ── codex ─▶  jobs/<id>/02-idea.md      (status: queued, stage: design)
                                                   │
                                                   ▼
@@ -71,7 +71,7 @@ Windows PC (Task Scheduler)            GitHub (shared files + approval)         
                                     OWNER MERGES the PR (= admin approval)
                                                   ▼
                                     GitHub Action: test + QA ──▶ deploy to Cloudflare ──▶ status: published
-Sunday 04:00 runner feedback ── agy + codex ─▶ reads /api/stats ─▶ jobs/<week>/06-feedback.md ─▶ play/ideas.md
+Sunday 04:00 runner feedback ── codex ─▶ reads /api/stats ─▶ jobs/<week>/06-feedback.md ─▶ play/ideas.md
 ```
 
 - Jules (Gemini) gets **improvement tasks** as GitHub issues labelled `jules`, for example "make item X work better on small screens (votes: 12 👍 / 9 👎)". Its PRs pass through the same test, Codex review and owner-merge gate.
@@ -94,13 +94,13 @@ Each stage reads the previous files, writes exactly one output file, and updates
 
 | Stage | Owner | Reads | Writes | Must contain | Done when |
 |---|---|---|---|---|---|
-| research | Gemini (`agy`) | ideas.md, items list, vote stats | `01-research.md` | 8–12 findings with **source URL, date checked, confidence (high/med/low)**, seasonal hooks, 3 directions | ≥ 8 findings, every one with a URL |
+| research | Claude (`claude -p`, read-only, web search) | ideas.md, items list, vote stats | `01-research.md` | 8–12 findings with **source URL, date checked, confidence (high/med/low)**, seasonal hooks, 3 directions | ≥ 8 findings, every one with a URL |
 | idea | Codex (`codex exec`) | 01, ideas.md, items list | `02-idea.md` | 3 concepts scored (value, originality, demand, difficulty), the chosen spec: meta, flow, controls, all ko/en strings, storage, must-nots | All sections present; slug is unused |
-| design | Claude (+ `agy` second opinion) | 02 | `03-design.md` | Palette, type, layout at 360×640 and 1024×700, motion, accessibility notes (contrast, focus, reduced motion, 44 px targets) | Reviewed against ITEMS.md rule 12 |
+| design | Claude (+ Codex second opinion) | 02 | `03-design.md` | Palette, type, layout at 360×640 and 1024×700, motion, accessibility notes (contrast, focus, reduced motion, 44 px targets) | Reviewed against ITEMS.md rule 12 |
 | build | Claude | 02, 03, ITEMS.md | `play/items/<slug>/` | `index.html`, `meta.json`, `thumb.png` | `npm test` + `npm run qa -- --only <slug>` pass |
 | review | Codex (`@codex review`) + QA | PR diff, 02, 03 | `05-review.md` | Blocking issues, improvements, security notes, spec checklist | No blocking issue, CI green |
 | publish | Owner (merge) + Action | PR | deploy log | — | Live URL returns 200 |
-| feedback | Gemini + Codex | `/api/stats`, comments | `06-feedback.md` | Top/bottom items, reasons, 5 next ideas, 3 improvement tasks | Ideas appended to `play/ideas.md` |
+| feedback | Codex | `/api/stats`, comments | `06-feedback.md` | Top/bottom items, reasons, 5 next ideas, 3 improvement tasks | Ideas appended to `play/ideas.md` |
 
 `job.json` status values are `queued`, `running`, `review`, `approved`, `failed` and `published`.
 
@@ -153,7 +153,7 @@ All visitor ids remain salted one-way hashes. The salt is a Cloudflare secret.
 | **0 (today)** | This document, the job schema, the first job | No | — |
 | **1** | Deploy play: create D1, apply the schema, make the Pages project, point `play.mesisi.net` at it. GitHub Action runs test + QA, then deploys on merge to `main`. Scheduled routines stop self-merging. | Adds a workflow; changes routine prompts only | A valid Cloudflare API token, saved again; the same token added as the repo secret `CLOUDFLARE_API_TOKEN` |
 | **2** | Platform features: `categories.json`, search, `/all/` with latest/popular/recommended tabs, view counts, feedback form, version/changelog on item pages | Additive changes to `build.mjs`, `site.js`, new functions and tables | — |
-| **3** | Windows runner `pipeline/runner/` (Node, no dependencies): `research` (agy), `idea` (codex exec), `feedback`; it reads and writes job files, retries up to 3 times, commits to a `pipeline/<id>` branch and pushes. Task Scheduler entries. | New folder only | Install Node LTS, Git, Codex CLI and Antigravity CLI on the PC; sign in once each; clone the repo |
+| **3** | Windows runner `pipeline/runner/` (Node, no dependencies): `research` (claude -p), `idea` (codex exec), `feedback` (codex exec); it reads and writes job files, retries up to 3 times, commits to a `pipeline/<id>` branch and pushes. Task Scheduler entries. | New folder only | Install Node LTS, Git, Codex CLI and Claude Code on the PC; sign in once each; clone the repo |
 | **4** | Codex code review on PRs; Jules issues for improvements; weekly feedback report; admin moderation page behind Cloudflare Access | Settings + new pages | Turn on Codex code review for the repo; install the Jules GitHub App for the repo; enable Cloudflare Access for `/api/admin/*` |
 
 ## 9. Rules this design keeps
@@ -162,7 +162,7 @@ All visitor ids remain salted one-way hashes. The salt is a Cloudflare secret.
 - No credential leaves the tool it belongs to: no token export, no session sharing, no unofficial login paths. Claude takes part only through repository files and its own official scheduled tasks.
 - AI output is never published without the owner's merge.
 - Any failing test or QA run blocks the deploy.
-- Items run no external code: they are one self-contained file with no network, shown inside an iframe.
+- Items run no external code: they are one self-contained folder (index.html plus optional images and video) with no network, shown inside an iframe.
 - Sources are cited with URL and date in every research file. Items must be original, per ITEMS.md rule 1.
 - Personal data: only salted hashes of IPs are stored; the privacy page says so.
 - Votes are rate-limited and deduplicated; feedback is length-limited and moderated.

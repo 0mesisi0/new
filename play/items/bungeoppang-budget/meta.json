@@ -1,0 +1,19 @@
+{
+  "slug": "bungeoppang-budget",
+  "date": "2026-11-21",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "붕어빵 예산 계산기",
+    "desc": "예산과 팥붕·슈붕 한 개 가격을 넣으면 살 수 있는 조합과 남는 돈을 바로 계산해요. 내 붕어빵 봉투를 이미지나 글로 저장해 보세요.",
+    "howto": "예산과 붕어빵 한 개 가격을 입력하고 ‘봉투 보기’를 누르세요. 가능한 조합 중 하나를 고르면 개수, 합계, 남는 돈을 확인하고 저장하거나 복사할 수 있어요.",
+    "about": "붕어빵은 물고기 모양의 간식이에요. 처음 표시되는 가격은 계산 예시이며 실제 시세가 아니에요. 묶음 할인은 계산하지 않으며, 입력값은 외부로 전송하지 않아요."
+  },
+  "en": {
+    "title": "Bungeoppang Budget Calculator",
+    "desc": "Enter your budget and red-bean and custard prices. Find an affordable mix, check your change, and save your snack bag as an image.",
+    "howto": "Enter your budget and the price of each pastry, then select View bag. Choose an available combination to see quantities, total cost, and money left. Save or copy your bag.",
+    "about": "Bungeoppang is a fish-shaped pastry. Initial prices are examples, not market prices. Bundle discounts are not included. Inputs are never transmitted."
+  }
+}
