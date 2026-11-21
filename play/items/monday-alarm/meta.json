@@ -1,0 +1,17 @@
+{
+  "slug": "monday-alarm",
+  "date": "2026-11-21",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "월요일 알람 끄기",
+    "desc": "월요일 아침, 꿈속에선 부장님도 칼퇴를 권한다. 알람을 재워 5분씩 더 자되, 8시 지각선은 넘지 말자.",
+    "howto": "바늘이 노란 칸에 들어올 때 5분 더를 누르면 점수를 얻어요. 눈만 뜨면 시간이 그대로고, 알람을 놓치면 5분이 지나가요. 키보드는 스페이스와 아래 화살표를 쓰세요."
+  },
+  "en": {
+    "title": "Monday Alarm",
+    "desc": "In your dreams, even your boss believes in leaving on time. Snooze in five-minute bursts without hitting the 8 a.m. cutoff.",
+    "howto": "Hit Snooze when the needle reaches yellow to score. Peeking saves time and ignoring a bell costs five minutes. On keyboard, use Space and Down Arrow."
+  }
+}
