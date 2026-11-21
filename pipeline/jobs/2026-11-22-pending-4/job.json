@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-pending-4",
+  "site": "play",
+  "slug": "puffer-zip-challenge",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T22:41:00.751Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T22:43:04.103Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a weird or beautiful interactive page, toy or visual sandbox (kind tool, category cool)"
+}
