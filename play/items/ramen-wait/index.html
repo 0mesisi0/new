@@ -119,6 +119,19 @@
     h1, :lang(en) h1 { font-size: clamp(32px, 7.7vh, 42px); }
     .masthead { margin-top: 0; }
   }
+  @media (orientation: landscape) and (max-height: 420px) {
+    #game {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto minmax(min-content, 1fr) auto;
+      gap: 5px 12px; overflow-y: auto; touch-action: pan-y;
+    }
+    header { grid-column: 1 / -1; }
+    .masthead { align-self: center; }
+    .art { grid-area: 2 / 2; }
+    footer { grid-area: 3 / 2; align-self: end; margin-top: 0; }
+    .ticket { margin-bottom: 4px; }
+    button { touch-action: manipulation; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -317,7 +330,7 @@
     best = Math.max(0, Math.min(1000, Number(localStorage.getItem(scoreKey)) || 0));
     muted = localStorage.getItem(muteKey) === '1';
   } catch {}
-  let state = 'start';
+  let state = 'start', autoFinishedAt = -Infinity;
   let level = 0;
   let nextLevel = 0;
   let elapsedBeforePause = 0;
@@ -394,6 +407,7 @@
   }
 
   function start() {
+    autoFinishedAt = -Infinity;
     level = nextLevel;
     state = game.dataset.state = 'play';
     delete game.dataset.grade;
@@ -424,6 +438,7 @@
     if (state !== 'play' || runningSince === null) return;
     const seconds = elapsed(now);
     if (seconds >= targets[level] + 15) {
+      autoFinishedAt = performance.now();
       finish(targets[level] + 15);
       return;
     }
@@ -474,7 +489,10 @@
 
   // Native button clicks cover touch, mouse, and keyboard activation.
   action.addEventListener('pointerdown', unlockAudio);
-  action.addEventListener('click', playAction);
+  action.addEventListener('click', () => {
+    if (state === 'result' && performance.now() - autoFinishedAt < 600) return;
+    playAction();
+  });
   window.addEventListener('keydown', event => {
     if (event.code !== 'Space' && event.code !== 'Enter') return;
     if (event.target.closest('input') || event.target.closest('button:not(#action)')) return;

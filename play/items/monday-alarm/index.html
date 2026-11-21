@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>월요일 알람 끄기</title>
+<style>
+  :root { --ink:#29223c; --paper:#fff3dc; --pink:#ef8996; --butter:#ffdc7d; --lavender:#b6a5e6; color-scheme:light; }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:#30263f; color:var(--ink); font:700 15px/1.35 system-ui,sans-serif; }
+  main { width:min(100%, 520px); height:100vh; height:100dvh; min-height:460px; margin:auto; padding:clamp(12px,3.5vw,26px); background:var(--paper); display:grid; grid-template-rows:auto minmax(96px,1fr) auto; gap:clamp(8px,2vh,16px); }
+  header { position:relative; padding-right:56px; }
+  header p { margin:0 0 3px; font-size:13px; color:#66536c; }
+  h1,h2,p { margin:0; }
+  h1 { font-size:clamp(25px,8.4vw,58px); font-weight:950; line-height:1.04; letter-spacing:-.075em; }
+  :lang(en) h1 { letter-spacing:-.07em; }
+  button { font:inherit; color:inherit; min-width:44px; min-height:44px; border:2px solid var(--ink); border-radius:9px; background:#fff9ed; box-shadow:0 3px 0 var(--ink); cursor:pointer; touch-action:manipulation; }
+  button:active { box-shadow:none; transform:translateY(3px); }
+  button:focus-visible, textarea:focus-visible { outline:3px solid #6449a6; outline-offset:3px; }
+  button:disabled { cursor:default; color:#5c4a64; box-shadow:none; background:#f1e5e0; }
+  .sound { position:absolute; top:0; right:0; width:44px; padding:0; display:grid; place-items:center; }
+  .sound svg { width:22px; height:22px; }
+  .sound[aria-pressed="true"] .waves, .sound[aria-pressed="false"] .slash { display:none; }
+  .room { isolation:isolate; position:relative; min-width:0; overflow:hidden; border:3px solid var(--ink); border-radius:22px 22px 13px 13px; background:#ac9bde radial-gradient(circle at 7px 7px,#9281c2 1px,transparent 1.5px) 0 0/30px 30px; }
+  .room > svg { display:block; width:100%; height:100%; }
+  .remark { position:absolute; top:4%; left:4%; z-index:1; max-width:85%; padding:6px 10px; border:2px solid var(--ink); border-radius:12px 13px 13px 3px; background:#fff9ea; box-shadow:2px 3px 0 #29223c50; font-size:clamp(12px,3.4vw,16px); }
+  .cutoff { position:absolute; right:8%; top:24%; display:none; padding:10px 13px 8px; border:2px solid var(--ink); border-radius:4px 9px 5px 4px; background:var(--butter); box-shadow:3px 4px 0 #6e5a9a; transform:rotate(6deg); text-align:center; }
+  .cutoff::before { content:""; position:absolute; top:-7px; left:calc(50% - 14px); width:28px; height:10px; background:#ffeab9; transform:rotate(-9deg); }
+  .cutoff small { display:block; font-size:12px; }
+  .cutoff strong { display:block; font-size:clamp(21px,6vw,32px); font-weight:950; line-height:1; }
+  @media (min-height:710px) { .cutoff { display:block; } }
+  .scene { stroke:var(--ink); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+  .dream { display:none; }
+  .room[data-dream="0"] .moon, .room[data-dream="1"] .coffee, .room[data-dream="2"] .train, .room[data-dream="3"] .office { display:inline; }
+  .awake, .wild { opacity:0; }
+  .room[data-mood="ring"] .awake, .room[data-mood="ouch"] .wild { opacity:1; }
+  .room[data-mood="ring"] .asleep, .room[data-mood="ouch"] .asleep { opacity:0; }
+  .room[data-mood="ouch"] { border-color:#9a3353; }
+  .room[data-mood="nice"] { border-color:#6950ac; }
+  .float { animation:drift 3.4s ease-in-out infinite alternate; }
+  .breath { animation:breathe 2.2s ease-in-out infinite alternate; }
+  .room[data-mood="ring"] .clock { animation:rattle .22s ease-in-out infinite alternate; }
+  .room[data-mood="nice"] .spark { animation:glint .48s ease-out both; }
+  @keyframes drift { to { transform:translateY(-7px); } }
+  @keyframes breathe { to { transform:translateY(3px); } }
+  @keyframes rattle { to { transform:translateX(3px); } }
+  @keyframes glint { from { opacity:0; transform:translateY(8px); } 40% { opacity:1; } to { opacity:0; transform:translateY(-12px); } }
+  .deck { display:grid; gap:8px; min-width:0; }
+  .intro p { font-weight:650; }
+  .major { background:var(--butter); font-weight:900; font-size:clamp(16px,4.8vw,22px); }
+  .intro .major { min-height:53px; }
+  .stats { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:9px; }
+  .stat { line-height:1.07; }
+  .stat small { display:block; font-size:11px; color:#66536c; margin-bottom:3px; }
+  .stat strong { font-size:clamp(17px,5.2vw,25px); font-variant-numeric:tabular-nums; font-weight:950; white-space:nowrap; }
+  .score { text-align:right; }
+  .budget { display:flex; gap:3px; align-items:center; }
+  .budget i { width:clamp(7px,2.5vw,12px); height:11px; border:1px solid var(--ink); border-radius:2px; background:#e9dbcf; }
+  .budget i:last-child { border-color:#a02548; border-style:dashed; }
+  .budget i.spent { background:#ad98df; }
+  .budget i.spent:last-child { background:var(--pink); }
+  .track { position:relative; height:22px; border:2px solid var(--ink); border-radius:7px; background:repeating-linear-gradient(90deg,#594a70 0,#594a70 calc(12.5% - 1px),#786689 calc(12.5% - 1px),#786689 12.5%); }
+  .track[data-idle="true"] { opacity:.57; }
+  .zone { position:absolute; border:solid #fff0ab; border-width:0 2px; background:var(--butter); top:0; bottom:0; }
+  .needle { position:absolute; height:24px; width:6px; top:-3px; margin-left:-3px; border:1px solid var(--ink); border-radius:3px; background:#fff; }
+  .actions { display:grid; grid-template-columns:1.25fr 1fr; gap:9px; }
+  .actions button { padding:3px 6px; }
+  .result { background:#fff9ed; border:2px solid var(--ink); border-radius:12px; padding:9px 11px 10px; }
+  .result h2 { font-weight:950; font-size:clamp(18px,5.6vw,28px); line-height:1.13; letter-spacing:-.045em; }
+  .result p { font-size:13px; }
+  #record { color:#61488e; font-weight:900; }
+  textarea { width:100%; height:44px; font:inherit; border:1px solid var(--ink); border-radius:5px; resize:none; }
+  @media (max-height:510px) { main { padding:10px 12px; gap:7px; } .deck { gap:6px; } }
+  @media (orientation:landscape) and (max-height:430px) {
+    main { width:min(100%, 740px); height:auto; min-height:100vh; min-height:100dvh; grid-template-columns:minmax(120px, 1fr) minmax(0, 1fr); grid-template-rows:auto 1fr; }
+    header { grid-column:1/-1; }
+    h1 { font-size:32px; }
+    .room { min-height:190px; }
+    .deck { align-self:center; }
+    .actions { grid-template-columns:1fr 1fr; }
+    .major { font-size:16px; }
+    .budget { gap:2px; }
+    .budget i { width:7px; }
+  }
+  @media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; } button:active { transform:none; } }
+</style>
+</head>
+<body>
+<main id="app">
+  <header>
+    <p data-copy="brand"></p>
+    <h1 data-copy="title"></h1>
+    <button id="sound" class="sound" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9h4l5-4v14l-5-4H3z"/><path class="waves" d="M16 9q4 3 0 6m3-9q6 6 0 12"/><path class="slash" d="m16 10 5 5m0-5-5 5"/>
+      </svg>
+    </button>
+  </header>
+  <div class="room" id="room" data-mood="sleep" data-dream="0">
+    <p class="remark" id="remark"></p>
+    <p class="cutoff"><small data-copy="cutoff"></small><strong>08:00</strong></p>
+    <svg viewBox="0 0 420 392" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <defs>
+        <pattern id="wall" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="1.2" fill="#685696" opacity=".38"/><circle cx="22" cy="22" r=".9" fill="#685696" opacity=".38"/></pattern>
+        <pattern id="quilt" width="47" height="42" patternUnits="userSpaceOnUse"><path d="M0 21 24 0l23 21-23 21Z" fill="none" stroke="#f5a4ab" stroke-width="1.4"/><circle cx="24" cy="21" r="2" fill="#f5a4ab"/></pattern>
+        <clipPath id="portal"><path d="M157 170V98a54 54 0 0 1 108 0v72Z"/></clipPath>
+      </defs>
+      <path fill="#ac9bde" d="M0 0h420v392H0z"/>
+      <path fill="url(#wall)" d="M0 0h420v392H0z"/>
+      <path d="M0 301h420v91H0z" fill="#786291"/>
+      <path d="M0 302h420m-365 90 57-86m192 3 48 83" stroke="#564569" stroke-width="3" fill="none"/>
+      <g class="scene">
+        <path d="M147 177V98a64 64 0 0 1 128 0v79z" fill="#e9d4f5"/>
+        <path d="M157 170V98a54 54 0 0 1 108 0v72z" fill="#54416f"/>
+        <g clip-path="url(#portal)">
+          <path d="M156 151q19-14 34 2 22-29 43-1 18-18 33-8v35H156z" fill="#746096" stroke="none"/>
+          <g class="dream moon"><g class="float">
+            <path d="M212 74q-23 24 10 46-28 10-38-15-8-22 28-31z" fill="#ffda83"/>
+            <path d="M237 77v13m-6-6h12m-9 35v12m-6-6h12m-65-10h5" stroke="#f6d3ed" fill="none" stroke-width="2"/>
+          </g></g>
+          <g class="dream coffee"><g class="float">
+            <path d="M222 106h10q14 1 10 13-3 7-16 5" fill="none" stroke="#fff3dc"/>
+            <path d="M182 102h46l-4 28q-19 14-38 0z" fill="#f198a2"/>
+            <path d="M191 121q3-6 7-1m12 0q4-6 8 0m-21 6q6 8 12-1" fill="none" stroke-width="2"/>
+            <path d="M201 73q-10 10 0 17m13-19q-8 10 0 16" stroke="#ffdc7d" fill="none" stroke-width="2"/>
+          </g></g>
+          <g class="dream train"><g class="float">
+            <path d="M182 134h58l-3-29q-3-18-25-18-24 0-27 18z" fill="#ffdc7d"/>
+            <path d="m193 102-3 17h40l-3-17z" fill="#ad98df"/><path d="m194 133-8 10m44-10 8 10m-47-2h43" fill="none" stroke="#f4d8ee"/><circle cx="196" cy="126" r="2"/><circle cx="226" cy="126" r="2"/>
+          </g></g>
+          <g class="dream office"><g class="float">
+            <path d="m188 83 41 8 4 43-49 1z" fill="#fff3dc"/><path d="m193 99 27 3m-28 6 24 3" stroke="#927db8" stroke-width="2"/>
+            <path d="m214 127 5 7 16-17" fill="none" stroke="#d15674" stroke-width="5"/>
+            <path d="M176 91v8m-4-4h8m62 3v10m-5-5h10" stroke="#ffdc7d" fill="none" stroke-width="2"/>
+          </g></g>
+        </g>
+        <path d="M142 170h138v11H142z" fill="#f5cfeb"/>
+        <path d="M40 115q12-11 22 2m-14 4 6 5m267 12q10-9 17 0m-9 5 7 5" fill="none" stroke="#67568b" stroke-width="2"/>
+        <path d="M0 257q33-69 100-64 34 0 72 23l12 104H0z" fill="#74517f"/>
+        <path d="M0 270q40-56 98-58 38-4 69 27l7 55H0z" fill="#f8c9ce"/>
+        <path d="M26 252q14-27 49-23m-38 48q43 10 79-17" fill="none" stroke="#bf839b" stroke-width="2"/>
+        <g class="breath">
+          <path d="M69 229q-4-53 50-55 50 0 61 42-7 31-31 47l-65-4z" fill="#453453"/>
+          <path d="M82 230q-5-14 9-17l8 4q13-7 23-21 14 18 43 13 17 42-12 56-16 11-42-1-13-5-19-20-15 2-10-14z" fill="#fac19e"/>
+          <path d="M95 218q-10 4-7 12m18-45q-25-14-13-27 17 4 24 18m6 1q8-29 25-19 5 14-15 22" fill="none"/>
+          <path d="M131 217h4m17-1h4" fill="none" stroke-width="2"/>
+          <g class="asleep" fill="none"><path d="M115 229q6 6 13-1m16 2q7 5 13-1m-20 19q7 4 12-2"/><path d="m109 239 8 2m44-6 5 1" stroke="#d87880" stroke-width="3"/></g>
+          <g class="awake"><path d="M114 228q7-4 13 0m17 1q6-5 12 0" fill="none"/><circle cx="121" cy="232" r="2" stroke="none" fill="#29223c"/><circle cx="150" cy="232" r="2" stroke="none" fill="#29223c"/><path d="M134 248q6-4 12 0" fill="none"/></g>
+          <g class="wild"><path d="m112 226 13 9m-13 0 11-9m20 1 14 8m-13 0 12-9" fill="none"/><path d="M132 251q6-18 15 0z" fill="#9a3353"/></g>
+        </g>
+        <path d="M0 286q51-25 119-16 44 3 55-23 18-24 59-8 53 17 62 75l6 78H0z" fill="#dd718b"/>
+        <path d="M0 287q51-25 119-16 44 3 55-23 18-24 59-8 53 17 62 75l6 77H0z" fill="url(#quilt)" stroke="none"/>
+        <path d="M0 290q72-26 136-12 32 1 49-25 13-15 38-7m-47 24q40 24 46 76m-178-51q27-8 62-3" fill="none" stroke="#7b476b" stroke-width="2"/>
+        <path d="M178 261q15-18 24-14 5 4 0 8l9-4q8 3-1 11-12 10-27 9z" fill="#fac19e"/>
+        <path d="M280 302h140v21H280z" fill="#e7a485"/>
+        <path d="M295 323h125v69H295z" fill="#a86370"/>
+        <path d="M312 335h108v34H312z" fill="#d78b84"/><path d="M349 350h22" fill="none"/>
+        <g class="clock">
+          <path d="m315 279-7 20h14l9-16m42-3 9 18h-14l-8-15" fill="#584365"/>
+          <path d="M305 238q0-24 25-20l5 8-23 18zM365 220q25-9 28 14l-7 10-22-17z" fill="#ffdc7d"/>
+          <path d="M342 219v-8h13" fill="none"/>
+          <path d="M386 258q-1 36-39 36-39-2-37-36 2-35 36-35 38 1 40 35z" fill="#ef8996"/>
+          <path d="M319 254q4-19 27-21 25 0 29 22 3 26-24 30-32 4-32-31z" fill="#fff3dc"/>
+          <path d="m338 250 3 2m16-2-3 2m-17 12q12 12 24-1m-14 8v6" fill="none"/>
+          <path d="m324 218-6-11m-10 16-9-5m82 0 6-11m7 18 10-6" fill="none" stroke="#fff3dc"/>
+        </g>
+        <g class="spark" opacity="0" fill="#ffdc7d"><path d="M104 145l5 9 10 3-10 4-5 10-4-10-10-4 10-3zM285 193l4 6 7 3-7 3-4 7-3-7-6-3 6-3z"/></g>
+      </g>
+    </svg>
+  </div>
+  <section class="deck intro" id="intro">
+    <p data-copy="how"></p>
+    <button class="major" type="button" id="start" data-copy="start"></button>
+  </section>
+  <section class="deck" id="play" hidden>
+    <div class="stats">
+      <div class="stat"><small data-copy="monday"></small><strong id="time"></strong></div>
+      <div class="budget" id="budget" role="img"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="stat score"><small id="bell"></small><strong id="score"></strong></div>
+    </div>
+    <div class="track" id="track" aria-hidden="true"><i class="zone" id="zone"></i><i class="needle" id="needle"></i></div>
+    <div class="actions">
+      <button class="major" id="snooze" type="button" data-copy="snooze"></button>
+      <button id="peek" type="button"></button>
+    </div>
+  </section>
+  <section class="deck result" id="result" hidden>
+    <h2 id="grade"></h2>
+    <p id="punchline"></p>
+    <p id="record"></p>
+    <textarea id="share-text" readonly hidden></textarea>
+    <div class="actions">
+      <button class="major" id="retry" type="button" data-copy="retry"></button>
+      <button id="share" type="button" data-copy="share"></button>
+    </div>
+  </section>
+</main>
+<script>
+  'use strict';
+
+  const copy = {
+    ko: {
+      brand:'하루한판', title:'월요일 알람 끄기', start:'이불 덮고 시작', retry:'다시 눕기',
+      how:'노란 칸에서 스누즈! 5분씩 더 자되, 8시 지각선을 넘지 마세요.',
+      intro:'월요일은 누가 매주 시켜요?', cutoff:'지각선', monday:'월요일 아침', snooze:'5분 더', peek:'눈만 뜨기', wake:'일어나기',
+      mute:'소리 끄기', unmute:'소리 켜기', share:'결과 공유', copied:'결과 복사 완료', shareField:'공유할 결과',
+      bell:n => '알람 ' + n + '/8', points:n => n + '점', best:n => '최고 ' + n + '점', budget:n => '스누즈 ' + n + '번. 8번이면 지각.',
+      rings:['띠리링. 월요일입니다.', '띠리리링. 모른 척 금지.', '삐빅! 이불 밖에 부장님.', '삐삐삐! 단톡방에 숫자 99.', '삐이익! 출근길 환승 두 번.', '삐빅삐빅! 잠꼬대로 “넵”.', '삐이이! 엘리베이터 문 닫힘.', '삐이이익! 아침 회의, 카메라 켜기.'],
+      dreams:['꿈에선 아이스 아메리카노가 복지.', '꿈에선 2호선에 앉아서 간다.', '꿈에선 부장님이 먼저 칼퇴한다.', '꿈에선 회의가 메일로 끝났다.'],
+      hold:'눈만 떴다. 출근한 건 아니다.', rough:'알람은 껐는데 꿈도 강제 종료.', missed:'알람이 혼자 5분을 결재했다.',
+      grades:[['이불 재택근무 1급','출근은 정확히 0분 늦고, 마음은 아직 침대.'], ['스누즈 주임','출근 도장보다 이불 도장이 선명하다.'], ['기상 모범 수습','너무 일찍 깼다. 슬퍼서 양말부터 신었다.'], ['지각 사유서 장인','사유: 침대와의 면담이 길어졌습니다.']]
+    },
+    en: {
+      brand:'Daily Toybox', title:'Monday Alarm', start:'Get under the covers', retry:'Back to bed',
+      how:'Snooze in the yellow zone for five more minutes. Hit 8:00 and you’re late.',
+      intro:'Who keeps scheduling Mondays?', cutoff:'Late at', monday:'Monday morning', snooze:'Snooze +5 min', peek:'Peek awake', wake:'Get up',
+      mute:'Mute sound', unmute:'Unmute sound', share:'Share result', copied:'Result copied', shareField:'Result to share',
+      bell:n => 'Alarm ' + n + '/8', points:n => n + ' pts', best:n => 'Best ' + n + ' pts', budget:n => n + ' snoozes. Eight makes you late.',
+      rings:['Brrring. It’s Monday.', 'BRRRING. We can see you.', 'BEEP! Your boss is outside the duvet.', 'BEEP! Group chat: 99 unread.', 'BEEEEP! Two subway transfers.', 'BEEP BEEP! You said “Will do” in your sleep.', 'BEEEEEP! Elevator doors closing.', 'BEEEEEEP! Morning call. Cameras on.'],
+      dreams:['In this dream, iced coffee is a work benefit.', 'In this dream, there’s a seat on the subway.', 'In this dream, your boss clocks out first.', 'In this dream, the meeting was an email.'],
+      hold:'Eyes open. Still legally in bed.', rough:'You closed the alarm and rage-quit the dream.', missed:'The alarm approved its own five minutes.',
+      grades:[['Certified Duvet Executive','Right on time. Emotionally still under the covers.'], ['Assistant Snooze Manager','Your pillow has a better timecard than you do.'], ['Very Sad Early Bird','Up so early you had time to be sad in socks.'], ['Late Slip Laureate','Reason for delay: extended negotiations with the bed.']]
+    }
+  };
+  const requested = new URLSearchParams(location.search).get('lang');
+  const lang = copy[requested] && (requested === 'ko' || requested === 'en') ? requested : /^ko\b/i.test(navigator.language) ? 'ko' : 'en';
+  const t = copy[lang];
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  const byId = id => document.getElementById(id);
+  document.querySelectorAll('[data-copy]').forEach(el => { el.textContent = t[el.dataset.copy]; });
+  const intro = byId('intro');
+  const play = byId('play');
+  const result = byId('result');
+  const room = byId('room');
+  const remark = byId('remark');
+  const sound = byId('sound');
+  const snooze = byId('snooze');
+  const peek = byId('peek');
+  const share = byId('share');
+  const shareText = byId('share-text');
+  const track = byId('track');
+  const zone = byId('zone');
+  const needle = byId('needle');
+  const budget = byId('budget');
+  const time = byId('time');
+  const score = byId('score');
+  const bell = byId('bell');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const alarmLength = 4.5;
+  const alarmCount = 8;
+  const offsets = [.32, .43, .24, .54, .35, .63, .26, .57];
+  const storageKey = 'monday-alarm:';
+  let best = 0;
+  let muted = false;
+  try {
+    best = Number(localStorage.getItem(storageKey + 'best')) || 0;
+    muted = localStorage.getItem(storageKey + 'mute') === '1';
+  } catch (e) {}
+
+  let mode = 'intro';
+  let audio, volume, frame, last = null;
+  let index, age, spent, points, handled, nextBeep, left, width, dream;
+  let sharedResult = '';
+  let round = 0;
+
+  function unlockAudio() {
+    if (muted) return;
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return;
+    try {
+      if (!audio) {
+        audio = new Audio();
+        volume = audio.createGain();
+        volume.connect(audio.destination);
+      }
+      if (audio.state === 'suspended') audio.resume().catch(() => {});
+    } catch (e) {}
+  }
+
+  function tone(freq, length, type, delay, gain) {
+    if (!audio || !volume || muted || audio.state !== 'running') return;
+    const start = audio.currentTime + delay;
+    const oscillator = audio.createOscillator();
+    const envelope = audio.createGain();
+    oscillator.type = type;
+    oscillator.frequency.value = freq;
+    envelope.gain.setValueAtTime(.001, start);
+    envelope.gain.exponentialRampToValueAtTime(gain, start + .014);
+    envelope.gain.exponentialRampToValueAtTime(.001, start + length);
+    oscillator.connect(envelope);
+    envelope.connect(volume);
+    oscillator.onended = () => { oscillator.disconnect(); envelope.disconnect(); };
+    oscillator.start(start);
+    oscillator.stop(start + length + .01);
+  }
+
+  function updateSound() {
+    sound.setAttribute('aria-pressed', String(muted));
+    sound.setAttribute('aria-label', muted ? t.unmute : t.mute);
+    sound.title = muted ? t.unmute : t.mute;
+    if (volume) volume.gain.value = muted ? 0 : 1;
+  }
+
+  function clockTime() {
+    const minutes = 20 + 5 * spent;
+    return minutes < 60 ? '07:' + minutes : '08:00';
+  }
+
+  function updateStats() {
+    time.textContent = clockTime();
+    score.textContent = t.points(points);
+    bell.textContent = t.bell(index + 1);
+    budget.setAttribute('aria-label', t.budget(spent));
+    for (let i = 0; i < alarmCount; i++) budget.children[i].classList.toggle('spent', i < spent);
+  }
+
+  function setMood(mood, message) {
+    room.dataset.mood = mood;
+    remark.textContent = message;
+  }
+
+  function setHandled(value) {
+    handled = value;
+    snooze.disabled = value;
+    peek.disabled = value;
+    track.dataset.idle = String(value);
+  }
+
+  function ring() {
+    age = 0;
+    nextBeep = 0;
+    left = offsets[index];
+    width = .34 - index * .029;
+    zone.style.left = left * 100 + '%';
+    zone.style.width = width * 100 + '%';
+    needle.style.left = '0%';
+    peek.textContent = index === alarmCount - 1 ? t.wake : t.peek;
+    setMood('ring', t.rings[index]);
+    setHandled(false);
+    updateStats();
+  }
+
+  function start() {
+    if (mode === 'play') return;
+    round++;
+    unlockAudio();
+    mode = 'play';
+    intro.hidden = true;
+    result.hidden = true;
+    play.hidden = false;
+    index = spent = points = dream = 0;
+    room.dataset.dream = '0';
+    last = null;
+    ring();
+    if (!document.hidden) frame = requestAnimationFrame(tick);
+  }
+
+  function needlePosition() {
+    const position = age / alarmLength;
+    return reduced.matches ? Math.floor(position * 100 / 3) * .03 : position;
+  }
+
+  function choose(wantsSleep) {
+    if (mode !== 'play' || handled) return;
+    if (!wantsSleep && index === alarmCount - 1) {
+      finish();
+      return;
+    }
+    setHandled(true);
+    if (!wantsSleep) {
+      setMood('sleep', t.hold);
+      tone(270, .13, 'sine', 0, .10);
+      return;
+    }
+    spent++;
+    const position = needlePosition();
+    if (position >= left && position <= left + width) {
+      points += 100 + Math.round(50 * (1 - Math.abs(position - left - width / 2) / (width / 2)));
+      room.dataset.dream = String([1, 2, 3, 3][dream % 4]);
+      setMood('nice', t.dreams[dream % 4]);
+      dream++;
+      tone(523, .18, 'sine', 0, .14);
+      tone(784, .25, 'sine', .07, .14);
+    } else {
+      setMood('ouch', t.rough);
+      tone(128, .2, 'triangle', 0, .16);
+    }
+    updateStats();
+  }
+
+  function tick(now) {
+    age += last === null ? 0 : Math.min(.1, (now - last) / 1000);
+    last = now;
+    if (age >= alarmLength) {
+      if (!handled) spent++;
+      if (index === alarmCount - 1) {
+        finish();
+        return;
+      }
+      const missed = !handled;
+      index++;
+      ring();
+      if (missed) remark.textContent = t.missed + ' ' + t.rings[index];
+    }
+    if (!handled) {
+      needle.style.left = needlePosition() * 100 + '%';
+      if (age >= nextBeep) {
+        const pitch = 432 + index * 52;
+        tone(pitch, .14, index < 4 ? 'triangle' : 'square', 0, .095);
+        if (index >= 2) tone(pitch + 58, .11, 'triangle', .16, .082);
+        if (index >= 5) tone(pitch - 87, .09, 'square', .31, .065);
+        nextBeep = age + 1.32 - index * .09;
+      }
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
+  function finish() {
+    mode = 'result';
+    cancelAnimationFrame(frame);
+    const late = spent === 8;
+    const entry = t.grades[late ? 3 : spent < 4 ? 2 : spent >= 6 && points >= 740 ? 0 : 1];
+    const finalScore = Math.max(0, points - (late ? 450 : spent < 4 ? 150 : 0));
+    if (finalScore > best) {
+      best = finalScore;
+      try { localStorage.setItem(storageKey + 'best', String(best)); } catch (e) {}
+    }
+    setMood(late ? 'ouch' : 'sleep', clockTime() + '  /  ' + t.points(finalScore));
+    byId('grade').textContent = entry[0];
+    byId('punchline').textContent = entry[1];
+    byId('record').textContent = t.best(best);
+    shareText.hidden = true;
+    share.textContent = t.share;
+    let url = location.href;
+    try {
+      if (window.parent !== window) url = window.parent.location.href;
+    } catch (e) {
+      if (document.referrer) url = document.referrer;
+    }
+    sharedResult = t.title + ' ⏰ ' + entry[0] + '\n' + clockTime() + ' · ' + t.points(finalScore) + '\n' + entry[1] + '\n' + url;
+    play.hidden = true;
+    result.hidden = false;
+    byId('retry').focus();
+    tone(late ? 160 : 440, .28, 'triangle', 0, .12);
+    tone(late ? 110 : 659, .34, 'triangle', .15, .10);
+  }
+
+  async function shareResult() {
+    const currentRound = round;
+    const value = sharedResult;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title:t.title, text:value });
+        return;
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+    if (mode !== 'result' || round !== currentRound) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      if (mode === 'result' && round === currentRound) share.textContent = t.copied;
+    } catch (e) {
+      if (mode !== 'result' || round !== currentRound) return;
+      shareText.hidden = false;
+      shareText.value = value;
+      shareText.select();
+    }
+  }
+
+  function bind(button, action) {
+    button.addEventListener('pointerdown', event => {
+      if (event.button === 0) event.preventDefault();
+    });
+    button.addEventListener('click', action);
+  }
+
+  bind(byId('start'), start);
+  bind(byId('retry'), start);
+  bind(snooze, () => choose(true));
+  bind(peek, () => choose(false));
+  bind(share, shareResult);
+  bind(sound, () => {
+    muted = !muted;
+    unlockAudio();
+    updateSound();
+    try { localStorage.setItem(storageKey + 'mute', muted ? '1' : '0'); } catch (e) {}
+  });
+  document.addEventListener('keydown', event => {
+    if (event.target.tagName === 'TEXTAREA') return;
+    if (event.target.tagName === 'BUTTON' && (event.key === 'Enter' || event.key === ' ')) return;
+    const primary = event.key === ' ' || event.key === 'Enter';
+    const secondary = event.key === 'ArrowDown';
+    if (!primary && !secondary) return;
+    event.preventDefault();
+    if (event.repeat) return;
+    if (mode === 'play') choose(primary);
+    else if (primary) start();
+  });
+  document.addEventListener('visibilitychange', () => {
+    cancelAnimationFrame(frame);
+    last = null;
+    if (!document.hidden && mode === 'play') frame = requestAnimationFrame(tick);
+  });
+
+  shareText.setAttribute('aria-label', t.shareField);
+  setMood('sleep', t.intro);
+  updateSound();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "slug": "chicken-leg-war",
+  "date": "2026-11-21",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "치킨 다리 쟁탈전",
+    "desc": "가족은 넷, 치킨 다리는 둘. 닭가슴살은 아무도 결재 안 한다. 42초 동안 식탁에 들어오는 손을 쳐내고 내 다리를 지키자.",
+    "howto": "초록 신호에 버튼을 한 번 누르세요. 엄마가 ‘너 다리 먹었잖아’ 하면 네 번 연타하세요. 키보드는 스페이스 또는 엔터."
+  },
+  "en": {
+    "title": "Chicken Leg War",
+    "desc": "Four people. Two drumsticks. Nobody's signing off on breast meat. You've got 42 seconds to defend your share of dinner.",
+    "howto": "Tap once on green to swat a hand away. When Mom says you already had one, tap four times. On a keyboard, use Space or Enter."
+  }
+}

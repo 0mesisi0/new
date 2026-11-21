@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#191730">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23191730'/%3E%3Cpath d='M5 16h19m-8-8 8 8-8 8' fill='none' stroke='%23a9f0c8' stroke-width='4'/%3E%3C/svg%3E">
+<title></title>
+<style>
+  :root {
+    font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    color: #221b32;
+    background: #191730;
+    --ink: #221b32;
+    --paper: #fff1d7;
+    --mint: #a9f0c8;
+    --gold: #ffce6a;
+    --night: #26213e;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; width: 100%; }
+  body { background: repeating-linear-gradient(119deg, #191730 0 14px, #201c37 14px 15px); }
+  button, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; min-width: 44px; min-height: 44px; touch-action: manipulation; }
+  button:focus-visible, textarea:focus-visible { outline: 3px solid #ab3674; outline-offset: 2px; }
+  h1, h2, p { margin: 0; }
+  #app {
+    width: min(100%, 550px); height: 100vh; height: 100dvh; min-height: 450px;
+    margin: auto; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+    background: var(--night); box-shadow: 0 0 55px #0d0b20;
+  }
+  header {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center; gap: 9px; min-height: 52px; padding: 4px 13px;
+    background: #191730; color: var(--paper); border-bottom: 1px solid #675777;
+  }
+  .route { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 850; line-height: 1.12; }
+  .route svg { width: 28px; flex: 0 0 28px; }
+  .stats { display: flex; align-items: center; gap: 11px; text-align: right; }
+  .stats div { font-weight: 750; color: #e9cfe8; font-size: 10px; }
+  .stats strong { display: block; color: var(--paper); font: 900 18px/1.1 ui-monospace, monospace; }
+  #clock.urgent { color: #ff9da4; }
+  #mute { padding: 0; border: 1px solid #736284; border-radius: 8px; background: #302744; }
+  #mute svg { display: block; width: 23px; margin: auto; }
+  #mute[aria-pressed="true"] .waves, #mute[aria-pressed="false"] .slash { display: none; }
+  .scene {
+    display: flex; flex-direction: column; position: relative; min-height: 0; overflow: hidden;
+    background: radial-gradient(ellipse at 67% 46%, #59456e, transparent 74%), #322546;
+    color: var(--paper); isolation: isolate;
+  }
+  #marquee { z-index: 1; padding: clamp(9px, 4.2vh, 38px) 8px 0; text-align: center; }
+  h1 {
+    margin: 0; color: var(--gold); font-size: clamp(33px, 9.5vw, 58px); font-weight: 1000;
+    line-height: 1; letter-spacing: -.075em; word-break: keep-all;
+    text-shadow: 2px 3px #a54966, 4px 5px #251b35;
+  }
+  html[lang="en"] h1 { font-style: italic; }
+  #premise { margin-top: 8px; color: #ffdfd7; font-size: clamp(11px, 3vw, 15px); font-weight: 720; }
+  .artwork { position: relative; flex: 1; min-height: 0; }
+  .drawing { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+  .sky { display: none; }
+  .bubble {
+    position: absolute; z-index: 1; bottom: min(72%, 66vw, 345px); left: 5%; width: max-content; max-width: 68%;
+    transform: rotate(-3deg); padding: 6px 11px 8px; color: var(--ink); background: var(--paper);
+    border: 2px solid var(--ink); border-radius: 12px 15px 11px 4px; box-shadow: 3px 4px #221b32;
+    font-size: clamp(11px, 3.35vw, 16px); font-weight: 900; line-height: 1.16; word-break: keep-all;
+  }
+  .bubble::after {
+    content: ""; position: absolute; bottom: -9px; left: 15%; width: 12px; height: 12px;
+    background: inherit; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+    transform: skew(-21deg) rotate(38deg);
+  }
+  .bubble small { display: block; margin-bottom: 3px; color: #7d3c60; font-size: .69em; }
+  .scene[data-mood="good"] .bubble { left: auto; right: 4%; transform: rotate(2deg); background: var(--mint); }
+  .scene[data-mood="good"] .bubble::after { left: auto; right: 15%; }
+  .scene[data-mood="bad"] .bubble { background: #ffd5c8; }
+  .location {
+    position: absolute; right: 11px; bottom: 8px; z-index: 1; padding: 4px 8px;
+    color: var(--mint); background: #211b37; border: 1px solid #746483;
+    font-size: 11px; font-weight: 850;
+  }
+  .panel {
+    position: relative; min-width: 0; padding: 12px clamp(11px, 4vw, 22px) 14px;
+    background: var(--paper); border-top: 3px solid var(--ink);
+    box-shadow: inset 0 4px #ebc696;
+  }
+  #intro { display: grid; gap: 8px; }
+  .instructions { font-size: clamp(12px, 3.25vw, 15px); font-weight: 760; line-height: 1.3; word-break: keep-all; }
+  .primary, .secondary {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 5px 10px; border: 2px solid var(--ink); border-radius: 7px 5px 8px 5px;
+    background: var(--gold); box-shadow: 2px 3px var(--ink); font-weight: 950; line-height: 1.12;
+  }
+  .primary:active, .secondary:active, .card:active { transform: translate(2px, 2px); box-shadow: none; }
+  .secondary { background: #ffffff70; }
+  #start { min-height: 49px; font-size: 18px; }
+  .hint { color: #69435b; font-size: 11px; font-weight: 750; line-height: 1.2; }
+  #play, #result { display: grid; gap: 8px; }
+  .timing-label { display: flex; align-items: baseline; justify-content: space-between; gap: 7px; font-size: 11px; font-weight: 850; }
+  #cue { font-size: clamp(12px, 3.4vw, 15px); }
+  #cue[data-ready="true"] { color: #125d48; }
+  .meter {
+    position: relative; height: 22px; margin: 0 5px; border: 2px solid var(--ink); border-radius: 4px;
+    background: repeating-linear-gradient(90deg, #dcc2ac 0 1px, transparent 1px 10%), #f4ddc0;
+  }
+  #zone {
+    position: absolute; top: 0; bottom: 0; left: 58%; right: 9%;
+    background: repeating-linear-gradient(130deg, #a9f0c8 0 5px, #82d8ab 5px 7px);
+    border-inline: 2px solid #376e59;
+  }
+  #marker {
+    position: absolute; top: -4px; bottom: -4px; left: 0; width: 8px;
+    transform: translateX(-50%); border: 2px solid var(--ink); border-radius: 3px; background: #f58c9a;
+  }
+  .meter[data-ready="true"] #marker { background: #fff7d8; border-color: #125d48; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; touch-action: none; }
+  .card {
+    position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; text-align: center;
+    min-width: 44px; min-height: 65px; padding: 4px 2px; background: #ffd5d2; border: 2px solid var(--ink);
+    border-radius: 7px 5px 7px 5px; box-shadow: 2px 3px var(--ink);
+    font-size: clamp(10px, 2.9vw, 14px); font-weight: 930; line-height: 1.12;
+  }
+  .card:nth-child(2) { background: #ffe3a4; }
+  .card:nth-child(3) { background: #c7eed3; }
+  .card svg { display: block; width: 26px; height: 26px; }
+  .card kbd { position: absolute; top: 4px; right: 5px; opacity: .7; font-size: 10px; }
+  .card.last::before { content: "↻"; position: absolute; top: 1px; left: 5px; font-weight: 900; }
+  .card[data-played="true"] { border-color: #176b50; box-shadow: 2px 3px #176b50; }
+  .result-actions { display: grid; grid-template-columns: 1.15fr 1fr; gap: 8px; }
+  #grade { font-size: clamp(20px, 6vw, 32px); line-height: 1.06; font-weight: 1000; letter-spacing: -.045em; }
+  #result-score { font-weight: 900; font-size: 13px; }
+  #verdict { min-height: 1.2em; }
+  #share-text { width: 100%; min-height: 44px; resize: vertical; background: #fff8e9; border: 1px solid #795375; font-size: 12px; }
+  .figure-line { stroke: #241b33; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  #boss-head { animation: nod 2.6s steps(1) infinite; }
+  #runner-head { animation: nod 3.4s steps(1) .35s infinite reverse; }
+  #boss-blink { animation: blink 4s steps(1) infinite; }
+  #runner-blink { animation: blink 3.4s steps(1) .8s infinite; }
+  #steam { animation: steam 3s ease-in-out infinite; }
+  #runner-cheer, #runner-worry, #boss-oops { opacity: 0; }
+  [data-mood="good"] #runner-cheer, [data-mood="bad"] #runner-worry, [data-mood="good"] #boss-oops { opacity: 1; }
+  [data-mood="good"] #runner-mouth, [data-mood="bad"] #runner-mouth, [data-mood="good"] #boss-mouth { opacity: 0; }
+  .scene[data-motion="good"] #runner-art { animation: scoot .36s ease-out; }
+  .scene[data-motion="bad"] #runner-art { animation: recoil .32s ease-out; }
+  #confetti { opacity: 0; pointer-events: none; }
+  .scene[data-motion="good"] #confetti { animation: confetti .48s ease-out; }
+  @keyframes nod { 0%, 70%, 100% { transform: translateY(0); } 38% { transform: translateY(2px); } }
+  @keyframes blink { 0%, 91%, 96%, 100% { opacity: 1; } 92% { opacity: 0; } }
+  @keyframes steam { 50% { transform: translateY(-6px); opacity: .4; } }
+  @keyframes scoot { 35% { transform: translate(13px, -7px); } }
+  @keyframes recoil { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(4px); } }
+  @keyframes confetti { from { opacity: 1; } to { transform: translate(35px, -28px); opacity: 0; } }
+  @media (min-height: 730px) {
+    .sky { display: block; position: absolute; top: 17%; right: 4%; width: 59%; height: 135px; }
+  }
+  @media (max-height: 430px) and (min-width: 400px) {
+    #app { width: min(100%, 760px); min-height: 310px; grid-template: auto minmax(0, 1fr) / 1fr 1fr; }
+    header { grid-column: 1 / -1; }
+    .panel { align-content: center; display: grid; padding: 8px 9px 10px; border-top: 0; border-left: 2px solid var(--ink); box-shadow: none; }
+    #marquee { padding-top: 9px; }
+    h1 { font-size: clamp(24px, 5.1vw, 40px); }
+    #premise { display: none; }
+    .bubble { top: 3%; bottom: auto; font-size: 11px; max-width: 78%; }
+    #intro, #play, #result { gap: 6px; }
+    #grade { font-size: 19px; }
+    .hint, .timing-label, #result-score { font-size: 10px; }
+    .card { font-size: 10px; min-height: 57px; }
+    .card svg { width: 22px; height: 22px; }
+    .result-actions { gap: 6px; }
+    .result-actions button { padding-inline: 3px; font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; }
+    .primary:active, .secondary:active, .card:active { transform: none; }
+  }
+</style>
+</head>
+<body>
+<main id="app" data-state="intro">
+  <header>
+    <div class="route">
+      <svg viewBox="0 0 32 28" fill="none" aria-hidden="true"><rect x="1" y="2" width="30" height="24" rx="4" fill="#a9f0c8"/><path d="M7 14h16m-7-6 7 6-7 6" stroke="#221b32" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="route"></span>
+    </div>
+    <div class="stats">
+      <div><span id="time-label"></span><strong id="clock">42</strong></div>
+      <div><span id="score-label"></span><strong id="score">0</strong></div>
+      <div><span id="best-label"></span><strong id="best">0</strong></div>
+    </div>
+    <button id="mute" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9h4l5-4v14l-5-4H3z"/><path class="waves" d="M15 9a4 4 0 0 1 0 6m2-9a8 8 0 0 1 0 12"/><path class="slash" d="m16 9 5 6m0-6-5 6"/>
+      </svg>
+    </button>
+  </header>
+  <section class="scene" id="scene" data-mood="neutral">
+    <div id="marquee"><h1 id="title"></h1><p id="premise"></p></div>
+    <svg class="sky" viewBox="0 0 220 130" aria-hidden="true">
+      <path d="M147 16c-8 22 8 40 29 38-10 15-39 11-44-8-5-13 2-25 15-30z" fill="#ffc787" stroke="#291e3c" stroke-width="2.5"/>
+      <path d="M120 29l-14 1m12 8-31 2m92 34 26-2m-46 9 31-1m-35 8 12-1" fill="none" stroke="#876180" stroke-width="2" stroke-linecap="round"/>
+      <path d="m43 44 0 9m-5-4 10-1m24 37v7m-4-4h8m117-65v8m-4-4h8" fill="none" stroke="#dda790" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="artwork">
+      <svg class="drawing" viewBox="0 0 440 350" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="pavement" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#715368"/><stop offset="1" stop-color="#392c4b"/></linearGradient>
+          <pattern id="shutter" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 6h7" stroke="#683d5d" opacity=".6"/></pattern>
+          <pattern id="awning" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill="#f8bd83"/><path d="M0 0h11v24H0z" fill="#db737f"/></pattern>
+        </defs>
+        <path fill="#28203c" d="M0 44h47v-9h47v26h36v-8h29v53h35V67h38v12h31V43h62v39h35V58h80v191H0z"/>
+        <path fill="#473455" d="M0 107h42V85h40v12h47v41h43v-28h28v17h35v-18h45v-14h34v25h33V88h57v19h36v138H0z"/>
+        <path d="M15 50q114 87 233 45 150-36 192-80M0 61q98 116 245 42t195-72" fill="none" stroke="#211b36" stroke-width="2" opacity=".75"/>
+        <g fill="#d69489" opacity=".65"><path d="M154 137h11v18h-11zM212 141h10v16h-10zM241 122h12v13h-12zM264 142h8v10h-8z"/><circle cx="206" cy="61" r="2"/><circle cx="229" cy="47" r="2"/><circle cx="297" cy="28" r="2"/></g>
+        <path fill="#5f425d" stroke="#281d38" stroke-width="3" d="M0 241l228-45 212 37v117H0z"/>
+        <path fill="url(#pavement)" d="M0 273l206-70 41-1 193 66v82H0z"/>
+        <path d="m0 300 208-96m232 94-194-95M105 350l111-139m110 139-87-146M18 316l169 3m80 3 169 4m-294-62 157 4m-123-29 94 1" fill="none" stroke="#99718a" stroke-width="2" opacity=".43"/>
+        <path d="M12 299q42 6 83-9m-59 26 41-4m226-10 97 13m-57 13 51 5M194 278l25-4" fill="none" stroke="#dc8c95" stroke-width="3" opacity=".35"/>
+        <!-- Restaurant front and the station sign across the alley -->
+        <g stroke="#291d36" stroke-width="3" stroke-linejoin="round">
+          <path fill="#8c5068" d="M0 79h141v147L0 261z"/>
+          <path fill="#61445e" d="M141 79l26 23v114l-26 10z"/>
+          <path fill="#4a3049" d="M13 141h112v93L13 250z"/>
+          <path fill="#e58b77" d="M23 155h47v79l-47 7z"/><path fill="#f8bd83" d="M79 155h35v70l-35 6z"/>
+          <path d="M44 155v80m-21-45 47-3m8-4 35-3m-19-25v73" fill="none"/>
+          <path fill="url(#awning)" d="M2 129h136l7 23q-10 7-20 0-10 8-21 1-11 8-22 0-12 9-22 0-12 9-22 1-11 9-22 1-10 7-16-1z"/>
+          <path fill="#aa516e" d="M5 80l128-4 1 47L4 126z"/>
+          <path d="m11 85 113-4 1 35-113 4z" fill="none" stroke="#ffac99" stroke-width="2"/>
+          <path fill="#805970" d="M322 105l118-16v163l-118-26z"/>
+          <path fill="#684561" d="M297 125l25-20v121l-25-10z"/>
+          <path fill="#463149" d="M334 163l106-3v92l-106-23z"/>
+          <path fill="#805a76" d="M344 170h96v68l-96-18z"/><path fill="url(#shutter)" d="M344 170h96v68l-96-18z"/>
+          <path fill="#427965" d="m325 123 115-14v45l-115 6z"/>
+          <path d="m332 129 104-13v31l-104 6z" fill="none" stroke="#acf5c8" stroke-width="2"/>
+          <path d="M384 114v39m11-31 17-2m-7-6 7 6-7 7" stroke="#acf5c8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path fill="#644761" d="M163 198l18-20 13 5-2 33-23 6z"/>
+          <path fill="#3d625d" d="M295 216l29 4 7 28-36-7z"/>
+          <path d="m299 223 22 5m-17 3 18 4" fill="none" stroke="#92b49d" stroke-width="2"/>
+        </g>
+        <text id="shop-sign" x="68" y="105" text-anchor="middle" fill="#ffdeb1" font-size="15" font-weight="900" transform="rotate(-2 68 105)"></text>
+        <text id="exit-sign" x="367" y="139" text-anchor="middle" fill="#c9ffdb" font-size="12" font-weight="900" transform="rotate(-5 367 139)"></text>
+        <path d="M36 218c-10 17 28 19 18 31m-29-11c16 7-3 13 14 18" id="steam" fill="none" stroke="#ffdca8" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+        <path d="M173 314q96-18 216 4m-383-7 49-6m145 23 29-3" stroke="#1d1932" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+        <ellipse cx="121" cy="309" rx="75" ry="10" fill="#21182e" opacity=".65"/>
+        <ellipse cx="312" cy="321" rx="83" ry="11" fill="#21182e" opacity=".65"/>
+        <!-- Team lead, clutching the receipt -->
+        <g class="figure-line">
+          <path fill="#484061" d="m83 268 61-4 7 25 18 6q10 9-7 13l-39-4-8-20-8 18-33 7q-15-1-10-11l15-10z"/>
+          <path fill="#d8898d" d="M103 199q-24 3-34 26l-6 45q43 22 91-1l-9-46q-10-21-42-24z"/>
+          <path fill="#ffe2bf" d="m97 199 16 9 13-11 7 15-15 40-23-34z"/>
+          <path fill="#7d3f68" d="m114 213 9 4-1 7 8 20-9 12-8-11 2-20-5-5z"/>
+          <path d="m76 259 14 1m41-6 15-1m-32 5 1 13" fill="none" stroke-width="2"/>
+          <path fill="#cf7584" d="M79 218q-13-5-22 12l-12 27 16 7 17-22 9-8"/>
+          <path fill="#ffbc9c" d="m47 251-9 4-5 12q7 12 21 6l8-13z"/>
+          <path fill="#fff0ca" d="m32 243 15 9-12 26-6-4-4 2-7-6z"/><path d="m30 253 9 5m-12 1 6 4" stroke-width="1.5" fill="none"/>
+          <path fill="#d8898d" d="M137 218q17-6 27 6l13 9-9 18-27-10"/>
+          <path fill="#ffbc9c" d="M169 229l13 2 9-6q5-1 6 4l-3 8 9-1q6 0 4 6l-8 7-18 2-13-5z"/>
+          <g id="boss-head">
+            <path fill="#ffbc9c" d="M72 157q-11-35 22-47 36-14 59 11l11 20-4 13 9 12-9 8q-1 29-36 34-33 3-47-24-15 0-14-14 1-10 9-13z"/>
+            <path fill="#302039" d="M75 161q-13-9-10-29 3-24 25-31l-3-5q10 0 17 5 30-9 48 14l4 13q-14-1-25-11-16 18-42 20l-2 18-8-2z"/>
+            <path d="M79 125q13-13 34-13m-39 25 14-6" stroke="#71485e" stroke-width="2" fill="none"/>
+            <path d="M105 147q6-6 13-2m20 0q6-6 12-1M72 168l6 5m55 0 5 2" fill="none" stroke-width="2.5"/>
+            <path id="boss-blink" d="M111 154v3m32-4v3" fill="none" stroke-width="4.5"/>
+            <path id="boss-mouth" fill="#853d5d" d="M120 181q15 4 29-6-2 18-15 19-10 0-14-13z"/>
+            <path id="boss-oops" fill="#853d5d" d="M132 182q10-6 14 2 2 9-8 10-9-1-6-12z"/>
+            <path d="m105 171 8-3m40-4 6-3" fill="none" stroke="#d57079" stroke-width="3"/>
+          </g>
+        </g>
+        <!-- Employee, with a tote packed for a very real 5 a.m. run -->
+        <g id="runner-art" class="figure-line">
+          <path fill="#454664" d="m284 266 57 1 7 22 22 17q3 7-9 13l-29-4-19-24-15 20-34 8q-12 0-11-9l24-18z"/>
+          <path fill="#fff0cc" d="m266 304 22 3-1 9-31 7q-10-2-7-9zM352 299l14 3 13 8q5 7-10 11l-28-3-4-9z"/>
+          <path fill="#79b89b" d="M291 204q21-13 44 0 23 10 29 36l-14 12-9-11 6 36q-30 14-72-3l10-37-16 11-13-13q14-22 35-31z"/>
+          <path d="m289 206 18 15 14-17m-14 17-5 27m16 13 12-3" fill="none" stroke-width="2.3"/>
+          <path fill="#ffcaad" d="m258 232-9-7-8 2-3 8q4 12 14 11l11-1 4-7z"/>
+          <path fill="#f0bb77" d="M343 224q13-3 19 8l13 36-32 10-10-44q-3-8 10-10z"/>
+          <path d="M341 246q-8-24 1-39 7-8 15 10l8 26m-20 12 9 9 9-10" fill="none" stroke-width="2.2"/>
+          <path fill="#ffcaad" d="m354 237 9-5 6 6-4 10q-8 5-16-2z"/>
+          <g id="runner-head">
+            <path fill="#ffcaad" d="M259 145q11-31 44-31 32-1 46 31l-3 21q13-2 14 12-2 10-16 11-8 23-31 25-31 1-43-22l-11-6 5-10-5-15z"/>
+            <path fill="#322640" d="M264 174q-11-2-11-13-12-10-1-26-1-16 21-20 10-16 29-9 23-11 40 13 14 4 13 25l-9 21-9-1-8-22q-22 7-46-5-7 16-19 18z"/>
+            <path d="M264 140q3-14 23-17m12-8q13 0 21 8m17 8 9 13" fill="none" stroke="#735169" stroke-width="2"/>
+            <path d="M271 162q6-6 13-2m15 1q6-3 12 1m41 12-5 5" fill="none" stroke-width="2.4"/>
+            <path id="runner-blink" d="M275 169v3m26-3v3" fill="none" stroke-width="4.5"/>
+            <path id="runner-mouth" d="M279 190q5-4 8-1l5-2 5 3" fill="none" stroke-width="2.6"/>
+            <path id="runner-cheer" fill="#923b60" d="M277 185q12 6 23 1-3 13-13 12-7-2-10-13z"/>
+            <path id="runner-worry" d="M279 192q8-10 17-2" fill="none" stroke-width="2.6"/>
+            <path d="m315 184 10-2m-58-3 4-1" fill="none" stroke="#d87884" stroke-width="3"/>
+          </g>
+          <path d="M367 153q12-14 13-2 0 8-8 7m3 7 10-3" fill="none" stroke="#baf3d0" stroke-width="2.5"/>
+        </g>
+        <g id="confetti" stroke="#251b35" stroke-width="2" stroke-linejoin="round">
+          <path d="m230 153 8-13 13 6-8 14z" fill="#ffd878"/><path d="m215 179 1-9 10 3-4 10z" fill="#ffaeb5"/>
+          <path d="m243 202-7-2 1-9 9 2z" fill="#a9f0c8"/><path d="m201 155 5-6 5 6-6 5z" fill="#ffdd8a"/>
+        </g>
+      </svg>
+      <div class="bubble"><small id="speaker"></small><span id="line"></span></div>
+      <div class="location" id="location"></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div id="intro">
+      <p class="instructions" id="instructions"></p>
+      <button type="button" class="primary" id="start"><span id="start-label"></span><span aria-hidden="true">→</span></button>
+      <p class="hint" id="intro-hint"></p>
+    </div>
+    <div id="play" hidden>
+      <div class="timing-label"><strong id="cue"></strong><span id="goal"></span></div>
+      <div class="meter" id="meter" aria-hidden="true"><div id="zone"></div><div id="marker"></div></div>
+      <div class="cards">
+        <button class="card" type="button">
+          <kbd aria-hidden="true">1</kbd>
+          <svg viewBox="0 0 30 30" fill="none" stroke="#32223a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="13" height="24" rx="3" fill="#fff3cb"/><path d="M13 7h5m-4 16h3M5 8Q2 12 4 17m22-9q3 5 1 9"/></svg>
+          <span></span>
+        </button>
+        <button class="card" type="button">
+          <kbd aria-hidden="true">2</kbd>
+          <svg viewBox="0 0 30 30" fill="none" stroke="#32223a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7q10-4 20 0v14q-10 4-20 0z" fill="#fff3cb"/><path d="M6 9h18v7H6z" fill="#a9f0c8"/><path d="m10 23-3 4m13-4 3 4m-13-8h1m8 0h1m-5-10v7"/></svg>
+          <span></span>
+        </button>
+        <button class="card" type="button">
+          <kbd aria-hidden="true">3</kbd>
+          <svg viewBox="0 0 30 30" fill="none" stroke="#32223a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l7-5 1-6 5 1 2 7 8 4v5H4z" fill="#ffd5d2"/><path d="M5 21h22m-15-8 5 1m-6 2 6 1"/></svg>
+          <span></span>
+        </button>
+      </div>
+      <p class="hint" id="play-hint" role="status"></p>
+    </div>
+    <div id="result" hidden>
+      <h2 id="grade" tabindex="-1"></h2>
+      <p id="result-score"></p>
+      <p class="hint" id="verdict"></p>
+      <div class="result-actions">
+        <button type="button" class="primary" id="retry"></button>
+        <button type="button" class="secondary" id="share"></button>
+      </div>
+      <textarea id="share-text" rows="2" readonly hidden></textarea>
+      <p class="hint" id="share-status" role="status" hidden></p>
+    </div>
+  </section>
+</main>
+<script>
+  'use strict';
+
+  const copy = {
+    ko: {
+      title: '회식 2차 탈출', route: '1차에서 막차까지', premise: '계산은 끝났다. 회식은 아니었다.',
+      shop: '고깃집', exit: '막차', time: '남은 초', score: '점수', best: '최고',
+      zones: ['고깃집 앞', '골목 모퉁이', '지하철 입구'],
+      boss: '팀장님', runner: '나', opener: '아 그래? 그럼 한 잔만~',
+      instructions: '눈금이 초록 칸에 들어올 때 핑계 카드를 누르세요.',
+      start: '막차 타러 뛰기', introHint: '42초 동안 9번 피하면 탈출! 키보드 1 · 2 · 3',
+      wait: '초록 칸을 기다려요', ready: '지금! 핑계 던져요', resolved: '다음 한 잔 오는 중…',
+      freshHint: '직전과 다른 핑계는 +5점', early: '앗, 너무 빨랐어요!', late: '앗, 한 박자 늦었어요!', missed: '핑계를 못 던졌어요!',
+      earlyLine: '아직 아무 말도 안 했는데? 자, 한 잔 받아.',
+      lateLine: '뭐라고? 일단 건배부터 하고!',
+      missedLine: '조용하네. 이의 없는 걸로!',
+      attacks: [
+        ['아 그래? 그럼 한 잔만~', '2차 아니야. 1차 연장이야.', '건배사만 하고 가. 내가 먼저 할게.', '걸으면서 정하자. 여기 바로 앞이야.'],
+        ['자리만 잡아 놨어. 네 이름으로.', '딱 한 잔! 잔 크기는 가서 보고.', '콜라 시켜도 돼. 건배는 참석이고.', '택시비 줄게. 가는 택시 말고 오는 택시.'],
+        ['마지막으로 진짜 마지막 한 잔!', '막차? 우리도 막잔이야.', '그럼 역 앞에서 딱 한 잔만!', '잠깐! 내일 캘린더 초대 보냈다.'],
+      ],
+      cards: ['부모님 전화', '막차', '새벽 운동'],
+      replies: [
+        ['엄마가 제 통금도 결재하십니다.', '아빠한텐 지금이 새벽 두 시예요.', '네 엄마, 집 앞이에요! …팀장님 조용히.'],
+        ['막차가 팀장님 결재를 안 기다려서요.', '막차 놓치면 출근이랑 퇴근이 붙어요.', '지금 뛰면 환승도, 존엄도 지켜요.'],
+        ['새벽 다섯 시에 제 의지가 예약돼서요.', '트레이너한텐 이미 잠들었다고 했어요.', '운동복 입고 잔다고 약속했습니다.'],
+      ],
+      perfect: '딱 맞았어요! ', good: '통했어요! ', bonus: ' · 새 핑계 +5', repeat: ' · 그 핑계 또?',
+      wins: [
+        ['S급 · 먼저 가보겠습니다의 신', '단톡방엔 아직도 “어디쯤이야?”가 올라온다.', '이미 지하철. 터널이라 안 들려요!'],
+        ['A급 · 막차 문틈 통과', '교통카드가 오늘의 인사평가를 살렸다.', '잠시만요, 교통카드 찍고요!'],
+        ['B급 · 2차 명단에서 실종', '“집 도착했습니다”를 미리 써 두길 잘했다.', '집 도착했습니다. (전송 예약)'],
+        ['C급 · 2차 출석 도장', '골목 한 바퀴 돌고 팀장님 옆자리로 돌아왔다.', '마침 네 자리 비워 놨어.'],
+      ],
+      blocked: '회피', retry: '다시 뛰기', share: '결과 복사', copied: '결과를 복사했어요!', manual: '선택한 결과를 복사해 주세요.',
+      mute: '소리 끄기', unmute: '소리 켜기', shareField: '공유할 결과',
+    },
+    en: {
+      title: 'After-Party Escape', route: 'Dinner to last train', premise: 'The bill was settled. The evening wasn’t.',
+      shop: 'BBQ', exit: 'EXIT', time: 'Seconds', score: 'Score', best: 'Best',
+      zones: ['Outside the BBQ joint', 'Alley corner', 'Station entrance'],
+      boss: 'Team lead', runner: 'You', opener: 'Oh, come on. Just one more!',
+      instructions: 'Tap an excuse when the marker reaches the green zone.',
+      start: 'Run for the last train', introHint: 'Dodge 9 to escape in 42 seconds. Keys 1 · 2 · 3.',
+      wait: 'Wait for green', ready: 'Now! Throw an excuse', resolved: 'Another “last drink” incoming…',
+      freshHint: 'Switch excuses for +5', early: 'A little too early!', late: 'A beat too late!', missed: 'You missed your chance!',
+      earlyLine: 'I haven’t even asked yet! Here, have a drink.',
+      lateLine: 'What was that? Cheers first!',
+      missedLine: 'No objections? Motion carried.',
+      attacks: [
+        ['Oh, come on. Just one more!', 'It’s a dinner extension. Totally different.', 'Just stay for a toast. I’ll go first.', 'Let’s decide on the way. It’s right here.'],
+        ['I booked a table. Under your name.', 'One glass! Size TBD.', 'Order soda if you like. Toast attendance is mandatory.', 'I’ll pay for a cab. To the bar, obviously.'],
+        ['One last, final, actual last drink!', 'Last train? We’re on our last round too.', 'Fine, one drink by the station!', 'Hold on! I sent a calendar invite.'],
+      ],
+      cards: ['Parents calling', 'Last train', 'Dawn workout'],
+      replies: [
+        ['My mom has final approval on my curfew.', 'It’s practically 2 a.m. in Dad Time.', 'Yes, Mom, I’m home! …Shh, boss.'],
+        ['The train won’t wait for your approval.', 'If I miss it, I’ll have to commute straight to work.', 'If I run now, I can catch my connection and keep my dignity.'],
+        ['I booked my last shred of willpower for 5 a.m.', 'I told my trainer I was already asleep.', 'I promised to sleep in my gym clothes.'],
+      ],
+      perfect: 'Nailed it! ', good: 'It worked! ', bonus: ' · Fresh excuse +5', repeat: ' · That one again?',
+      wins: [
+        ['S rank · Patron saint of “early starts”', 'The group chat is still asking where you are.', 'Already on the train. Sorry, tunnel!'],
+        ['A rank · Slid through the train doors', 'Your transit card just saved your performance review.', 'Hang on, tapping my transit card!'],
+        ['B rank · Vanished from the booking', 'Good thing you drafted “Home safe!” in advance.', 'Home safe! (Scheduled send)'],
+        ['C rank · Round two regular', 'You circled the block and wound up next to the boss.', 'There you are! I saved you a seat.'],
+      ],
+      blocked: 'Dodged', retry: 'Run again', share: 'Copy result', copied: 'Result copied!', manual: 'Copy the selected result.',
+      mute: 'Mute sound', unmute: 'Unmute sound', shareField: 'Result to share',
+    },
+  };
+
+  const language = (new URLSearchParams(location.search).get('lang') || navigator.language || 'ko').toLowerCase();
+  const lang = language.slice(0, 2) === 'ko' ? 'ko' : 'en';
+  const t = copy[lang];
+  const $ = (id) => document.getElementById(id);
+  function say(id, value) { $(id).textContent = value; }
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  const labels = {
+    title: t.title, premise: t.premise, 'shop-sign': t.shop, 'exit-sign': t.exit,
+    'time-label': t.time, 'score-label': t.score, 'best-label': t.best, route: t.route,
+    instructions: t.instructions, 'start-label': t.start, 'intro-hint': t.introHint,
+    retry: t.retry, share: t.share,
+  };
+  Object.keys(labels).forEach((id) => say(id, labels[id]));
+  $('share-text').setAttribute('aria-label', t.shareField);
+
+  const duration = 42;
+  const escapeTarget = 9;
+  const phases = [
+    { every: 2.95, low: .52, high: .94 },
+    { every: 2.35, low: .55, high: .90 },
+    { every: 1.88, low: .58, high: .85 },
+  ];
+  const cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  const timingMeter = $('meter');
+  const marker = $('marker');
+  const cue = $('cue');
+  const scene = $('scene');
+  const storageKey = 'toybox:after-party-escape:';
+  let best = Math.max(0, Number(read('best')) || 0);
+  let muted = read('muted') === '1';
+  let audio;
+  let state = 'intro';
+  let round;
+  let lastFrame = 0;
+  let frameId = 0;
+  let shareText = '';
+
+  function read(key) {
+    try { return localStorage.getItem(storageKey + key); } catch (error) { return null; }
+  }
+
+  function write(key, value) {
+    try { localStorage.setItem(storageKey + key, String(value)); } catch (error) { /* Storage may be blocked. */ }
+  }
+
+  function updateMute() {
+    $('mute').setAttribute('aria-pressed', String(muted));
+    $('mute').setAttribute('aria-label', muted ? t.unmute : t.mute);
+    $('mute').title = muted ? t.unmute : t.mute;
+  }
+
+  function unlockAudio() {
+    if (muted) return;
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!audio && Audio) audio = new Audio();
+      if (audio && audio.state === 'suspended') audio.resume().catch(function () {});
+    } catch (error) { /* Audio is optional. */ }
+  }
+
+  const sounds = {
+    start: [[330, 0], [495, .075]],
+    ready: [[660, 0]],
+    good: [[440, 0], [660, .055], [880, .11]],
+    bad: [[190, 0], [126, .07]],
+    win: [[523, 0], [659, .10], [784, .20], [1046, .32]],
+    lose: [[300, 0], [240, .12], [155, .24]],
+  };
+
+  function sound(name) {
+    if (muted || !audio || audio.state !== 'running') return;
+    sounds[name].forEach(function (note) {
+      const time = audio.currentTime + note[1];
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      oscillator.type = name === 'bad' ? 'triangle' : 'sine';
+      oscillator.frequency.value = note[0];
+      gain.gain.setValueAtTime(.001, time);
+      gain.gain.exponentialRampToValueAtTime(name === 'ready' ? .024 : .085, time + .012);
+      gain.gain.exponentialRampToValueAtTime(.001, time + .15);
+      oscillator.connect(gain);
+      gain.connect(audio.destination);
+      oscillator.start(time);
+      oscillator.stop(time + .16);
+    });
+  }
+
+  function speech(speaker, line, mood) {
+    say('speaker', speaker);
+    say('line', line);
+    scene.dataset.mood = mood;
+  }
+
+  function feedbackMotion(mood) {
+    delete scene.dataset.motion;
+    // Reflow restarts the same animation on consecutive successful cues.
+    void scene.offsetWidth;
+    scene.dataset.motion = mood;
+  }
+
+  function show(next) {
+    state = next;
+    $('app').dataset.state = next;
+    ['intro', 'play', 'result'].forEach((id) => { $(id).hidden = id !== next; });
+    $('marquee').hidden = next !== 'intro';
+  }
+
+  function updateGoal() {
+    say('goal', t.blocked + ' ' + round.dodged + '/' + escapeTarget);
+  }
+
+  function updateTiming() {
+    const attack = round.attack;
+    const fraction = Math.min(1, attack.elapsed / attack.phase.every);
+    const ready = !attack.resolved && fraction >= attack.phase.low && fraction <= attack.phase.high;
+    marker.style.left = (fraction * 100) + '%';
+    if (ready !== attack.ready) {
+      attack.ready = ready;
+      if (ready) sound('ready');
+    }
+    if (cue.dataset.ready !== String(ready)) cue.dataset.ready = timingMeter.dataset.ready = String(ready);
+    const message = attack.resolved ? t.resolved : ready ? t.ready : t.wait;
+    if (message !== cue.textContent) cue.textContent = message;
+    return fraction;
+  }
+
+  function beginAttack() {
+    const zone = Math.min(2, Math.floor(round.elapsed / 14));
+    const phase = phases[zone];
+    const lines = t.attacks[zone];
+    const line = lines[round.attacks % lines.length];
+    round.attacks++;
+    round.attack = { elapsed: 0, resolved: false, ready: false, phase: phase };
+    say('location', t.zones[zone]);
+    speech(t.boss, line, 'neutral');
+    $('zone').style.left = (phase.low * 100) + '%';
+    $('zone').style.right = ((1 - phase.high) * 100) + '%';
+    cards.forEach((card) => { delete card.dataset.played; });
+    updateTiming();
+  }
+
+  function startRound() {
+    if (state === 'play') return;
+    unlockAudio();
+    cancelAnimationFrame(frameId);
+    round = {
+      elapsed: 0, attacks: 0, score: 0, dodged: 0, previous: -1,
+      replyCounts: [0, 0, 0],
+    };
+    lastFrame = 0;
+    delete scene.dataset.motion;
+    $('clock').classList.remove('urgent');
+    say('clock', duration);
+    say('score', 0);
+    say('play-hint', t.freshHint);
+    updateGoal();
+    cards.forEach((card) => { card.classList.remove('last'); });
+    show('play');
+    beginAttack();
+    sound('start');
+    if (!document.hidden) frameId = requestAnimationFrame(frame);
+  }
+
+  function miss(message, line) {
+    round.attack.resolved = true;
+    say('play-hint', message);
+    speech(t.boss, line, 'bad');
+    feedbackMotion('bad');
+    sound('bad');
+  }
+
+  function throwCard(index) {
+    if (state !== 'play' || round.attack.resolved || document.hidden) return;
+    unlockAudio();
+    const attack = round.attack;
+    const fraction = attack.elapsed / attack.phase.every;
+    if (fraction < attack.phase.low) {
+      miss(t.early, t.earlyLine);
+    } else if (fraction > attack.phase.high) {
+      miss(t.late, t.lateLine);
+    } else {
+      attack.resolved = true;
+      const perfect = Math.abs(fraction - (attack.phase.low + attack.phase.high) / 2) < .055;
+      const fresh = index !== round.previous;
+      const points = (perfect ? 15 : 10) + (fresh ? 5 : 0);
+      round.score += points;
+      round.dodged++;
+      round.previous = index;
+      const lines = t.replies[index];
+      const reply = lines[round.replyCounts[index] % lines.length];
+      round.replyCounts[index]++;
+      speech(t.runner, reply, 'good');
+      feedbackMotion('good');
+      sound('good');
+      say('score', round.score);
+      say('play-hint', (perfect ? t.perfect : t.good) + '+' + points + (fresh ? t.bonus : t.repeat));
+      updateGoal();
+      cards.forEach((card, i) => { card.classList.toggle('last', i === index); });
+      cards[index].dataset.played = 'true';
+    }
+    updateTiming();
+  }
+
+  function finishRound() {
+    const won = round.dodged >= escapeTarget;
+    const grade = t.wins[round.dodged >= 15 ? 0 : round.dodged >= 12 ? 1 : won ? 2 : 3];
+    if (round.score > best) {
+      best = round.score;
+      write('best', best);
+      say('best', best);
+    }
+    say('grade', grade[0]);
+    say('verdict', grade[1]);
+    const result = t.score + ' ' + round.score + '  ·  ' + t.best + ' ' + best + '  ·  ' + t.blocked + ' ' + round.dodged;
+    say('result-score', result);
+    speech(won ? t.runner : t.boss, grade[2], won ? 'good' : 'bad');
+    feedbackMotion(won ? 'good' : 'bad');
+    sound(won ? 'win' : 'lose');
+    const link = new URL('../../' + lang + '/after-party-escape/', location.href);
+    shareText = t.title + '\n' + grade[0] + '\n' + result + '\n' + grade[1] + '\n' + link.href;
+    $('share-text').hidden = true;
+    $('share-status').hidden = true;
+    show('result');
+    $('grade').focus();
+  }
+
+  function frame(now) {
+    if (state !== 'play' || document.hidden) return;
+    const delta = lastFrame ? Math.min(.1, (now - lastFrame) / 1000) : 0;
+    lastFrame = now;
+    round.elapsed += delta;
+    const seconds = Math.max(0, Math.ceil(duration - round.elapsed));
+    if ($('clock').textContent !== String(seconds)) say('clock', seconds);
+    if (seconds <= 7) $('clock').classList.add('urgent');
+    if (seconds === 0) {
+      finishRound();
+      return;
+    }
+    round.attack.elapsed += delta;
+    const fraction = updateTiming();
+    if (!round.attack.resolved && fraction >= .98) {
+      miss(t.missed, t.missedLine);
+      updateTiming();
+    }
+    // Leave the result visible briefly before the next attack.
+    if (round.attack.elapsed >= round.attack.phase.every + .48) beginAttack();
+    frameId = requestAnimationFrame(frame);
+  }
+
+  async function copyResult() {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareText);
+        if (state === 'result') {
+          $('share-status').hidden = false;
+          say('share-status', t.copied);
+        }
+        return;
+      }
+    } catch (error) { /* Offer manual selection below. */ }
+    if (state !== 'result') return;
+    const field = $('share-text');
+    field.value = shareText;
+    field.hidden = false;
+    field.focus();
+    field.select();
+    $('share-status').hidden = false;
+    say('share-status', t.manual);
+  }
+
+  cards.forEach(function (card, index) {
+    card.querySelector('span').textContent = t.cards[index];
+    card.addEventListener('pointerdown', function (event) {
+      if (!event.isPrimary || event.button !== 0) return;
+      event.preventDefault();
+      throwCard(index);
+    });
+    card.addEventListener('click', function (event) {
+      if (!window.PointerEvent || event.detail === 0) throwCard(index);
+    });
+  });
+  $('start').addEventListener('click', startRound);
+  $('retry').addEventListener('click', startRound);
+  $('share').addEventListener('click', copyResult);
+  $('mute').addEventListener('click', function () {
+    muted = !muted;
+    write('muted', muted ? 1 : 0);
+    updateMute();
+    unlockAudio();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.target.tagName === 'TEXTAREA') return;
+    const key = event.key;
+    if (state === 'play' && /^[123]$/.test(key)) {
+      event.preventDefault();
+      if (!event.repeat) throwCard(Number(key) - 1);
+    } else if (state !== 'play' && (key === 'Enter' || key === ' ') && event.target.tagName !== 'BUTTON') {
+      event.preventDefault();
+      if (!event.repeat) startRound();
+    }
+  });
+  document.addEventListener('visibilitychange', function () {
+    cancelAnimationFrame(frameId);
+    lastFrame = 0;
+    if (!document.hidden && state === 'play') frameId = requestAnimationFrame(frame);
+  });
+  say('location', t.zones[0]);
+  say('best', best);
+  updateMute();
+  speech(t.boss, t.opener, 'neutral');
+</script>
+</body>
+</html>

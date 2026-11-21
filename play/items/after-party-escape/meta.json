@@ -1,0 +1,17 @@
+{
+  "slug": "after-party-escape",
+  "date": "2026-11-21",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "회식 2차 탈출",
+    "desc": "1차 계산은 끝났는데 팀장님이 또 ‘한 잔만’을 외친다. 부모님 전화, 막차, 새벽 운동 핑계로 42초 안에 골목을 빠져나가자.",
+    "howto": "눈금이 초록 칸에 들어올 때 핑계 카드를 누르세요. 직전 성공과 다른 핑계를 쓰면 보너스 점수를 얻어요. 키보드는 1·2·3으로 조작합니다."
+  },
+  "en": {
+    "title": "After-Party Escape",
+    "desc": "Dinner is paid for. Your boss still wants ‘just one more.’ Deploy three excuses and slip out of the alley in 42 seconds.",
+    "howto": "Tap an excuse when the marker reaches the green zone. Switch excuses after a successful play for bonus points. On a keyboard, use 1, 2 or 3."
+  }
+}
