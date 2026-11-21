@@ -89,8 +89,7 @@
   #left-line { left: 2%; bottom: min(75cqh, 61cqw); }
   #right-line { right: 2%; bottom: min(82cqh, 67cqw); transform: rotate(4deg); border-radius: 10px 12px 3px 10px; }
   #art .person { transform-box: fill-box; transform-origin: 50% 100%; }
-  #art .neighbor { animation: breathe 3.1s ease-in-out infinite; }
-  #art .boss { animation: breathe 3.7s -.8s ease-in-out infinite; }
+  /* breathe animation removed: scaling these SVG groups rendered as noise blocks on Samsung Internet (Android GPU raster) */
   #art .pupil { transition: transform .18s ease-out; }
   #art[data-gaze="0"] .player .pupil, #art[data-neighbor="0"] .neighbor .pupil, #art[data-boss="0"] .boss .pupil { transform: translate(-3px, -2px); }
   #art[data-gaze="1"] .player .pupil, #art[data-neighbor="1"] .neighbor .pupil, #art[data-boss="1"] .boss .pupil { transform: translate(1px, 3px); }
