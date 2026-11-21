@@ -31,6 +31,20 @@
     .viewer { position: relative; overflow: hidden; background: #a6c7d8; }
     #viewport, canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
     canvas { display: block; touch-action: none; cursor: grab; outline-offset: -3px; }
+    #viewport:has(canvas:focus-visible)::after {
+      content: "";
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px #172b36;
+      pointer-events: none;
+    }
+    .reset { position: absolute; top: .6rem; right: .65rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .status, .panel { position: absolute; padding: .6rem .8rem; background: #172b36; }
     .status { inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: max-content; max-width: 85%; margin: 0; text-align: center; }
     .panel { inset: auto .75rem .75rem; width: fit-content; border-left: 3px solid var(--accent); pointer-events: none; }
@@ -71,14 +85,17 @@
     <header>
       <h1 data-copy="title"></h1>
       <p class="help" id="map-help" data-copy="help"></p>
+      <p class="sr-only" id="map-keys" data-copy="keys"></p>
     </header>
     <section class="viewer" data-label="map">
       <div id="viewport"></div>
       <p class="status" id="status" role="status" data-copy="loading"></p>
-      <section class="panel" id="building" data-label="selection" aria-live="polite" hidden>
+      <button type="button" class="reset" id="reset-view" data-copy="reset" disabled></button>
+      <section class="panel" id="building" data-label="selection" hidden>
         <h2 id="building-name"></h2>
         <p id="building-height"></p>
       </section>
+      <div class="sr-only" id="selection-status" role="status"></div>
     </section>
     <footer>
       <div class="controls">
@@ -91,7 +108,7 @@
         <div class="time">
           <label for="time" data-copy="time"></label>
           <input id="time" type="range" min="0" max="1439" step="1" value="900">
-          <output id="clock" for="time"></output>
+          <output id="clock" for="time" aria-live="off"></output>
         </div>
       </div>
       <p class="attribution" data-copy="attribution"></p>

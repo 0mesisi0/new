@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
 <title>겨울 간식 사다리</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#FFF4DE;color:#39271F;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
 #app{width:100vw;height:100vh;height:100dvh;display:flex;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.col{width:min(100%,480px);height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:10px 12px}
+.col{--rail-gap:6px;width:min(100%,480px);height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:10px 12px}
 h1{margin:0;font-size:22px;line-height:1.2;text-align:center}
 h2{margin:0;font-size:18px;line-height:1.25}
 p{margin:0}
@@ -18,52 +19,68 @@ footer,#act{display:grid;gap:8px}
 #act:empty{display:none}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
-.btn{min-height:46px;padding:8px 12px;border-radius:14px;border:3px solid #39271F;background:#FFFCF5;font-size:16px;font-weight:700;line-height:1.2}
+#app{background-image:radial-gradient(circle,#fff 0 2px,transparent 3px),radial-gradient(circle,#fff 0 1.5px,transparent 2.5px);background-size:90px 90px,57px 57px;background-position:0 0,30px 40px}
+header::after{content:"";display:block;height:6px;margin:6px 4px 0;border-radius:6px;border:2px solid #39271F;background:repeating-linear-gradient(90deg,#943E2E 0 14px,#FFFCF5 14px 28px)}
+.btn{min-height:46px;padding:8px 12px;border-radius:14px;border:3px solid #39271F;background:#FFFCF5;font-size:16px;font-weight:700;line-height:1.2;box-shadow:0 3px 0 #39271F}
+.btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #39271F}
+.tg:active{transform:translateY(2px)}
+.btn:disabled{box-shadow:none}
+@media(hover:hover){.bag:not([aria-disabled=true]):hover{transform:translateY(-3px)}}
+.bag:not([aria-disabled=true]):active{transform:translateY(2px) scale(.96)}
 .btn.pri{background:#943E2E;color:#fff}
 .btn:disabled{opacity:.45;cursor:default}
 button:focus-visible,textarea:focus-visible{outline:4px solid #315A4A;outline-offset:2px}
 .btn.big{min-height:52px;font-size:18px}
 #st{min-height:22px;font-size:14px;text-align:center;color:#315A4A;font-weight:600}
-.bags{display:grid;gap:6px}
+#main:not(.edit):not(.result)+footer #st:empty{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.bags{display:grid;gap:var(--rail-gap)}
 .bag{position:relative;min-width:48px;min-height:56px;height:60px;width:100%;max-width:84px;margin:0 auto;border:0;background:none;padding:0}
 .bag svg{width:100%;height:100%;display:block;overflow:visible}
 .bag b{position:absolute;left:0;right:0;top:44%;font-size:20px;line-height:1}
-.bag.sel{transform:translateY(3px)}
+.bag.sel{transform:translateY(3px);animation:drop .35s ease-out}
+@keyframes drop{0%{transform:translateY(-8px)}60%{transform:translateY(6px)}100%{transform:translateY(3px)}}
 .bag.sel path{stroke-width:5}
 .bag[aria-disabled=true]{cursor:default}
 #lad{position:relative;flex:1 1 auto;min-height:80px;touch-action:none}
 #lad svg{position:absolute;left:0;top:0;display:block}
-.res #lad{flex:0 0 84px}
-.slots{display:grid;gap:6px}
-.slot{min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:3px 2px;border-radius:10px;border:2px solid transparent;font-size:12px;line-height:1.15;text-align:center;font-weight:600;overflow-wrap:anywhere}
+.result #lad{flex:1 1 96px;min-height:96px;max-height:180px}
+.slots{display:grid;gap:var(--rail-gap)}
+.slot{min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:3px 2px;border-radius:10px;border:2px solid transparent;font-size:13px;line-height:1.15;text-align:center;font-weight:600;overflow-wrap:anywhere}
 .slot svg{width:30px;height:30px;flex:none}
 .slot.cov{background:#FFFCF5;border:2px dashed #39271F;justify-content:center;font-size:18px;font-weight:800}
 .slot.win{background:#FFFCF5;border:3px solid #39271F;box-shadow:0 0 0 3px #D88A16}
 .slot.pop{animation:pop .45s ease-out}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
-.card{display:flex;align-items:center;gap:12px;background:#FFFCF5;border:3px solid #39271F;border-radius:16px;padding:8px 10px}
+.card{position:relative;display:flex;align-items:center;gap:12px;background:#FFFCF5;border:3px solid #39271F;border-radius:16px;padding:8px 10px;box-shadow:0 4px 0 #39271F}
+.sp{position:absolute;width:20px;height:20px;pointer-events:none}
+.sp1{top:-11px;right:16px}.sp2{top:-8px;left:18px;width:14px;height:14px}.sp3{bottom:-12px;right:-6px;width:16px;height:16px}
+.card.fresh{animation:rise .4s ease-out}
+.card.fresh .sp{animation:twk .7s ease-out}
+@keyframes rise{0%{transform:translateY(10px) scale(.94);opacity:0}100%{transform:none;opacity:1}}
+@keyframes twk{0%{transform:scale(0) rotate(-40deg)}60%{transform:scale(1.4) rotate(10deg)}100%{transform:scale(1)}}
 .card .ill{width:clamp(52px,14dvh,92px);height:clamp(52px,14dvh,92px);flex:none}
-.card svg{width:100%;height:100%;display:block}
+.card .ill svg{width:100%;height:100%;display:block}
 .card .nm{font-size:20px;font-weight:800;line-height:1.2}
 .card .cp{font-size:14px;line-height:1.35;margin-top:4px}
 .pill{align-self:flex-start;background:#315A4A;color:#fff;font-size:14px;font-weight:700;border-radius:999px;padding:2px 12px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tg{position:relative;min-height:64px;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:14px;border:2px solid #39271F;background:#FFFCF5;font-size:15px;font-weight:700;text-align:left;line-height:1.2}
 .tg svg{width:40px;height:40px;flex:none}
-.tg i{display:none;position:absolute;right:6px;top:4px;font-style:normal;color:#fff;background:#315A4A;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:13px}
-.tg[aria-pressed=true]{border-width:5px;padding:4px 6px}
+.tg i{display:none;position:absolute;right:-6px;top:-6px;border:2px solid #39271F;font-style:normal;color:#fff;background:#315A4A;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:13px}
+.tg[aria-pressed=true]{box-shadow:inset 0 0 0 3px #39271F}
 .tg[aria-pressed=true] i{display:block}
 .cnt{font-size:14px;font-weight:700}
 textarea{width:100%;min-height:110px;flex:1 1 auto;border:3px solid #39271F;border-radius:12px;padding:10px;font:inherit;font-size:16px;background:#FFFCF5;color:#39271F;resize:none}
 h2:focus{outline:none}
 @media(max-height:620px){
-.col{gap:4px;padding:6px 12px}
+.col{--rail-gap:4px;gap:4px;padding:6px 12px}
+header::after{height:4px;margin-top:4px}
 h2{font-size:16px}
 #main{gap:4px}
-.res #lad{flex-basis:44px;min-height:44px}
-.slots{gap:4px}
-.slot{min-height:38px;font-size:14px;padding:2px 1px}
-.slot svg{width:20px;height:20px}
+.sp1{top:-9px}.sp3{bottom:-9px}
+.slot{min-height:38px;font-size:13px;padding:2px 1px}
+.slot svg{width:18px;height:18px}
 .card{gap:8px;padding:4px 8px;border-width:2px}
 .card .ill{width:40px;height:40px}
 .card .nm{font-size:16px}
@@ -74,7 +91,8 @@ h2{font-size:16px}
 .btn{min-height:44px;padding:4px 10px}
 .btn.big{min-height:44px;font-size:16px}
 footer,#act{gap:4px}
-#st{min-height:2.7em;line-height:1.35}
+#st{min-height:1.35em;line-height:1.35}
+#main.edit+footer #st{min-height:2.7em}
 .bag{min-height:48px;height:48px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -84,7 +102,8 @@ footer,#act{gap:4px}
 <div id="app"><div class="col">
 <header><h1 id="ttl"></h1></header>
 <main id="main"></main>
-<footer><div id="act"></div><div id="st" role="status" aria-live="polite"></div></footer>
+<footer><div id="act"></div><div id="st" role="status"></div></footer>
+<div id="announcement" class="sr-only" role="status"></div>
 </div></div>
 <script>
 (function(){
@@ -97,6 +116,7 @@ caps:{'red-bean':'꼬리부터? 머리부터? 첫 입은 자유예요.','custard
 en:{coveredMark:'?',bagNumber:'{n}',appTitle:'Winter Snack Ladder',readyHint:'Pick a bag to find your winter snack!',candidateSummary:'Today’s candidates: {names}',changeSnacks:'Change snacks',bagLabel:'Choose bag {n}',coveredSlotLabel:'Unrevealed snack',editorTitle:'Which snacks are in?',editorHint:'Choose 2–4 snacks.',selectionCount:'{n}/4 selected',selectionMin:'Choose at least 2 snacks.',selectionMax:'Up to 4 snacks. Remove one before adding another.',back:'Back',applySelection:'Use these snacks',drawing:'Following the trail to your snack…',resultHeading:'Your winter snack is',chosenBag:'Bag {n}',resultAnnouncement:'Bag {n} leads to {snack}.',copy:'Copy result',again:'Draw again',copied:'Result copied.',copyFallbackTitle:'Copy your result manually',copyFallbackHint:'Touch and hold the text, or press Ctrl+C / ⌘C to copy.',shareTextLabel:'Result text to copy',backToResult:'Back to result',readyDiagramLabel:'Pick a bag to reveal its ladder route to a snack.',resultDiagramLabel:'Ladder from bag {n} to {snack}',
 share:'My winter snack: {snack}\nPicked by bag {n}.\n{caption}\nWinter Snack Ladder · play.mesisi.net',
 names:{'red-bean':'Red-bean pastry','custard':'Custard pastry','hotteok':'Hotteok','sweet-potato':'Roasted sweet potato','fishcake':'Fish cake','chestnut':'Roasted chestnuts'},
+ slotNames:{'sweet-potato':'Sweet potato'},
 caps:{'red-bean':'Tail first or head first? Your first bite, your rules.','custard':'A crisp little coat with a sweet surprise inside.','hotteok':'One round serving of happiness, coming right up.','sweet-potato':'A little golden winter inside a purple coat.','fishcake':'A curl of steam, and your winter snack appears!','chestnut':'A tiny chestnut carrying a little winter.'}}
 };
 var lang=new URLSearchParams(location.search).get('lang');
@@ -119,7 +139,7 @@ var ART={
 };
 function icon(id){return '<svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g stroke="#3b2418" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">'+ART[id]+'</g></svg>'}
 
-var DEMO=location.hash==='#demo';
+var DEMO=location.hash==='#demo'||new URLSearchParams(location.search).get('thumb')==='1';
 function loadCands(){
   if(DEMO)return DEF.slice();
   try{
@@ -143,9 +163,9 @@ function step(pos,p){return pos===p?p+1:pos===p+1?p:pos}
 
 var DUR=1600;
 var cands=loadCands(),view='ready',prev='ready',draft=[],draw=null;
-var elapsed=0,last=0,raf=0,copying=false,ct=0;
+var elapsed=0,last=0,raf=0,copying=null,ct=0,trail=null;
 var $=function(s){return document.querySelector(s)};
-var main=$('#main'),act=$('#act'),status=$('#st');
+var main=$('#main'),act=$('#act'),status=$('#st'),announcement=$('#announcement');
 $('#ttl').textContent=L.appTitle;
 var rmq=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 
@@ -159,7 +179,9 @@ function startDraw(bag){
   setDraw(bag,rows,shuffle(cands.slice()));
   elapsed=0;
   if(rmq.matches){finish(false);return}
-  render();run();
+  render('.bag.sel');
+  announcement.textContent=L.drawing;
+  run();
 }
 function setDraw(bag,rows,bottom){
   var pos=bag;rows.forEach(function(p){pos=step(pos,p)});
@@ -169,7 +191,7 @@ function finish(anim){
   if(raf){cancelAnimationFrame(raf);raf=0}
   view='result';draw.pop=anim;
   render('#rh');
-  setStatus(f(L.resultAnnouncement,{n:draw.bag+1,snack:L.names[draw.win]}));
+  announcement.textContent=f(L.resultAnnouncement,{n:draw.bag+1,snack:L.names[draw.win]});
   draw.pop=false;
 }
 function tick(t){
@@ -177,7 +199,8 @@ function tick(t){
   if(view!=='draw'||document.hidden)return;
   var dt=last?Math.min(50,t-last):0;last=t;elapsed+=dt;
   if(elapsed>=DUR){finish(true);return}
-  ladder();raf=requestAnimationFrame(tick);
+  paintTrail();
+  raf=requestAnimationFrame(tick);
 }
 function run(){if(raf||view!=='draw'||document.hidden)return;last=0;raf=requestAnimationFrame(tick)}
 document.addEventListener('visibilitychange',function(){
@@ -186,41 +209,49 @@ document.addEventListener('visibilitychange',function(){
 if(rmq.addEventListener)rmq.addEventListener('change',function(){if(rmq.matches&&view==='draw')finish(false)});
 window.addEventListener('resize',ladder);
 
+var STAR='<svg class="#" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L12.5 7.5 L19 10 L12.5 12.5 L10 19 L7.5 12.5 L1 10 L7.5 7.5 Z" fill="#D88A16" stroke="#39271F" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 function bagSvg(){return '<svg viewBox="0 0 60 64" aria-hidden="true" focusable="false"><g stroke="#39271F" stroke-width="3.5" stroke-linejoin="round"><path d="M8 18 L52 18 L56 58 Q56 62 52 62 L8 62 Q4 62 4 58 Z" fill="#E5B879"/><path d="M8 18 L16 5 L44 5 L52 18 Z" fill="#C99A5B"/></g></svg>'}
 
 function ladder(){
+  trail=null;
   var lad=$('#lad');if(!lad)return;
   var w=lad.clientWidth,h=lad.clientHeight;if(!w||!h)return;
   var N=cands.length,cm=h<150,rw=cm?3:4;
   var xs=[],ys=[],k;
-  for(k=0;k<N;k++)xs.push((k+.5)*w/N);
-  for(k=0;k<12;k++)ys.push(4+(k+.5)*(h-8)/12);
+  var cs=lad.nextElementSibling.children,lr=lad.getBoundingClientRect();
+  for(k=0;k<N;k++){
+    var cr=cs[k].getBoundingClientRect();
+    xs.push(cr.left+cr.width/2-lr.left);
+  }
+  var inset=cm?9:11;
+  for(k=0;k<12;k++)ys.push(inset+(k+.5)*(h-2*inset)/12);
   var s='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" '+(view==='ready'?'role="img" aria-label="'+L.readyDiagramLabel+'"':view==='result'?'role="img" aria-label="'+f(L.resultDiagramLabel,{n:draw.bag+1,snack:L.names[draw.win]})+'"':'aria-hidden="true"')+'><g stroke="#39271F" stroke-linecap="round" fill="none">';
   xs.forEach(function(x){s+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+h+'" stroke-width="'+rw+'"/>'});
   if(draw){
     draw.rows.forEach(function(p,i){s+='<line x1="'+xs[p]+'" y1="'+ys[i]+'" x2="'+xs[p+1]+'" y2="'+ys[i]+'" stroke-width="'+rw+'"/>'});
-    var pos=draw.bag,pts=[[xs[pos],0]];
+    var pos=draw.bag,pts=[[xs[pos],inset]];
     draw.rows.forEach(function(p,i){pts.push([xs[pos],ys[i]]);pos=step(pos,p);pts.push([xs[pos],ys[i]])});
-    pts.push([xs[pos],h]);
-    var fr=view==='draw'?Math.min(1,elapsed/DUR):1;
+    pts.push([xs[pos],h-inset]);
     var d='M'+pts.map(function(p){return p[0]+' '+p[1]}).join(' L');
-    var da=(fr*1000)+' 1000';
-    s+='<path d="'+d+'" pathLength="1000" stroke-dasharray="'+da+'" stroke-width="'+(cm?9:11)+'" stroke-linejoin="round"/>';
-    s+='<path d="'+d+'" pathLength="1000" stroke-dasharray="'+da+'" stroke="#D88A16" stroke-width="'+(cm?5:7)+'" stroke-linejoin="round"/>';
-    var m=at(pts,fr);
-    s+='<circle cx="'+m[0]+'" cy="'+m[1]+'" r="'+(cm?7:9)+'" fill="#D88A16" stroke-width="3"/>';
+    s+='<path class="trail" d="'+d+'" pathLength="1000" stroke-width="'+(cm?7:11)+'" stroke-linejoin="round"/>';
+    s+='<path class="trail" d="'+d+'" pathLength="1000" stroke="#D88A16" stroke-width="'+(cm?4:7)+'" stroke-linejoin="round"/>';
+    s+='<circle r="'+(cm?6:9)+'" fill="#D88A16" stroke-width="3"/>';
   }
   lad.innerHTML=s+'</g></svg>';
-}
-function at(pts,fr){
-  var tot=0,i,seg=[];
-  for(i=1;i<pts.length;i++){var l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);tot+=l}
-  var t=fr*tot;
-  for(i=0;i<seg.length;i++){
-    if(t<=seg[i]||i===seg.length-1){var u=seg[i]?Math.min(1,t/seg[i]):1;return [pts[i][0]+(pts[i+1][0]-pts[i][0])*u,pts[i][1]+(pts[i+1][1]-pts[i][1])*u]}
-    t-=seg[i];
+  if(draw){
+    var paths=lad.querySelectorAll('.trail');
+    trail={paths:paths,marker:lad.querySelector('circle'),length:paths[0].getTotalLength()};
+    paintTrail();
   }
-  return pts[0];
+}
+function paintTrail(){
+  if(!trail)return;
+  var progress=view==='draw'?elapsed/DUR:1;
+  var point=trail.paths[0].getPointAtLength(progress*trail.length);
+  var dash=(progress*1000)+' 1000';
+  trail.paths.forEach(function(path){path.setAttribute('stroke-dasharray',dash)});
+  trail.marker.setAttribute('cx',point.x);
+  trail.marker.setAttribute('cy',point.y);
 }
 
 function slotsHtml(){
@@ -228,7 +259,9 @@ function slotsHtml(){
   for(var i=0;i<N;i++){
     if(view==='ready')s+='<div class="slot cov" role="img" aria-label="'+L.coveredSlotLabel+'">'+L.coveredMark+'</div>';
     else{var id=draw.bottom[i],win=view==='result'&&i===draw.end;
-      s+='<div class="slot'+(win?' win'+(draw.pop?' pop':''):'')+'">'+icon(id)+'<span>'+L.names[id]+'</span></div>'}
+      var shortName=L.slotNames&&L.slotNames[id];
+      var label=shortName?'<span aria-hidden="true">'+shortName+'</span><span class="sr-only">'+L.names[id]+'</span>':'<span>'+L.names[id]+'</span>';
+      s+='<div class="slot'+(win?' win'+(draw.pop?' pop':''):'')+'">'+icon(id)+label+'</div>'}
   }
   return s+'</div>';
 }
@@ -236,7 +269,7 @@ function bagsHtml(){
   var N=cands.length,s='<div class="bags" style="grid-template-columns:repeat('+N+',minmax(0,1fr))">';
   for(var i=0;i<N;i++){
     var sel=view==='draw'&&draw.bag===i;
-    s+='<button class="bag'+(sel?' sel':'')+'" data-act="bag" data-i="'+i+'"'+(view==='draw'?' aria-disabled="true"':'')+' aria-label="'+f(L.bagLabel,{n:i+1})+'">'+bagSvg()+'<b>'+f(L.bagNumber,{n:i+1})+'</b></button>';
+    s+='<button class="bag'+(sel?' sel':'')+'" data-act="bag" data-i="'+i+'"'+(view==='draw'?' aria-disabled="true" tabindex="-1"':'')+' aria-label="'+f(L.bagLabel,{n:i+1})+'">'+bagSvg()+'<b>'+f(L.bagNumber,{n:i+1})+'</b></button>';
   }
   return s+'</div>';
 }
@@ -246,18 +279,20 @@ function shareText(){
 }
 
 function render(focus){
+  copying=null;
+  announcement.textContent='';
   setStatus('');
   var m='',a='';
   if(view==='ready'||view==='draw'){
-    m='<p class="sub">'+(view==='ready'?L.readyHint:L.drawing)+'</p>';
+    m=view==='ready'?'<p class="sub">'+L.readyHint+'</p>':'<p class="sub" aria-hidden="true">'+L.drawing+'</p>';
     if(view==='ready')m+='<p class="sub">'+f(L.candidateSummary,{names:cands.map(function(c){return L.names[c]}).join(' · ')})+'</p>';
     m+=bagsHtml()+'<div id="lad"></div>'+slotsHtml();
     if(view==='ready')a=btn('edit',L.changeSnacks);
   }else if(view==='result'){
-    m='<h2 id="rh" tabindex="-1">'+L.resultHeading+'</h2><div class="card"><div class="ill">'+icon(draw.win)+'</div><div><div class="nm">'+L.names[draw.win]+'</div><div class="cp">'+L.caps[draw.win]+'</div></div></div><div class="pill">'+f(L.chosenBag,{n:draw.bag+1})+'</div><div id="lad"></div>'+slotsHtml();
+    m='<h2 id="rh" tabindex="-1">'+L.resultHeading+'</h2><div class="card'+(draw.pop?' fresh':'')+'">'+STAR.replace('#','sp sp1')+STAR.replace('#','sp sp2')+STAR.replace('#','sp sp3')+'<div class="ill">'+icon(draw.win)+'</div><div><div class="nm">'+L.names[draw.win]+'</div><div class="cp">'+L.caps[draw.win]+'</div></div></div><div class="pill">'+f(L.chosenBag,{n:draw.bag+1})+'</div><div id="lad"></div>'+slotsHtml();
     a='<div class="row">'+btn('copy',L.copy)+btn('again',L.again,'pri big')+'</div>'+btn('edit',L.changeSnacks);
   }else if(view==='edit'){
-    m='<h2>'+L.editorTitle+'</h2><p class="sub" style="text-align:left">'+L.editorHint+'</p><p class="cnt" id="cnt"></p><div class="grid">';
+    m='<h2 id="editor-title" tabindex="-1" aria-describedby="editor-hint">'+L.editorTitle+'</h2><p id="editor-hint" class="sub" style="text-align:left">'+L.editorHint+'</p><p class="cnt" id="cnt"></p><div class="grid">';
     POOL.forEach(function(id){m+='<button class="tg" data-act="tg" data-id="'+id+'" aria-pressed="false">'+icon(id)+'<span>'+L.names[id]+'</span><i aria-hidden="true">✓</i></button>'});
     m+='</div>';
     a='<div class="row">'+btn('back',L.back)+btn('apply',L.applySelection,'pri',' id="ap"')+'</div>';
@@ -265,13 +300,13 @@ function render(focus){
     m='<h2>'+L.copyFallbackTitle+'</h2><p class="sub" style="text-align:left">'+L.copyFallbackHint+'</p><textarea id="ta" readonly aria-label="'+L.shareTextLabel+'"></textarea>';
     a=btn('back-result',L.backToResult,'pri');
   }
-  main.className=view==='result'?'res':'';
+  main.className=view;
   main.innerHTML=m;
   act.innerHTML=a;
   if(view==='edit')syncEdit();
   if(view==='copy')$('#ta').value=shareText();
   ladder();
-  if(focus){var el=$(focus);if(el){el.focus();if(focus==='#ta')el.select()}}
+  if(focus){var el=$(focus);if(el){el.focus();if(focus==='#ta'){el.select();try{el.setSelectionRange(0,el.value.length)}catch(e){}}}}
 }
 function syncEdit(){
   document.querySelectorAll('.tg').forEach(function(b){b.setAttribute('aria-pressed',draft.indexOf(b.dataset.id)>=0?'true':'false')});
@@ -286,7 +321,7 @@ function toggle(id){
 }
 function openEdit(){
   if(view!=='ready'&&view!=='result')return;
-  prev=view;draft=cands.slice();view='edit';render('.tg');
+  prev=view;draft=cands.slice();view='edit';render('#editor-title');
 }
 function backEdit(){
   if(view!=='edit')return;
@@ -301,17 +336,16 @@ function again(){if(view!=='result')return;draw=null;view='ready';render('.bag')
 function fallback(){view='copy';render('#ta')}
 function copy(){
   if(copying||view!=='result')return;
-  var d=draw;
-  if(!navigator.clipboard||!navigator.clipboard.writeText){fallback();return}
   var p;
   try{p=navigator.clipboard.writeText(shareText())}catch(e){fallback();return}
-  copying=true;
+  copying=p;
   p.then(function(){
-    copying=false;
-    if(draw===d&&view==='result'){setStatus(L.copied);ct=setTimeout(function(){setStatus('')},2500)}
+    if(copying!==p)return;
+    copying=null;
+    setStatus(L.copied);
+    ct=setTimeout(function(){setStatus('')},2500);
   },function(){
-    copying=false;
-    if(draw===d&&view==='result')fallback();
+    if(copying===p)fallback();
   });
 }
 function backResult(){if(view!=='copy')return;view='result';render('[data-act=copy]')}
@@ -335,7 +369,6 @@ document.addEventListener('keydown',function(e){
   if(e.target&&e.target.tagName==='TEXTAREA')return;
   if(k==='Escape'){
     if(view==='edit'){e.preventDefault();backEdit()}
-    else if(view==='copy'){e.preventDefault();backResult()}
   }else if(view==='ready'&&/^[1-4]$/.test(k)){
     if(+k<=cands.length){e.preventDefault();startDraw(+k-1)}
   }else if(view==='result'){
