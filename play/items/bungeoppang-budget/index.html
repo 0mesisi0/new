@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>붕어빵 예산 계산기</title>
+<link rel="icon" href="data:," />
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;overflow:hidden}
@@ -13,63 +14,77 @@ body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#302A25;
  background:radial-gradient(circle at 20% 15%,#2f4a56 0,#20343D 55%)}
 .panel{width:100%;max-width:480px;height:100%;background:#FFF7E8;display:flex;flex-direction:column;min-height:0}
 @media(min-width:520px){.panel{box-shadow:0 0 0 6px #17262d,0 10px 40px rgba(0,0,0,.4)}}
-header{padding:12px 16px 4px}
+header{padding:12px 16px 10px;background:#20343D;color:#FFF7E8;border-bottom:4px solid #DBAD73}
 h1{margin:0;font-size:24px;line-height:1.2}
-#intro{margin:4px 0 0;color:#62594E}
-.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 12px;touch-action:pan-y;overscroll-behavior:contain}
+#intro{margin:4px 0 0;color:#d6e2e4}
+#editScreen,#resultScreen{display:flex;flex-direction:column;flex:1;min-height:0}
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 12px;touch-action:pan-y;overscroll-behavior:contain;scroll-padding:8px}
 .art{pointer-events:none;touch-action:none;display:block;margin:0 auto 6px;width:150px;height:auto}
 @media(max-height:560px){.art{display:none}}
 .field{margin:8px 0}
 label{display:block;font-weight:600;margin-bottom:4px}
 .row{display:flex;align-items:center;gap:8px}
 input[type=text]{flex:1;min-width:0;min-height:48px;font:inherit;font-size:18px;font-variant-numeric:tabular-nums;padding:6px 12px;border:2px solid #8a7e6c;border-radius:10px;background:#fff;color:#302A25}
-input[type=text][aria-invalid=true]{border-color:#A02F32}
+input[type=text]:focus{border-color:#155D63}
+input[type=text][aria-invalid=true]{border-color:#A02F32;background:#fff4f3}
+@media(hover:hover){button:not(:disabled):hover{filter:brightness(.94)}}
 .unit{min-width:2.5em;color:#62594E}
 .hint{font-size:16px;color:#62594E;margin-top:2px}
 .err{font-size:16px;color:#A02F32;font-weight:600;min-height:0}
-.err:empty{display:none}
+.err:empty{position:absolute}
 button{font:inherit;font-weight:700;min-height:48px;min-width:48px;padding:8px 14px;border-radius:12px;border:2px solid #155D63;background:#FFF7E8;color:#155D63;cursor:pointer;touch-action:manipulation}
 button.primary{background:#155D63;color:#fff}
-button:disabled{opacity:.45;cursor:not-allowed}
+button:disabled,button[aria-disabled=true]{opacity:.45;cursor:not-allowed}
 button.press{transform:scale(.97)}
 button:focus-visible,input:focus-visible,textarea:focus-visible,h2:focus-visible{outline:3px solid #155D63;outline-offset:2px}
-.preview{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff;border:2px dashed #b9a98c;min-height:84px}
+.preview{margin:0 16px 8px;padding:8px 12px;border-radius:12px;background:#fff;border:2px dashed #b9a98c}
 .preview b{display:block;margin-bottom:2px}
 .preview .sum{font-size:18px;font-variant-numeric:tabular-nums}
-.preview.fade{animation:fade .12s linear}
-.preview .emp{display:block;margin:0 auto 4px;width:64px;height:auto}
-@keyframes fade{from{opacity:.3}to{opacity:1}}
+.preview .sum span{white-space:nowrap}
+.preview .emp{float:left;margin:2px 8px 0 0;width:36px;height:auto;pointer-events:none}
+.preview .fade{animation:fade .12s linear}
+@keyframes fade{from{opacity:.78}to{opacity:1}}
 .note{font-size:16px;color:#62594E;margin:10px 0 0}
 .bar{display:flex;gap:8px;padding:8px 16px 12px;border-top:1px solid #e6d9bf}
 .bar button{flex:1}
 .bar #viewBag{flex:2}
-#status{min-height:52px;padding:2px 16px;font-size:16px;line-height:1.4;color:#302A25}
+#status{flex:none;height:48px;padding:2px 16px;font-size:16px;line-height:1.35;color:#302A25;overflow-wrap:anywhere}
 #status.fail{color:#A02F32;font-weight:600}
+@media(max-width:360px){
+ header{padding:8px 12px}#intro{line-height:1.25}
+ .scroll,.bar,#status{padding-inline:12px}.preview{margin-inline:12px}.preview .sum{font-size:16px}
+ .bar button{padding-inline:8px}.bar #viewBag{flex:1}
+}
 /* result */
-.card{background:#DBAD73;border-radius:6px 6px 18px 18px;padding:0 14px 14px;margin-top:4px;color:#302A25;position:relative}
-.card.pop{animation:pop .16s ease-out}
+.card{background:repeating-linear-gradient(94deg,#75461908 0 1px,transparent 1px 7px),linear-gradient(#e8be87,#DBAD73);border-radius:6px 6px 18px 18px;padding:0 14px 14px;margin:0;color:#302A25;position:relative;box-shadow:0 5px 0 #b98a52,0 9px 14px #302a2530}
+#cardBody>.pop{animation:pop .16s ease-out}
 @keyframes pop{from{transform:scale(.98)}to{transform:scale(1)}}
-.handles{display:block;width:70%;height:auto;margin:0 auto;pointer-events:none;position:relative;top:-2px}
-.fold{height:14px;margin:0 -14px;background:#c4935a;border-radius:6px 6px 0 0}
+.handles{display:block;width:clamp(128px,45%,200px);height:auto;margin:0 auto;pointer-events:none}
+.fold{height:14px;margin:0 -14px;background:#c4935a;border-radius:6px 6px 0 0;border-bottom:2px dashed #8a6a3c}
 .card h2{margin:8px 0 6px;font-size:20px;text-align:center}
 .grp{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px dashed #8a6a3c}
-.grp svg{width:130px;flex:none;height:auto;pointer-events:none}
-.grp .sp{width:130px;flex:none}
-.cnt{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.grp svg,.grp .sp{width:clamp(86px,42%,180px);flex:none;height:auto;pointer-events:none}
+.grp>div:last-child{min-width:0;padding-left:8px;border-left:5px solid #77465A}
+.grp.c>div:last-child{border-left-color:#E5B647}
+.cnt{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .up{font-size:16px;font-variant-numeric:tabular-nums}
 dl.sum{margin:6px 0 0;padding-top:6px;border-top:2px solid #8a6a3c}
 dl.sum div{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
 dl.sum dt,dl.sum dd{margin:0}
-dl.sum .tot{font-size:24px;font-weight:800}
+dl.sum .tot{font-size:24px;font-weight:800;background:rgba(255,247,232,.6);border-radius:8px;padding:2px 8px;margin:4px -8px}
 .card .note{color:#302A25}
 .sig{text-align:right;font-size:16px;font-weight:700;margin-top:6px}
 h3{margin:14px 0 6px;font-size:17px}
 #combos{display:flex;flex-direction:column;gap:8px}
 #combos button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:#fff;border:2px solid #b9a98c;color:#302A25;font-variant-numeric:tabular-nums}
-#combos button[aria-pressed=true]{border:4px solid #155D63;background:#e6f2f1}
+#combos button[aria-pressed=true]{border-color:#155D63;box-shadow:inset 0 0 0 1px #155D63;background:#e6f2f1}
 #combos .ck{display:inline-block;width:1.2em;font-weight:900;color:#155D63}
 #combos .lf{font-weight:600;font-size:16px;color:#62594E}
-.two{display:flex;gap:8px;margin-top:12px}
+.resultActions{position:sticky;bottom:-12px;background:#FFF7E8;border-top:1px solid #e6d9bf;margin:12px -4px 0;padding:8px 4px}
+#resScroll{scroll-padding-bottom:132px}
+#resScroll:has(#fb:not([hidden])){scroll-padding-bottom:8px}
+#resScroll:has(#fb:not([hidden])) .resultActions{position:static}
+.two{display:flex;gap:8px}
 .two button{flex:1}
 #editBtn{width:100%;margin-top:8px}
 #fb{margin-top:12px;padding:10px;border:2px solid #155D63;border-radius:12px;background:#fff}
@@ -77,8 +92,32 @@ h3{margin:14px 0 6px;font-size:17px}
 #fb textarea{width:100%;min-height:150px;font:inherit;font-size:16px;padding:8px;border:2px solid #8a7e6c;border-radius:8px;touch-action:pan-y}
 #fb button{margin-top:8px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.paused *{animation-play-state:paused!important}
 .nomotion *{animation:none!important;transition:none!important}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.demo #status,.demo #comboSection,.demo .resultActions{display:none}
+.demo #resScroll{background:radial-gradient(ellipse at 50% 42%,#3c5861,#20343D 82%);padding-block:22px}
+.demo header{text-align:center;border-color:#5d7277}
+@media(max-width:360px) and (max-height:560px){
+ #editScroll .field{display:grid;grid-template-columns:1fr minmax(0,1.15fr);align-items:center;gap:4px 8px;margin:0 0 6px}
+ #editScroll label{margin:0;line-height:1.2}
+ #editScroll .hint{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ #editScroll .err{grid-column:1/-1}
+ #editScroll .row{position:relative}
+ #editScroll input{padding-right:3.2em}
+ #editScroll .unit{position:absolute;right:8px;min-width:0;pointer-events:none}
+ .panel:has(#resultScreen:not([hidden])) h1{font-size:20px}
+ #resScroll{padding-top:4px}
+ .handles{width:110px}
+ .card h2{margin:4px 0}
+ .flavors{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .grp{flex-direction:column;align-items:stretch;gap:0;padding:3px 0}
+ .grp svg,.grp .sp{width:100%;height:25px}
+ .grp>div:last-child{padding-left:5px}
+ .cnt{font-size:17px;line-height:1.2}
+ dl.sum{margin-top:3px;padding-top:3px;line-height:1.25}
+ dl.sum .tot{margin-block:0;padding-block:0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}button.press{transform:none}}
 </style>
 </head>
 <body>
@@ -94,32 +133,36 @@ h3{margin:14px 0 6px;font-size:17px}
 <div class="panel">
  <header><h1 id="appTitle"></h1><p id="intro"></p></header>
 
- <form id="editScreen" novalidate style="display:contents">
+ <form id="editScreen" novalidate>
   <div class="scroll" id="editScroll">
    <svg class="art" viewBox="0 0 130 40" aria-hidden="true"><use href="#fR" x="0" y="2" width="60" height="36"/><use href="#fC" x="68" y="2" width="60" height="36"/></svg>
-   <div class="field"><label for="budget" id="lBudget"></label><div class="row"><input type="text" id="budget" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hBudget eBudget"><span class="unit" id="uBudget"></span></div><div class="hint" id="hBudget"></div><div class="err" id="eBudget"></div></div>
-   <div class="field"><label for="red" id="lRed"></label><div class="row"><input type="text" id="red" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hRed eRed"><span class="unit" id="uRed"></span></div><div class="hint" id="hRed"></div><div class="err" id="eRed"></div></div>
-   <div class="field"><label for="custard" id="lCustard"></label><div class="row"><input type="text" id="custard" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hCustard eCustard"><span class="unit" id="uCustard"></span></div><div class="hint" id="hCustard"></div><div class="err" id="eCustard"></div></div>
-   <div class="preview" id="preview"></div>
+   <div class="field"><label for="budget" id="lBudget"></label><div class="row"><input type="text" id="budget" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hBudget eBudget"><span class="unit" id="uBudget"></span></div><div class="hint" id="hBudget"></div><div class="err" aria-live="polite" id="eBudget"></div></div>
+   <div class="field"><label for="red" id="lRed"></label><div class="row"><input type="text" id="red" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hRed eRed"><span class="unit" id="uRed"></span></div><div class="hint" id="hRed"></div><div class="err" aria-live="polite" id="eRed"></div></div>
+   <div class="field"><label for="custard" id="lCustard"></label><div class="row"><input type="text" id="custard" inputmode="numeric" maxlength="12" autocomplete="off" aria-describedby="hCustard eCustard"><span class="unit" id="uCustard"></span></div><div class="hint" id="hCustard"></div><div class="err" aria-live="polite" id="eCustard"></div></div>
    <p class="note" id="noteEdit"></p>
   </div>
+  <div class="preview" id="preview" aria-live="polite" aria-atomic="true"></div>
   <div class="bar" id="editBar"><button type="submit" class="primary" id="viewBag"></button><button type="button" id="resetBtn"></button></div>
  </form>
 
- <section id="resultScreen" hidden style="display:contents">
+ <section id="resultScreen" hidden aria-labelledby="resHead">
   <div class="scroll" id="resScroll">
+   <svg class="handles" viewBox="0 0 200 40" aria-hidden="true"><path d="M32 40C32 4 76 4 76 40M124 40C124 4 168 4 168 40" fill="none" stroke="#b9844e" stroke-width="8" stroke-linecap="round"/></svg>
    <div class="card" id="card">
-    <svg class="handles" viewBox="0 0 200 40" aria-hidden="true"><path d="M50 40C50 4 80 4 80 40M120 40C120 4 150 4 150 40" fill="none" stroke="#8a5a2b" stroke-width="5" stroke-linecap="round"/></svg>
     <div class="fold"></div>
     <h2 id="resHead" tabindex="-1"></h2>
     <div id="cardBody"></div>
    </div>
-   <h3 id="comboTitle"></h3>
-   <div id="combos"></div>
-   <p class="note" id="rankNote"></p>
-   <div class="two"><button type="button" id="saveBtn"></button><button type="button" id="copyBtn"></button></div>
+   <div id="comboSection">
+    <h3 id="comboTitle"></h3>
+    <div id="combos"></div>
+    <p class="note" id="rankNote"></p>
+   </div>
+   <div class="resultActions">
+    <div class="two"><button type="button" id="saveBtn"></button><button type="button" id="copyBtn"></button></div>
+    <button type="button" id="editBtn" class="primary"></button>
+   </div>
    <div id="fb" hidden><p id="fbMsg"></p><label for="fbText" id="fbLabel"></label><textarea id="fbText" readonly></textarea><button type="button" id="fbClose"></button></div>
-   <button type="button" id="editBtn" class="primary"></button>
   </div>
  </section>
 
@@ -131,21 +174,20 @@ h3{margin:14px 0 6px;font-size:17px}
 (function(){
 'use strict';
 var D={
-ko:{appTitle:'붕어빵 예산 계산기',intro:'예산 안에서 팥붕과 슈붕을 담아 보세요.',budgetLabel:'예산',redPriceLabel:'팥붕 한 개 가격',custardPriceLabel:'슈붕 한 개 가격',currencyUnit:'원',budgetHint:'100~30,000원, 100원 단위',priceHint:'100~10,000원, 100원 단위',previewTitle:'이렇게 담을 수 있어요',previewSummary:'팥붕 {red}개 · 슈붕 {custard}개 · 남는 돈 {left}',completeInputs:'예산과 한 개 가격을 확인해 주세요.',viewBag:'봉투 보기',resetExample:'예시로 초기화',exampleNote:'처음 가격은 예시예요. 실제 한 개 가격으로 바꿔 주세요.',unitNote:'입력한 한 개 가격 기준이며, 묶음 할인은 제외해요.',bagTitle:'내 붕어빵 봉투',red:'팥붕',custard:'슈붕',redCount:'팥붕 {n}개',custardCount:'슈붕 {n}개',unitPriceLine:'한 개 {price}',budget:'예산',total:'합계',left:'남는 돈',money:'{n}원',combinationsTitle:'가능한 조합',combination:'팥 {red} · 슈 {custard}',combinationLeft:'{left} 남아요',combinationAria:'팥붕 {red}개, 슈붕 {custard}개, 남는 돈 {left}',rankingNote:'개수 우선, 같은 개수면 반반에 가깝게 골라요.',resultAnnouncement:'팥붕 {red}개, 슈붕 {custard}개. 합계 {total}, 남는 돈 {left}.',emptyTitle:'아직 한 개를 담기엔 모자라요',emptyDetail:'가장 저렴한 한 개까지 {shortfall} 더 필요해요.',emptyHint:'예산이나 입력한 가격을 확인해 주세요.',save:'이미지 저장',saving:'이미지 만드는 중…',downloadRequested:'다운로드를 요청했어요. 저장되지 않으면 화면을 캡처해 주세요.',saveFail:'이미지를 만들지 못했어요. 화면을 캡처해 주세요.',copy:'텍스트 복사',copying:'복사 중…',copied:'복사했어요.',manualCopy:'자동 복사가 안 돼요. 아래 글을 선택해 복사해 주세요.',copyTextLabel:'공유할 글',close:'닫기',edit:'입력 수정',required:'값을 입력해 주세요.',invalidInteger:'쉼표로 구분한 정수나 숫자만 입력해 주세요.',budgetRange:'예산은 100~30,000원으로 입력해 주세요.',priceRange:'한 개 가격은 100~10,000원으로 입력해 주세요.',invalidStep:'100원 단위로 입력해 주세요.',resetDone:'예산과 가격을 예시로 되돌렸어요.',brand:'하루한판',
+ko:{appTitle:'붕어빵 예산 계산기',intro:'예산 안에서 팥붕과 슈붕을 담아 보세요.',budgetLabel:'예산',redPriceLabel:'팥붕 한 개 가격',custardPriceLabel:'슈붕 한 개 가격',currencyUnit:'원',budgetHint:'100~30,000원, 100원 단위',priceHint:'100~10,000원, 100원 단위',previewTitle:'이렇게 담을 수 있어요',previewSummary:'팥붕 {red}개 · 슈붕 {custard}개 · 남는 돈 {left}',completeInputs:'예산과 한 개 가격을 확인해 주세요.',viewBag:'봉투 보기',resetExample:'예시로 초기화',exampleNote:'처음 가격은 예시예요. 실제 한 개 가격으로 바꿔 주세요.',unitNote:'입력한 한 개 가격 기준이며, 묶음 할인은 제외해요.',bagTitle:'내 붕어빵 봉투',red:'팥붕',custard:'슈붕',redCount:'팥붕 {n}개',custardCount:'슈붕 {n}개',unitPriceLine:'한 개 {price}',budget:'예산',total:'합계',left:'남는 돈',money:'{n}원',combinationsTitle:'가능한 조합',combination:'팥 {red} · 슈 {custard}',combinationLeft:'{left} 남아요',combinationAria:'팥붕 {red}개, 슈붕 {custard}개, 남는 돈 {left}',rankingNote:'개수 우선, 같은 개수면 반반에 가깝게 골라요.',resultAnnouncement:'팥붕 {red}개, 슈붕 {custard}개. 합계 {total}, 남는 돈 {left}.',emptyTitle:'아직 한 개를 담기엔 모자라요',emptyDetail:'가장 저렴한 한 개까지 {shortfall} 더 필요해요.',emptyHint:'예산이나 입력한 가격을 확인해 주세요.',save:'이미지 저장',saving:'이미지 만드는 중…',downloadRequested:'다운로드를 요청했어요. 파일이 없으면 화면을 캡처해 주세요.',saveFail:'이미지를 만들지 못했어요. 화면을 캡처해 주세요.',copy:'텍스트 복사',copying:'복사 중…',copied:'복사했어요.',manualCopy:'자동 복사가 안 돼요. 아래 글을 선택해 복사해 주세요.',copyTextLabel:'공유할 글',close:'닫기',edit:'입력 수정',required:'값을 입력해 주세요.',invalidInteger:'쉼표로 구분한 정수나 숫자만 입력해 주세요.',budgetRange:'예산은 100~30,000원으로 입력해 주세요.',priceRange:'한 개 가격은 100~10,000원으로 입력해 주세요.',invalidStep:'100원 단위로 입력해 주세요.',resetDone:'예산과 가격을 예시로 되돌렸어요.',signature:'하루한판 · play.mesisi.net',tooLong:'12자 이내로 입력해 주세요.',singleLine:'한 줄로 입력해 주세요.',
  shareText:'내 붕어빵 봉투\n팥붕 {red}개 · 슈붕 {custard}개\n한 개 가격: 팥붕 {redPrice} · 슈붕 {custardPrice}\n예산: {budget}\n합계: {total}\n남는 돈: {left}\n입력한 한 개 가격 기준이며, 묶음 할인은 제외해요.\n하루한판 · play.mesisi.net'},
-en:{appTitle:'Bungeoppang Budget Calculator',intro:'Fill a red-bean and custard bag within your budget.',budgetLabel:'Budget',redPriceLabel:'Red-bean unit price',custardPriceLabel:'Custard unit price',currencyUnit:'KRW',budgetHint:'₩100–₩30,000, in steps of ₩100',priceHint:'₩100–₩10,000, in steps of ₩100',previewTitle:'Your possible bag',previewSummary:'Red bean × {red} · Custard × {custard} · {left} left',completeInputs:'Check your budget and unit prices.',viewBag:'View bag',resetExample:'Reset example',exampleNote:'Initial prices are examples. Enter actual unit prices.',unitNote:'Based on entered unit prices; bundle discounts excluded.',bagTitle:'My bungeoppang bag',red:'Red bean',custard:'Custard',redCount:'Red bean × {n}',custardCount:'Custard × {n}',unitPriceLine:'{price} each',budget:'Budget',total:'Total',left:'Money left',money:'₩{n}',combinationsTitle:'Available combinations',combination:'Red bean {red} · Custard {custard}',combinationLeft:'{left} left',combinationAria:'{red} red-bean pastries, {custard} custard pastries, {left} left',rankingNote:'Most pastries first; ties favor a more even mix.',resultAnnouncement:'Red bean: {red}. Custard: {custard}. Total: {total}. Money left: {left}.',emptyTitle:'Not quite enough for one',emptyDetail:'You need {shortfall} more for the cheapest pastry.',emptyHint:'Check your budget or entered prices.',save:'Save image',saving:'Creating image…',downloadRequested:'Download requested. If no file appears, take a screenshot.',saveFail:'Could not create the image. Please take a screenshot.',copy:'Copy text',copying:'Copying…',copied:'Copied.',manualCopy:'Automatic copy is unavailable. Select and copy the text below.',copyTextLabel:'Text to share',close:'Close',edit:'Edit inputs',required:'Enter a value.',invalidInteger:'Enter whole digits, optionally with correctly grouped commas.',budgetRange:'Enter a budget from ₩100 to ₩30,000.',priceRange:'Enter a unit price from ₩100 to ₩10,000.',invalidStep:'Enter a multiple of ₩100.',resetDone:'Budget and prices reset to the example.',brand:'Daily Toybox',
+en:{appTitle:'Bungeoppang Budget Calculator',intro:'Fill a red-bean and custard bag within your budget.',budgetLabel:'Budget',redPriceLabel:'Red-bean unit price',custardPriceLabel:'Custard unit price',currencyUnit:'KRW',budgetHint:'₩100–₩30,000, in steps of ₩100',priceHint:'₩100–₩10,000, in steps of ₩100',previewTitle:'Your possible bag',previewSummary:'Red bean × {red} · Custard × {custard} · {left} left',completeInputs:'Check your budget and unit prices.',viewBag:'View bag',resetExample:'Reset example',exampleNote:'Initial prices are examples. Enter actual unit prices.',unitNote:'Based on entered unit prices; bundle discounts excluded.',bagTitle:'My bungeoppang bag',red:'Red bean',custard:'Custard',redCount:'Red bean × {n}',custardCount:'Custard × {n}',unitPriceLine:'{price} each',budget:'Budget',total:'Total',left:'Money left',money:'₩{n}',combinationsTitle:'Available combinations',combination:'Red bean {red} · Custard {custard}',combinationLeft:'{left} left',combinationAria:'{red} red-bean pastries, {custard} custard pastries, {left} left',rankingNote:'Most pastries first; ties favor a more even mix.',resultAnnouncement:'Red bean: {red}. Custard: {custard}. Total: {total}. Money left: {left}.',emptyTitle:'Not quite enough for one',emptyDetail:'You need {shortfall} more for the cheapest pastry.',emptyHint:'Check your budget or entered prices.',save:'Save image',saving:'Creating image…',downloadRequested:'Download requested. No file? Take a screenshot.',saveFail:'Image failed. Take a screenshot.',copy:'Copy text',copying:'Copying…',copied:'Copied.',manualCopy:'Automatic copy is unavailable. Select and copy the text below.',copyTextLabel:'Text to share',close:'Close',edit:'Edit inputs',required:'Enter a value.',invalidInteger:'Enter whole digits, optionally with correctly grouped commas.',budgetRange:'Enter a budget from ₩100 to ₩30,000.',priceRange:'Enter a unit price from ₩100 to ₩10,000.',invalidStep:'Enter a multiple of ₩100.',resetDone:'Budget and prices reset to the example.',signature:'Daily Toybox · play.mesisi.net',tooLong:'Use 12 characters or fewer.',singleLine:'Enter the amount on one line.',
  shareText:'My bungeoppang bag\nRed bean × {red} · Custard × {custard}\nUnit prices: Red bean {redPrice} · Custard {custardPrice}\nBudget: {budget}\nTotal: {total}\nMoney left: {left}\nBased on entered unit prices; bundle discounts excluded.\nDaily Toybox · play.mesisi.net'}
 };
 var q=new URLSearchParams(location.search).get('lang');
 var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
 document.documentElement.lang=lang;
 var demo=location.hash==='#demo'||new URLSearchParams(location.search).get('thumb')==='1';
-if(demo)document.getElementById('app').classList.add('nomotion');
+if(demo)document.getElementById('app').classList.add('demo','nomotion');
 function $(id){return document.getElementById(id)}
 function t(k,p){var s=D[lang][k];if(p)s=s.replace(/\{(\w+)\}/g,function(m,n){return p[n]});return s}
 function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 function money(n){return t('money',{n:fmt(n)})}
-var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---- calc ---- */
 function parse(s,max,rk){
@@ -160,11 +202,14 @@ function parse(s,max,rk){
  return{n:n};
 }
 function combosFor(b,rp,cp){
- var a=[],r,c;
- for(r=0;r<=Math.floor(b/rp);r++)for(c=0;c<=Math.floor((b-r*rp)/cp);c++){
-  if(r+c===0)continue;
-  var tot=r*rp+c*cp;
-  a.push({red:r,custard:c,total:tot,left:b-tot,count:r+c,imb:Math.abs(r-c)});
+ var a=[];
+ for(var r=0;r<=Math.floor(b/rp);r++){
+  var max=Math.floor((b-r*rp)/cp);
+  // For a fixed red count, every lower custard count ranks behind these three.
+  for(var c=max;c>=Math.max(0,max-2)&&r+c>0;c--){
+   var tot=r*rp+c*cp;
+   a.push({red:r,custard:c,total:tot,left:b-tot,count:r+c,imb:Math.abs(r-c)});
+  }
  }
  a.sort(function(x,y){return y.count-x.count||x.imb-y.imb||x.left-y.left||y.red-x.red});
  return a.slice(0,3);
@@ -202,20 +247,28 @@ function writePrices(){
 }
 
 /* ---- status ---- */
-var stTimer=0,stLeft=0,stStart=0;
+var stTimer=0,stLeft=0,stStart=0,statusVersion=0;
 function setStatus(msg,fail,auto){
  clearTimeout(stTimer);stTimer=0;stLeft=0;
  var s=$('status');s.textContent=msg||'';s.className=fail?'fail':'';
  if(msg&&auto){stLeft=4000;if(!document.hidden)runStatus()}
+ return ++statusVersion;
 }
 function runStatus(){
- var s=$('status');stStart=Date.now();
- stTimer=setTimeout(function(){s.textContent='';stTimer=0;stLeft=0},Math.max(stLeft,0));
+ stStart=performance.now();
+ stTimer=setTimeout(function(){$('status').textContent='';stTimer=0;stLeft=0},stLeft);
 }
-document.addEventListener('visibilitychange',function(){
- if(document.hidden){if(stTimer){clearTimeout(stTimer);stTimer=0;stLeft-=Date.now()-stStart}}
+function syncVisibility(){
+ $('app').classList.toggle('paused',document.hidden);
+ if(document.hidden){
+  if(stTimer){
+   clearTimeout(stTimer);stTimer=0;stLeft=Math.max(0,stLeft-(performance.now()-stStart));
+   if(!stLeft)$('status').textContent='';
+  }
+ }
  else if(stLeft>0&&!stTimer)runStatus();
-});
+}
+document.addEventListener('visibilitychange',syncVisibility);
 
 /* ---- text ---- */
 function applyLang(){
@@ -236,24 +289,22 @@ function fishRow(type,n){
 var EMPTY_BAG='<svg class="emp" viewBox="0 0 64 56" aria-hidden="true"><path d="M20 14C20 2 44 2 44 14" fill="none" stroke="#8a5a2b" stroke-width="3"/><path d="M8 14H56L52 54H12Z" fill="#DBAD73" stroke="#8a5a2b" stroke-width="2"/><path d="M8 14H56V20H8Z" fill="#c4935a"/></svg>';
 
 /* ---- render ---- */
-function restart(el,cls){
- if(demo||reduce)return;
- el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);
-}
 function update(){
  cur=compute();
  IDS.forEach(function(k){
   var e=cur.p[k].e,show=touched[k]&&e&&e!=='composing';
-  $('e'+k[0].toUpperCase()+k.slice(1)).textContent=show?t(e):'';
+  var error=$('e'+k[0].toUpperCase()+k.slice(1)),message=show?t(e):'';
+  if(error.textContent!==message)error.textContent=message;
   $(k).setAttribute('aria-invalid',show?'true':'false');
  });
  var pv=$('preview'),h;
  if(!cur.ok)h='<b>'+t('completeInputs')+'</b>';
  else if(cur.empty)h=EMPTY_BAG+'<b>'+t('emptyTitle')+'</b>'+t('emptyDetail',{shortfall:money(cur.shortfall)})+'<br>'+t('emptyHint');
- else{var c=cur.combos[0];h='<b>'+t('previewTitle')+'</b><span class="sum">'+t('previewSummary',{red:c.red,custard:c.custard,left:money(c.left)})+'</span>'}
- pv.innerHTML=h;restart(pv,'fade');
+ else{var c=cur.combos[sel];h='<b>'+t('previewTitle')+'</b><span class="sum">'+t('previewSummary',{red:c.red,custard:c.custard,left:'<span>'+money(c.left)+'</span>'})+'</span>'}
+ if(h!==previewHtml){pv.innerHTML='<div class="fade">'+h+'</div>';previewHtml=h}
  $('viewBag').disabled=!(cur.ok&&!cur.empty);
 }
+var previewHtml;
 function snapshot(){
  var c=cur.combos[sel];
  return{red:c.red,custard:c.custard,total:c.total,left:c.left,rp:cur.p.red.n,cp:cur.p.custard.n,budget:cur.p.budget.n,lang:lang};
@@ -264,11 +315,11 @@ function shareText(s){
 function renderCard(pop){
  var s=snapshot();
  $('cardBody').innerHTML=
-  '<div class="grp">'+fishRow('fR',s.red)+'<div><div class="cnt">'+t('redCount',{n:s.red})+'</div><div class="up">'+t('unitPriceLine',{price:money(s.rp)})+'</div></div></div>'+
-  '<div class="grp">'+fishRow('fC',s.custard)+'<div><div class="cnt">'+t('custardCount',{n:s.custard})+'</div><div class="up">'+t('unitPriceLine',{price:money(s.cp)})+'</div></div></div>'+
+  '<div'+(pop?' class="pop"':'')+'>'+
+  '<div class="flavors"><div class="grp r">'+fishRow('fR',s.red)+'<div><div class="cnt">'+t('redCount',{n:s.red})+'</div><div class="up">'+t('unitPriceLine',{price:money(s.rp)})+'</div></div></div>'+
+  '<div class="grp c">'+fishRow('fC',s.custard)+'<div><div class="cnt">'+t('custardCount',{n:s.custard})+'</div><div class="up">'+t('unitPriceLine',{price:money(s.cp)})+'</div></div></div></div>'+
   '<dl class="sum"><div><dt>'+t('budget')+'</dt><dd>'+money(s.budget)+'</dd></div><div class="tot"><dt>'+t('total')+'</dt><dd>'+money(s.total)+'</dd></div><div><dt>'+t('left')+'</dt><dd>'+money(s.left)+'</dd></div></dl>'+
-  '<p class="note">'+t('unitNote')+' '+t('exampleNote')+'</p><div class="sig">'+t('brand')+' · play.mesisi.net</div>';
- if(pop)restart($('card'),'pop');
+  '<p class="note">'+t('unitNote')+' '+t('exampleNote')+'</p><div class="sig">'+t('signature')+'</div></div>';
  $('live').textContent=t('resultAnnouncement',{red:s.red,custard:s.custard,total:money(s.total),left:money(s.left)});
  if(!$('fb').hidden)$('fbText').value=shareText(s);
 }
@@ -290,17 +341,15 @@ function show(sc){
  if(sc!=='result')busy.copy=null;
  $('editScreen').hidden=sc!=='edit';$('resultScreen').hidden=sc!=='result';
  $('intro').hidden=sc!=='edit';
- $('editScreen').style.display=sc==='edit'?'contents':'none';
- $('resultScreen').style.display=sc==='result'?'contents':'none';
 }
 function openResult(focus){
- if(!cur.ok||cur.empty)return;
+ if(screen!=='edit'||!cur.ok||cur.empty)return;
  if(sel>=cur.combos.length)sel=0;
  $('fb').hidden=true;
  renderCombos();renderCard(true);show('result');
  setStatus('');
  $('resScroll').scrollTop=0;
- if(focus)$('resHead').focus();
+ if(focus)$('resHead').focus({preventScroll:true});
 }
 
 /* ---- events ---- */
@@ -318,24 +367,44 @@ function commit(k){
 IDS.forEach(function(k){
  var el=$(k);
  el.addEventListener('input',function(e){
-  sel=0;setStatus('');
-  if(e.isComposing){composing[k]=true;update();return}
+  if(e.isComposing||composing[k])return;
+  if(vals[k]!==el.value){sel=0;setStatus('')}
   composing[k]=false;vals[k]=el.value;
   update();
  });
  el.addEventListener('compositionstart',function(){composing[k]=true;update()});
- el.addEventListener('compositionend',function(){composing[k]=false;vals[k]=el.value;sel=0;update()});
- el.addEventListener('blur',function(){touched[k]=true;composing[k]=false;vals[k]=el.value;commit(k);update()});
- el.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.isComposing)e.preventDefault()});
+ el.addEventListener('compositionend',function(){
+  composing[k]=false;
+  if(vals[k]!==el.value){sel=0;setStatus('')}
+  vals[k]=el.value;update();
+ });
+ el.addEventListener('paste',function(e){
+  if(!e.clipboardData)return;
+  var incoming=e.clipboardData.getData('text');
+  var tooLong=el.value.length-(el.selectionEnd-el.selectionStart)+incoming.length>el.maxLength;
+  if(!tooLong&&!/[\r\n]/.test(incoming.trim()))return;
+  e.preventDefault();setStatus(t(tooLong?'tooLong':'singleLine'),true);
+ });
+ el.addEventListener('blur',function(){
+  if(screen!=='edit'||composing[k])return;
+  touched[k]=true;commit(k);update();
+ });
+ el.addEventListener('keydown',function(e){
+  if(e.key!=='Enter'||e.isComposing||e.keyCode===229||composing[k])return;
+  e.preventDefault();
+  if(!e.repeat)submitEdit();
+ });
 });
-$('editScreen').addEventListener('submit',function(e){
- e.preventDefault();
+function submitEdit(){
+ if(screen!=='edit'||IDS.some(function(k){return composing[k]}))return;
  IDS.forEach(function(k){touched[k]=true;commit(k)});
  update();
  if(cur.ok&&!cur.empty)openResult(true);
-});
+ else if(!cur.ok)$(IDS.find(function(k){return cur.p[k].e})).focus();
+}
+$('editScreen').addEventListener('submit',function(e){e.preventDefault();submitEdit()});
 $('resetBtn').addEventListener('click',function(){
- vals={budget:'3000',red:'1000',custard:'1000'};touched={};sel=0;
+ vals={budget:'3000',red:'1000',custard:'1000'};touched={};composing={};sel=0;
  saved={red:1000,custard:1000};writePrices();
  IDS.forEach(function(k){$(k).value=vals[k]});
  update();setStatus(t('resetDone'),false,true);
@@ -343,14 +412,15 @@ $('resetBtn').addEventListener('click',function(){
 $('combos').addEventListener('click',function(e){
  var b=e.target.closest('button');if(!b)return;
  var i=+b.getAttribute('data-i');if(i===sel)return;
- sel=i;markCombos();renderCard(true);setStatus('');
+ busy.copy=null;sel=i;markCombos();renderCard(true);setStatus('');
 });
 $('editBtn').addEventListener('click',function(){
- show('edit');setStatus('');$('budget').focus();
+ show('edit');update();setStatus('');$('budget').focus();
 });
 $('saveBtn').addEventListener('click',function(){
  if(busy.save)return;
- busy.save=true;$('saveBtn').disabled=true;setStatus(t('saving'));
+ busy.save=true;$('saveBtn').setAttribute('aria-disabled','true');
+ var status=setStatus(t('saving'));
  var s=snapshot();
  exportPng(s).then(function(blob){
   var a=document.createElement('a');
@@ -359,39 +429,55 @@ $('saveBtn').addEventListener('click',function(){
   a.href=url;a.download='bungeoppang-budget.png';
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){if(lastUrl===url){URL.revokeObjectURL(url);lastUrl=''}},10000);
-  setStatus(t('downloadRequested'),false,true);
- }).catch(function(){setStatus(t('saveFail'),true)}).then(function(){busy.save=false;$('saveBtn').disabled=false});
+  if(status===statusVersion)setStatus(t('downloadRequested'),false,true);
+ }).catch(function(){
+  if(status===statusVersion)setStatus(t('saveFail'),true);
+ }).finally(function(){busy.save=false;$('saveBtn').removeAttribute('aria-disabled')});
 });
 var lastUrl='';
 function legacyCopy(txt){
+ var active=document.activeElement;
  var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
  ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
  document.body.appendChild(ta);ta.select();
  var ok=false;try{ok=document.execCommand('copy')}catch(e){}
- ta.remove();return ok;
+ ta.remove();
+ if(active)active.focus({preventScroll:true});
+ return ok;
 }
 $('copyBtn').addEventListener('click',function(){
  if(screen!=='result'||busy.copy)return;
  var request=busy.copy={};
- setStatus(t('copying'));
+ var status=setStatus(t('copying'));
  var txt=shareText(snapshot());
  function ok(){
   if(busy.copy!==request)return;
-  busy.copy=null;setStatus(t('copied'),false,true);$('copyBtn').focus();
+  busy.copy=null;
+  if(!$('fb').hidden){
+   var hadFocus=$('fb').contains(document.activeElement);
+   $('fb').hidden=true;
+   if(hadFocus)$('copyBtn').focus();
+  }
+  if(status===statusVersion)setStatus(t('copied'),false,true);
  }
  function fallback(){
   if(busy.copy!==request)return;
   if(legacyCopy(txt)){ok();return}
-  busy.copy=null;setStatus('');
+  busy.copy=null;
+  if(status===statusVersion)setStatus('');
   $('fbText').value=txt;$('fb').hidden=false;
-  $('fbText').focus();$('fbText').select();
+  if(document.activeElement===$('copyBtn')){
+   $('fbText').focus();$('fbText').select();
+  }
  }
  try{
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,fallback);
   else fallback();
  }catch(e){fallback()}
 });
-$('fbClose').addEventListener('click',function(){$('fb').hidden=true;$('copyBtn').focus()});
+function closeFb(){$('fb').hidden=true;$('copyBtn').focus()}
+$('fbClose').addEventListener('click',closeFb);
+$('fb').addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();closeFb()}});
 
 /* ---- export ---- */
 var FISH='M8 18C14 6 34 4 46 14L58 6L56 18L58 30L46 22C34 32 14 30 8 18Z';
@@ -437,12 +523,17 @@ function exportPng(s){
    ctx.fillText(T('appTitle'),375,66,690);
    // bag
    ctx.strokeStyle='#8a5a2b';ctx.lineWidth=8;ctx.lineCap='round';
+   var rr=function(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)};
+   ctx.strokeStyle='#e6d9bf';ctx.lineWidth=4;ctx.strokeRect(10,10,730,980);
+   ctx.strokeStyle='#8a5a2b';ctx.lineWidth=8;
    ctx.beginPath();ctx.moveTo(250,172);ctx.bezierCurveTo(250,100,330,100,330,172);ctx.moveTo(420,172);ctx.bezierCurveTo(420,100,500,100,500,172);ctx.stroke();
-   ctx.fillStyle='#DBAD73';ctx.beginPath();ctx.roundRect(40,170,670,755,[10,10,30,30]);ctx.fill();
-   ctx.fillStyle='#c4935a';ctx.beginPath();ctx.roundRect(40,170,670,36,[10,10,0,0]);ctx.fill();
+   ctx.fillStyle='#b98a52';rr(40,178,670,755,[10,10,30,30]);ctx.fill();
+   ctx.fillStyle='#DBAD73';rr(40,170,670,755,[10,10,30,30]);ctx.fill();
+   ctx.fillStyle='#c4935a';rr(40,170,670,36,[10,10,0,0]);ctx.fill();
+   ctx.strokeStyle='#8a6a3c';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.moveTo(40,206);ctx.lineTo(710,206);ctx.stroke();ctx.setLineDash([]);
    ctx.fillStyle=INK;ctx.font='bold 38px '+F;ctx.fillText(T('bagTitle'),375,258,620);
    // groups
-   var groups=[['R',s.red,'redCount',s.rp,285],['C',s.custard,'custardCount',s.cp,395]];
+   var groups=[['R',s.red,'redCount',s.rp,290],['C',s.custard,'custardCount',s.cp,405]];
    groups.forEach(function(g){
     var y=g[4];
     ctx.strokeStyle='#8a6a3c';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.moveTo(70,y-8);ctx.lineTo(680,y-8);ctx.stroke();ctx.setLineDash([]);
@@ -453,19 +544,20 @@ function exportPng(s){
     ctx.font='26px '+F;ctx.fillText(T('unitPriceLine',{price:M(g[3])}),335,y+84,355);
    });
    // summary
-   ctx.strokeStyle='#8a6a3c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(70,516);ctx.lineTo(680,516);ctx.stroke();
-   var rows=[['budget',s.budget,'30px',560],['total',s.total,'bold 38px',612],['left',s.left,'30px',662]];
+   ctx.strokeStyle='#8a6a3c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(70,530);ctx.lineTo(680,530);ctx.stroke();
+   ctx.fillStyle='rgba(255,247,232,.6)';rr(62,594,626,56,10);ctx.fill();ctx.fillStyle=INK;
+   var rows=[['budget',s.budget,'30px',576],['total',s.total,'bold 38px',634],['left',s.left,'30px',690]];
    rows.forEach(function(r){
     ctx.font=r[2]+' '+F;ctx.textAlign='left';ctx.fillText(T(r[0]),75,r[3]);
     ctx.textAlign='right';ctx.fillText(M(r[1]),675,r[3]);
    });
    // notes
    ctx.textAlign='left';ctx.font='26px '+F;
-   var ly=720;
+   var ly=752;
    wrap(ctx,T('unitNote')+' '+T('exampleNote'),600,byChar).forEach(function(l){ctx.fillText(l,75,ly);ly+=34});
    // signature
    ctx.textAlign='center';ctx.fillStyle=INK;ctx.font='bold 28px '+F;
-   ctx.fillText(T('brand')+' · play.mesisi.net',375,970);
+   ctx.fillText(T('signature'),375,970);
    if(!cv.toBlob){rej();return}
    cv.toBlob(function(b){b?res(b):rej()},'image/png');
   }catch(e){rej(e)}
@@ -474,6 +566,7 @@ function exportPng(s){
 
 /* ---- init ---- */
 applyLang();
+syncVisibility();
 update();
 if(demo){sel=0;openResult(false)}
 else show('edit');
