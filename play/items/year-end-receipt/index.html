@@ -520,7 +520,8 @@
     collected |= flag;
     if (isNew) store.set('stamps', collected);
     albumText.textContent = isNew ? `${T.newStamp} ${T.album(stampCount())}` : T.album(stampCount());
-    medals.replaceChildren(...stampTitles.map(([title, emoji], j) => {
+    medals.textContent = '';
+    stampTitles.forEach(([title, emoji], j) => {
       const mark = document.createElement('b');
       const unlocked = Boolean(collected & (1 << j));
       mark.className = j === i ? 'latest' : unlocked ? 'unlocked' : '';
@@ -528,8 +529,8 @@
       mark.title = unlocked ? title : T.lockedStamp;
       mark.setAttribute('role', 'img');
       mark.setAttribute('aria-label', mark.title);
-      return mark;
-    }));
+      medals.appendChild(mark);
+    });
     album.hidden = false;
   }
 
@@ -1049,7 +1050,7 @@
       parent.appendChild(el);
       return el;
     };
-    receiptText.replaceChildren();
+    receiptText.textContent = '';
     add('h2', T.receiptOf.replace('{y}', R.year));
     add('p', `${T.customer}: ${R.name}. No. ${R.no}. ${R.date}`);
     const lines = add('ul', '');
@@ -1077,8 +1078,8 @@
   function saveImage() {
     if (state !== 'result' || !L) return;
     try {
-      const sc = 750 / RW, pad = 40;
-      const w = Math.round(RW * sc) + pad * 2, h = Math.round(L.H * sc) + pad * 2;
+      const w = 750, pad = 40, sc = (w - pad * 2) / RW;
+      const h = Math.round(L.H * sc) + pad * 2;
       const cv = document.createElement('canvas');
       cv.width = w; cv.height = h;
       const c = cv.getContext('2d');

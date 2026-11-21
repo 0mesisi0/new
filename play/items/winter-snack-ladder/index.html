@@ -132,6 +132,14 @@ body.suspended *{animation-play-state:paused!important}
   footer,#act{gap:4px}
   #main.edit+footer #st{min-height:2.6em}
 }
+@media (orientation: landscape) and (max-height: 420px) {
+  #main.result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto minmax(min-content,1fr);gap:6px 10px}
+  .result .stage{grid-area:1 / 2 / 4 / 3}
+  #main.result #rh{justify-self:center;margin-bottom:-10px;text-align:center}
+  .result .tasting-card{align-self:start;flex-wrap:wrap}
+  .result+footer #act{grid-template-columns:2fr 1fr}
+  .result+footer #st:empty{display:none}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>

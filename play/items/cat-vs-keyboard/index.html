@@ -172,6 +172,19 @@
     .dispatch { padding-block: 5px 7px; }
     .time-track { margin-bottom: 5px; }
   }
+  @media (orientation: landscape) and (max-height: 420px) {
+    #app {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(48px, 1fr) auto;
+    }
+    #app > header, #app > footer { grid-column: 1 / -1; }
+    #stage { grid-area: 2 / 2 / 4 / 3; }
+    #illustration { position: absolute; inset: 0; }
+    .shelf { align-content: center; padding-inline: 6px; }
+    .bait kbd { left: 3px; }
+    #results { display: flex; overflow-y: auto; touch-action: pan-y; }
+    .receipt { margin: auto; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; }
     .action:active { transform: none; }
@@ -434,7 +447,7 @@ function unlockAudio() {
   const Audio = window.AudioContext || window.webkitAudioContext;
   if (!Audio) return;
   try {
-    audio ||= new Audio();
+    if (!audio) audio = new Audio();
     if (audio.state === "suspended") audio.resume().catch(() => {});
   } catch {}
 }
