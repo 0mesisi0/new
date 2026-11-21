@@ -1,0 +1,41 @@
+{
+  "id": "2026-11-22-year-end-date-picker",
+  "site": "play",
+  "slug": "year-end-date-picker",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T19:10:03.165Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-21T19:11:06.967Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-21T19:11:07.471Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T19:13:53.981Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ]
+}
