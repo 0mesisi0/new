@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-pending-2",
+  "site": "play",
+  "slug": "puffer-zip-challenge",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T22:36:21.599Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T22:38:42.126Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a one-thumb arcade or reaction mini game (kind game)"
+}
