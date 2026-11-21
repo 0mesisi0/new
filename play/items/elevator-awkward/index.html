@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>엘리베이터 눈치게임</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231b2537'/%3E%3Cpath d='M7 15l4-5 4 5m2 2l4 5 4-5' fill='none' stroke='%23ffdc75' stroke-width='3'/%3E%3C/svg%3E">
+<style>
+  :root {
+    font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --ink: #1b2537;
+    --wall: #d9e5dc;
+    --paper: #fff8e8;
+    --yellow: #ffdc75;
+    --red: #ac2839;
+    --mint: #a9dfc0;
+    color: var(--ink);
+    background: #283548;
+  }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+  body {
+    background: repeating-linear-gradient(115deg, #263245 0 1px, transparent 1px 9px), #283548;
+  }
+  [hidden] { display: none !important; }
+  button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+  button:focus-visible, textarea:focus-visible { outline: 3px solid #217568; outline-offset: 2px; }
+  #app {
+    position: relative; width: min(100%, 570px); height: 100dvh; margin: auto;
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+    background: var(--wall); overflow: hidden; touch-action: none; isolation: isolate;
+    box-shadow: 0 0 0 2px var(--ink), 0 0 52px #101929a3;
+  }
+  header {
+    z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    padding: 4px clamp(10px, 4vw, 22px); min-height: 52px;
+    background: var(--ink); color: var(--paper);
+  }
+  .plate { display: flex; align-items: center; gap: 7px; font-size: clamp(11px, 3vw, 14px); font-weight: 850; }
+  .plate svg { width: 29px; height: 29px; color: var(--yellow); flex: none; }
+  .header-buttons { display: flex; align-items: center; gap: 6px; }
+  .header-buttons button {
+    border: 1px solid #8992a2; border-radius: 6px; background: #2a364a;
+    min-width: 44px; min-height: 44px; padding: 4px 7px; font-size: 11px; font-weight: 800;
+  }
+  #mute svg { display: block; margin: auto; width: 21px; height: 21px; }
+  #mute[aria-pressed="true"] .waves { display: none; }
+  #mute[aria-pressed="false"] .slash { display: none; }
+  .cabin {
+    position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr);
+    padding: 0 10px; overflow: hidden;
+    border-inline: clamp(5px, 2.4vw, 13px) solid #617978;
+    background: linear-gradient(90deg, #e8eee5 0 12%, #adbfba 12.2% 12.7%, transparent 13% 49.7%,
+      #a4b9b7 49.8% 50.2%, transparent 50.3% 87%, #adbfba 87.3% 87.8%, #e8eee5 88%), var(--wall);
+  }
+  .cabin::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent 0 5px, #536d7310 5px 6px);
+  }
+  .intro { position: relative; z-index: 1; text-align: center; padding-top: clamp(9px, 3dvh, 29px); }
+  .intro p {
+    width: fit-content; margin: 0 auto 8px; padding: 3px 9px; background: var(--yellow);
+    border: 1.5px solid var(--ink); border-radius: 5px 3px 6px 3px; font-weight: 850;
+    font-size: clamp(10px, 2.8vw, 14px); transform: rotate(-2deg);
+  }
+  h1 {
+    margin: 0; font-weight: 1000; font-size: clamp(30px, 9vw, 58px);
+    letter-spacing: -.085em; line-height: .98; text-shadow: 2px 2px var(--paper);
+  }
+  h1 span { display: block; }
+  html:lang(en) h1 { font-style: italic; letter-spacing: -.07em; }
+  .scene { position: relative; grid-row: 2; min-height: 0; display: grid; place-items: center; container-type: size; }
+  .art { display: block; width: 100%; height: 100%; min-height: 0; overflow: visible; }
+  .floor-display {
+    position: absolute; left: 50%; top: 3%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 7px; min-width: 64px; justify-content: center; padding: 3px 8px;
+    border: 2px solid #101925; border-radius: 5px; background: var(--ink); color: var(--yellow);
+    box-shadow: 2px 3px #6e8784, inset 0 0 0 1px #536675; font: 850 clamp(14px, 3.5vh, 25px)/1.1 ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .floor-display svg { width: 11px; height: 13px; }
+  .balloon {
+    position: absolute; z-index: 1; max-width: 44%; padding: 5px 9px;
+    border: 1.5px solid var(--ink); border-radius: 12px 10px 10px 3px;
+    background: var(--paper); box-shadow: 2px 2px var(--ink); transform: rotate(-4deg);
+    font-size: clamp(10px, 2.9vw, 14px); font-weight: 820; line-height: 1.2; word-break: keep-all;
+  }
+  .balloon:empty { display: none; }
+  #left-line { left: 2%; bottom: min(75cqh, 61cqw); }
+  #right-line { right: 2%; bottom: min(82cqh, 67cqw); transform: rotate(4deg); border-radius: 10px 12px 3px 10px; }
+  #art .person { transform-box: fill-box; transform-origin: 50% 100%; }
+  #art .neighbor { animation: breathe 3.1s ease-in-out infinite; }
+  #art .boss { animation: breathe 3.7s -.8s ease-in-out infinite; }
+  #art .pupil { transition: transform .18s ease-out; }
+  #art[data-gaze="0"] .player .pupil, #art[data-neighbor="0"] .neighbor .pupil, #art[data-boss="0"] .boss .pupil { transform: translate(-3px, -2px); }
+  #art[data-gaze="1"] .player .pupil, #art[data-neighbor="1"] .neighbor .pupil, #art[data-boss="1"] .boss .pupil { transform: translate(1px, 3px); }
+  #art[data-gaze="2"] .player .pupil, #art[data-neighbor="2"] .neighbor .pupil, #art[data-boss="2"] .boss .pupil { transform: translate(3px, -4px); }
+  #art .blink { transform-box: fill-box; transform-origin: center; animation: blink 4.4s infinite; }
+  #art .neighbor .blink { animation-delay: -1.2s; }
+  #art .boss .blink { animation-delay: -2.7s; }
+  @keyframes breathe { 50% { transform: translateY(2px) scaleY(.984); } }
+  @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.12); } }
+  #art.hit .player { animation: flinch .32s ease-out; }
+  #art.safe .player { animation: relief .3s ease-out; }
+  #art .sweat { opacity: 0; }
+  #art.hit .sweat { opacity: 1; }
+  .cabin[data-feedback="hit"] { box-shadow: inset 0 0 0 5px #be4355; }
+  .cabin[data-feedback="safe"] { box-shadow: inset 0 0 0 5px #477a65; }
+  @keyframes flinch { 25% { transform: translateX(-5px) rotate(-4deg); } 55% { transform: translateX(4px) rotate(3deg); } }
+  @keyframes relief { 45% { transform: translateY(-5px) rotate(2deg); } }
+  .bottom {
+    position: relative; z-index: 1; display: grid; gap: 8px; text-align: center;
+    padding: clamp(9px, 2dvh, 16px) clamp(10px, 4vw, 22px) clamp(12px, 3dvh, 24px);
+    background: var(--paper); border-top: 3px solid var(--ink);
+    box-shadow: 0 -4px #617978;
+  }
+  .bottom p { margin: 0; line-height: 1.3; font-size: clamp(11px, 3.2vw, 15px); word-break: keep-all; }
+  .primary, .secondary {
+    min-height: 44px; padding: 7px 9px; border: 2px solid var(--ink); border-radius: 8px 6px 8px 6px;
+    box-shadow: 0 3px var(--ink); font-weight: 900; background: var(--yellow);
+  }
+  .secondary { background: var(--paper); }
+  .primary:active, .secondary:active { transform: translateY(2px); box-shadow: 0 1px var(--ink); }
+  .legend { display: flex; gap: 5px; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+  .legend i { width: 5px; height: 5px; border-radius: 50%; background: #687d7d; }
+  .hud {
+    position: relative; z-index: 1; display: grid; gap: 4px; padding: 8px 1px 0;
+    font-size: clamp(11px, 3vw, 14px); font-weight: 850;
+  }
+  .stats { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-variant-numeric: tabular-nums; }
+  meter { width: 100%; height: 11px; appearance: none; background: #f7f4e7; border: 1px solid var(--ink); border-radius: 4px; overflow: hidden; }
+  meter::-webkit-meter-bar { height: 100%; border: 0; border-radius: 0; background: #f7f4e7; }
+  meter::-webkit-meter-optimum-value { background: #54a383; }
+  meter::-webkit-meter-suboptimum-value { background: #d7973d; }
+  meter::-webkit-meter-even-less-good-value { background: var(--red); }
+  meter::-moz-meter-bar { background: #54a383; }
+  #feedback { min-height: 2.5em; display: grid; place-items: center; font-weight: 850; }
+  #play[data-tone="safe"] #feedback { color: #226348; }
+  #play[data-tone="hit"] #feedback { color: var(--red); }
+  .cue-track { height: 5px; overflow: hidden; border-radius: 2px; background: #dbd6cc; }
+  #cue-fill { width: 100%; height: 100%; background: var(--ink); transform-origin: left; }
+  .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .choice {
+    position: relative; min-width: 0; min-height: 60px; padding: 5px 2px;
+    display: grid; place-content: center; justify-items: center; gap: 2px;
+    background: #fffcf1; border: 2px solid var(--ink); border-radius: 7px 8px 6px 8px;
+    box-shadow: 0 3px var(--ink); font-size: clamp(11px, 3vw, 15px); font-weight: 850;
+  }
+  .choice svg { width: 23px; height: 23px; }
+  .choice[data-blocked="true"] { color: white; background: var(--red); }
+  .choice[aria-pressed="true"] { border-style: dashed; box-shadow: 0 2px var(--ink); }
+  .choice[aria-pressed="true"][data-blocked="false"] { background: var(--mint); }
+  .choice-mark { font-size: 9px; font-weight: 850; min-height: 12px; white-space: nowrap; }
+  .result-actions { display: grid; grid-template-columns: 1.25fr 1fr; gap: 7px; }
+  .result-grade { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  #grade {
+    display: grid; place-items: center; flex: none; width: 39px; height: 35px; border-radius: 5px;
+    color: var(--paper); background: var(--ink); font: 950 22px/1 ui-monospace, monospace; transform: rotate(-6deg);
+  }
+  #result-title { font-size: clamp(17px, 5.8vw, 28px); letter-spacing: -.05em; line-height: 1.05; margin: 0; word-break: keep-all; }
+  #result-stats { font-weight: 850; font-variant-numeric: tabular-nums; }
+  #share-text { width: 100%; min-height: 46px; resize: none; font: inherit; font-size: 12px; }
+  @media (max-height: 530px) {
+    .intro { padding-top: 8px; }
+    .intro p { margin-bottom: 4px; }
+    h1 { font-size: clamp(27px, 7vw, 38px); }
+    .bottom { gap: 5px; padding-block: 7px 9px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main id="app" data-state="intro">
+  <header>
+    <div class="plate">
+      <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="26" height="26" rx="4"/><path d="m6 14 4-5 4 5m2 2 4 5 4-5M10 9v11m10-10v11"/></svg>
+      <span data-copy="plate"></span>
+    </div>
+    <div class="header-buttons">
+      <button id="restart" type="button" data-copy="restart" hidden></button>
+      <button id="mute" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path class="waves" d="M16 9a4 4 0 0 1 0 6m2-8a7 7 0 0 1 0 10"/><path class="slash" d="m16 9 5 6m0-6-5 6"/></svg>
+      </button>
+    </div>
+  </header>
+  <section class="cabin">
+    <div id="intro" class="intro">
+      <p data-copy="poster"></p>
+      <h1><span data-copy="titleA"></span><span data-copy="titleB"></span></h1>
+    </div>
+    <div id="hud" class="hud" hidden>
+      <div class="stats"><span id="timer"></span><span id="score"></span></div>
+      <div class="stats"><span id="awkward-label" data-copy="awkward"></span><span id="awkward-value"></span></div>
+      <meter id="awkward-meter" min="0" max="100" low="45" high="75" optimum="0" value="32" aria-labelledby="awkward-label"></meter>
+    </div>
+    <div class="scene">
+      <div class="floor-display" aria-hidden="true">
+        <svg viewBox="0 0 11 13" fill="currentColor"><path d="M5.5 0 11 6H8v7H3V6H0z"/></svg><span id="floor">01</span>
+      </div>
+      <span id="left-line" class="balloon"></span>
+      <span id="right-line" class="balloon"></span>
+      <svg id="art" class="art" viewBox="0 0 420 342" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <defs>
+          <pattern id="texture" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M1 2h1m3 3h1" stroke="#1b2537" stroke-width="1" opacity=".16"/></pattern>
+        </defs>
+        <g fill="none" stroke="#617978" stroke-width="2" opacity=".75">
+          <path d="M0 246h420M0 255h420M70 255l-48 87m112-87-23 87m176-87 23 87m37-87 48 87M0 297h420"/>
+          <path d="M13 79h24v52H13z" fill="#f0f2dd"/><path d="M18 113h13m-13 5h10m-10 5h12"/>
+          <path d="M19 102c-3-8 4-15 7-20 4 5 10 12 6 20z" fill="#8faba4"/>
+          <path d="M384 132h23v68h-23z" fill="#b1c5bc"/><circle cx="395.5" cy="145" r="4" fill="#ffdc75"/><circle cx="395.5" cy="161" r="4"/><circle cx="395.5" cy="177" r="4"/>
+          <path d="m151 12 22-10h73l22 10-13 8h-91z" fill="#fff8e8"/>
+        </g>
+        <path d="M25 323q184-31 370 0l17 19H5z" fill="#647c77" opacity=".35"/>
+        <g stroke="#1b2537" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+          <g class="person boss">
+            <path d="M237 342q2-137 40-146l62-10q37 7 45 39l27 117z" fill="#516386"/>
+            <path d="M237 342q2-137 40-146l62-10q37 7 45 39l27 117z" fill="url(#texture)" stroke="none"/>
+            <path d="m288 184-10 21 29 89 38-100-17-20z" fill="#fff8e8"/>
+            <path d="m309 213-8 12 6 10-11 45 11 14 12-27-6-32 8-12z" fill="#e98578"/>
+            <path d="m278 199-13 38 19 8-7 16 28 31m40-98 14 33-18 11 7 14-33 34m46-45 11 101m-106-85-11 85" fill="none"/>
+            <path d="M281 156v39q16 18 43 1l7-49z" fill="#e6a279"/>
+            <path d="M263 99q5-35 48-35 37 0 47 36l-3 49q-8 40-45 42-39-2-44-37z" fill="#f7bf91"/>
+            <path d="M267 133q-13-4-13 7-1 14 14 18m85-27q13-4 12 8 0 12-12 16" fill="#f7bf91"/>
+            <path d="M263 134q-9-21-3-42 4-17 18-18l-5-10 17 4q24-16 54 3 22 12 14 60l-9-11-5-27q-24 8-50-6l-11 17-7 25z" fill="#273247"/>
+            <path d="M279 81q31-18 60 0m-28-11q17 1 26 6" fill="none" stroke="#a0a4a8" stroke-width="1.7"/>
+            <path d="m276 111 19-3m20-2 19 3" fill="none"/>
+            <g class="blink">
+              <path d="M274 120q10-4 23 0l-1 15q-9 5-19 0zm41 0q11-4 23 0l-2 14q-9 5-19 0z" fill="#fff8e8" stroke-width="2.1"/>
+              <path d="m297 124 19-1m22 0 13-3" fill="none" stroke-width="2"/>
+              <g class="pupil" fill="#1b2537" stroke="none"><ellipse cx="286" cy="128" rx="3.2" ry="4.6"/><ellipse cx="326" cy="127" rx="3.2" ry="4.6"/></g>
+            </g>
+            <path d="m303 128-3 15 8 2m-14 14q12 5 26 0" fill="none" stroke-width="2.4"/>
+            <path d="m362 269 22-6 11 42-22 7z" fill="#ffdc75"/><path d="m369 280 13-3m-11 9 9-2m-7 9 12-3" fill="none" stroke-width="1.7"/>
+          </g>
+          <g class="person neighbor">
+            <path d="M8 342q5-101 37-127l66-5q35 11 67 132z" fill="#e78973"/>
+            <path d="M8 342q5-101 37-127l66-5q35 11 67 132z" fill="url(#texture)" stroke="none"/>
+            <path d="m43 218 6 42-20 82m85-126-3 33 28 93" fill="none"/>
+            <path d="M58 195v30q13 18 40 1l6-31z" fill="#cd896b"/>
+            <path d="M40 145q-10-16 0-31-1-15 17-21 5-12 23-10 18-7 28 5 21 0 27 19 11 8 5 24l-8 36H44z" fill="#412f40"/>
+            <path d="M44 138q7 1 16-25 14 16 39 13l-2-9q15 12 30 14l1 37q-4 38-36 41-36 1-44-29z" fill="#eeb087"/>
+            <path d="M49 156q-17-8-15 8 1 10 15 12" fill="#eeb087"/>
+            <path d="M39 169q2 10-1 18 11 9 17-3" fill="none"/>
+            <path d="m61 140 12-4m25 1 12 4" fill="none" stroke-width="2.5"/>
+            <g class="blink">
+              <ellipse cx="69" cy="152" rx="8.5" ry="8" fill="#fff8e8" stroke-width="2"/>
+              <ellipse cx="104" cy="152" rx="8.5" ry="8" fill="#fff8e8" stroke-width="2"/>
+              <g class="pupil" fill="#1b2537" stroke="none"><ellipse cx="70" cy="152" rx="3" ry="4.3"/><ellipse cx="104" cy="152" rx="3" ry="4.3"/></g>
+            </g>
+            <path d="m88 150-5 14 6 2m-16 11q13 10 24-1" fill="none" stroke-width="2.4"/>
+            <path d="m55 165 8 3m51-3 5-2" stroke="#c56562" stroke-width="2"/>
+            <path d="M33 309q8-14 64-9l11 42H22z" fill="#ffdc75"/>
+            <path d="M48 310q-8-37 15-37 20 0 18 33" fill="none"/>
+            <path d="m42 318 15 8m20-8-12 15" fill="none" stroke-width="2"/>
+          </g>
+          <g class="person player">
+            <path d="M113 342q7-77 33-87l47-22 53 9q44 14 61 100z" fill="#ffdc75"/>
+            <path d="M113 342q7-77 33-87l47-22 53 9q44 14 61 100z" fill="url(#texture)" stroke="none"/>
+            <path d="M185 221v24q14 18 45-4l1-35z" fill="#d99a78"/>
+            <path d="M173 246q14 27 35 23 22 2 34-24m-92 40-18 57m134-52 16 52" fill="none"/>
+            <path d="M155 167q-5-49 46-50 50 0 50 45l-5 50q-11 33-47 34-36-3-43-41z" fill="#ffd4ab"/>
+            <path d="M156 201q-14-2-13-13 0-10 13-8m91-2q14-5 14 7 0 11-15 17" fill="#ffd4ab"/>
+            <path d="M155 180q-10-19 0-44l-10-6 15-3q-4-10 5-18l18 5q22-18 49-5 28 11 21 65l-11 7-7-31-18 8 4-12-32 12 5-12-23 12-7 24z" fill="#263345"/>
+            <path d="M172 129q30-17 57-10m-43 13 12-6" fill="none" stroke="#788b98" stroke-width="1.7"/>
+            <path d="m171 170 16-6m28 0 16 5" fill="none" stroke-width="2.3"/>
+            <g class="blink">
+              <ellipse cx="181" cy="183" rx="11" ry="10" fill="#fff8e8" stroke-width="2"/>
+              <ellipse cx="222" cy="182" rx="11" ry="10" fill="#fff8e8" stroke-width="2"/>
+              <g class="pupil" fill="#1b2537" stroke="none"><ellipse cx="181" cy="183" rx="3.5" ry="5"/><ellipse cx="222" cy="182" rx="3.5" ry="5"/></g>
+            </g>
+            <path d="m200 182-4 17 7 1" fill="none" stroke-width="2.2"/>
+            <path d="M189 217q10-10 23 0-13 6-23 0z" fill="#a94545" stroke-width="2"/>
+            <path d="m167 198 11 3m50-1 10-3" stroke="#e78973" stroke-width="2"/>
+            <path d="m197 292 36-7 10 51-37 6z" fill="#273247"/>
+            <path d="m203 298 25-5 6 32-25 5z" fill="#68817e"/><path d="m214 308 9-2m-7 7 5-1" stroke="#bcd2c9" stroke-width="1.5"/>
+            <path d="M178 330q6-22 25-19l10 19q-18 2-20 12h-21z" fill="#ffd4ab"/>
+            <path class="sweat" d="M266 164q8 11 5 16-4 6-9 0-3-4 4-16zm-123 43q-11 8-9 13 1 6 8 3 5-3 1-16z" fill="#97cfdd" stroke-width="2"/>
+          </g>
+          <path d="m107 109-7-12m16 8 2-14m140 4 8-9" fill="none" stroke="#ac2839" stroke-width="2.2"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+  <section id="start" class="bottom">
+    <p data-copy="how"></p>
+    <button id="start-button" type="button" class="primary" data-copy="start"></button>
+    <div class="legend"><span data-copy="duration"></span><i aria-hidden="true"></i><span id="start-best"></span></div>
+  </section>
+  <section id="play" class="bottom" hidden>
+    <p id="feedback" aria-live="polite"></p>
+    <div class="cue-track" aria-hidden="true"><div id="cue-fill"></div></div>
+    <div class="choices">
+      <button id="choice-0" type="button" class="choice" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="m5 12 3-3 3 3m-3-3v6m7-5h3v5m-3 0h3"/></svg>
+        <span data-copy="floor"></span><span class="choice-mark"></span>
+      </button>
+      <button id="choice-1" type="button" class="choice" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 5h4m-3 14h2m-2-9 3-2-1 7"/></svg>
+        <span data-copy="phone"></span><span class="choice-mark"></span>
+      </button>
+      <button id="choice-2" type="button" class="choice" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 8 5-4h10l5 4-5 4H7zm4 8-2 2m8-3v5m6-4 2 2"/></svg>
+        <span data-copy="ceiling"></span><span class="choice-mark"></span>
+      </button>
+    </div>
+  </section>
+  <section id="result" class="bottom" hidden>
+    <div class="result-grade"><span id="grade"></span><h2 id="result-title"></h2></div>
+    <p id="result-stats"></p>
+    <p id="result-line"></p>
+    <textarea id="share-text" readonly hidden></textarea>
+    <div class="result-actions">
+      <button id="retry" type="button" class="primary" data-copy="retry"></button>
+      <button id="share" type="button" class="secondary" data-copy="share"></button>
+    </div>
+  </section>
+</main>
+<script>
+  const copy = {
+    ko: {
+      plate: '하루한판 아파트', poster: '부장님이 탔다. 옆집도 탔다.',
+      titleA: '엘리베이터', titleB: '눈치게임',
+      how: '빨간 표시가 뜨면 아무도 안 보는 다른 곳을 눌러요.',
+      start: '탑승하기 ↑', duration: '한 판 42초', restart: '처음부터', retry: '다시 탑승 ↑',
+      share: '결과 공유', copied: '복사했어요!', shareField: '복사할 결과',
+      mute: '소리 끄기', unmute: '소리 켜기', awkward: '어색함',
+      floor: '층 숫자', phone: '꺼진 폰', ceiling: '천장',
+      watched: '보는 중!', yours: '내 시선',
+      ready: '곧 출발합니다. 다들 안 친한 척 준비.',
+      cue: '지금! 빨간 곳을 피해 시선 바꾸기',
+      double: '둘 다 쳐다본다! 빈 곳은 딱 하나.',
+      resultLeft: '저… 여기 사세요?', resultRight: '내일 봅시다.',
+      introLeft: '아… 분리수거요?', introRight: '한 줄만 보고해요.',
+      safe: ['층수에 이렇게 몰입할 줄이야.', '꺼진 폰에 급한 척 성공.', '천장 마감이 참 꼼꼼하네요.'],
+      hit: ['눈 마주침! 입이 먼저 “네?”', '시선이 겹쳤다. 핸드폰 비번까지 까먹음.'],
+      same: '거기 아까도 봤잖아요. 시선 이동!',
+      late: '너무 늦었다. 날씨 얘기가 나왔다.',
+      neighbors: ['오늘 종량제죠?', '이사 오셨어요?', '배달 오셨어요?', '몇 층 사세요?'],
+      bosses: ['오늘 칼퇴예요?', '잠깐 시간 돼요?', '메일 보셨어요?', '점심은 먹었죠?'],
+      titles: ['눈치 대리에서 과장으로', '꺼진 폰 감정사', '날씨 얘기 수습사원', '눈 마주침 정규직'],
+      endings: ['부장님이 먼저 시선을 피했습니다.', '액정은 꺼졌지만 눈치는 켜져 있었어요.', '결국 “요즘 춥죠?”를 두 번 말했어요.', '다음부터 계단으로 출근합니다.'],
+      score: n => `점수 ${n}`, best: n => `최고 ${n}`, time: n => `${n}초 남음`
+    },
+    en: {
+      plate: 'Daily Toybox Apartments', poster: 'Your boss got in. So did your neighbor.',
+      titleA: 'Awkward', titleB: 'Elevator',
+      how: 'When red markers appear, tap a different spot nobody is watching.',
+      start: 'Step inside ↑', duration: '42-second ride', restart: 'Restart', retry: 'Ride again ↑',
+      share: 'Share result', copied: 'Copied!', shareField: 'Result to copy',
+      mute: 'Mute sound', unmute: 'Unmute sound', awkward: 'Awkwardness',
+      floor: 'Floor display', phone: 'Dead phone', ceiling: 'Ceiling',
+      watched: 'Watched!', yours: 'Your gaze',
+      ready: 'Going up. Everybody pretend to be strangers.',
+      cue: 'Now! Look somewhere away from red.',
+      double: 'Both are looking! Only one spot is safe.',
+      resultLeft: 'So… you live here?', resultRight: 'See you tomorrow.',
+      introLeft: 'Uh… recycling day?', introRight: 'Quick status update?',
+      safe: ['Never been this invested in a number.', 'Dead phone. Very urgent email.', 'Wow. They really finished that ceiling.'],
+      hit: ['Eye contact! You said “Yep?” out loud.', 'Eye contact. There goes your phone PIN.'],
+      same: 'You were already staring there. Look away!',
+      late: 'Too late. Somebody brought up the weather.',
+      neighbors: ['Is it trash day?', 'Just moved in?', 'Are you delivering?', 'What floor are you on?'],
+      bosses: ['Leaving on time?', 'Got a quick sec?', 'Saw my email?', 'You had lunch, right?'],
+      titles: ['Promoted to Glance Manager', 'Certified Dead Phone Inspector', 'Small Talk Intern', 'Full-Time Eye Contact'],
+      endings: ['Your boss looked away first.', 'Your screen was off. Your survival instincts were on.', 'You said “Cold out, huh?” twice.', 'Tomorrow, you take the stairs.'],
+      score: n => `Score ${n}`, best: n => `Best ${n}`, time: n => `${n}s left`
+    }
+  };
+  const langParam = new URLSearchParams(location.search).get('lang');
+  const lang = ['ko', 'en'].includes(langParam) ? langParam : navigator.language.startsWith('ko') ? 'ko' : 'en';
+  const t = copy[lang];
+  document.documentElement.lang = lang;
+  document.title = `${t.titleA} ${t.titleB}`;
+  for (const element of document.querySelectorAll('[data-copy]')) element.textContent = t[element.dataset.copy];
+
+  const byId = id => document.getElementById(id);
+  const app = byId('app');
+  const art = byId('art');
+  const play = byId('play');
+  const result = byId('result');
+  const mute = byId('mute');
+  const restart = byId('restart');
+  const share = byId('share');
+  const shareText = byId('share-text');
+  const cabin = document.querySelector('.cabin');
+  const choices = [...document.querySelectorAll('.choice')];
+  const marks = choices.map(button => button.querySelector('.choice-mark'));
+  const spots = [0, 1, 2];
+  const rideLength = 42;
+  const stages = [
+    { interval: 2.45, window: 1.85 },
+    { interval: 1.97, window: 1.40 },
+    { interval: 1.44, window: 1.01 }
+  ];
+  const storageKey = 'daily-toybox:elevator-awkward:';
+  function read(key) {
+    try { return localStorage.getItem(storageKey + key); } catch { return null; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(storageKey + key, String(value)); } catch { /* Private storage may be blocked. */ }
+  }
+
+  let best = Number(read('best')) || 0;
+  let muted = read('muted') === 'true';
+  let audio;
+  let game;
+  let frame = 0;
+  let previous = 0;
+  let lastSecond;
+  let shareRun = 0;
+  let shareResult = '';
+  byId('start-best').textContent = t.best(best);
+  shareText.setAttribute('aria-label', t.shareField);
+
+  function updateMute() {
+    const label = muted ? t.unmute : t.mute;
+    mute.setAttribute('aria-pressed', String(muted));
+    mute.setAttribute('aria-label', label);
+    mute.title = label;
+  }
+  updateMute();
+
+  function unlockAudio() {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (muted || !Audio) return;
+    try {
+      audio ??= new Audio();
+      if (audio.state === 'suspended') audio.resume().catch(() => {});
+    } catch { /* The game can still be played silently. */ }
+  }
+  function sound(name) {
+    if (muted || audio?.state !== 'running' || document.hidden) return;
+    const notes = {
+      cue: [535], double: [535, 638], safe: [660, 880], hit: [182, 121], doors: [588, 784]
+    };
+    const now = audio.currentTime;
+    for (const [index, pitch] of notes[name].entries()) {
+      const when = now + index * .075;
+      const oscillator = audio.createOscillator();
+      const volume = audio.createGain();
+      oscillator.type = name === 'hit' ? 'triangle' : 'sine';
+      oscillator.frequency.value = pitch;
+      volume.gain.setValueAtTime(.001, when);
+      volume.gain.exponentialRampToValueAtTime(.075, when + .012);
+      volume.gain.exponentialRampToValueAtTime(.001, when + .15);
+      oscillator.connect(volume).connect(audio.destination);
+      oscillator.start(when);
+      oscillator.stop(when + .16);
+    }
+  }
+  mute.addEventListener('click', () => {
+    muted = !muted;
+    save('muted', muted);
+    updateMute();
+    if (muted && audio) audio.suspend().catch(() => {});
+    if (!muted) unlockAudio();
+  });
+
+  function setScreen(state) {
+    app.dataset.state = state;
+    byId('intro').hidden = state !== 'intro';
+    byId('start').hidden = state !== 'intro';
+    byId('hud').hidden = state !== 'play';
+    play.hidden = state !== 'play';
+    restart.hidden = state !== 'play';
+    result.hidden = state !== 'result';
+  }
+  function setLines(left, right) {
+    byId('left-line').textContent = left;
+    byId('right-line').textContent = right;
+  }
+  setLines(t.introLeft, t.introRight);
+  art.dataset.gaze = 1;
+  art.dataset.neighbor = 2;
+  art.dataset.boss = 0;
+
+  function say(line, tone = '') {
+    byId('feedback').textContent = line;
+    play.dataset.tone = tone;
+    cabin.dataset.feedback = tone;
+    art.setAttribute('class', `art ${tone}`);
+  }
+  function updateChoices() {
+    for (const [index, button] of choices.entries()) {
+      const watched = game.blocked.includes(index);
+      const selected = index === game.gaze;
+      button.dataset.blocked = String(watched);
+      button.setAttribute('aria-pressed', String(selected));
+      marks[index].textContent = watched ? t.watched : selected ? t.yours : '';
+    }
+    art.dataset.gaze = game.gaze;
+  }
+  function updateStats() {
+    byId('score').textContent = t.score(game.score);
+    byId('awkward-value').textContent = `${game.awkward}%`;
+    byId('awkward-meter').value = game.awkward;
+  }
+  function updateClock() {
+    const second = Math.min(rideLength, Math.floor(game.elapsed));
+    if (second === lastSecond) return;
+    lastSecond = second;
+    byId('timer').textContent = t.time(rideLength - second);
+    byId('floor').textContent = String(1 + Math.floor(second / 2)).padStart(2, '0');
+  }
+
+  function startRound() {
+    unlockAudio();
+    cancelAnimationFrame(frame);
+    shareRun++;
+    shareText.hidden = true;
+    share.textContent = t.share;
+    game = {
+      elapsed: 0, next: 1, started: 0, deadline: 0, pending: false, blocked: [],
+      gaze: 1, awkward: 32, score: 0, hits: 0, streak: 0, beats: 0
+    };
+    previous = 0;
+    lastSecond = -1;
+    setScreen('play');
+    setLines(t.introLeft, t.introRight);
+    art.dataset.neighbor = 2;
+    art.dataset.boss = 0;
+    say(t.ready);
+    byId('cue-fill').style.transform = 'scaleX(0)';
+    updateStats();
+    updateClock();
+    updateChoices();
+    choices[0].focus({ preventScroll: true });
+    if (!document.hidden) frame = requestAnimationFrame(tick);
+  }
+
+  function nextCue() {
+    const level = Math.min(2, Math.floor(game.elapsed / 14));
+    const stage = stages[level];
+    game.beats++;
+    const both = level === 2 || (level === 1 && game.beats % 3 === 0);
+    const neighborActive = both || game.beats % 2 === 1;
+    const bossActive = both || !neighborActive;
+    const otherSpots = spots.filter(spot => spot !== game.gaze);
+    const neighborSpot = both ? game.gaze : Math.floor(Math.random() * spots.length);
+    const bossSpot = both ? otherSpots[Math.floor(Math.random() * otherSpots.length)] : neighborSpot;
+    game.blocked = [];
+    if (neighborActive) game.blocked.push(neighborSpot);
+    if (bossActive) game.blocked.push(bossSpot);
+    game.pending = true;
+    game.started = game.elapsed;
+    game.deadline = Math.min(rideLength, game.elapsed + stage.window);
+    game.next = game.elapsed + stage.interval;
+    art.dataset.neighbor = neighborActive ? neighborSpot : '';
+    art.dataset.boss = bossActive ? bossSpot : '';
+    const line = Math.floor((game.beats - 1) / 2);
+    setLines(neighborActive ? t.neighbors[line % t.neighbors.length] : '', bossActive ? t.bosses[line % t.bosses.length] : '');
+    say(both ? t.double : t.cue);
+    updateChoices();
+    sound(both ? 'double' : 'cue');
+  }
+
+  function resolve(line, safe, reaction = 0) {
+    game.pending = false;
+    if (safe) {
+      game.hits++;
+      game.streak++;
+      const points = 100 + Math.round(50 * reaction) + 10 * Math.min(5, game.streak - 1);
+      game.score += points;
+      game.awkward = Math.max(0, game.awkward - 9);
+      say(`+${points} · ${line}`, 'safe');
+      sound('safe');
+    } else {
+      game.streak = 0;
+      game.awkward = Math.min(100, game.awkward + 13);
+      say(line, 'hit');
+      sound('hit');
+    }
+    game.blocked = [];
+    updateChoices();
+    updateStats();
+  }
+
+  function choose(spot) {
+    if (app.dataset.state !== 'play' || !game.pending || document.hidden) return;
+    unlockAudio();
+    const watched = game.blocked.includes(spot);
+    const same = game.gaze === spot;
+    game.gaze = spot;
+    if (watched) resolve(t.hit[game.beats % t.hit.length], false);
+    else if (same) resolve(t.same, false);
+    else resolve(t.safe[spot], true, (game.deadline - game.elapsed) / (game.deadline - game.started));
+  }
+
+  function tick(now) {
+    if (previous) game.elapsed = Math.min(rideLength, game.elapsed + Math.min(.05, (now - previous) / 1000));
+    previous = now;
+    updateClock();
+    if (game.pending && game.elapsed >= game.deadline) resolve(t.late, false);
+    if (game.elapsed >= rideLength) {
+      finishRound();
+      return;
+    }
+    if (game.elapsed >= game.next && rideLength - game.elapsed >= .75) nextCue();
+    const left = game.pending ? (game.deadline - game.elapsed) / (game.deadline - game.started) : 0;
+    byId('cue-fill').style.transform = `scaleX(${left})`;
+    frame = requestAnimationFrame(tick);
+  }
+
+  function finishRound() {
+    if (game.score > best) {
+      best = game.score;
+      save('best', best);
+    }
+    const rate = game.hits / game.beats;
+    const rank = rate >= .90 && game.awkward <= 20 ? 0 : rate >= .70 ? 1 : rate >= .40 ? 2 : 3;
+    const grade = ['S', 'A', 'B', 'C'][rank];
+    const stats = `${t.score(game.score)} · ${t.best(best)} · ${t.awkward} ${game.awkward}%`;
+    byId('grade').textContent = grade;
+    byId('result-title').textContent = t.titles[rank];
+    byId('result-stats').textContent = stats;
+    byId('result-line').textContent = t.endings[rank];
+    const publicPage = location.protocol === 'file:' ? location.href : `${location.origin}/${lang}/elevator-awkward/`;
+    shareResult = `${document.title} [${grade}] ${t.titles[rank]}\n${stats}\n${publicPage}`;
+    cabin.dataset.feedback = '';
+    art.setAttribute('class', 'art');
+    setLines(t.resultLeft, t.resultRight);
+    setScreen('result');
+    byId('retry').focus({ preventScroll: true });
+    sound('doors');
+  }
+
+  share.addEventListener('click', async () => {
+    const run = ++shareRun;
+    try {
+      await navigator.clipboard.writeText(shareResult);
+      if (run !== shareRun) return;
+      share.textContent = t.copied;
+      shareText.hidden = true;
+    } catch {
+      if (run !== shareRun) return;
+      shareText.value = shareResult;
+      shareText.hidden = false;
+      shareText.focus({ preventScroll: true });
+      shareText.select();
+    }
+  });
+
+  for (const [spot, button] of choices.entries()) {
+    button.addEventListener('pointerup', event => {
+      if (event.button !== 0 || !event.isPrimary) return;
+      const bounds = button.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) return;
+      event.preventDefault();
+      choose(spot);
+    });
+    button.addEventListener('click', event => { if (event.detail === 0) choose(spot); });
+  }
+  for (const id of ['start-button', 'restart', 'retry']) byId(id).addEventListener('click', startRound);
+  const keys = { '1': 0, '2': 1, '3': 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2, ArrowUp: 2 };
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.target === shareText) return;
+    const state = app.dataset.state;
+    if (state === 'play' && Object.hasOwn(keys, event.key)) {
+      event.preventDefault();
+      if (!event.repeat) choose(keys[event.key]);
+    } else if (event.key.toLowerCase() === 'r' && state !== 'intro') {
+      event.preventDefault();
+      if (!event.repeat) startRound();
+    } else if ((event.key === 'Enter' || event.code === 'Space') && !event.target.closest('button') && state !== 'play') {
+      event.preventDefault();
+      if (!event.repeat) startRound();
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (app.dataset.state !== 'play') return;
+    cancelAnimationFrame(frame);
+    previous = 0;
+    if (!document.hidden) frame = requestAnimationFrame(tick);
+  });
+</script>
+</body>
+</html>
