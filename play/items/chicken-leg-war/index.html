@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f9bf50">
+<title></title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f9bf50'/%3E%3Cpath d='M12 20 7 25m0-4c-7 0-5 9 0 6 4 4 9-2 5-5' fill='%23fff4d7' stroke='%23341d30' stroke-width='2'/%3E%3Cpath d='M10 20c0-2 2-4 3-8 2-8 12-9 15-2 4 9-6 13-11 12-3 0-5 2-7-2Z' fill='%23e47a3b' stroke='%23341d30' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+  :root {
+    color: #341d30;
+    font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --ink: #341d30;
+    --paper: #fff4d7;
+    --gold: #f9bf50;
+    --pink: #f6a39d;
+    --green: #bce1a3;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+  body { background: repeating-linear-gradient(135deg, #321d33 0 10px, #3c243c 10px 12px); }
+  [hidden] { display: none !important; }
+  h1, h2, p { margin: 0; }
+  button, textarea { color: inherit; font: inherit; }
+  button {
+    min-width: 44px; min-height: 44px; border: 2px solid var(--ink);
+    border-radius: 10px 8px 11px 7px; background: var(--paper);
+    touch-action: manipulation; cursor: pointer; font-weight: 900;
+  }
+  button:focus-visible, textarea:focus-visible { outline: 3px solid #773c85; outline-offset: 2px; }
+  #app {
+    width: min(100%, 550px); height: 100vh; height: 100dvh; margin: auto;
+    display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto;
+    background: var(--gold); box-shadow: 0 0 55px #1e1025ab;
+    isolation: isolate;
+  }
+  header {
+    min-height: 50px; display: flex; justify-content: space-between; align-items: center;
+    gap: 6px; padding: 3px clamp(10px, 4vw, 22px);
+    background: var(--paper); border-bottom: 2px solid var(--ink);
+  }
+  .brand { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 900; }
+  .brand svg { width: 26px; height: 26px; }
+  .tools { display: flex; gap: 5px; }
+  .tools button { padding: 0 8px; font-size: 12px; }
+  #mute svg { width: 22px; height: 22px; display: block; }
+  #mute[aria-pressed="true"] .waves, #mute[aria-pressed="false"] .slash { display: none; }
+  .heading { padding: 9px 14px 4px; text-align: center; }
+  #premise { font-size: clamp(12px, 3.8vw, 17px); font-weight: 850; }
+  h1 {
+    font-size: clamp(29px, 10vw, 59px); line-height: 1.03; font-weight: 1000;
+    letter-spacing: -.075em; text-shadow: 2px 2px var(--paper);
+  }
+  html:lang(en) h1 { font-style: italic; letter-spacing: -.075em; }
+  #hud { padding: 8px clamp(12px, 4vw, 24px) 4px; }
+  .numbers { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; font-size: 12px; font-weight: 850; }
+  .numbers strong { font-size: clamp(17px, 5.2vw, 25px); font-variant-numeric: tabular-nums; }
+  .track { height: 8px; margin-top: 4px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--paper); overflow: hidden; }
+  #time-bar { height: 100%; background: var(--ink); transform-origin: left; }
+  #stage { position: relative; display: grid; place-items: center; min-height: 0; min-width: 0; overflow: hidden; }
+  #art { width: 100%; height: 100%; min-height: 0; display: block; }
+  .stage-line {
+    position: absolute; top: 3%; left: 50%; transform: translateX(-50%); width: max-content;
+    max-width: 94%; padding: 5px 10px; border: 2px solid var(--ink);
+    border-radius: 13px 11px 11px 3px; background: var(--paper); box-shadow: 2px 3px var(--ink);
+    text-align: center; font-size: clamp(12px, 3.5vw, 16px); line-height: 1.2; font-weight: 900;
+    pointer-events: none;
+  }
+  .stage-line:empty { display: none; }
+  #stage[data-phase="strike"] .stage-line { background: var(--green); }
+  #stage[data-phase="mash"] .stage-line, #stage[data-phase="miss"] .stage-line { background: var(--pink); }
+  .face { animation: bob 3.2s ease-in-out infinite; }
+  .dad .face { animation-delay: -.8s; }
+  .sib .face { animation-delay: -1.7s; }
+  .blink { animation: blink 4.7s linear infinite; }
+  .mom .blink { animation-delay: -1.5s; }
+  .sib .blink { animation-delay: -3s; }
+  @keyframes bob { 50% { transform: translateY(3px); } }
+  @keyframes blink { 0%, 94%, 100% { opacity: 1; } 96%, 98% { opacity: 0; } }
+  .look, .reach, .burst, .gone, .marker { display: none; }
+  #stage[data-person="dad"] .dad .look,
+  #stage[data-person="mom"] .mom .look,
+  #stage[data-person="sib"] .sib .look { display: inline; }
+  #stage[data-person="dad"] .dad .calm,
+  #stage[data-person="mom"] .mom .calm,
+  #stage[data-person="sib"] .sib .calm { display: none; }
+  #stage[data-person="dad"] .reach.dad,
+  #stage[data-person="mom"] .reach.mom,
+  #stage[data-person="sib"] .reach.sib { display: inline; }
+  .reach path { transition: transform .17s ease-out; }
+  #stage[data-phase="windup"] .reach.dad path,
+  #stage[data-phase="swat"] .reach.dad path { transform: translate(-36px, -22px); }
+  #stage[data-phase="windup"] .reach.mom path,
+  #stage[data-phase="swat"] .reach.mom path { transform: translateY(-30px); }
+  #stage[data-phase="windup"] .reach.sib path,
+  #stage[data-phase="swat"] .reach.sib path { transform: translate(34px, -23px); }
+  #stage[data-phase="miss"] #my-leg { opacity: 0; }
+  #stage[data-phase="miss"] .gone, #stage[data-phase="swat"] .burst,
+  #stage[data-phase="strike"] .marker, #stage[data-phase="mash"] .marker { display: inline; }
+  .burst { transform-origin: 167px 257px; animation: impact .25s ease-out; }
+  @keyframes impact { 0% { opacity: .35; transform: rotate(-13deg) translateY(7px); } }
+  .bottom {
+    min-width: 0; padding: 9px clamp(12px, 4vw, 23px) 13px; border-top: 2px solid var(--ink);
+    text-align: center; background: var(--paper);
+  }
+  .bottom p { font-size: clamp(12px, 3.6vw, 16px); font-weight: 750; line-height: 1.25; }
+  .primary {
+    width: 100%; min-height: 52px; margin-top: 7px; padding: 5px 9px;
+    background: var(--gold); box-shadow: 0 4px var(--ink);
+    font-size: clamp(16px, 5vw, 24px); line-height: 1.08;
+  }
+  .primary:active { transform: translateY(3px); box-shadow: 0 1px var(--ink); }
+  #action { touch-action: none; user-select: none; min-height: 58px; }
+  #action[data-phase="strike"] { background: var(--green); }
+  #action[data-phase="mash"] { background: var(--pink); }
+  #action small { display: block; margin-top: 3px; font-size: 11px; }
+  #cue { min-height: 2.5em; display: grid; place-items: center; }
+  #result h2 { font-size: clamp(20px, 6vw, 34px); line-height: 1.05; letter-spacing: -.05em; }
+  #record { margin: 5px 0 3px; font-weight: 900; }
+  .result-actions { display: grid; grid-template-columns: 1.1fr 1fr; align-items: stretch; gap: 7px; margin-top: 7px; }
+  .result-actions button { padding: 5px; min-height: 46px; margin: 0; }
+  #share { background: var(--green); }
+  #share-text { width: 100%; min-height: 44px; height: 58px; margin-top: 9px; resize: none; padding: 4px; background: #fffdf4; font-size: 12px; }
+  @media (max-height: 510px) and (orientation: portrait) {
+    .heading { padding-top: 5px; }
+    .bottom { padding-block: 6px 10px; }
+  }
+  @media (max-height: 440px) and (orientation: landscape) {
+    html, body { overflow: auto; }
+    #app {
+      width: min(100%, 760px); height: auto; min-height: 100vh; min-height: 100dvh;
+      grid-template-columns: minmax(0, 1fr) minmax(175px, .83fr);
+      grid-template-rows: auto auto minmax(0, 1fr);
+    }
+    header { grid-column: 1 / -1; }
+    .heading, #hud { grid-column: 2; grid-row: 2; }
+    h1 { font-size: clamp(24px, 6vw, 38px); }
+    #premise { font-size: 12px; }
+    #stage { grid-column: 1; grid-row: 2 / 4; min-height: 237px; }
+    .bottom { grid-column: 2; grid-row: 3; align-self: end; border-left: 2px solid var(--ink); }
+    .bottom p { font-size: 12px; }
+    .primary { font-size: 17px; }
+    .stage-line { font-size: 11px; }
+    #app[data-mode="result"] .heading { display: none; }
+    #app[data-mode="result"] .bottom { align-self: center; }
+    #result h2 { font-size: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .primary:active { transform: none; }
+  }
+</style>
+</head>
+<body>
+<main id="app">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 12 16 6l13 6v11l-13 5L3 23Zm0 0 13 5 13-5m-13 5v11" fill="#f9bf50" stroke="#341d30" stroke-width="2" stroke-linejoin="round"/><path d="m10 11 6-2 6 2-6 3Z" fill="#d66a70"/></svg>
+      <span data-text="brand"></span>
+    </div>
+    <div class="tools">
+      <button type="button" id="reset" data-text="reset" hidden></button>
+      <button type="button" id="mute" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9h4l5-4v14l-5-4H3z"/><path class="waves" d="M16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="slash" d="m16 9 6 6m0-6-6 6"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+  <div class="heading" id="heading">
+    <p id="premise" data-text="premise"></p>
+    <h1 data-text="title"></h1>
+  </div>
+  <div id="hud" hidden>
+    <div class="numbers">
+      <span><span data-text="score"></span> <strong id="score">0</strong></span>
+      <span><span data-text="best"></span> <strong id="best">0</strong></span>
+      <span><strong id="seconds">42</strong><span data-text="seconds"></span></span>
+    </div>
+    <div class="track" aria-hidden="true"><div id="time-bar"></div></div>
+  </div>
+  <div id="stage">
+    <svg id="art" viewBox="0 0 400 384" aria-hidden="true">
+      <defs>
+        <pattern id="dots" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#ad5d58" opacity=".38"/></pattern>
+        <pattern id="cloth" width="42" height="42" patternUnits="userSpaceOnUse">
+          <path d="M0 0h42v21H0zM0 21h21v21H0z" fill="#db7e84" opacity=".43"/>
+          <path d="M0 0h21v21H0z" fill="#a44864" opacity=".32"/>
+        </pattern>
+        <g id="leg" stroke="#341d30" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M-1 22c-3 6-6 11-10 14-10-5-15 8-6 12 1 10 16 9 16-2l12-13Z" fill="#fff4d7"/>
+          <path d="M-5 25c-4-7 3-14 4-21 1-16 14-30 31-27C50-21 56-2 46 13c-9 14-22 12-33 19-6 4-15 1-18-7Z" fill="#e77e3d"/>
+          <path d="M1 25c10 4 15-5 27-6 11-1 17-9 20-15-4 15-13 19-23 22-7 2-12 8-17 7-4-1-6-4-7-8Z" fill="#bb5140" stroke="none"/>
+          <path d="m10 5 3-4m4-10 4-2m6 16 3-2m5-13 3 2M17 17l4-2m18-4 3-4" stroke="#8d423b" stroke-width="2.4"/>
+          <path d="M9-2q5-12 12-13m4-1 2-1" fill="none" stroke="#ffc665" stroke-width="4"/>
+        </g>
+      </defs>
+      <path d="M18 177Q7 85 69 49q65-45 119-19 74-35 137 17 60 30 58 130Z" fill="#ffdc81"/>
+      <path d="M18 177Q7 85 69 49q65-45 119-19 74-35 137 17 60 30 58 130Z" fill="url(#dots)"/>
+      <g fill="none" stroke="#8b4a4c" stroke-width="3" stroke-linecap="round">
+        <path d="m24 88 10 6m-3-21 9 12m306-23-7 12m24-5-12 12M131 46l-6-10m144 8 8-12"/>
+      </g>
+      <g stroke="#341d30" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+        <g class="dad">
+          <path d="M22 185q-8-41 35-52l40 1q38 9 33 52Z" fill="#8caf82"/>
+          <path d="m55 142 12 16 11-9 11 9 10-15M38 161l-1 18m71-18 4 19" fill="none"/>
+          <g transform="translate(77 100)"><g class="face">
+            <path d="M-37 2q-14-9-13 6 1 10 14 10m69-17q15-8 14 6-1 10-14 11" fill="#ebb18a"/>
+            <path d="M-35-20q12-22 40-19 29 3 32 28l-2 31q-3 26-32 29-33-1-38-30Z" fill="#fac5a0"/>
+            <path d="M-38 3q-9-26 7-38 18-17 46-9 19 3 24 23-18 2-36-8-8 15-28 13l-5 22Z" fill="#4c3046"/>
+            <path d="M-28 0h22v16h-22zm32 0h22v16H4ZM-5 7h8" fill="none"/>
+            <path class="blink" d="M-14 7v3m29-3v3" stroke-width="4.7"/>
+            <path d="m-1 11-3 8 5 1m-14 8 3-2m17 1 4 2" fill="none" stroke-width="2"/>
+            <path class="calm" d="M-6 31q7-3 14-1" fill="none"/>
+            <path class="look" d="M-9 29q13-4 21 0l-3 8H-6Z" fill="#fff4d7"/>
+          </g></g>
+        </g>
+        <g class="mom">
+          <path d="M137 185q-1-43 41-57h40q43 14 45 57Z" fill="#dc777b"/>
+          <path d="m171 134 6 14h41l7-14m-53 38 5-24m43 24-2-24m-32 14q11 8 24 0" fill="none"/>
+          <g transform="translate(199 89)"><g class="face">
+            <path d="M-32 20q-27 5-26-17-12-14 2-25-2-21 20-25 14-15 36-8 24-9 36 8 23 3 22 22 15 13 2 30-2 23-26 17Z" fill="#654055"/>
+            <path d="M-37-15q18 0 39-19 12 18 35 18l1 31q-4 30-38 31-32-1-37-30Z" fill="#f8c29e"/>
+            <path d="m-29-2 13 4m30 0 13-5" fill="none"/>
+            <path class="blink" d="m-18 10 7 1m22 0 7-2" stroke-width="4.8"/>
+            <path d="m1 12-3 8 6 2" fill="none" stroke-width="2"/>
+            <path d="M-28 19h7m42 0h7" stroke="#d77e79"/>
+            <path class="calm" d="M-8 30q8 7 17 0" fill="none"/>
+            <path class="look" d="M-12 28q10-4 24 0-2 11-12 11-8 0-12-11Z" fill="#663347"/>
+          </g></g>
+        </g>
+        <g class="sib">
+          <path d="M273 186q-5-44 35-56h40q40 13 34 56Z" fill="#a995d0"/>
+          <path d="M298 145q27 29 60-2m-52 17-3 15m39-16 5 16" fill="none"/>
+          <g transform="translate(326 104)"><g class="face">
+            <path d="M-36-3q-11-6-12 6-1 11 12 14m71-18q15-7 14 8-2 8-15 11" fill="#e5a483"/>
+            <path d="M-35-26q25-25 53-9 22 9 22 37l-5 19q-9 24-36 24-29-1-34-25Z" fill="#eeb38e"/>
+            <path d="M-36 5q-17-24 0-37 13-16 39-14 21-5 36 12 11 13 0 40l-8-14-8-15-6 11-7-11-17 12 3-11q-11 15-28 18Z" fill="#39293f"/>
+            <path d="m-25-1 12-3m21 0 13 4" fill="none"/>
+            <path class="blink" d="M-16 8v4m29-3v4" stroke-width="5.2"/>
+            <path d="m-1 12-3 7 6 1m-24 2h5m34 0h6" fill="none" stroke-width="2"/>
+            <path class="calm" d="M-9 29q9 5 17-1" fill="none"/>
+            <path class="look" d="M-10 28q2-6 18-1l3 9q-12 7-21-1Z" fill="#663347"/>
+          </g></g>
+        </g>
+        <path d="M45 168q151-17 311 0l43 48v118q-193 56-398-1V217Z" fill="#eea7a6"/>
+        <path d="M45 168q151-17 311 0l43 48v118q-193 56-398-1V217Z" fill="url(#cloth)" stroke="none"/>
+        <path d="M3 326q201 49 394 0" fill="none" stroke="#9d4b66" stroke-width="2" stroke-dasharray="5 5"/>
+        <path d="m45 221 69-32 183 2 60 32-13 92-284 1Z" fill="#d88e58"/>
+        <path d="m45 221 73 7 174 1 65-6-13 92-284 1Z" fill="#f7ce8d"/>
+        <path d="m60 316-3-25 287-1v25l-15 12-254-1Z" fill="#e5a865"/>
+        <path d="m82 303 8 7m6-7 8 7m6-7 8 7m167 0 8-7m6 7 8-7m6 7 8-7" fill="none" stroke="#a6614e" stroke-width="2"/>
+        <path d="M122 216q73-16 152-2l43 56q-12 25-116 26-95 0-115-23Z" fill="#fff4d7"/>
+        <path d="M102 271q96 25 199-1m-168-51q75-11 130 0" fill="none" stroke="#d9af82" stroke-width="2" stroke-dasharray="4 5"/>
+        <path d="m206 265 7 4m63-16 6-3m-166 2 4-4m113 29 5 1m-83 1 5 2m110-9 5 2" stroke="#bb5140" stroke-width="2.5"/>
+        <g transform="translate(239 247) rotate(24)"><use href="#leg"/></g>
+        <g class="marker" fill="none" stroke="#306647" stroke-width="4" stroke-dasharray="6 5"><ellipse cx="162" cy="254" rx="47" ry="42"/></g>
+        <g id="my-leg" transform="translate(152 247) rotate(-13)"><use href="#leg"/></g>
+        <path class="gone" d="M131 273q-9 8-2 12 6 5 13-4l20-14q10 4 13-3 3-8-7-10-5-8-11-3-5 3-4 9Z" fill="#fff4d7"/>
+        <g class="reach dad" fill="#fac5a0">
+          <path d="M4 169q28-5 54 12l65 38 23 3q14 2 16 9 1 7-9 6l-15-2 21 8q11 4 8 10-3 5-15 2l-15-4 13 7q10 5 6 10-5 4-17-1l-44-21-17-8L4 206Z"/>
+        </g>
+        <g class="reach mom" fill="#f8c29e">
+          <path d="m182 133 31 7q-16 27-18 54l-1 23q4 19-2 26-7 5-9-9l-3-12-3 22q-1 10-8 8-5-1-4-13l1-14-7 16q-5 10-11 6-4-3 0-13l11-30q3-36 23-71Z"/>
+        </g>
+        <g class="reach sib" fill="#eeb38e">
+          <path d="m397 190-1 37-91-3-74 23-38 10q-12 4-15-2-3-6 9-10l12-5-17 3q-12 2-13-4-1-6 11-9l17-4-13-1q-9-1-8-7 2-6 12-6l34 4 77-33q47-13 98 7Z"/>
+        </g>
+        <path class="burst" d="m166 214 9 24 28-14-14 24 33 10-37 6 10 28-23-17-18 23 1-28-31 6 21-19-22-15 31 3Z" fill="#fff4a4"/>
+        <path d="M171 382q-6-14 10-32l18-24q10-11 17-7 6 5-2 16l-7 10 19-9q8-4 12 2 4 5-5 12 12-3 13 5 0 4-8 9 8 0 7 6-1 5-14 12Z" fill="#f9c496"/>
+        <path d="M177 365q20 1 26 17h-34Z" fill="#7089b1"/>
+        <path d="M217 351l16-1m-9 14 14 0" fill="none" stroke-width="2"/>
+      </g>
+    </svg>
+    <p class="stage-line" id="line" aria-hidden="true"></p>
+  </div>
+  <footer class="bottom">
+    <div id="intro">
+      <p data-text="how"></p>
+      <button class="primary" id="start" type="button" data-text="start"></button>
+    </div>
+    <div id="controls" hidden>
+      <p id="cue" aria-live="polite"></p>
+      <button class="primary" id="action" type="button"><span id="verb"></span><small id="hint"></small></button>
+    </div>
+    <div id="result" hidden>
+      <h2 id="grade"></h2>
+      <p id="record"></p>
+      <p id="quip"></p>
+      <div class="result-actions">
+        <button class="primary" id="retry" type="button" data-text="retry"></button>
+        <button id="share" type="button" data-text="share"></button>
+      </div>
+      <textarea id="share-text" readonly hidden></textarea>
+    </div>
+  </footer>
+</main>
+<script>
+(function () {
+  "use strict";
+  const copy = {
+    ko: {
+      brand: "하루한판", title: "치킨 다리 쟁탈전", premise: "가족 넷. 다리 둘.",
+      poster: "가슴살은 왜 아무도 결재 안 해?",
+      how: "초록불에 톡, 엄마의 한마디엔 네 번 연타.",
+      start: "42초 버티기", reset: "다시", retry: "한 판 더", share: "결과 복사", copied: "복사 완료",
+      shareText: "공유할 결과", score: "점수", best: "최고", seconds: "초", mute: "소리 끄기", unmute: "소리 켜기",
+      ready: "초록불까지 참기", wait: "아직!", strike: "지금 쳐내!", mash: "네 번 연타!",
+      key: "스페이스 / 엔터", early: "앗, 아직! 손부터 들어와야지.", safe: "사수 성공!", miss: "다리 뺏김!",
+      mom: "“너 다리 먹었잖아.”", denial: "전 먹은 적이 없는데요!", denialFail: "가족 회의 결과, 먹은 걸로.",
+      fresh: "새 판 깔았습니다. 가슴살도 그대로.",
+      people: ["아빠", "엄마", "동생"],
+      windups: ["“난 목이면 돼.” (목은 반대쪽)", "“잘 먹나 보려고.” (손도 같이 봄)", "“나 닭가슴살만 먹어.” (시선 불일치)"],
+      dodges: ["“아빠는 원래 껍질만 먹어.”", "“엄마는 그냥 옮겨준 거야.”", "“이게 다리였어?”"],
+      steals: ["“아빠가 월급날에 사온 거야.”", "“엄마가 발라줄게.” (본인 입으로)", "“단백질 보충 완료.”"],
+      streak: function (n) { return n + "연속"; },
+      points: function (n) { return n + "점"; },
+      record: function (score, best, saves) { return score + "점 · 최고 " + best + "점 · " + saves + "번 사수"; },
+      grades: [
+        ["무 국물 수석", "치킨은 못 먹었지만 무 국물 리필은 결재 났습니다."],
+        ["닭가슴살 대리", "다리 결재 올렸다가 ‘가슴살 2조각 지급’으로 반려."],
+        ["다리 방어팀 과장", "가족 단톡방에 ‘다리 담당자’로 저장됐습니다."],
+        ["닭다리 본부장", "내일부터 메뉴는 순살입니다. 가족 만장일치."]
+      ]
+    },
+    en: {
+      brand: "Daily Toybox", title: "Chicken Leg War", premise: "Four people. Two drumsticks.",
+      poster: "Can anyone sign off on the breast meat?",
+      how: "Tap on green. When Mom objects, tap four times.",
+      start: "Play 42 seconds", reset: "Restart", retry: "Play again", share: "Copy result", copied: "Copied",
+      shareText: "Result to share", score: "Score", best: "Best", seconds: "s", mute: "Mute sound", unmute: "Turn sound on",
+      ready: "Wait for green", wait: "Hold it!", strike: "Swat now!", mash: "Tap four times!",
+      key: "Space / Enter", early: "Too soon! Wait for the grab.", safe: "Leg secured!", miss: "Leg stolen!",
+      mom: "“You already had a drumstick.”", denial: "I'd like to see the minutes.", denialFail: "Family vote: you ate it.",
+      fresh: "Fresh plate. Breast meat still available.",
+      people: ["Dad", "Mom", "Your sibling"],
+      windups: ["“I only want the neck.” (Wrong side, Dad.)", "“Just checking if you're eating well.” (With her hand.)", "“I only eat breast meat.” (Eyes say otherwise.)"],
+      dodges: ["“I only wanted the skin anyway.”", "“I was just moving it for you.”", "“Wait, THAT was a drumstick?”"],
+      steals: ["“Who paid for dinner again?”", "“I'll debone it for you.” (Into her mouth.)", "“Protein target met.”"],
+      streak: function (n) { return n + " in a row"; },
+      points: function (n) { return n + " pts"; },
+      record: function (score, best, saves) { return score + " pts · Best " + best + " · " + saves + " saves"; },
+      grades: [
+        ["Radish Brine Intern", "Your chicken request was denied. Another brine refill was approved."],
+        ["Breast Meat Associate", "Requested one drumstick. Approved for two pieces of breast meat."],
+        ["Drumstick Defense Manager", "You've been saved as ‘Drumstick Contact’ in the family chat."],
+        ["Director of Drumsticks", "Family vote: we're ordering boneless tomorrow."]
+      ]
+    }
+  };
+  const requested = new URLSearchParams(location.search).get("lang") || navigator.language;
+  const lang = /^ko/i.test(requested) ? "ko" : "en";
+  const t = copy[lang];
+  const el = function (id) { return document.getElementById(id); };
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  Array.prototype.forEach.call(document.querySelectorAll("[data-text]"), function (node) {
+    node.textContent = t[node.dataset.text];
+  });
+  el("share-text").setAttribute("aria-label", t.shareText);
+
+  const roundLength = 42;
+  const actors = ["dad", "mom", "sib"];
+  const key = "daily-toybox:chicken-leg-war:";
+  const stage = el("stage");
+  const action = el("action");
+  const cue = el("cue");
+  const mute = el("mute");
+  const line = el("line");
+  let mode = "intro", phase = "", frame = 0, previous = 0;
+  let elapsed = 0, deadline = 0, opensAt = 0, score = 0, saves = 0, streak = 0;
+  let actor = 0, encounters = 0, taps = 0, lastTap = 0, lastSecond = 0, whiffUntil = 0;
+  let best = 0, muted = false, audio;
+  let shareRun = 0;
+  try {
+    best = Math.max(0, parseInt(localStorage.getItem(key + "best"), 10) || 0);
+    muted = localStorage.getItem(key + "mute") === "1";
+  } catch (error) {}
+  line.textContent = t.poster;
+
+  function renderMute() {
+    mute.setAttribute("aria-pressed", String(muted));
+    mute.setAttribute("aria-label", muted ? t.unmute : t.mute);
+  }
+  function unlock() {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (muted || !Audio) return;
+    try {
+      if (!audio) audio = new Audio();
+      if (audio.state === "suspended") audio.resume().catch(function () {});
+    } catch (error) {}
+  }
+  function sound(from, to, duration, type) {
+    if (muted || !audio || audio.state !== "running") return;
+    const now = audio.currentTime;
+    const tone = audio.createOscillator();
+    const gain = audio.createGain();
+    tone.type = type;
+    tone.frequency.setValueAtTime(from, now);
+    tone.frequency.exponentialRampToValueAtTime(to, now + duration);
+    gain.gain.setValueAtTime(.12, now);
+    gain.gain.exponentialRampToValueAtTime(.001, now + duration);
+    tone.connect(gain);
+    gain.connect(audio.destination);
+    tone.start(now);
+    tone.stop(now + duration);
+  }
+  renderMute();
+  mute.addEventListener("click", function () {
+    muted = !muted;
+    try { localStorage.setItem(key + "mute", muted ? "1" : "0"); } catch (error) {}
+    renderMute();
+    unlock();
+  });
+
+  function showPhase(next, duration, bubble, instruction, verb, hint) {
+    phase = next;
+    deadline = elapsed + duration;
+    stage.dataset.phase = next;
+    stage.dataset.person = next === "rest" ? "" : actors[actor];
+    action.dataset.phase = next;
+    line.textContent = bubble;
+    cue.textContent = instruction;
+    el("verb").textContent = verb;
+    el("hint").textContent = hint || t.key;
+  }
+
+  function nextHand() {
+    encounters += 1;
+    const difficulty = elapsed / roundLength;
+    if (encounters % 5 === 4) {
+      actor = 1;
+      taps = 0;
+      lastTap = -1;
+      showPhase("mash", 1.56 - .42 * difficulty, t.mom, t.mash, t.mash, "0 / 4");
+      sound(290, 105, .19, "triangle");
+      return;
+    }
+    actor = (actor + 1 + Math.floor(Math.random() * 2)) % actors.length;
+    showPhase("windup", .53 - .27 * difficulty + Math.random() * .3, t.windups[actor], t.ready, t.wait);
+  }
+
+  function resolve(saved, objection) {
+    if (saved) {
+      saves += 1;
+      streak += 1;
+      const points = (objection ? 22 : 10 + Math.floor(6 * Math.max(0, 1 - (elapsed - opensAt) / (deadline - opensAt)))) + Math.min(streak - 1, 8);
+      score += points;
+      el("score").textContent = score;
+      showPhase("swat", .34, objection ? t.denial : t.dodges[actor], t.safe + " +" + t.points(points), t.safe, t.streak(streak));
+      sound(170, 540, .13, "triangle");
+    } else {
+      streak = 0;
+      showPhase("miss", .46, objection ? t.denialFail : t.steals[actor], t.miss, t.miss);
+      sound(225, 65, .20, "sine");
+    }
+  }
+
+  function updateRound() {
+    if (elapsed < deadline) return;
+    if (phase === "rest") {
+      nextHand();
+    } else if (phase === "windup") {
+      opensAt = elapsed;
+      showPhase("strike", .86 - .42 * (elapsed / roundLength), t.people[actor], t.strike, t.strike);
+      sound(450, 610, .07, "sine");
+    } else if (phase === "strike" || phase === "mash") {
+      resolve(false, phase === "mash");
+    } else {
+      showPhase("rest", .46 - .27 * (elapsed / roundLength) + Math.random() * .28, "", t.ready, t.wait);
+    }
+  }
+
+  function playTap() {
+    if (mode !== "play" || document.hidden || elapsed < whiffUntil) return;
+    if (phase === "strike") {
+      resolve(true, false);
+    } else if (phase === "mash" && elapsed - lastTap >= .055) {
+      lastTap = elapsed;
+      taps += 1;
+      if (taps === 4) {
+        resolve(true, true);
+      } else {
+        el("hint").textContent = taps + " / 4";
+        sound(170 + 75 * taps, 90 + 72 * taps, .07, "triangle");
+      }
+    } else if (phase === "rest" || phase === "windup") {
+      streak = 0;
+      whiffUntil = elapsed + .27;
+      cue.textContent = t.early;
+      sound(115, 75, .08, "sine");
+    }
+  }
+
+  function tick(now) {
+    frame = 0;
+    if (mode !== "play" || document.hidden) return;
+    elapsed += previous ? Math.min((now - previous) / 1000, .08) : 0;
+    previous = now;
+    const time = Math.max(0, roundLength - elapsed);
+    const seconds = Math.ceil(time);
+    if (lastSecond !== seconds) {
+      lastSecond = seconds;
+      el("seconds").textContent = seconds;
+    }
+    el("time-bar").style.transform = "scaleX(" + (time / roundLength) + ")";
+    if (!time) {
+      finish();
+      return;
+    }
+    updateRound();
+    frame = requestAnimationFrame(tick);
+  }
+
+  function start() {
+    unlock();
+    cancelAnimationFrame(frame);
+    shareRun += 1;
+    mode = "play";
+    el("app").dataset.mode = mode;
+    previous = 0;
+    elapsed = 0;
+    score = 0;
+    saves = 0;
+    streak = 0;
+    actor = 1;
+    encounters = 0;
+    taps = 0;
+    lastTap = -1;
+    opensAt = 0;
+    whiffUntil = 0;
+    lastSecond = roundLength;
+    el("seconds").textContent = roundLength;
+    el("time-bar").style.transform = "scaleX(1)";
+    el("score").textContent = score;
+    el("best").textContent = best;
+    el("heading").hidden = true;
+    el("hud").hidden = false;
+    el("intro").hidden = true;
+    el("result").hidden = true;
+    el("controls").hidden = false;
+    el("reset").hidden = false;
+    showPhase("rest", .72, t.fresh, t.ready, t.wait);
+    action.focus({ preventScroll: true });
+    if (!document.hidden) frame = requestAnimationFrame(tick);
+  }
+
+  function finish() {
+    mode = "result";
+    el("app").dataset.mode = mode;
+    if (score > best) {
+      best = score;
+      try { localStorage.setItem(key + "best", String(best)); } catch (error) {}
+    }
+    const grade = t.grades[score >= 335 ? 3 : score >= 190 ? 2 : score >= 65 ? 1 : 0];
+    el("hud").hidden = true;
+    el("heading").hidden = false;
+    el("controls").hidden = true;
+    el("reset").hidden = true;
+    el("result").hidden = false;
+    stage.dataset.phase = "";
+    stage.dataset.person = "";
+    line.textContent = "";
+    el("grade").textContent = grade[0];
+    el("quip").textContent = grade[1];
+    el("record").textContent = t.record(score, best, saves);
+    el("share").textContent = t.share;
+    el("share-text").hidden = true;
+    const link = new URL("../../" + lang + "/chicken-leg-war/", location.href);
+    el("share-text").value = t.title + "\n" + grade[0] + " · " + t.points(score) + "\n" + link.href;
+    el("retry").focus({ preventScroll: true });
+    sound(290, 680, .25, "triangle");
+  }
+
+  ["start", "retry", "reset"].forEach(function (id) { el(id).addEventListener("click", start); });
+  action.addEventListener("pointerdown", function (event) {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    unlock();
+    playTap();
+  });
+  action.addEventListener("click", function (event) {
+    if (event.detail === 0) playTap();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== " " && event.key !== "Enter") return;
+    if (event.ctrlKey || event.metaKey || event.altKey || event.target === el("share-text")) return;
+    if (event.target.tagName === "BUTTON" && event.target !== action) {
+      if (event.repeat) event.preventDefault();
+      return;
+    }
+    event.preventDefault();
+    if (event.repeat) return;
+    if (mode === "play") {
+      unlock();
+      playTap();
+    } else {
+      start();
+    }
+  });
+  document.addEventListener("visibilitychange", function () {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    previous = 0;
+    if (document.hidden) {
+      if (audio && audio.state === "running") audio.suspend().catch(function () {});
+    } else if (mode === "play") {
+      unlock();
+      frame = requestAnimationFrame(tick);
+    }
+  });
+  el("share").addEventListener("click", async function () {
+    const run = ++shareRun;
+    const field = el("share-text");
+    try {
+      await navigator.clipboard.writeText(field.value);
+      if (shareRun !== run || mode !== "result") return;
+      el("share").textContent = t.copied;
+      field.hidden = true;
+    } catch (error) {
+      if (shareRun !== run || mode !== "result") return;
+      field.hidden = false;
+      field.focus({ preventScroll: true });
+      field.select();
+    }
+  });
+})();
+</script>
+</body>
+</html>
