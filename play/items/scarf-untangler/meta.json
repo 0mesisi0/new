@@ -1,0 +1,21 @@
+{
+  "slug": "scarf-untangler",
+  "date": "2026-11-22",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "목도리 매듭 풀기",
+    "desc": "엉킨 목도리에서 위에 놓인 띠부터 빼내세요. 교차점을 살피며 매듭 세 개를 풀고 최고 점수에 도전해 보세요.",
+    "howto": "띠에 붙은 번호 버튼을 누르세요. 그 띠를 덮는 띠가 하나라도 있으면 위에 놓인 띠부터 빼야 해요. 키보드는 숫자키 1~6을 쓰면 돼요.",
+    "about": "시간 제한 없이 즐기는 겨울 퍼즐이에요. 최고 점수는 이 기기에 저장할 수 있어요.",
+    "tags": ["목도리", "매듭 풀기", "겨울 퍼즐"]
+  },
+  "en": {
+    "title": "Scarf Untangler",
+    "desc": "Pull the top strips free from a tangled scarf. Read the crossings, untangle three knots, and try to beat your best score.",
+    "howto": "Press a strip’s number to pull it. If another strip crosses over it, pull that one first. Number keys 1–6 also work.",
+    "about": "A winter puzzle you can play at your own pace. Your best score can be saved on this device.",
+    "tags": ["scarf", "untangling", "winter puzzle"]
+  }
+}
