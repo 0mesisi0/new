@@ -68,6 +68,22 @@ function itemsList() {
     return `- ${m.slug} (${m.category}, ${m.date}): ${m.ko.title} / ${m.en.title}`;
   });
 }
+function queuedList(exceptId) { // ideas already specced but not built yet, so batches do not repeat them
+  if (!existsSync(JOBS)) return [];
+  return listJobs().filter((j) => j.slug && j.id !== exceptId && !existsSync(join(REPO, 'play', 'items', j.slug))).map((j) => `- ${j.slug} (queued)`);
+}
+const FOCUS = [
+  'a useful calculator or converter that Koreans search for (kind tool)',
+  'a fortune, personality or "which type are you" test with a shareable result card (kind tool)',
+  'a random generator or picker with a funny twist (kind tool)',
+  'a weird or beautiful interactive page, toy or visual sandbox (kind tool, category cool)',
+  'an information cheat sheet, checklist or guide for everyday Korean life (kind tool)',
+  'a humor or parody generator, receipt, certificate or meme maker (kind tool)',
+  'a timer, counter or tracker people would open daily (kind tool)',
+  'a quick quiz or trivia with funny wrong answers (kind tool)',
+  'a one-thumb arcade or reaction mini game (kind game)',
+  'a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)',
+];
 async function votes() {
   try {
     const r = await fetch(`${CONFIG.siteUrl}/api/votes?top=12`, { signal: AbortSignal.timeout(15000) });
@@ -292,6 +308,24 @@ async function main() {
     if (job.slug && job.id.endsWith('pending')) log(`slug chosen: ${job.slug}`);
     publish(job, `pipeline: ${job.id} research + idea (${job.status})`);
     process.exitCode = job.status === 'failed' ? 1 : 0;
+    return;
+  }
+  if (cmd === 'batch') { // one research, then N idea specs of different content types
+    const count = +(opt('count') || 10);
+    const first = newJob();
+    if (!(await runStage('research', first))) { publish(first, `pipeline: ${first.id} research failed`); process.exitCode = 1; return; }
+    const research = readFileSync(join(JOBS, first.id, '01-research.md'), 'utf8');
+    first.focus = FOCUS[0]; saveJob(first);
+    let made = 0;
+    for (let i = 0; i < count; i++) {
+      const job = i === 0 ? first : newJob();
+      if (i > 0) { writeFileSync(join(JOBS, job.id, '01-research.md'), research); job.artifacts.research = '01-research.md'; job.focus = FOCUS[(Math.floor(Math.random() * FOCUS.length) + i) % FOCUS.length]; job.stage = 'idea'; saveJob(job); }
+      const ok = await runStage('idea', job);
+      publish(job, `pipeline: ${job.id} idea (${job.status})`);
+      if (ok) made++; else if (job.status === 'failed') { log(`idea ${i + 1} failed, continuing`); }
+    }
+    log(`batch done: ${made}/${count} specs`);
+    process.exitCode = made ? 0 : 1;
     return;
   }
   if (cmd === 'feedback') {
