@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-pending-73",
+  "site": "play",
+  "slug": "foggy-window-doodles",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T05:24:26.339Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T05:26:19.753Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
+}
