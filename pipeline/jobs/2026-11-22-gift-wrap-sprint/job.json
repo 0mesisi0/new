@@ -1,0 +1,37 @@
+{
+  "id": "2026-11-22-gift-wrap-sprint",
+  "site": "play",
+  "slug": "gift-wrap-sprint",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 2,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T08:09:43.109Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T08:11:28.811Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-22T08:13:24.346Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
