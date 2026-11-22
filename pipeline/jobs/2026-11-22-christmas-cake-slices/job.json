@@ -3,14 +3,15 @@
   "site": "play",
   "slug": "christmas-cake-slices",
   "status": "queued",
-  "stage": "design",
+  "stage": "build",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
   "pr": null,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -22,6 +23,30 @@
     {
       "at": "2026-11-22T00:26:38.286Z",
       "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:06:13.248Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:09:54.469Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:11:08.603Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:14:01.988Z",
+      "stage": "review",
       "status": "approved",
       "by": "codex"
     }

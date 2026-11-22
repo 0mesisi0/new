@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Christmas Cake Slice Calculator</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFF6E7;color:#30221E;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif}
+body{display:flex;justify-content:center;align-items:center}
+.panel{width:100%;max-width:520px;height:100%;max-height:100dvh;display:flex;flex-direction:column;justify-content:center;gap:clamp(4px,1.6vh,14px);padding:clamp(6px,2vh,18px) 12px}
+h1{margin:0;font-size:clamp(16px,4.6vw,22px);text-align:center;line-height:1.2}
+.guests{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}
+.guests label{font-weight:700;font-size:14px;flex:0 0 auto}
+.guests .val{font-weight:800;min-width:2.8em;text-align:center;font-size:15px;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.guests input[type=range]{flex:1 1 0;min-width:40px;height:44px;margin:0;accent-color:#96374A}
+button,select{font:inherit;color:inherit}
+.step{width:44px;height:44px;border-radius:12px;border:2px solid #30221E;background:#fff;font-size:22px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.step:disabled{opacity:.35;cursor:default}
+.cakes{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1 1 0;min-height:0}
+.cake{background:#fff;border-radius:14px;padding:6px;text-align:center;border:2px solid transparent;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.cake.a{border-color:#96374A}
+.cake.b{border-color:#246452}
+.cake .name{font-weight:800;font-size:14px}
+.cake.a .name{color:#96374A}
+.cake.b .name{color:#246452}
+.cake svg{display:block;width:100%;flex:1 1 0;min-height:0;max-height:200px;margin:2px auto}
+.cake select{width:100%;min-height:44px;border-radius:10px;border:2px solid #30221E;background:#FFF6E7;padding:0 6px;font-size:15px}
+.area{font-weight:800;font-size:clamp(14px,4vw,17px);margin-top:4px;font-variant-numeric:tabular-nums}
+.cmp{margin:0;text-align:center;font-weight:700;font-size:clamp(13px,3.8vw,16px);line-height:1.35;min-height:2.7em;display:flex;align-items:center;justify-content:center}
+#copy{width:100%;min-height:48px;border-radius:14px;border:0;background:#96374A;color:#fff;font-size:17px;font-weight:800;cursor:pointer;touch-action:manipulation}
+#copy:active{transform:scale(.98)}
+.status{min-height:1.4em;text-align:center;font-size:13px;font-weight:700;color:#246452}
+.status.err{color:#96374A}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid #246452;outline-offset:2px}
+@media (max-height:520px){h1{font-size:15px}.panel{gap:3px;padding:4px 12px}.cmp{min-height:2.4em;font-size:13px}#copy{min-height:44px;font-size:15px}.status{min-height:1.2em}}
+@media (max-height:440px){.cake .name{display:none}.cake{padding:4px}}
+</style>
+</head>
+<body>
+<main class="panel">
+  <h1 id="title"></h1>
+  <div class="guests">
+    <label for="range" id="gl"></label>
+    <button class="step" id="minus" type="button">−</button>
+    <input id="range" type="range" min="2" max="24" step="1" value="6">
+    <button class="step" id="plus" type="button">+</button>
+    <span class="val" id="gv" aria-hidden="true"></span>
+  </div>
+  <div class="cakes">
+    <section class="cake a">
+      <div class="name" id="nameA"></div>
+      <svg id="svgA" viewBox="0 0 120 120" aria-hidden="true" focusable="false"></svg>
+      <select id="selA"></select>
+      <div class="area" id="areaA"></div>
+    </section>
+    <section class="cake b">
+      <div class="name" id="nameB"></div>
+      <svg id="svgB" viewBox="0 0 120 120" aria-hidden="true" focusable="false"></svg>
+      <select id="selB"></select>
+      <div class="area" id="areaB"></div>
+    </section>
+  </div>
+  <p class="cmp" id="cmp"></p>
+  <button id="copy" type="button"></button>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="sr" id="live" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+var T={
+ko:{appTitle:'크리스마스 케이크 조각 계산기',guestsLabel:'인원수',guestCount:'{n}명',decreaseGuests:'한 명 줄이기',increaseGuests:'한 명 늘리기',cakeLabel:'케이크 {cake}',diameterLabel:'케이크 {cake} 지름',diameterOption:'{diameter} cm',sliceArea:'{area} cm²/조각',comparisonLarger:'{larger}의 한 조각은 {smaller}보다 윗면이 {percent}% 넓어요.',comparisonEqual:'두 케이크의 한 조각 면적이 같아요.',copy:'결과 복사',copied:'결과를 복사했어요.',copyFailed:'복사할 수 없어요. 화면을 캡처해 주세요.',line1:'{title} · {n}명',line2:'A {da} cm: {aa} cm²/조각 · B {db} cm: {ab} cm²/조각'},
+en:{appTitle:'Christmas Cake Slice Calculator',guestsLabel:'Guests',guestCount:'{n}',decreaseGuests:'One fewer guest',increaseGuests:'One more guest',cakeLabel:'Cake {cake}',diameterLabel:'Cake {cake} diameter',diameterOption:'{diameter} cm',sliceArea:'{area} cm²/slice',comparisonLarger:'Cake {larger} has {percent}% more top area per slice than cake {smaller}.',comparisonEqual:'Both cakes have the same area per slice.',copy:'Copy result',copied:'Result copied.',copyFailed:'Couldn’t copy. Take a screenshot to share.',line1:'{title} · Guests: {n}',line2:'A {da} cm: {aa} cm²/slice · B {db} cm: {ab} cm²/slice'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var S=T[lang];
+document.documentElement.lang=lang;
+document.title=S.appTitle;
+function f(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+var nf=new Intl.NumberFormat(lang,{minimumFractionDigits:1,maximumFractionDigits:1});
+var DIAMS=[12,15,18,21,24],KEY='christmas-cake-slices:settings:v1';
+var demo=location.hash==='#demo';
+var st={guests:6,diamA:15,diamB:18};
+function isInt(v,a,b){return typeof v==='number'&&isFinite(v)&&Math.floor(v)===v&&v>=a&&v<=b}
+if(!demo){try{
+  var r=JSON.parse(localStorage.getItem(KEY));
+  if(r&&typeof r==='object'){
+    if(isInt(r.guests,2,24))st.guests=r.guests;
+    if(DIAMS.indexOf(r.diamA)>=0)st.diamA=r.diamA;
+    if(DIAMS.indexOf(r.diamB)>=0)st.diamB=r.diamB;
+  }
+}catch(e){}}
+function save(){if(demo)return;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function $(id){return document.getElementById(id)}
+var range=$('range'),minus=$('minus'),plus=$('plus'),selA=$('selA'),selB=$('selB'),copyBtn=$('copy'),status=$('status');
+$('title').textContent=S.appTitle;
+$('gl').textContent=S.guestsLabel;
+minus.setAttribute('aria-label',S.decreaseGuests);
+plus.setAttribute('aria-label',S.increaseGuests);
+copyBtn.textContent=S.copy;
+['A','B'].forEach(function(c){
+  var sel=$('sel'+c);
+  sel.setAttribute('aria-label',f(S.diameterLabel,{cake:c}));
+  DIAMS.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=f(S.diameterOption,{diameter:d});sel.appendChild(o)});
+  $('name'+c).textContent=f(S.cakeLabel,{cake:c});
+});
+var NS='http://www.w3.org/2000/svg'; // namespace identifier only, not a network request
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+function pt(r,deg){var t=deg*Math.PI/180;return [60+r*Math.sin(t),60-r*Math.cos(t)]}
+function draw(svg,diam,n,color){
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  var r=2*diam,ang=360/n;
+  svg.appendChild(el('circle',{cx:60,cy:60,r:r,fill:'#FFFDF6',stroke:'#E9D6B4','stroke-width':2}));
+  var p=pt(r,ang);
+  svg.appendChild(el('path',{d:'M60 60L60 '+(60-r)+'A'+r+' '+r+' 0 0 1 '+p[0].toFixed(3)+' '+p[1].toFixed(3)+'Z',fill:color}));
+  for(var i=0;i<n;i++){var q=pt(r,i*ang);svg.appendChild(el('line',{x1:60,y1:60,x2:q[0].toFixed(3),y2:q[1].toFixed(3),stroke:i===0?'#FFFDF6':'#B9A07A','stroke-width':i===0?.8:.5,'stroke-opacity':i===0?.9:.7}))}
+  svg.appendChild(el('circle',{cx:60,cy:60,r:r,fill:'none',stroke:'#F3E3C3','stroke-width':1.2}));
+}
+var ver=0,pending=false,payload='';
+function result(){
+  var aA=Math.PI*Math.pow(st.diamA/2,2)/st.guests,aB=Math.PI*Math.pow(st.diamB/2,2)/st.guests,cmp;
+  if(st.diamA===st.diamB)cmp=S.comparisonEqual;
+  else{
+    var bigB=aB>aA,hi=bigB?aB:aA,lo=bigB?aA:aB,L=bigB?'B':'A',Sm=bigB?'A':'B';
+    cmp=f(S.comparisonLarger,{larger:lang==='ko'?f(S.cakeLabel,{cake:L}):L,smaller:lang==='ko'?f(S.cakeLabel,{cake:Sm}):Sm,percent:Math.round(100*(hi/lo-1))});
+  }
+  return {aA:nf.format(aA),aB:nf.format(aB),cmp:cmp};
+}
+function render(){
+  range.value=st.guests;selA.value=st.diamA;selB.value=st.diamB;
+  minus.disabled=st.guests<=2;plus.disabled=st.guests>=24;
+  var g=f(S.guestCount,{n:st.guests});
+  $('gv').textContent=g;range.setAttribute('aria-valuetext',g);
+  draw($('svgA'),st.diamA,st.guests,'#96374A');
+  draw($('svgB'),st.diamB,st.guests,'#246452');
+  var r=result();
+  $('areaA').textContent=f(S.sliceArea,{area:r.aA});
+  $('areaB').textContent=f(S.sliceArea,{area:r.aB});
+  $('cmp').textContent=r.cmp;
+  payload=[f(S.line1,{title:S.appTitle,n:st.guests}),f(S.line2,{da:st.diamA,aa:r.aA,db:st.diamB,ab:r.aB}),r.cmp].join('\n');
+}
+function changed(commit){
+  ver++;status.textContent='';status.className='status';
+  render();
+  if(commit){save();$('live').textContent='';var c=$('gv').textContent+' · '+$('cmp').textContent;setTimeout(function(){$('live').textContent=c},30)}
+}
+function setGuests(v,commit){st.guests=Math.max(2,Math.min(24,v));changed(commit)}
+minus.addEventListener('click',function(){setGuests(st.guests-1,true)});
+plus.addEventListener('click',function(){setGuests(st.guests+1,true)});
+range.addEventListener('input',function(){setGuests(+range.value,false)});
+range.addEventListener('change',function(){setGuests(+range.value,true)});
+selA.addEventListener('change',function(){st.diamA=+selA.value;changed(true)});
+selB.addEventListener('change',function(){st.diamB=+selB.value;changed(true)});
+function fallback(text){
+  var prev=document.activeElement,ta=document.createElement('textarea'),ok=false;
+  ta.value=text;ta.readOnly=true;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(ta);
+  try{ta.select();ok=document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+  if(prev&&prev!==document.body&&document.activeElement!==prev){try{prev.focus()}catch(e){}}
+  return ok;
+}
+copyBtn.addEventListener('click',function(){
+  if(pending)return;
+  pending=true;status.textContent='';status.className='status';
+  var my=++ver,text=payload;
+  function done(ok){
+    pending=false;
+    if(my!==ver)return;
+    status.className='status'+(ok?'':' err');
+    status.textContent=ok?S.copied:S.copyFailed;
+  }
+  function fb(){done(fallback(text))}
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(function(){done(true)},fb);
+    else fb();
+  }catch(e){fb()}
+});
+render();
+})();
+</script>
+</body>
+</html>
