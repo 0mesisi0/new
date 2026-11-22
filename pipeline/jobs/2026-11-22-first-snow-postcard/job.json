@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-first-snow-postcard",
+  "site": "play",
+  "slug": "first-snow-postcard",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T07:12:12.507Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T07:14:13.414Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
+}
