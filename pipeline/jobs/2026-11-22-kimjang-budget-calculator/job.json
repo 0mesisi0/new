@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-kimjang-budget-calculator",
+  "site": "play",
+  "slug": "kimjang-budget-calculator",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T06:18:27.608Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T06:20:17.382Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "an information cheat sheet, checklist or guide for everyday Korean life (kind tool)"
+}
