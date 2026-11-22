@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-winter-window-doodles",
+  "site": "play",
+  "slug": "winter-window-doodles",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T02:02:36.611Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T02:04:45.828Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
