@@ -20,6 +20,21 @@ export function outline(pts) {
   return points;
 }
 
+export function schoolSite(data) {
+  const campus = data.places.find(place => place.kind === 'school' && place.name === school.name && place.pts);
+  const boundary = campus ? outline(campus.pts) : [];
+  const contains = (x, z) => {
+    let inside = false;
+    for (let i = 0, j = boundary.length - 1; i < boundary.length; j = i++) {
+      const a = boundary[i];
+      const b = boundary[j];
+      if ((a.y > z) !== (b.y > z) && x < a.x + (b.x - a.x) * (z - a.y) / (b.y - a.y)) inside = !inside;
+    }
+    return inside;
+  };
+  return { campus, boundary, contains };
+}
+
 export function seeded(seed) {
   let value = seed | 0;
   return () => {
@@ -54,7 +69,7 @@ const coverCode = {
   bare_rock: 3, grass: 1, grassland: 1, scrub: 1, farmland: 6, park: 7, garden: 7, recreation_ground: 7, pitch: 8, school: 9,
 };
 
-export function buildTerrain(scene, data) {
+export function buildTerrain(scene, data, site) {
   const [south, west, north, east] = data.bbox;
   const min = project(north, west);
   const max = project(south, east);
@@ -63,7 +78,7 @@ export function buildTerrain(scene, data) {
   const { columns, rows, elevation } = data.terrain;
   const datum = Math.min(...elevation);
   const inside = (x, z) => x >= min.x && x <= max.x && z >= min.y && z <= max.y;
-  function ground(x, z) {
+  function rawGround(x, z) {
     const u = clamp((x - min.x) / width, 0, 1) * (columns - 1);
     const v = clamp((z - min.y) / depth, 0, 1) * (rows - 1);
     const i = Math.min(Math.floor(u), columns - 2);
@@ -71,6 +86,22 @@ export function buildTerrain(scene, data) {
     const p = j * columns + i;
     return mix(mix(elevation[p], elevation[p + 1], u - i),
       mix(elevation[p + columns], elevation[p + columns + 1], u - i), v - j) - datum;
+  }
+  const padY = rawGround(0, 0);
+  const edge = site.boundary.map((a, i) => new THREE.Line3(
+    new THREE.Vector3(a.x, 0, a.y),
+    new THREE.Vector3(site.boundary[(i + 1) % site.boundary.length].x, 0, site.boundary[(i + 1) % site.boundary.length].y)));
+  const sample = new THREE.Vector3();
+  const nearest = new THREE.Vector3();
+  function ground(x, z) {
+    const raw = rawGround(x, z);
+    if (!edge.length || x < -116 || x > 108 || z < -131 || z > 154) return raw;
+    if (site.contains(x, z)) return padY;
+    sample.set(x, 0, z);
+    let distance = Infinity;
+    for (const line of edge) distance = Math.min(distance, line.closestPointToPoint(sample, true, nearest).distanceTo(sample));
+    const west = 1 - THREE.MathUtils.smoothstep(x, -71, -34);
+    return mix(padY, raw, THREE.MathUtils.smoothstep(distance, 5 + west * 8, 34 + west * 19));
   }
 
   // Rasterize cover at one shared resolution for textures and vegetation lookups.
@@ -126,16 +157,25 @@ export function buildTerrain(scene, data) {
   });
   texture.anisotropy = 4;
 
-  const geometry = new THREE.PlaneGeometry(width, depth, (columns - 1) * 3, (rows - 1) * 3);
-  geometry.rotateX(-Math.PI / 2);
-  geometry.translate((min.x + max.x) / 2, 0, (min.y + max.y) / 2);
+  // Resolve the grade around the school while retaining the coarse survey mesh elsewhere.
+  function axis(start, length, divisions, from, to) {
+    const values = Array.from({ length: divisions + 1 }, (_, i) => start + length * i / divisions)
+      .filter(value => value <= from || value >= to);
+    for (let value = from + 2; value < to; value += 4) values.push(value);
+    return values.sort((a, b) => a - b);
+  }
+  const xs = axis(min.x, width, (columns - 1) * 3, -120, 112);
+  const zs = axis(min.y, depth, (rows - 1) * 3, -136, 158);
+  const geometry = new THREE.PlaneGeometry(1, 1, xs.length - 1, zs.length - 1);
+  const uv = geometry.attributes.uv;
   const positions = geometry.attributes.position;
   const tints = [];
   const tint = new THREE.Color();
   for (let i = 0; i < positions.count; i++) {
-    const x = positions.getX(i);
-    const z = positions.getZ(i);
-    positions.setY(i, ground(x, z));
+    const x = xs[i % xs.length];
+    const z = zs[Math.floor(i / xs.length)];
+    positions.setXYZ(i, x, ground(x, z), z);
+    uv.setXY(i, (x - min.x) / width, 1 - (z - min.y) / depth);
     const slope = Math.hypot(ground(x + 12, z) - ground(x - 12, z), ground(x, z + 12) - ground(x, z - 12)) / 24;
     const weight = cover(x, z) === 'water' ? 0 : THREE.MathUtils.smoothstep(slope, 0.32, 0.85) * 0.43;
     tint.setRGB(1, 1, 1).lerp(rock, weight).toArray(tints, tints.length);
