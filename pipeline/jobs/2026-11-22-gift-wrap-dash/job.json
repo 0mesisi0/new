@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-gift-wrap-dash",
+  "site": "play",
+  "slug": "gift-wrap-dash",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T08:01:44.977Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T08:03:41.515Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a one-thumb arcade or reaction mini game (kind game)"
+}
