@@ -1,0 +1,20 @@
+{
+  "slug": "tangerine-peel-puzzle",
+  "date": "2026-11-22",
+  "category": "games",
+  "tags": { "ko": ["귤껍질", "한붓그리기", "겨울 퍼즐"], "en": ["tangerine", "path puzzle", "winter"] },
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "귤껍질 한 줄 퍼즐",
+    "desc": "시작 칸에서 귤껍질을 한 줄로 벗겨 보세요. 같은 칸을 두 번 지나지 않고 꼭지까지 이어서, 한 번에 몇 칸을 벗길 수 있는지 겨뤄요.",
+    "howto": "시작 칸에서 상하좌우로 한 칸씩 이동하세요. 옆 칸을 누르거나 방향키를 쓰세요. 꼭지에 닿으면 점수가 확정돼요.",
+    "about": "모양이 다른 귤 세 판에 도전할 수 있어요. 판마다 최고 기록을 이 브라우저에 저장해요."
+  },
+  "en": {
+    "title": "Tangerine Peel Puzzle",
+    "desc": "Peel a tangerine in one continuous strip. Find the longest route to the stem without peeling any square twice.",
+    "howto": "Tap an adjacent square or use the arrow keys to move. Reach the stem to lock in your score.",
+    "about": "Try three different boards. Your best score for each board is saved in this browser."
+  }
+}
