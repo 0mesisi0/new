@@ -168,6 +168,11 @@ You are the PLANNER for "하루한판 / Daily Toybox". Read these files in this 
 Existing items (do not repeat):
 ${itemsList().join('\n') || '(none)'}
 
+Already specced, not built yet (do not repeat either):
+${queuedList(job.id).join('\n') || '(none)'}
+
+Duplicate rule: a new concept must differ in subject (the main noun / seasonal hook), not just in mechanic or slug. If it is about the same thing as any item or queued spec above (for example another Christmas-cake, kimjang, foggy-window or gift-wrap idea), pick a different subject. meta.category must be exactly one of: games, cool, weird, learn, tech, info, tools, random, radio, fortune.
+
 Votes so far (make more of what is liked):
 ${await votes()}
 
