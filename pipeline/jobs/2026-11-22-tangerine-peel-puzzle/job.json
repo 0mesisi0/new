@@ -1,0 +1,69 @@
+{
+  "id": "2026-11-22-tangerine-peel-puzzle",
+  "site": "play",
+  "slug": "tangerine-peel-puzzle",
+  "status": "queued",
+  "stage": "build",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md",
+    "review": "05-review.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T22:49:53.934Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T22:51:57.805Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-21T22:53:52.555Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-21T22:56:08.992Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T23:57:32.973Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T00:00:24.418Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T00:02:01.558Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T00:05:07.072Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a timer, counter or tracker people would open daily (kind tool)"
+}
