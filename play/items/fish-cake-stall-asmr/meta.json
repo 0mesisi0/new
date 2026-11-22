@@ -1,0 +1,21 @@
+{
+  "slug": "fish-cake-stall-asmr",
+  "date": "2026-11-22",
+  "category": "chill",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "어묵 포장마차 ASMR",
+    "desc": "어묵 국물이 보글보글 끓는 겨울 포장마차예요. 천막에 떨어지는 빗소리와 골목 바람 소리를 섞고, 국물 따르기 버튼으로 종이컵에 따뜻한 국물을 따라 보세요.",
+    "howto": "소리 켜기를 누르고 국물, 천막 빗소리, 골목 바람의 크기를 조절하세요. 국물 따르기를 누르면 종이컵이 차올라요.",
+    "about": "겨울 골목의 어묵 포장마차를 그렸어요. 국물과 비, 바람 소리는 브라우저에서 만들어요.",
+    "tags": ["어묵", "포장마차", "겨울 ASMR", "백색소음"]
+  },
+  "en": {
+    "title": "Fish Cake Stall ASMR",
+    "desc": "Mix simmering broth, rain on the awning, and alley wind at a winter fish cake stall. Use the Pour broth button to fill a paper cup.",
+    "howto": "Turn on sound and adjust the broth, awning rain, and alley wind. Select Pour broth to fill the paper cup.",
+    "about": "A small winter street stall with broth, rain, and wind sounds synthesized in your browser.",
+    "tags": ["fish cake", "winter ASMR", "ambient sound", "sound mixer"]
+  }
+}
