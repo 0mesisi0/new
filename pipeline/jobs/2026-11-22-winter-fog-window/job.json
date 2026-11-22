@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-winter-fog-window",
+  "site": "play",
+  "slug": "winter-fog-window",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T01:56:06.790Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:58:36.358Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a timer, counter or tracker people would open daily (kind tool)"
+}
