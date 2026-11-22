@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-year-end-regret-wash",
+  "site": "play",
+  "slug": "year-end-regret-wash",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T07:05:47.633Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T07:07:37.695Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a quick quiz or trivia with funny wrong answers (kind tool)"
+}
