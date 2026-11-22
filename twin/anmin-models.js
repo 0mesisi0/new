@@ -129,7 +129,7 @@ function facades() {
   });
 }
 
-export function buildBuildings(scene, data, terrain) {
+export function buildBuildings(scene, data, terrain, site) {
   const walls = Array.from({ length: 4 }, () => new Surface());
   const trim = new Surface();
   const roofs = new Surface();
@@ -143,6 +143,7 @@ export function buildBuildings(scene, data, terrain) {
   for (const building of data.buildings) {
     const points = outline(building.pts);
     if (points.length < 3 || !points.every(p => inside(p.x, p.y))) continue;
+    if (points.every(p => site.contains(p.x, p.y))) continue;
     const area = Math.abs(THREE.ShapeUtils.area(points));
     if (area < 2) continue;
     const bounds = new THREE.Box2().setFromPoints(points);
@@ -263,7 +264,7 @@ function roadPoints(points) {
   return line;
 }
 
-export function buildStreets(scene, data, terrain) {
+export function buildStreets(scene, data, terrain, site) {
   const surface = new Surface();
   const lines = new Surface();
   const walk = new Surface();
@@ -331,8 +332,9 @@ export function buildStreets(scene, data, terrain) {
     ribbon(points, walk, 4, 0.40, stone);
     for (const shift of [-0.72, 0.72]) ribbon(points, lines, 0.14, 0.46, whitePaint, shift);
   }
-  for (const { kind, pts } of data.places) {
-    if (kind !== 'school' || !pts) continue;
+  for (const place of data.places) {
+    const { kind, pts } = place;
+    if (kind !== 'school' || !pts || place === site.campus) continue;
     ribbon(roadPoints(pts.map(([lat, lon]) => project(lat, lon))), walk, 0.9, 0.38, new THREE.Color('#d8c589'));
   }
   const grit = repeating(canvasTexture(128, (g, size) => {
@@ -371,7 +373,7 @@ export function buildStreets(scene, data, terrain) {
 
   const fence = [];
   const fencePosts = [];
-  const campusFences = data.places.filter(place => place.kind === 'school' && place.pts);
+  const campusFences = data.places.filter(place => place.kind === 'school' && place.pts && place !== site.campus);
   for (const { pts, kind } of [...data.fences, ...campusFences]) {
     const points = roadPoints(pts.map(([lat, lon]) => project(lat, lon)));
     const height = kind === 'school' ? 1.12 : 1.72;
@@ -431,7 +433,7 @@ export function buildStreets(scene, data, terrain) {
   return { light, lampPools, stops, roadside };
 }
 
-export function buildTrees(scene, data, terrain, roadside, buildings) {
+export function buildTrees(scene, data, terrain, roadside, buildings, site) {
   const { ground, cover, inside, min, max } = terrain;
   const random = seeded(562793);
   const trunks = [];
@@ -451,7 +453,7 @@ export function buildTrees(scene, data, terrain, roadside, buildings) {
     const p = project(lat, lon);
     if (inside(p.x, p.y)) tree(p.x, p.y, leaf === 'needleleaved', 7 + random() * 3);
   }
-  const open = (x, z) => !buildings.some(({ bounds }) => x > bounds.min.x - 2 && x < bounds.max.x + 2
+  const open = (x, z) => !site.contains(x, z) && !buildings.some(({ bounds }) => x > bounds.min.x - 2 && x < bounds.max.x + 2
     && z > bounds.min.y - 2 && z < bounds.max.y + 2);
   for (const { x, y: z } of roadside) {
     if (cover(x, z) !== 'water' && open(x, z)) tree(x, z, false, 4.6 + random() * 2.8);

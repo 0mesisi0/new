@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildTerrain, project, school, seeded } from './anmin-terrain.js';
+import { buildTerrain, project, school, schoolSite } from './anmin-terrain.js';
 import { buildBuildings, buildStreets, buildTrees } from './anmin-models.js';
+import { buildSchool } from './anmin-school.js';
 
 const copy = {
   ko: {
@@ -10,8 +11,8 @@ const copy = {
     views: '지도 시점', overview: '전체', school: '학교', top: '위에서', north: '북쪽 방향', northMark: '북', quality: '그래픽 품질',
     low: '절전', high: '고화질', time: '현지 시각', weather: '날씨', clear: '맑음', cloud: '흐림', rain: '비',
     places: '장소', about: '지도 정보', close: '닫기', forest: '숲', residential: '시가지', water: '물',
-    coverage: 'OpenStreetMap 건물 데이터가 드문 지역이에요. 지도에 등록된 건물만 3D로 표시하고, 주거 구역은 옅은 회색으로 표시해요.',
-    estimates: '건물 높이, 지붕, 가로수, 학교 울타리와 도로 시설은 원본 정보가 부족할 때 추정한 모습이에요. 고도는 90m 해상도의 표고 모델을 사용해요.',
+    coverage: 'OpenStreetMap에 등록된 건물을 3D로 표시해요. 주거 구역은 옅은 회색으로 표시해요.',
+    estimates: '안민초등학교는 지도에 등록된 학교 경계를 바탕으로 교사와 운동장, 시설을 재구성했어요. 건물 높이, 지붕, 가로수와 도로 시설은 원본 정보가 부족할 때 추정한 모습이에요. 고도는 90m 해상도의 표고 모델을 사용해요.',
     credit: '지도 © OpenStreetMap 기여자 (ODbL). 고도 Open-Meteo / Copernicus DEM GLO-90.',
     filled: '가까운 표본으로 채운 고도 지점', help: '드래그로 회전하고 휠·두 손가락으로 확대하세요. 두 손가락 또는 방향키로 이동하고, Shift와 방향키로 회전하며 +/−로 확대·축소하세요.',
     elevation: '해발', bus: '버스 정류장', mapped: '등록된 장소', landmark: '안민초등학교 · 지도의 기준점',
@@ -23,8 +24,8 @@ const copy = {
     views: 'Map views', overview: 'Overview', school: 'School', top: 'Top view', north: 'North direction', northMark: 'N', quality: 'Graphics quality',
     low: 'Low detail', high: 'High detail', time: 'Local time', weather: 'Weather', clear: 'Clear', cloud: 'Cloudy', rain: 'Rain',
     places: 'Places', about: 'About', close: 'Close', forest: 'Forest', residential: 'Built-up', water: 'Water',
-    coverage: 'OpenStreetMap building coverage is sparse here. Only mapped buildings appear in 3D. Light grey indicates a mapped residential zone.',
-    estimates: 'Building heights, roofs, street trees, school fences, and street fixtures are approximations where source detail is missing. Elevation uses a 90 m resolution model.',
+    coverage: 'Mapped OpenStreetMap buildings appear in 3D. Light grey indicates a mapped residential zone.',
+    estimates: 'The school building, playground, and facilities are modeled within the mapped Anmin Elementary School boundary. Building heights, roofs, street trees, and fixtures are approximated where source detail is missing. Elevation uses a 90 m resolution model.',
     credit: 'Map © OpenStreetMap contributors (ODbL). Elevation by Open-Meteo / Copernicus DEM GLO-90.',
     filled: 'Elevation points filled from nearby samples', help: 'Drag to orbit and scroll or pinch to zoom. Pan with two fingers or arrow keys. Shift + arrows rotates the map. Use +/− to zoom.',
     elevation: 'Elevation', bus: 'Bus stop', mapped: 'Mapped place', landmark: 'Anmin Elementary School · Map center',
@@ -185,15 +186,17 @@ function run() {
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2();
-  const terrain = buildTerrain(scene, data);
-  const { materials, buildings } = buildBuildings(scene, data, terrain);
-  const { light, lampPools, stops, roadside } = buildStreets(scene, data, terrain);
-  const setTreeQuality = buildTrees(scene, data, terrain, roadside, buildings);
+  const site = schoolSite(data);
+  const terrain = buildTerrain(scene, data, site);
+  const { materials, buildings } = buildBuildings(scene, data, terrain, site);
+  const { light, lampPools, stops, roadside } = buildStreets(scene, data, terrain, site);
+  const setTreeQuality = buildTrees(scene, data, terrain, roadside, buildings, site);
+  const campus = buildSchool(scene, data, terrain, site);
   const sun = new THREE.DirectionalLight();
   sun.castShadow = true;
   sun.shadow.bias = -0.00012;
-  sun.shadow.normalBias = 0.62;
-  sun.shadow.mapSize.set(1536, 1536);
+  sun.shadow.normalBias = 0.36;
+  sun.shadow.mapSize.set(2048, 2048);
   scene.add(sun, sun.target);
   const sky = atmosphere(scene, sun);
   const camera = new THREE.PerspectiveCamera(44, 1, 1, 9600);
@@ -212,11 +215,7 @@ function run() {
 
   const schoolPoint = project(school.lat, school.lon);
   const schoolY = terrain.ground(schoolPoint.x, schoolPoint.y);
-  const landmark = { ...school, center: schoolPoint, y: schoolY + 17, school: true };
-  const marker = new THREE.Mesh(new THREE.CylinderGeometry(3.8, 3.8, 0.7, 24),
-    new THREE.MeshStandardMaterial({ color: '#f4c673', emissive: '#c6803e', emissiveIntensity: 0.34 }));
-  marker.position.set(schoolPoint.x, schoolY + 0.9, schoolPoint.y);
-  scene.add(marker);
+  const landmark = { ...school, center: schoolPoint, y: schoolY + 5, label: campus && campus.label, school: true };
   const mapPlaces = [landmark];
   for (const place of data.places) {
     if (place.name === school.name) continue;
@@ -230,7 +229,7 @@ function run() {
   }
   const entries = [...mapPlaces, ...stops.map(stop => ({ ...stop, bus: true }))];
   let dirty = true;
-  let activeView = 'overview';
+  let activeView = params.has('thumb') ? 'school' : 'overview';
   let selected;
   let high = params.has('thumb') || !matchMedia('(any-pointer: coarse)').matches;
   const readout = byId('readout');
@@ -261,7 +260,7 @@ function run() {
     controls.update();
     controls.target.set(place.center.x, place.y, place.center.y);
     const offset = activeView === 'top' ? tmp.set(0, 1, 0.013) : activeView === 'overview'
-      ? tmp.set(-0.27, 0.64, -1) : tmp.set(-0.56, 0.78, 1);
+      ? tmp.set(-0.27, 0.64, -1) : activeView === 'school' ? tmp.set(-0.22, 0.83, 1) : tmp.set(-0.56, 0.78, 1);
     camera.position.copy(controls.target).add(offset.setLength(distance));
     controls.update();
     controls.enableDamping = !reduced.matches;
@@ -272,7 +271,8 @@ function run() {
     activeView = view;
     press(viewButtons, [...viewButtons].find(button => button.dataset.view === view));
     const aspectFactor = Math.max(1, 0.87 / camera.aspect);
-    if (view === 'school') focusCamera(landmark, 365 * Math.min(1.35, aspectFactor));
+    if (view === 'school') focusCamera({ center: campus ? campus.center : schoolPoint, y: schoolY + 2 },
+      189 * Math.min(1.85, Math.max(1, 0.93 / camera.aspect)));
     else if (view === 'top') focusCamera({ center: schoolPoint, y: schoolY }, 2150 * Math.min(1.4, aspectFactor));
     else focusCamera({ center: new THREE.Vector2(10, 165), y: schoolY + 30 }, 2130 * Math.min(1.33, aspectFactor));
   }
@@ -285,7 +285,8 @@ function run() {
     selected = place;
     activeView = '';
     press(viewButtons);
-    focusCamera(place, place.school ? 365 : 250);
+    if (place.school) preset('school');
+    else focusCamera(place, 250);
     const meters = Math.round(terrain.datum + terrain.ground(place.center.x, place.center.y));
     const kind = place.school ? words.landmark : place.bus ? words.bus : words.mapped;
     const extra = place.height ? ' · ' + words.height + ' ' + Math.round(place.height) + ' m (' + (place.supplied ? words.supplied : words.inferred) + ')' : '';
@@ -317,10 +318,12 @@ function run() {
     const h = viewport.clientHeight;
     const overview = camera.position.distanceTo(controls.target) > 920;
     for (const { place, button } of pins) {
-      tmp.set(place.center.x, place.y, place.center.y).project(camera);
+      const anchor = place.label || place.center;
+      tmp.set(anchor.x, place.y, anchor.y).project(camera);
       const x = (tmp.x + 1) / 2 * w;
       const y = (1 - tmp.y) / 2 * h;
-      const hide = tmp.z >= 1 || x < 52 || x > w - 52 || y < 94 || y > h - 34 || (!place.school && place !== selected
+      const hide = tmp.z >= 1 || x < 52 || x > w - 52 || y < 94 || y > h - 34
+        || (activeView === 'school' && place !== selected) || (!place.school && place !== selected
         && (overview || used.length > 4 || used.some(([px, py]) => Math.abs(x - px) < 138 && Math.abs(y - py) < 41)));
       button.hidden = hide;
       if (hide) continue;
@@ -341,6 +344,7 @@ function run() {
     const night = sky.update(minutes, { clear: 0, cloud: 0.75, rain: 1 }[weather]);
     for (const wall of materials) wall.emissiveIntensity = night * 1.22;
     light.emissiveIntensity = night * 3.6;
+    if (campus) campus.night(night);
     if (lampPools) {
       lampPools.visible = night > 0.04;
       lampPools.material.opacity = night * 0.44;
@@ -391,7 +395,7 @@ function run() {
     controls.update();
     if (!dirty) return;
     const distance = camera.position.distanceTo(controls.target);
-    const radius = Math.min(1900, Math.max(150, distance * 0.8));
+    const radius = Math.min(1900, Math.max(105, distance * 0.7));
     const near = Math.max(1, Math.floor(distance / 42));
     if (camera.near !== near) {
       camera.near = near;
