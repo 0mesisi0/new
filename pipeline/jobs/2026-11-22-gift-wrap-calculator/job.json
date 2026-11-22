@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-gift-wrap-calculator",
+  "site": "play",
+  "slug": "gift-wrap-calculator",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T07:03:53.888Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T07:05:44.478Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a weird or beautiful interactive page, toy or visual sandbox (kind tool, category cool)"
+}
