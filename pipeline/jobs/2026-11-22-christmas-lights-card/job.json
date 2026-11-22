@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-christmas-lights-card",
+  "site": "play",
+  "slug": "christmas-lights-card",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T07:20:33.502Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T07:22:30.890Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a timer, counter or tracker people would open daily (kind tool)"
+}
