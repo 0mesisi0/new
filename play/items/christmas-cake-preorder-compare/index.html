@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>크리스마스 케이크 예약 비교</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFF8EE;color:#2F211D;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;font-variant-numeric:tabular-nums}
+#root{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:540px;margin:0 auto;padding:0 12px}
+@media(min-width:400px){#root{padding:0 16px}}
+header{padding:12px 0 6px;display:flex;gap:10px;align-items:center}
+header svg{width:44px;height:44px;flex:none}
+h1{font-size:1.2rem;margin:0;line-height:1.2}
+.intro{margin:2px 0 0;font-size:.85rem;opacity:.8}
+main{flex:1;min-height:0;overflow-y:auto;padding:6px 0 10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:4px}
+input[type=text],textarea{width:100%;min-height:44px;padding:8px 10px;font:inherit;font-size:1rem;color:inherit;background:#fff;border:1.5px solid #7d6e63;border-radius:10px}
+input[aria-invalid=true]{border-color:#8D2844;background:#fff3f5}
+:focus-visible{outline:3px solid #8D2844;outline-offset:2px}
+.tabs{display:flex;gap:6px;margin:14px 0 0}
+.tab{flex:1;min-height:44px;font:inherit;font-weight:700;border:1.5px solid #7d6e63;border-bottom:0;border-radius:10px 10px 0 0;background:#f3e8da;color:#2F211D;cursor:pointer;touch-action:manipulation}
+.tab[aria-selected=true]{background:#fff;color:#8D2844;border-color:#8D2844}
+.panel{background:#fff;border:1.5px solid #8D2844;border-radius:0 0 12px 12px;padding:12px}
+.note{font-size:.78rem;opacity:.75;margin:10px 0 0}
+#msg{min-height:2.6em;margin:8px 0 0;font-size:.88rem;font-weight:600}
+#msg.err{color:#8D2844}
+#msg.ok{color:#245A46}
+footer{padding:8px 0 calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.btn{flex:1;min-height:48px;padding:8px 10px;font:inherit;font-weight:700;border-radius:12px;border:2px solid #8D2844;background:#fff;color:#8D2844;cursor:pointer;touch-action:manipulation}
+.btn.primary{background:#8D2844;color:#fff}
+[hidden]{display:none!important}
+h2{font-size:1.15rem;margin:6px 0 2px}
+h2:focus{outline:3px solid #8D2844;outline-offset:2px}
+.sum{margin:0 0 10px;font-size:.88rem;opacity:.85}
+.card{background:#fff;border:2px solid #e6d9cb;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;transition:border-color .25s,opacity .25s}
+.card.low{border-color:#8D2844}
+.label{font-weight:700}
+.badge{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;background:#8D2844;color:#fff;font-size:.72rem;font-weight:700;vertical-align:1px}
+.qty{font-size:.9rem}
+.tot{grid-column:2;grid-row:1/3;text-align:right;font-weight:800;font-size:1.05rem;align-self:center}
+.sv{grid-column:1/3;font-size:.8rem;opacity:.8}
+.bd{grid-column:1/3;font-size:.82rem;font-weight:700}
+.bd.under{color:#245A46}.bd.over{color:#8D2844}.bd.exact{color:#245A46}
+#fb{min-height:1.4em;font-size:.85rem;font-weight:600;color:#245A46;margin:0 0 6px}
+#manual{background:#fff;border:1.5px solid #7d6e63;border-radius:12px;padding:10px;margin-top:6px}
+#manual textarea{height:120px;font-size:.8rem;resize:none}
+#manual .btn{flex:none;width:100%;margin-top:8px}
+@media(max-height:520px){header{padding:6px 0 4px}header svg{width:36px;height:36px}.res header svg,.res .intro{display:none}.card{padding:6px 10px;margin-bottom:6px}h2{margin:2px 0}.sum{margin:0 0 6px}footer{padding-top:6px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root">
+<header>
+<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="#8D2844" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 42h36M9 42V28h30v14M9 34c4 3 8 3 10 0 3 3 7 3 10 0 3 3 7 3 10 0M13 28V19h22v9M24 19v-5"/><path d="M24 7c2 2 2 4 0 5-2-1-2-3 0-5z" fill="#8D2844"/></svg>
+<div><h1 id="title"></h1><p class="intro" id="intro"></p></div>
+</header>
+
+<main id="setup">
+<form id="form" novalidate autocomplete="off">
+<div class="row">
+<div><label for="guests" id="lGuests"></label><input type="text" id="guests" inputmode="numeric" data-k="guests"></div>
+<div><label for="budget" id="lBudget"></label><input type="text" id="budget" inputmode="numeric" data-k="budget"></div>
+</div>
+<div class="tabs" role="tablist" id="tabs">
+<button type="button" class="tab" role="tab" id="tabA" aria-controls="pA"></button>
+<button type="button" class="tab" role="tab" id="tabB" aria-controls="pB"></button>
+</div>
+<div class="panel" role="tabpanel" id="pA" aria-labelledby="tabA"><div class="row">
+<div><label for="aPrice" class="lPrice"></label><input type="text" id="aPrice" inputmode="numeric" data-k="aPrice"></div>
+<div><label for="aServings" class="lServ"></label><input type="text" id="aServings" inputmode="numeric" data-k="aServings"></div>
+</div></div>
+<div class="panel" role="tabpanel" id="pB" aria-labelledby="tabB" hidden><div class="row">
+<div><label for="bPrice" class="lPrice"></label><input type="text" id="bPrice" inputmode="numeric" data-k="bPrice"></div>
+<div><label for="bServings" class="lServ"></label><input type="text" id="bServings" inputmode="numeric" data-k="bServings"></div>
+</div></div>
+<p class="note" id="priceNote"></p>
+<p id="msg" role="status" aria-live="polite"></p>
+</form>
+</main>
+
+<main id="result" hidden>
+<h2 id="rTitle" tabindex="-1"></h2>
+<p class="sum" id="rSum"></p>
+<div id="cards"></div>
+<p id="fb" role="status" aria-live="polite"></p>
+<div id="manual" hidden>
+<p class="note" id="manualNote" style="margin:0 0 6px"></p>
+<label for="manualText" id="lManual"></label>
+<textarea id="manualText" readonly></textarea>
+<button type="button" class="btn" id="manualClose"></button>
+</div>
+</main>
+
+<footer id="fSetup">
+<button type="button" class="btn" id="btnExample"></button>
+<button type="button" class="btn primary" id="btnCompare"></button>
+</footer>
+<footer id="fResult" hidden>
+<button type="button" class="btn" id="btnEdit"></button>
+<button type="button" class="btn primary" id="btnCopy"></button>
+</footer>
+</div>
+
+<script>
+(function(){
+var T={
+ko:{appTitle:"크리스마스 케이크 예약 비교",intro:"케이크 두 종류의 가격을 비교해 모임 인원에 맞는 주문을 골라 보세요.",guests:"모임 인원",budget:"예산 (선택)",quoteTabs:"비교할 케이크",cakeA:"케이크 A",cakeB:"케이크 B",price:"한 개 가격 (원)",servings:"한 개당 인분",priceNote:"케이크 한 개마다 붙는 추가 비용은 가격에 포함해 주세요.",example:"예시 채우기",exampleLoaded:"예시를 채웠어요. 값을 바꿔도 돼요.",compare:"비교하기",resultTitle:"주문 조합 비교",guestSummary:"모임 인원 {g}명",budgetSummary:"예산 {amount}",planA:"A만 주문",planB:"B만 주문",planMix:"A와 B 함께 주문",quantityA:"A {a}개",quantityB:"B {b}개",quantityMix:"A {a}개 + B {b}개",totalPrice:"합계 {amount}",servingSummary:"총 {serves}인분 · 남는 양 {spare}인분",lowestCost:"최저 금액",budgetUnder:"예산 {amount} 남음",budgetExact:"예산과 같아요",budgetOver:"예산 {amount} 초과",edit:"입력 수정",copy:"주문 요약 복사",copied:"주문 요약을 복사했어요.",manualCopy:"아래 내용을 선택해 복사해 주세요.",summaryField:"주문 요약",close:"닫기",guestError:"인원을 1~99 사이의 정수로 입력해 주세요.",budgetError:"예산을 0~10,000,000원으로 입력하거나 비워 두세요.",priceError:"한 개 가격을 1~1,000,000원 사이의 정수로 입력해 주세요.",servingError:"한 개당 인분을 1~99 사이의 정수로 입력해 주세요."},
+en:{appTitle:"Christmas Cake Preorder Compare",intro:"Compare two cakes and find an order that serves everyone.",guests:"Guests",budget:"Budget (optional)",quoteTabs:"Cakes to compare",cakeA:"Cake A",cakeB:"Cake B",price:"Price per cake (₩)",servings:"Servings per cake",priceNote:"Include any per-cake fees in the price.",example:"Fill example",exampleLoaded:"Example filled in. You can edit the values.",compare:"Compare orders",resultTitle:"Compare orders",guestSummary:"Guests: {g}",budgetSummary:"Budget: {amount}",planA:"A only",planB:"B only",planMix:"A + B",quantityA:"A × {a}",quantityB:"B × {b}",quantityMix:"A × {a} + B × {b}",totalPrice:"Total: {amount}",servingSummary:"Servings: {serves} · Spare: {spare}",lowestCost:"Lowest cost",budgetUnder:"{amount} under budget",budgetExact:"Exactly on budget",budgetOver:"{amount} over budget",edit:"Edit inputs",copy:"Copy order summary",copied:"Order summary copied.",manualCopy:"Copy the text below.",summaryField:"Order summary",close:"Close",guestError:"Enter a whole number from 1 to 99.",budgetError:"Enter a whole-won budget from ₩0 to ₩10,000,000 or leave it blank.",priceError:"Enter a whole-won price from ₩1 to ₩1,000,000.",servingError:"Enter a whole number of servings from 1 to 99."}
+};
+var lang=new URLSearchParams(location.search).get("lang");
+if(lang!=="ko"&&lang!=="en")lang=/^ko/i.test(navigator.language||"")?"ko":"en";
+var S=T[lang];
+document.documentElement.lang=lang;
+document.title=S.appTitle;
+var nf=new Intl.NumberFormat(lang==="ko"?"ko-KR":"en-US");
+function money(n){return "₩"+nf.format(n);}
+function fmt(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k];});}
+function $(id){return document.getElementById(id);}
+
+var KEY="christmas-cake-preorder-compare:draft:v1";
+var FIELDS=["guests","budget","aPrice","aServings","bPrice","bServings"];
+var EXAMPLE={guests:"16",budget:"80000",aPrice:"29000",aServings:"6",bPrice:"45000",bServings:"10"};
+var demo=location.hash==="#demo"||new URLSearchParams(location.search).get("thumb")==="1";
+var copyTok=0;
+function tabOf(id){return /^a(Price|Servings)$/.test(id)?"A":/^b(Price|Servings)$/.test(id)?"B":null;}
+var lastEdited=null,screen="setup",plans=null,ctx=null,summaryText="";
+
+// static text
+$("title").textContent=S.appTitle;$("intro").textContent=S.intro;
+$("lGuests").textContent=S.guests;$("lBudget").textContent=S.budget;
+$("tabs").setAttribute("aria-label",S.quoteTabs);
+$("tabA").textContent=S.cakeA;$("tabB").textContent=S.cakeB;
+[].forEach.call(document.querySelectorAll(".lPrice"),function(e){e.textContent=S.price;});
+[].forEach.call(document.querySelectorAll(".lServ"),function(e){e.textContent=S.servings;});
+$("priceNote").textContent=S.priceNote;
+$("btnExample").textContent=S.example;$("btnCompare").textContent=S.compare;
+$("rTitle").textContent=S.resultTitle;
+$("btnEdit").textContent=S.edit;$("btnCopy").textContent=S.copy;
+$("manualNote").textContent=S.manualCopy;$("lManual").textContent=S.summaryField;
+$("manualClose").textContent=S.close;
+
+// draft
+function save(){
+  if(demo)return;
+  try{var o={};FIELDS.forEach(function(k){o[k]=$(k).value.slice(0,32);});localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}
+}
+function load(){
+  if(demo)return;
+  try{
+    var o=JSON.parse(localStorage.getItem(KEY));
+    if(!o||typeof o!=="object"||Array.isArray(o))return;
+    for(var i=0;i<FIELDS.length;i++){if(typeof o[FIELDS[i]]!=="string"||o[FIELDS[i]].length>32)return;}
+    FIELDS.forEach(function(k){$(k).value=o[k];});
+  }catch(e){}
+}
+function fill(o){FIELDS.forEach(function(k){$(k).value=o[k];});}
+
+// tabs
+var tab="A";
+function setTab(t,focus){
+  tab=t;
+  ["A","B"].forEach(function(x){
+    var sel=x===t;
+    $("tab"+x).setAttribute("aria-selected",sel);
+    $("tab"+x).tabIndex=sel?0:-1;
+    $("p"+x).hidden=!sel;
+  });
+  if(focus)$("tab"+t).focus();
+}
+$("tabA").onclick=function(){setTab("A");};
+$("tabB").onclick=function(){setTab("B");};
+$("tabs").addEventListener("keydown",function(e){
+  var t=null;
+  if(e.key==="ArrowLeft"||e.key==="Home")t="A";
+  else if(e.key==="ArrowRight"||e.key==="End")t="B";
+  if(t){e.preventDefault();setTab(t,true);}
+});
+
+// messages
+var msg=$("msg");
+function clearMsg(){msg.textContent="";msg.className="";FIELDS.forEach(function(k){$(k).removeAttribute("aria-invalid");$(k).removeAttribute("aria-describedby");});}
+FIELDS.forEach(function(k){
+  var el=$(k);
+  el.addEventListener("input",function(){lastEdited=el;if(msg.className!=="err"||el.hasAttribute("aria-invalid"))clearMsg();save();});
+  el.addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&!e.isComposing&&e.keyCode!==229){e.preventDefault();submit();}
+  });
+});
+$("form").addEventListener("submit",function(e){e.preventDefault();});
+
+// parsing
+function norm(s){
+  return s.replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFF10+48);})
+    .replace(/，/g,",").replace(/￦/g,"₩").trim();
+}
+function parseInt0(raw,money,min,max){
+  var s=norm(raw);
+  if(money&&s.charAt(0)==="₩")s=s.slice(1).trim();
+  var ok=money?/^(\d+|\d{1,3}(,\d{3})+)$/.test(s):/^\d+$/.test(s);
+  if(!ok)return null;
+  var n=parseInt(s.replace(/,/g,""),10);
+  return n>=min&&n<=max?n:null;
+}
+function validate(){
+  var v={},bad=null;
+  var checks=[["guests",false,1,99,"guestError"],["budget",true,0,10000000,"budgetError"],["aPrice",true,1,1000000,"priceError"],["aServings",false,1,99,"servingError"],["bPrice",true,1,1000000,"priceError"],["bServings",false,1,99,"servingError"]];
+  for(var i=0;i<checks.length;i++){
+    var c=checks[i],raw=$(c[0]).value;
+    if(c[0]==="budget"&&norm(raw)===""){v.budget=null;continue;}
+    var n=parseInt0(raw,c[1],c[2],c[3]);
+    if(n===null){bad={id:c[0],err:c[4]};break;}
+    v[c[0]]=n;
+  }
+  return bad?{bad:bad}:{v:v};
+}
+
+// calc
+function plan(kind,a,b,v){
+  var serves=a*v.aServings+b*v.bServings;
+  return {kind:kind,a:a,b:b,serves:serves,spare:serves-v.guests,price:a*v.aPrice+b*v.bPrice,cakes:a+b,diff:v.budget===null?null:v.budget-(a*v.aPrice+b*v.bPrice)};
+}
+function calc(v){
+  var g=v.guests,list=[];
+  list.push(plan("A",Math.ceil(g/v.aServings),0,v));
+  list.push(plan("B",0,Math.ceil(g/v.bServings),v));
+  var best=null,maxA=Math.ceil(g/v.aServings);
+  for(var a=1;a<=maxA;a++){
+    var b=Math.max(1,Math.ceil((g-a*v.aServings)/v.bServings));
+    var c=plan("M",a,b,v);
+    if(!best||c.price<best.price||(c.price===best.price&&(c.spare<best.spare||(c.spare===best.spare&&(c.cakes<best.cakes||(c.cakes===best.cakes&&c.a<best.a))))))best=c;
+  }
+  list.push(best);
+  list.forEach(function(p,i){p.ord=i;});
+  list.sort(function(x,y){return x.price-y.price||x.spare-y.spare||x.cakes-y.cakes||x.ord-y.ord;});
+  var min=list[0].price;
+  list.forEach(function(p){p.low=p.price===min;});
+  return list;
+}
+function labelOf(p){return p.kind==="A"?S.planA:p.kind==="B"?S.planB:S.planMix;}
+function qtyOf(p){return p.kind==="A"?fmt(S.quantityA,{a:p.a}):p.kind==="B"?fmt(S.quantityB,{b:p.b}):fmt(S.quantityMix,{a:p.a,b:p.b});}
+function budgetOf(p){
+  if(p.diff===null)return null;
+  if(p.diff>0)return {t:fmt(S.budgetUnder,{amount:money(p.diff)}),c:"under"};
+  if(p.diff===0)return {t:S.budgetExact,c:"exact"};
+  return {t:fmt(S.budgetOver,{amount:money(-p.diff)}),c:"over"};
+}
+
+// screens
+function show(s){
+  screen=s;copyTok++;
+  $("root").classList.toggle("res",s==="result");
+  $("setup").hidden=s!=="setup";$("fSetup").hidden=s!=="setup";
+  $("result").hidden=s!=="result";$("fResult").hidden=s!=="result";
+  if(s==="setup"){$("fb").textContent="";$("manual").hidden=true;}
+}
+function render(v){
+  plans=calc(v);ctx=v;
+  var sum=fmt(S.guestSummary,{g:v.guests});
+  if(v.budget!==null)sum+=" · "+fmt(S.budgetSummary,{amount:money(v.budget)});
+  $("rSum").textContent=sum;
+  var box=$("cards");box.textContent="";
+  var lines=[S.appTitle,fmt(S.guestSummary,{g:v.guests})];
+  if(v.budget!==null)lines.push(fmt(S.budgetSummary,{amount:money(v.budget)}));
+  var blocks=[lines.join("\n")];
+  plans.forEach(function(p){
+    var d=document.createElement("div");d.className="card"+(p.low?" low":"");
+    var l=document.createElement("div");l.className="label";l.textContent=labelOf(p);
+    if(p.low){var bd=document.createElement("span");bd.className="badge";bd.textContent=S.lowestCost;l.appendChild(bd);}
+    var q=document.createElement("div");q.className="qty";q.textContent=qtyOf(p);
+    var t=document.createElement("div");t.className="tot";t.textContent=fmt(S.totalPrice,{amount:money(p.price)});
+    var sv=document.createElement("div");sv.className="sv";sv.textContent=fmt(S.servingSummary,{serves:p.serves,spare:p.spare});
+    // label+qty stacked in left column
+    var left=document.createElement("div");left.appendChild(l);left.appendChild(q);
+    left.style.gridColumn="1";
+    d.appendChild(left);d.appendChild(t);d.appendChild(sv);
+    var b=budgetOf(p);
+    var txt=[labelOf(p),qtyOf(p),fmt(S.totalPrice,{amount:money(p.price)}),fmt(S.servingSummary,{serves:p.serves,spare:p.spare})];
+    if(b){var be=document.createElement("div");be.className="bd "+b.c;be.textContent=b.t;d.appendChild(be);txt.push(b.t);}
+    if(p.low)txt.push(S.lowestCost);
+    blocks.push(txt.join("\n"));
+    box.appendChild(d);
+  });
+  summaryText=blocks.join("\n\n");
+  $("fb").textContent="";$("manual").hidden=true;
+}
+function submit(){
+  var r=validate();
+  clearMsg();
+  if(r.bad){
+    var id=r.bad.id;
+    var tt=tabOf(id);if(tt)setTab(tt);
+    msg.className="err";msg.textContent=S[r.bad.err];
+    var el=$(id);el.setAttribute("aria-invalid","true");el.setAttribute("aria-describedby","msg");el.focus();
+    return;
+  }
+  render(r.v);show("result");$("rTitle").focus();
+}
+$("btnCompare").onclick=submit;
+$("btnExample").onclick=function(){
+  fill(EXAMPLE);save();clearMsg();setTab("A");
+  msg.className="ok";msg.textContent=S.exampleLoaded;
+};
+$("btnEdit").onclick=function(){
+  show("setup");
+  var f=lastEdited||$("guests"),ft=tabOf(f.id);if(ft)setTab(ft);
+  f.focus();
+};
+$("btnCopy").onclick=function(){
+  var fb=$("fb");fb.textContent="";
+  var tok=++copyTok,p=null;
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)p=navigator.clipboard.writeText(summaryText);}catch(e){p=null;}
+  function manual(){
+    if(screen!=="result"||tok!==copyTok)return;
+    $("manualText").value=summaryText;$("manual").hidden=false;
+    $("manualText").focus();$("manualText").select();
+  }
+  if(!p){manual();return;}
+  p.then(function(){if(screen==="result"&&tok===copyTok)fb.textContent=S.copied;},manual);
+};
+$("manualClose").onclick=function(){$("manual").hidden=true;$("btnCopy").focus();};
+
+// init
+setTab("A");
+if(demo){fill(EXAMPLE);render(validate().v);show("result");}
+else{load();show("setup");}
+})();
+</script>
+</body>
+</html>

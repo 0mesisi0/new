@@ -1,0 +1,21 @@
+{
+  "slug": "christmas-cake-preorder-compare",
+  "date": "2026-11-22",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "크리스마스 케이크 예약 비교",
+    "desc": "케이크 두 종류의 가격과 인분을 입력하세요. 모임 인원을 채우는 최소 주문 금액과 예산에 맞는 조합을 한눈에 비교해요.",
+    "howto": "모임 인원과 케이크 A·B의 가격, 한 개당 인분을 입력하고 비교하기를 누르세요. 예산을 넣으면 각 조합에 얼마가 남거나 모자라는지도 볼 수 있어요.",
+    "about": "입력한 원화 가격과 인분으로 계산해요. 예약 가능 수량과 추가 비용은 주문 전에 가게에서 확인해 주세요.",
+    "tags": ["크리스마스 케이크", "케이크 예약", "예산 계산"]
+  },
+  "en": {
+    "title": "Christmas Cake Preorder Compare",
+    "desc": "Compare two Christmas cake quotes. See how many whole cakes will serve your guests, what each order costs, and which fits your budget.",
+    "howto": "Enter your guest count and each cake’s price and servings, then choose Compare orders. Add a budget to see how much each order leaves or goes over.",
+    "about": "The calculator uses the prices in Korean won and serving counts you enter. Check availability and extra charges with the shop before ordering.",
+    "tags": ["Christmas cake", "preorder", "budget calculator"]
+  }
+}
