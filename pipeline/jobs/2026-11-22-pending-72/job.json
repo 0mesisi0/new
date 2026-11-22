@@ -1,0 +1,37 @@
+{
+  "id": "2026-11-22-pending-72",
+  "site": "play",
+  "slug": "foggy-window-doodles",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 2,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T05:18:20.530Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T05:20:17.532Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-22T05:21:55.263Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a weird or beautiful interactive page, toy or visual sandbox (kind tool, category cool)"
+}
