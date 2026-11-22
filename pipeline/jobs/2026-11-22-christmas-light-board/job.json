@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-christmas-light-board",
+  "site": "play",
+  "slug": "christmas-light-board",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T08:16:54.582Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T08:19:04.321Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
