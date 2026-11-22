@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172d29">
+  <link rel="icon" href="data:,">
+  <title>안민동 3D 트윈</title>
+  <style>
+    :root { font: 14px/1.4 system-ui, -apple-system, BlinkMacSystemFont, sans-serif; color: #f3f3e8; background: #172d29; --line: #466057; --mint: #cfdfaf; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; overflow: hidden; }
+    main { height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0,1fr) auto; }
+    header, footer { position: relative; z-index: 2; padding: 8px 14px; background: #172d29; }
+    header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #466057; }
+    h1 { margin: 0; font-size: 1.18rem; font-size: clamp(1.18rem, 3.5vw, 1.9rem); font-weight: 730; letter-spacing: -.035em; line-height: 1.17; }
+    header p { margin: 4px 0 0; font-size: .84rem; color: #c5d4c4; }
+    #viewer { position: relative; isolation: isolate; overflow: hidden; background: #a9c4c0; }
+    #viewport, #viewport canvas, #pins, #rain { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #viewport canvas { display: block; touch-action: none; cursor: grab; outline-offset: -3px; }
+    #viewport canvas:active { cursor: grabbing; }
+    #pins { pointer-events: none; overflow: hidden; }
+    button { min-width: 44px; min-height: 44px; padding: 0 9px; background: #234139; color: inherit; border: 1px solid var(--line); border-radius: 5px; font: inherit; font-weight: 590; white-space: nowrap; cursor: pointer; }
+    button[aria-pressed="true"] { background: var(--mint); color: #1c3227; border-color: var(--mint); }
+    button:focus, input:focus, #viewport canvas:focus { outline: 2px solid #f9cd7c; outline-offset: -3px; }
+    .views { position: absolute; z-index: 1; top: 10px; left: 10px; display: flex; gap: 3px; }
+    .views button { background: #203a34; }
+    .views button[aria-pressed="true"] { background: var(--mint); }
+    #compass { position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: #203a34; color: #f4f1d9; font: 700 10px/1 ui-monospace, monospace; }
+    #needle { position: absolute; inset: 5px; border: 1px solid #83958b; border-radius: 50%; text-align: center; padding-top: 5px; }
+    #needle::after { content: ""; display: block; margin: 1px auto; width: 0; border: 4px solid transparent; border-top: 0; border-bottom: 10px solid #e7ac59; }
+    .pin { pointer-events: auto; position: absolute; top: 0; left: 0; margin-left: -1px; background: transparent; border: 0; padding: 0; transform: translate(-50%, -100%); }
+    .pin span { display: inline-block; background: #203a34; color: #f8f4e5; border-radius: 4px; border: 1px solid #ffffff65; padding: 5px 9px; font-size: 12px; box-shadow: 0 2px 7px #192e3380; }
+    .pin::after { content: ""; position: absolute; width: 1px; left: 50%; top: 38px; height: 19px; background: #e8f0d4; }
+    .pin.school span { background: #f2d399; color: #29291d; font-size: 13px; font-weight: 760; }
+    .pin.school::after { width: 2px; background: #f2d399; }
+    #status { position: absolute; top: 52%; left: 50%; transform: translate(-50%,-50%); background: #172d29; border-radius: 6px; width: max-content; max-width: 90%; padding: 11px 14px; text-align: center; }
+    #readout { position: absolute; left: 11px; bottom: 11px; margin: 0; color: #f3f3e8; background: #203a34; padding: 5px 9px; border-radius: 4px; font-size: .79rem; pointer-events: none; }
+    footer { border-top: 1px solid #466057; display: grid; grid-template-columns: auto minmax(115px,1fr) auto; gap: 4px 9px; align-items: center; }
+    .weather, .tools { display: flex; gap: 3px; }
+    .timeline { min-width: 0; display: grid; grid-template-columns: minmax(38px,1fr) auto; align-items: center; gap: 4px 7px; }
+    .timeline label { grid-column: 1 / -1; font-size: .75rem; color: #cad8c7; display: none; }
+    input[type="range"] { width: 100%; min-width: 38px; height: 44px; margin: 0; accent-color: #eac98a; cursor: pointer; }
+    output { color: #f2d399; font: 680 .91rem ui-monospace, Consolas, monospace; }
+    .sheet { position: absolute; z-index: 2; right: 10px; bottom: 10px; max-width: 380px; width: calc(100% - 20px); max-height: calc(100% - 70px); display: flex; flex-direction: column; border: 1px solid #678272; border-radius: 7px; background: #172d29; box-shadow: 0 6px 22px #142d2b55; }
+    .sheet h2 { margin: 0; font-size: 1.06rem; }
+    .sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px 5px 13px; border-bottom: 1px solid var(--line); }
+    .sheet-body { overflow: auto; overscroll-behavior: contain; padding: 8px 13px 12px; }
+    .sheet-body p { margin: 5px 0 9px; }
+    #place-list { display: grid; gap: 4px; }
+    #place-list button { text-align: left; white-space: normal; }
+    .key { display: flex; flex-wrap: wrap; gap: 5px 10px; margin: 8px 0 12px; }
+    .key span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 4px; background: var(--cover); }
+    #rain { pointer-events: none; opacity: .31; background-image: repeating-linear-gradient(107deg, transparent 0 18px, #d5e9ef 19px, transparent 21px 67px); background-size: 450px 110px; mask-image: repeating-linear-gradient(0deg, transparent 0 27px, black 33px 55px, transparent 62px 110px); animation: fall .4s linear infinite; }
+    @keyframes fall { to { background-position: -50px 110px; } }
+    @media (prefers-reduced-motion: reduce) { #rain { animation: none; } }
+    @media (max-width: 620px) {
+      footer { grid-template-columns: 1fr auto; padding: 4px 10px 6px; }
+      .timeline { grid-column: 1 / -1; grid-row: 1; }
+      .weather { grid-column: 1; grid-row: 2; }
+      .tools { grid-column: 2; grid-row: 2; }
+      button { padding: 0 6px; font-size: .88rem; }
+    }
+    @media (max-width: 350px) { #quality { font-size: .77rem; } footer { column-gap: 3px; padding-left: 6px; padding-right: 6px; } }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><h1 data-copy="title"></h1><p data-copy="location"></p></div>
+      <button id="quality" type="button" data-label="quality" aria-pressed="false"></button>
+    </header>
+    <section id="viewer" data-label="map">
+      <div id="viewport"></div>
+      <div id="rain" hidden></div>
+      <div id="pins"></div>
+      <div class="views" role="group" data-label="views">
+        <button type="button" data-view="overview" data-copy="overview" aria-pressed="true"></button>
+        <button type="button" data-view="school" data-copy="school" aria-pressed="false"></button>
+        <button type="button" data-view="top" data-copy="top" aria-pressed="false"></button>
+      </div>
+      <div id="compass" role="img" data-label="north"><span id="needle" aria-hidden="true" data-copy="northMark"></span></div>
+      <p id="readout" hidden></p>
+      <p id="status" data-copy="loading" role="status"></p>
+      <p class="visually-hidden" id="keyboard" data-copy="help"></p>
+      <aside id="sheet" class="sheet" aria-labelledby="sheet-title" hidden>
+        <div class="sheet-head"><h2 id="sheet-title"></h2><button id="close" type="button" data-copy="close"></button></div>
+        <div class="sheet-body">
+          <section id="about" hidden>
+            <p data-copy="help"></p>
+            <div class="key">
+              <span style="--cover:#51764b" data-copy="forest"></span>
+              <span style="--cover:#ada898" data-copy="residential"></span>
+              <span style="--cover:#598c94" data-copy="water"></span>
+            </div>
+            <p data-copy="coverage"></p>
+            <p data-copy="estimates"></p>
+            <p data-copy="credit"></p>
+            <p id="filled" hidden></p>
+          </section>
+          <div id="place-list" hidden></div>
+          <div id="detail" hidden><p id="detail-text"></p></div>
+        </div>
+      </aside>
+    </section>
+    <footer>
+      <div class="weather" role="group" data-label="weather">
+        <button type="button" data-weather="clear" data-copy="clear" aria-pressed="true"></button>
+        <button type="button" data-weather="cloud" data-copy="cloud" aria-pressed="false"></button>
+        <button type="button" data-weather="rain" data-copy="rain" aria-pressed="false"></button>
+      </div>
+      <div class="timeline">
+        <label for="time" data-copy="time"></label>
+        <input id="time" type="range" min="0" max="1439" step="1" value="760" data-label="time">
+        <output id="clock" for="time" aria-live="off"></output>
+      </div>
+      <div class="tools">
+        <button id="open-places" type="button" data-copy="places" aria-controls="sheet" aria-expanded="false"></button>
+        <button id="open-about" type="button" data-copy="about" aria-controls="sheet" aria-expanded="false"></button>
+      </div>
+    </footer>
+  </main>
+  <!-- TWIN_BUNDLE -->
+</body>
+</html>

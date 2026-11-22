@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>패딩 지퍼 올리기</title>
+<style>
+:root{--cream:#FAF3E5;--ink:#172B3A;--teal:#24666B;--brass:#F0BD62;--rust:#A64632}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--cream);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#app{height:100vh;height:100dvh;width:min(100vw,440px);margin:0 auto;padding:8px 12px 10px;
+  display:flex;flex-direction:column;gap:6px}
+#hud{flex:none}
+.row{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:17px;
+  font-variant-numeric:tabular-nums}
+#bar{height:10px;border-radius:5px;background:#7a6a4a;margin-top:4px;overflow:hidden}
+#fill{height:100%;width:0;background:var(--brass);border-radius:5px}
+#stage{flex:1 1 0;min-height:0}
+#stage svg{width:100%;height:100%;display:block}
+#bottom{flex:none}
+#fb{min-height:24px;text-align:center;font-weight:700;font-size:15px;color:var(--rust);margin-bottom:6px;line-height:24px}
+#fb.shake{animation:shake .25s}
+#ctl{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px}
+button{font:inherit;font-weight:800;font-size:16px;min-height:56px;min-width:44px;border-radius:14px;
+  border:3px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;touch-action:none;padding:4px 6px}
+button:active{transform:translateY(2px)}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:2px}
+#zip{background:var(--brass);font-size:19px}
+#zip.held{background:#e5a93f}
+button.hint{outline:4px solid var(--rust);outline-offset:2px;background:#fde7df;color:var(--rust);border-color:var(--rust)}
+button.hint:focus-visible{outline:4px solid var(--ink);outline-offset:2px}
+button.big{width:100%;min-height:56px;background:var(--brass);font-size:20px;margin-top:8px}
+.panel{text-align:center}
+.panel h1{font-size:24px;margin:0 0 4px}
+.panel h2{font-size:22px;margin:0 0 4px}
+.panel p{margin:0;font-size:15px;line-height:1.35}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+#sc{grid-column:1/3;font-size:26px;color:var(--teal)}
+[hidden]{display:none!important}
+.fold{display:none}
+.fold.on,.fold.out{display:inline}
+.fold path{fill:#2F7F85;stroke:var(--rust);stroke-width:3;stroke-linejoin:round;transform-box:fill-box;transform-origin:0 50%}
+.fold.out path{animation:spring .3s ease-in forwards}
+#collar{transition:transform .35s cubic-bezier(.3,1.6,.5,1);transform-box:fill-box;transform-origin:50% 0}
+.done #collar{transform:translateY(5px) scaleY(1.08)}
+@keyframes spring{to{transform:scaleX(0)}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){
+  .fold.out path,#fb.shake{animation:none}
+  #collar{transition:none}
+  button:active{transform:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="row"><span id="time"></span><span id="prog"></span></div>
+    <div id="bar"><div id="fill"></div></div>
+  </div>
+  <div id="stage">
+    <svg id="coat" viewBox="0 0 200 280" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <!-- sleeves -->
+      <g stroke="#173F43" stroke-width="2">
+        <rect x="10" y="64" width="40" height="150" rx="18" fill="#2A7479" transform="rotate(5 30 140)"/>
+        <rect x="150" y="64" width="40" height="150" rx="18" fill="#2A7479" transform="rotate(-5 170 140)"/>
+      </g>
+      <g stroke="#fff" stroke-opacity=".3" stroke-width="2" stroke-dasharray="3 3" fill="none">
+        <path d="M13 108l36-4M12 148l37-4M11 188l37-4M187 108l-36-4M188 148l-37-4M189 188l-37-4"/>
+      </g>
+      <!-- body bands -->
+      <g id="bands" stroke="#173F43" stroke-width="2" fill="#24666B"></g>
+      <g id="stitch" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2" stroke-dasharray="3 3"></g>
+      <rect id="collar" x="52" y="30" width="96" height="28" rx="13" fill="#1B4F53" stroke="#173F43" stroke-width="2"/>
+      <!-- open lining above slider -->
+      <polygon id="lining" fill="#172B3A"/>
+      <path id="trkL" fill="none" stroke="#F0BD62" stroke-width="4" stroke-dasharray="3 2.5"/>
+      <path id="trkR" fill="none" stroke="#F0BD62" stroke-width="4" stroke-dasharray="3 2.5"/>
+      <!-- closed teeth -->
+      <line id="teeth" x1="100" x2="100" stroke="#F0BD62" stroke-width="6" stroke-dasharray="3 2.5"/>
+      <line id="seam" x1="100" x2="100" stroke="#173F43" stroke-width="1.5" stroke-opacity=".6"/>
+      <!-- folds -->
+      <g id="foldL" class="fold"><path d="M52 -17Q68 -9 82 -14T104 -4L104 10Q84 19 68 13T52 17Q60 0 52 -17Z"/></g>
+      <g id="foldR" class="fold"><path d="M52 -17Q68 -9 82 -14T104 -4L104 10Q84 19 68 13T52 17Q60 0 52 -17Z"/></g>
+      <!-- slider -->
+      <g id="slider">
+        <rect x="92" y="-9" width="16" height="16" rx="5" fill="#F0BD62" stroke="#172B3A" stroke-width="2"/>
+        <rect x="95" y="6" width="10" height="20" rx="4" fill="#E5A93F" stroke="#172B3A" stroke-width="2"/>
+        <circle cx="100" cy="21" r="2" fill="#172B3A"/>
+      </g>
+    </svg>
+  </div>
+  <div id="bottom">
+    <div id="pStart" class="panel">
+      <h1 id="tStart"></h1>
+      <p id="hStart"></p>
+      <button id="start" class="big"></button>
+    </div>
+    <div id="pPlay" hidden>
+      <div id="fb" role="status" aria-live="polite"></div>
+      <div id="ctl">
+        <button id="left"></button>
+        <button id="zip"></button>
+        <button id="right"></button>
+      </div>
+    </div>
+    <div id="pPause" class="panel" hidden>
+      <h2 id="tPause"></h2>
+      <button id="resume" class="big"></button>
+    </div>
+    <div id="pResult" class="panel" hidden>
+      <h2 id="tRes" role="status"></h2>
+      <div class="stats"><span id="rProg"></span><span id="rTime"></span><span id="sc"></span><span id="rBest" style="grid-column:1/3"></span></div>
+      <button id="retry" class="big"></button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+var D={
+ko:{appTitle:'패딩 지퍼 올리기',startHint:'길게 눌러 올리고, 끼면 걸린 쪽 옷감을 빼세요.',start:'시작',time:'{n}초 남음',progress:'지퍼 {n}%',zip:'올리기',zipLabel:'길게 눌러 지퍼 올리기',left:'왼쪽 빼기',leftLabel:'왼쪽 옷감 빼기',right:'오른쪽 빼기',rightLabel:'오른쪽 옷감 빼기',snagLeft:'왼쪽 옷감이 끼었어요.',snagRight:'오른쪽 옷감이 끼었어요.',wrongWhileLeft:'왼쪽 옷감을 빼 주세요.',wrongWhileRight:'오른쪽 옷감을 빼 주세요.',cleared:'빠졌어요! 다시 올려 보세요.',paused:'일시 정지',resume:'계속하기',success:'목 끝까지 올렸어요!',timeout:'시간 끝!',score:'점수 {n}점',best:'최고 기록 {n}점',retry:'다시 하기'},
+en:{appTitle:'Zip Up Your Puffer',startHint:'Hold to zip. When it catches, free the fabric on that side.',start:'Start',time:'Time left {n}s',progress:'Zipped {n}%',zip:'Zip up',zipLabel:'Hold to zip up',left:'Free left',leftLabel:'Free fabric on the left',right:'Free right',rightLabel:'Free fabric on the right',snagLeft:'Fabric caught on the left.',snagRight:'Fabric caught on the right.',wrongWhileLeft:'Free the fabric on the left.',wrongWhileRight:'Free the fabric on the right.',cleared:'Fabric freed! Zip up again.',paused:'Paused',resume:'Resume',success:'Zipped to the collar!',timeout:'Time’s up!',score:'Score {n}',best:'Best {n}',retry:'Retry'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var S=D[lang];
+function t(k,n){return S[k].replace('{n}',n===undefined?'':Number(n).toLocaleString(lang));}
+document.documentElement.lang=lang;
+document.title=S.appTitle;
+
+var $=function(i){return document.getElementById(i);};
+var KEY='puffer-zip:best:v1',TOTAL=24,SPEED=20,POS=[18,36,57,75,91];
+var YB=248,YT=48; // hem / collar y
+var mq=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
+var reduce=!!(mq&&mq.matches);
+if(mq&&mq.addEventListener)mq.addEventListener('change',function(e){reduce=e.matches;});
+
+// static text
+$('tStart').textContent=S.appTitle;$('hStart').textContent=S.startHint;
+$('start').textContent=S.start;
+$('left').textContent=S.left;$('left').setAttribute('aria-label',S.leftLabel);
+$('right').textContent=S.right;$('right').setAttribute('aria-label',S.rightLabel);
+$('zip').textContent=S.zip;$('zip').setAttribute('aria-label',S.zipLabel);
+$('tPause').textContent=S.paused;$('resume').textContent=S.resume;$('retry').textContent=S.retry;
+
+// jacket bands
+(function(){
+  var b='',s='';
+  for(var i=0;i<6;i++){var y=56+i*32;
+    b+='<rect x="50" y="'+y+'" width="100" height="34" rx="12"/>';
+    s+='<rect x="55" y="'+(y+4)+'" width="90" height="26" rx="9"/>';}
+  $('bands').innerHTML=b;$('stitch').innerHTML=s;
+})();
+
+var best=0;
+function validBest(v){var n=Number(v);return(typeof v==='string'&&/^\d+$/.test(v)&&n>=0&&n<=220)?n:0;}
+function readBest(){try{return validBest(localStorage.getItem(KEY));}catch(e){return 0;}}
+best=readBest();
+
+var mode='start',p=0,timeLeft=TOTAL,snags=[],idx=0,snag=false,hold=null,simT=0,clockBase=0,clockStart=0,fbText='',fbShake=false,done=false,result=null;
+var els={left:$('left'),right:$('right'),zip:$('zip')};
+
+function show(m){
+  mode=m;
+  $('pStart').hidden=m!=='start';$('pPlay').hidden=m!=='play';
+  $('pPause').hidden=m!=='pause';$('pResult').hidden=m!=='result';
+}
+function setFb(s,shake){
+  var f=$('fb');
+  f.classList.remove('shake');
+  f.textContent=s;
+  if(shake&&!reduce){void f.offsetWidth;f.classList.add('shake');}
+}
+function render(){
+  var pp=Math.floor(p+1e-9);if(p>=100)pp=100;
+  $('time').textContent=t('time',Math.max(0,Math.ceil(timeLeft-1e-9)));
+  $('prog').textContent=t('progress',pp);
+  $('fill').style.width=p+'%';
+  var y=YB-(YB-YT)*p/100;
+  $('slider').setAttribute('transform','translate(0,'+y+')');
+  var open=p<100&&p>=0;
+  var g=open?14:0;
+  $('lining').setAttribute('points',open?'100,'+y+' '+(100-g)+','+YT+' '+(100+g)+','+YT:'');
+  $('trkL').setAttribute('d',open?'M100 '+y+'L'+(100-g)+' '+YT:'');
+  $('trkR').setAttribute('d',open?'M100 '+y+'L'+(100+g)+' '+YT:'');
+  $('teeth').setAttribute('y1',y);$('teeth').setAttribute('y2',YB+4);
+  $('seam').setAttribute('y1',YT);$('seam').setAttribute('y2',YB+4);
+  $('coat').classList.toggle('done',done);
+  els.left.classList.toggle('hint',snag&&snags[idx].side==='left');
+  els.right.classList.toggle('hint',snag&&snags[idx].side==='right');
+  els.zip.classList.toggle('held',!!hold);
+}
+function placeFold(side,pos){
+  var el=$(side==='left'?'foldL':'foldR'),fy=YB-(YB-YT)*pos/100;
+  el.setAttribute('transform',side==='left'?'translate(0,'+fy+')':'translate(200,'+fy+') scale(-1,1)');
+}
+function hideFolds(){['foldL','foldR'].forEach(function(i){$(i).setAttribute('class','fold');});}
+
+function startRound(){
+  var s0=Math.random()<.5?'left':'right',o=s0==='left'?'right':'left';
+  snags=POS.map(function(pos,i){return{pos:pos,side:i%2===0?s0:o};});
+  idx=0;p=0;timeLeft=TOTAL;snag=false;hold=null;done=false;result=null;
+  hideFolds();setFb('');
+  simT=0;clockBase=0;
+  show('play');render();
+  clockStart=performance.now();
+  els.zip.focus();
+}
+function press(owner){
+  if(mode!=='play'||hold||snag)return;
+  advance(performance.now());
+  if(mode!=='play'||snag)return;
+  hold=owner;render();
+}
+function release(owner){
+  if(hold!==owner)return;
+  advance(performance.now());
+  hold=null;
+  if(mode==='play')render();
+}
+function clearSnag(side){
+  if(mode!=='play')return;
+  advance(performance.now());
+  if(mode!=='play'||!snag)return;
+  var sn=snags[idx];
+  if(sn.side!==side){setFb(t(sn.side==='left'?'wrongWhileLeft':'wrongWhileRight'),true);return;}
+  var el=$(side==='left'?'foldL':'foldR');
+  if(reduce){el.setAttribute('class','fold');}
+  else{el.setAttribute('class','fold out');setTimeout(function(){if(el.getAttribute('class')==='fold out')el.setAttribute('class','fold');},320);}
+  snag=false;idx++;setFb(t('cleared'));render();
+}
+function end(ok){
+  hold=null;snag=false;hideFolds();
+  var score,pp;
+  if(ok){p=100;done=true;score=100+Math.floor(Math.max(0,timeLeft)*5+1e-9);}
+  else{timeLeft=0;score=Math.floor(p+1e-9);}
+  pp=ok?100:score;
+  best=Math.max(score,best,readBest());
+  try{localStorage.setItem(KEY,String(best));}catch(e){}
+  setFb('');
+  $('tRes').textContent=t(ok?'success':'timeout');
+  $('rProg').textContent=t('progress',pp);
+  $('rTime').textContent=t('time',Math.max(0,Math.ceil(timeLeft-1e-9)));
+  $('sc').textContent=t('score',score);
+  $('rBest').textContent=t('best',best);
+  show('result');render();
+  $('retry').focus();
+}
+// active-play clock: simT = ms of active play; deadline = TOTAL*1000
+function advance(now){
+  if(mode!=='play')return;
+  var DL=TOTAL*1000;
+  var target=Math.max(simT,Math.min(clockBase+(now-clockStart),DL));
+  var avail=(target-simT)/1000;
+  if(avail>0&&hold&&!snag){
+    var next=idx<snags.length?snags[idx].pos:100,need=(next-p)/SPEED;
+    if(need<=avail+1e-9){
+      simT=Math.min(simT+need*1000,DL);
+      timeLeft=(DL-simT)/1000;
+      if(next>=100)return end(true);
+      p=next;snag=true;hold=null;
+      var sn=snags[idx];placeFold(sn.side,sn.pos);
+      $(sn.side==='left'?'foldL':'foldR').setAttribute('class','fold on');
+      setFb(t(sn.side==='left'?'snagLeft':'snagRight'));
+    }else p+=SPEED*avail;
+  }
+  simT=target;timeLeft=(DL-simT)/1000;
+  if(simT>=DL)return end(false);
+  render();
+}
+function frame(now){
+  requestAnimationFrame(frame);
+  advance(now);
+}
+requestAnimationFrame(frame);
+
+function pause(){
+  if(mode!=='play')return;
+  advance(performance.now());
+  if(mode!=='play')return;
+  hold=null;
+  show('pause');render();
+  if(document.visibilityState==='visible'&&document.hasFocus())$('resume').focus();
+}
+function resume(){
+  if(mode!=='pause')return;
+  if(document.visibilityState!=='visible'||!document.hasFocus())return;
+  hold=null;show('play');render();clockBase=simT;clockStart=performance.now();els.zip.focus();
+}
+window.addEventListener('blur',pause);
+document.addEventListener('visibilitychange',function(){if(document.hidden)pause();});
+window.addEventListener('focus',function(){if(mode==='pause')$('resume').focus();});
+
+$('start').addEventListener('click',startRound);
+$('retry').addEventListener('click',startRound);
+$('resume').addEventListener('click',resume);
+els.left.addEventListener('click',function(){clearSnag('left');});
+els.right.addEventListener('click',function(){clearSnag('right');});
+
+// zip pointer hold
+var zb=els.zip;
+zb.addEventListener('pointerdown',function(e){
+  e.preventDefault();
+  if(mode!=='play'||hold||snag)return;
+  try{zb.setPointerCapture(e.pointerId);}catch(x){}
+  press('p'+e.pointerId);
+});
+['pointerup','pointercancel','lostpointercapture'].forEach(function(ev){
+  zb.addEventListener(ev,function(e){release('p'+e.pointerId);});
+});
+zb.addEventListener('contextmenu',function(e){e.preventDefault();});
+
+// keyboard
+document.addEventListener('keydown',function(e){
+  var k=e.key,onBtn=e.target&&e.target.tagName==='BUTTON';
+  if((k==='Enter'||k===' ')&&e.repeat&&onBtn){e.preventDefault();return;}
+  if(mode!=='play')return;
+  if(k==='ArrowUp'){e.preventDefault();if(!e.repeat)press('kUp');}
+  else if(k==='ArrowLeft'||k==='ArrowRight'){e.preventDefault();if(!e.repeat)clearSnag(k==='ArrowLeft'?'left':'right');}
+  else if((k==='Enter'||k===' ')&&e.target===zb){e.preventDefault();if(!e.repeat)press('k'+k);}
+  else if(k==='ArrowDown'||k==='PageUp'||k==='PageDown'||k==='Home'||k==='End')e.preventDefault();
+});
+document.addEventListener('keyup',function(e){
+  var k=e.key;
+  if(k==='ArrowUp')release('kUp');
+  else if(k==='Enter'||k===' '){release('k'+k);if(e.target===zb&&mode==='play')e.preventDefault();}
+});
+// touch: block gestures on game controls only (page zoom stays allowed)
+$('ctl').addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});
+
+show('start');render();
+try{$('start').focus();}catch(e){}
+})();
+</script>
+</body>
+</html>

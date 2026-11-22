@@ -1,0 +1,21 @@
+{
+  "slug": "fish-cake-cart-asmr",
+  "date": "2026-11-22",
+  "category": "radio",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "tags": ["어묵", "포장마차", "겨울 ASMR"],
+    "title": "어묵 포장마차 ASMR",
+    "desc": "겨울밤 어묵 포장마차에 잠깐 들러 보세요. 국물이 보글거리는 냄비 앞, 천막 아래, 골목 입구에서 들리는 소리가 조금씩 달라요.",
+    "howto": "‘소리 켜기’를 누르고 자리를 골라 보세요. 음량을 조절하거나 ‘일시 정지’를 눌러 쉴 수 있어요. 키보드로는 Tab과 Enter를 사용하세요.",
+    "about": "어묵 국물이 끓는 소리부터 천막을 스치는 바람까지, 브라우저에서 직접 합성한 겨울밤 소리예요."
+  },
+  "en": {
+    "tags": ["fish cake", "Korean street food", "winter ASMR"],
+    "title": "Fish Cake Cart ASMR",
+    "desc": "Stop by a Korean fish cake cart on a winter night. Hear the broth, canvas awning, and alley from three listening spots.",
+    "howto": "Turn on the sound and pick a listening spot. Adjust the volume or pause whenever you like. Use Tab and Enter to move between and activate controls.",
+    "about": "Your browser synthesizes the winter soundscape, from simmering fish cake broth to wind brushing against the canvas awning."
+  }
+}

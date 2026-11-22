@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>크리스마스 케이크 가격 비교</title>
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100vh;height:100dvh;overflow:hidden;background:#FFF7E9;color:#382534;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-variant-numeric:tabular-nums}
+#app{position:relative;display:flex;flex-direction:column;height:100vh;height:100dvh}
+main{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 12px;max-width:640px;width:100%;margin:0 auto;-webkit-overflow-scrolling:touch}
+h1{font-size:1.35rem;margin:0 0 4px}
+h2{font-size:1.2rem;margin:0 0 10px}
+h2:focus-visible{outline:3px solid #205E4F;outline-offset:2px}
+.intro{margin:0 0 12px;opacity:.85}
+fieldset{border:2px solid #382534;border-radius:14px;margin:0 0 12px;padding:8px 12px 12px;background:#fff}
+legend{font-weight:700;padding:0 6px;font-size:1.05rem;color:#9B3154}
+.f{margin-top:8px}
+label{display:block;font-size:.9rem;margin-bottom:3px}
+input{width:100%;min-height:44px;font:inherit;font-size:1rem;padding:6px 10px;border:2px solid #382534;border-radius:10px;background:#FFF7E9;color:#382534}
+input[aria-invalid=true]{border-color:#B3261E;background:#fff0ee}
+.err{color:#B3261E;font-size:.85rem;margin-top:3px}
+.err:empty{display:none}
+.bar{flex:none;display:flex;gap:8px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));background:#FFF7E9;border-top:2px solid #382534;max-width:640px;width:100%;margin:0 auto}
+.keyboard .bar{padding:4px 16px}
+@media (max-height:350px){.bar{padding-top:4px;padding-bottom:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}}
+button{font:inherit;font-weight:700;min-width:44px;min-height:44px;padding:8px 14px;border-radius:12px;border:2px solid #9B3154;cursor:pointer;flex:1}
+.pri{background:#9B3154;color:#fff}
+.sec{background:#fff;color:#9B3154}
+button:focus-visible,input:focus-visible{outline:3px solid #205E4F;outline-offset:2px}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.tag{display:inline-block;background:#382534;color:#FFF7E9;border-radius:8px;padding:2px 10px;font-size:.85rem;font-weight:700;margin-bottom:8px}
+.res{animation:in .25s ease-out}
+@keyframes in{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.res{animation:none}}
+table{width:100%;border-collapse:separate;border-spacing:8px;table-layout:fixed;margin:-8px}
+th,td{vertical-align:top;overflow-wrap:anywhere;word-break:keep-all;text-align:center}
+thead th{background:#9B3154;color:#fff;border-radius:12px;padding:10px 4px}
+tbody th{text-align:left;font-size:.9rem;padding:8px 2px}
+td{background:#fff;border:2px solid #382534;border-radius:12px;padding:10px 4px;font-size:1.15rem;font-weight:700}
+td.low{border-color:#205E4F;box-shadow:0 0 0 2px #205E4F inset}
+.badge{display:block;margin-top:4px;font-size:.78rem;color:#205E4F;font-weight:700}
+.note{font-size:.85rem;margin:14px 0 0}
+ul.bud{list-style:none;padding:0;margin:14px 0 0}
+ul.bud li{background:#fff;border:2px solid #382534;border-radius:12px;padding:10px 12px;margin-bottom:8px;overflow-wrap:anywhere}
+ul.bud b{color:#9B3154}
+</style>
+</head>
+<body>
+<form id="app" novalidate>
+<div id="validation-status" class="sr-only" role="status" aria-atomic="true"></div>
+<main id="main">
+  <section id="edit">
+    <h1 id="h1"></h1>
+    <p class="intro" id="intro"></p>
+    <div id="fields"></div>
+  </section>
+  <section id="result" class="res" hidden>
+    <span class="tag" id="exTag" hidden></span>
+    <h2 id="rh" tabindex="-1"></h2>
+    <div id="grid"></div>
+    <p class="note" id="rnote" hidden></p>
+    <ul class="bud" id="bud"></ul>
+  </section>
+</main>
+<div class="bar">
+  <button type="submit" class="pri" id="bCompare"></button>
+  <button type="button" class="sec" id="bExample"></button>
+  <button type="button" class="pri" id="bEdit" hidden></button>
+  <button type="button" class="pri" id="bBack" hidden></button>
+</div>
+</form>
+<script>
+(function(){
+var T={
+ko:{title:'크리스마스 케이크 가격 비교',intro:'케이크 두 개의 결제 총액과 1인분 가격을 비교해 보세요.',cakeA:'케이크 A',cakeB:'케이크 B',cakePrice:'케이크 가격 (원)',extraFees:'추가 비용 (원, 선택)',servings:'인분 수',budget:'예산 (원, 선택)',budgetLegend:'예산',compare:'가격 비교',example:'예시 보기',resultTitle:'케이크 가격 비교 결과',exampleLabel:'예시',total:'결제 총액',perServing:'1인분 가격',lower:'더 저렴',tied:'같은 가격',roundedNote:'표시 금액은 원 단위로 반올림했어요. 더 저렴한 쪽은 반올림 전 가격으로 정해요.',budgetLeft:'예산 {amount} 남음',budgetExact:'예산에 딱 맞아요',budgetOver:'예산 {amount} 초과',edit:'가격 수정',backToDraft:'내 케이크로 돌아가기',priceError:'0원부터 9,999,999원까지 정수로 입력해 주세요.',servingsError:'1부터 999까지 정수로 입력해 주세요.',budgetError:'0원부터 19,999,998원까지 정수로 입력해 주세요.',won:'{number}원'},
+en:{title:'Christmas Cake Price Compare',intro:'Compare two cakes by checkout total and cost per serving.',cakeA:'Cake A',cakeB:'Cake B',cakePrice:'Cake price (KRW)',extraFees:'Extra fees (KRW, optional)',servings:'Servings',budget:'Budget (KRW, optional)',budgetLegend:'Budget',compare:'Compare prices',example:'See example',resultTitle:'Cake price comparison',exampleLabel:'Example',total:'Checkout total',perServing:'Cost per serving',lower:'Lower price',tied:'Same price',roundedNote:'Displayed amounts are rounded to the nearest won. The lower price uses the exact amounts.',budgetLeft:'{amount} left in budget',budgetExact:'Exactly on budget',budgetOver:'{amount} over budget',edit:'Edit prices',backToDraft:'Back to my cakes',priceError:'Enter a whole amount from ₩0 to ₩9,999,999.',servingsError:'Enter a whole number from 1 to 999.',budgetError:'Enter a whole amount from ₩0 to ₩19,999,998.',won:'₩{number}'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var L=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var S=T[L];
+document.documentElement.lang=L;
+document.title=S.title;
+
+var KEY='christmas-cake-price-compare:draft:v1',MAX=24;
+// id, cake key, field key, kind, max
+var F=[
+['aPrice','cakeA','cakePrice','money',9999999],['aFee','cakeA','extraFees','fee',9999999],['aServ','cakeA','servings','serv',999],
+['bPrice','cakeB','cakePrice','money',9999999],['bFee','cakeB','extraFees','fee',9999999],['bServ','cakeB','servings','serv',999],
+['budget',null,'budget','budget',19999998]
+];
+var draft={};F.forEach(function(f){draft[f[0]]=''});
+try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&typeof o==='object')F.forEach(function(f){if(typeof o[f[0]]==='string')draft[f[0]]=o[f[0]].slice(0,MAX)})}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(draft))}catch(e){}}
+
+function fmt(n){return S.won.replace('{number}',String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','))}
+function $(id){return document.getElementById(id)}
+
+// build edit form
+var fieldsEl=$('fields'),html='';
+function fieldHtml(f){
+  var name=(f[1]?S[f[1]]+' ':'')+S[f[2]];
+  var required=f[3]==='money'||f[3]==='serv'?' required':'';
+  return '<div class="f"><label for="'+f[0]+'">'+S[f[2]]+'</label><input id="'+f[0]+'" type="text" inputmode="numeric" autocomplete="off" maxlength="'+MAX+'" aria-label="'+name+'" aria-describedby="e_'+f[0]+'" aria-invalid="false"'+required+'><div class="err" id="e_'+f[0]+'"></div></div>';
+}
+['cakeA','cakeB'].forEach(function(c){
+  html+='<fieldset><legend>'+S[c]+'</legend>'+F.filter(function(f){return f[1]===c}).map(fieldHtml).join('')+'</fieldset>';
+});
+html+='<fieldset><legend>'+S.budgetLegend+'</legend>'+fieldHtml(F[6])+'</fieldset>';
+fieldsEl.innerHTML=html;
+$('h1').textContent=S.title;$('intro').textContent=S.intro;
+$('bCompare').textContent=S.compare;$('bExample').textContent=S.example;$('bEdit').textContent=S.edit;$('bBack').textContent=S.backToDraft;
+$('rh').textContent=S.resultTitle;$('exTag').textContent=S.exampleLabel;
+
+// parse: returns integer or null (invalid); blank handled by caller
+function parse(raw,kind,max){
+  var s=raw.trim().replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0)}).replace(/，/g,',');
+  if(kind==='serv'){if(!/^\d+$/.test(s))return null}
+  else if(!(/^\d+$/.test(s)||/^\d{1,3}(,\d{3})+$/.test(s)))return null;
+  var n=Number(s.replace(/,/g,''));
+  if(n>max||(kind==='serv'&&n<1))return null;
+  return n;
+}
+function read(f){
+  var raw=draft[f[0]];
+  if(raw.trim()===''){return (f[3]==='fee')?{v:0}:(f[3]==='budget'?{v:null}:{bad:1})}
+  var n=parse(raw,f[3],f[4]);
+  return n===null?{bad:1}:{v:n};
+}
+function errMsg(f){return f[3]==='serv'?S.servingsError:(f[3]==='budget'?S.budgetError:S.priceError)}
+function mark(f,bad){
+  var el=$(f[0]);el.setAttribute('aria-invalid',bad?'true':'false');$('e_'+f[0]).textContent=bad?errMsg(f):'';
+}
+
+var app=$('app'),main=$('main'),host=window,frame=null;
+// The same-origin wrapper owns the visual viewport when its keyboard opens.
+try{
+  frame=window.frameElement;
+  if(frame)host=window.parent;
+}catch(e){}
+var viewport=host.visualViewport,layoutQueued=false,shiftFrame=false;
+function queueLayout(allowShift){
+  shiftFrame=shiftFrame||allowShift;
+  if(layoutQueued)return;
+  layoutQueued=true;
+  requestAnimationFrame(function(){
+    layoutQueued=false;
+    var mayShift=shiftFrame;
+    shiftFrame=false;
+    var active=document.activeElement;
+    var input=active&&active.tagName==='INPUT'?active:null;
+    // A tap on the action bar may blur the input before the tap completes.
+    var fit=viewport&&viewport.height<host.innerHeight-1&&(input||app.classList.contains('keyboard'));
+    var top=0,height=window.innerHeight;
+    if(fit){
+      var frameTop=frame?frame.getBoundingClientRect().top:0;
+      var visibleTop=viewport.offsetTop,visibleBottom=visibleTop+viewport.height;
+      if(frame&&input&&mayShift&&frameTop>visibleTop&&frameTop+height>visibleBottom){
+        host.scrollBy(0,Math.ceil(Math.min(frameTop-visibleTop,frameTop+height-visibleBottom)));
+        frameTop=frame.getBoundingClientRect().top;
+      }
+      top=Math.max(0,Math.ceil(visibleTop-frameTop));
+      height=Math.floor(Math.min(height,visibleBottom-frameTop))-top;
+      fit=height>0;
+    }
+    app.classList.toggle('keyboard',!!fit);
+    app.style.top=fit?top+'px':'';
+    app.style.height=fit?height+'px':'';
+    if(input){
+      var fieldRect=input.getBoundingClientRect(),panelRect=main.getBoundingClientRect();
+      if(fieldRect.top<panelRect.top+4||fieldRect.bottom>panelRect.bottom-4){
+        main.scrollTop+=(fieldRect.top+fieldRect.bottom-panelRect.top-panelRect.bottom)/2;
+      }
+    }
+  });
+}
+window.addEventListener('resize',function(){queueLayout(true)});
+if(viewport){
+  viewport.addEventListener('resize',function(){queueLayout(true)});
+  viewport.addEventListener('scroll',function(){queueLayout(false)});
+}
+if(frame)host.addEventListener('scroll',function(){if(viewport)queueLayout(false)});
+
+var status=$('validation-status'),announcement;
+function clearAnnouncement(){
+  clearTimeout(announcement);
+  status.textContent='';
+}
+var last=null;
+F.forEach(function(f){
+  var el=$(f[0]);el.value=draft[f[0]];
+  el.addEventListener('input',function(){
+    draft[f[0]]=el.value.slice(0,MAX);last=f[0];save();
+    clearAnnouncement();
+    if(el.getAttribute('aria-invalid')==='true'&&!read(f).bad)mark(f,false);
+  });
+  el.addEventListener('focus',function(){queueLayout(true)});
+  el.addEventListener('blur',function(){queueLayout(false)});
+});
+
+function exactLower(totA,sA,totB,sB){var x=totA*sB,y=totB*sA;return x<y?'A':(x>y?'B':null)}
+function perServ(t,s){return Math.floor((2*t+s)/(2*s))}
+
+function cell(txt,low,tie){
+  return '<td class="'+(low?'low':'')+'">'+txt+(low?'<span class="badge">✓ '+S.lower+'</span>':'')+'</td>';
+}
+function render(v){
+  var tA=v.aP+v.aF,tB=v.bP+v.bF;
+  var pA=perServ(tA,v.aS),pB=perServ(tB,v.bS);
+  var lt=tA<tB?'A':(tA>tB?'B':null);
+  var lp=exactLower(tA,v.aS,tB,v.bS);
+  var g='<table><thead><tr><td style="display:none"></td><th scope="col" style="display:none"></th></tr></thead></table>';
+  g='<table><thead><tr><th scope="col"></th><th scope="col">'+S.cakeA+'</th><th scope="col">'+S.cakeB+'</th></tr></thead><tbody>';
+  g+='<tr><th scope="row">'+S.total+'</th>';
+  g+=lt?cell(fmt(tA),lt==='A')+cell(fmt(tB),lt==='B'):'<td colspan="2">'+fmt(tA)+'<span class="badge">= '+S.tied+'</span></td>';
+  g+='</tr><tr><th scope="row">'+S.perServing+'</th>';
+  g+=lp?cell(fmt(pA),lp==='A')+cell(fmt(pB),lp==='B'):'<td colspan="2">'+fmt(pA)+'<span class="badge">= '+S.tied+'</span></td>';
+  g+='</tr></tbody></table>';
+  $('grid').innerHTML=g;
+  $('rnote').textContent=S.roundedNote;$('rnote').hidden=!(lp&&pA===pB);
+  var b='';
+  if(v.bud!==null){
+    [['cakeA',tA],['cakeB',tB]].forEach(function(c){
+      var d=v.bud-c[1],m=d>0?S.budgetLeft.replace('{amount}',fmt(d)):(d===0?S.budgetExact:S.budgetOver.replace('{amount}',fmt(-d)));
+      b+='<li><b>'+S[c[0]]+'</b> · '+m+'</li>';
+    });
+  }
+  $('bud').innerHTML=b;
+}
+
+var view='edit';
+function show(v,example){
+  view=v;
+  $('edit').hidden=v!=='edit';$('result').hidden=v==='edit';
+  $('exTag').hidden=!example;
+  $('bCompare').hidden=$('bExample').hidden=v!=='edit';
+  $('bEdit').hidden=v!=='result';$('bBack').hidden=v!=='example';
+  var r=$('result');
+  if(v!=='edit'){clearAnnouncement();r.classList.remove('res');void r.offsetWidth;r.classList.add('res');main.scrollTop=0;$('rh').focus()}
+}
+function toEdit(){
+  show('edit');
+  var el=$(last||'aPrice');el.focus();
+}
+function submit(){
+  var vals={},first=null;
+  clearAnnouncement();
+  F.forEach(function(f){var r=read(f);mark(f,!!r.bad);if(r.bad&&!first)first=f;vals[f[0]]=r.v});
+  if(first){
+    var el=$(first[0]);
+    if(el===document.activeElement){
+      announcement=setTimeout(function(){status.textContent=errMsg(first)},50);
+      queueLayout(true);
+    }else{
+      el.focus();
+    }
+    return;
+  }
+  render({aP:vals.aPrice,aF:vals.aFee,aS:vals.aServ,bP:vals.bPrice,bF:vals.bFee,bS:vals.bServ,bud:vals.budget});
+  show('result');
+}
+function example(){
+  render({aP:32000,aF:4000,aS:6,bP:44000,bF:0,bS:8,bud:40000});
+  show('example',true);
+}
+$('app').addEventListener('submit',function(e){e.preventDefault();if(view==='edit')submit()});
+$('bExample').addEventListener('click',example);
+$('bEdit').addEventListener('click',toEdit);
+$('bBack').addEventListener('click',toEdit);
+show('edit');
+if(location.hash==='#demo'||new URLSearchParams(location.search).get('thumb')==='1')example();
+})();
+</script>
+</body>
+</html>

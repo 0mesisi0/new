@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>어묵 포장마차 ASMR</title>
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#101C30;color:#FFF2DC;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;align-items:center}
+header{width:100%;max-width:480px;padding:10px 16px 4px;text-align:center;flex:none}
+h1{margin:0;font-size:clamp(18px,5vw,26px);line-height:1.2}
+header p{margin:2px 0 0;font-size:clamp(12px,3.4vw,15px);opacity:.85;line-height:1.3}
+#scene{flex:1 1 0;min-height:0;width:100%;overflow:hidden;position:relative}
+#scene svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#cam{transform-origin:0 0;transition:transform .6s ease}
+#walls{transition:opacity .6s ease}
+.rm #cam,.rm #walls{transition:none}
+#controls{width:100%;max-width:480px;padding:6px 16px calc(10px + env(safe-area-inset-bottom));flex:none;display:flex;flex-direction:column;gap:8px}
+#play{min-height:48px;border:0;border-radius:24px;background:#FFC878;color:#101C30;font:700 17px/1.2 inherit;font-family:inherit;cursor:pointer;padding:0 20px}
+#play[aria-disabled=true]{opacity:.7;cursor:default}
+#play[hidden],.vol[hidden]{display:none}
+button:focus-visible,input:focus-visible+span,input[type=range]:focus-visible{outline:3px solid #FFF2DC;outline-offset:2px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{font-size:12px;opacity:.8;padding:0 0 3px}
+.spots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.spots label{position:relative;display:block}
+.spots input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.spots span{display:flex;align-items:center;gap:6px;min-height:44px;padding:4px 8px;border:2px solid rgba(255,242,220,.3);border-radius:12px;font-size:13px;line-height:1.2;pointer-events:none}
+.spots span::before{content:"";flex:none;width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,242,220,.6)}
+.spots input:checked+span{border-color:#FFC878;background:rgba(255,200,120,.16)}
+.spots input:checked+span::before{background:#FFC878;border-color:#FFC878}
+@media (forced-colors:active){
+  .spots span::before{forced-color-adjust:none;background:Canvas;border-color:CanvasText}
+  .spots input:checked+span::before{background:CanvasText;border-color:CanvasText}
+}
+.vol{display:flex;align-items:center;gap:8px;min-height:44px;font-size:13px}
+.vol input{flex:1;min-width:0;height:44px;margin:0;accent-color:#FFC878}
+.vol output{min-width:3.2em;text-align:right}
+#msg{min-height:1.3em;margin:0;font-size:13px;text-align:center;color:#FFC878}
+noscript{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#101C30;padding:20px;text-align:center}
+noscript p{margin:6px 0}
+#mute{flex:none;min-width:44px;min-height:44px;padding:0 10px;border:2px solid rgba(255,242,220,.6);border-radius:22px;background:transparent;color:#FFF2DC;font:600 13px/1.2 inherit;font-family:inherit;cursor:pointer}
+#mute[aria-pressed=true]{background:#FFC878;border-color:#FFC878;color:#101C30}
+</style>
+</head>
+<body>
+<noscript><div><p lang="ko">포장마차를 이용하려면 자바스크립트를 켜 주세요.</p><p lang="en">Enable JavaScript to use the fish cake cart.</p></div></noscript>
+<div id="app">
+<header><h1 id="t-title"></h1><p id="t-intro"></p></header>
+<div id="scene" aria-hidden="true">
+<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" focusable="false">
+<defs>
+<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFC878" stop-opacity=".75"/><stop offset=".5" stop-color="#FFC878" stop-opacity=".22"/><stop offset="1" stop-color="#FFC878" stop-opacity="0"/></radialGradient>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A1424"/><stop offset="1" stop-color="#1B2E4D"/></linearGradient>
+</defs>
+<rect x="-1200" y="-600" width="2800" height="1500" fill="#101C30"/>
+<rect x="-1200" y="-600" width="2800" height="860" fill="url(#sky)"/>
+<g id="cam" style="transform:translate(200px,150px) scale(1.1) translate(-200px,-158px)">
+  <!-- far alley -->
+  <rect x="-1200" y="250" width="2800" height="600" fill="#0B1322"/>
+  <rect x="120" y="60" width="160" height="190" fill="#16253F"/>
+  <rect x="150" y="90" width="22" height="30" fill="#FFC878" opacity=".25"/>
+  <rect x="236" y="130" width="22" height="30" fill="#FFC878" opacity=".18"/>
+  <ellipse cx="200" cy="170" rx="190" ry="130" fill="url(#glow)"/>
+  <!-- snow ground -->
+  <ellipse cx="200" cy="262" rx="160" ry="14" fill="#2A4064" opacity=".7"/>
+  <!-- cart -->
+  <circle cx="132" cy="262" r="16" fill="#1A1410"/><circle cx="132" cy="262" r="6" fill="#5A4636"/>
+  <circle cx="268" cy="262" r="16" fill="#1A1410"/><circle cx="268" cy="262" r="6" fill="#5A4636"/>
+  <rect x="104" y="196" width="192" height="62" rx="6" fill="#5A3A28"/>
+  <rect x="104" y="196" width="192" height="8" fill="#7A5238"/>
+  <rect x="116" y="212" width="80" height="38" rx="4" fill="#47301F"/>
+  <rect x="210" y="212" width="74" height="38" rx="4" fill="#47301F"/>
+  <!-- pot -->
+  <rect x="140" y="170" width="120" height="30" rx="5" fill="#9AA6B4"/>
+  <rect x="140" y="170" width="120" height="6" fill="#C6D0DA"/>
+  <ellipse cx="200" cy="171" rx="58" ry="6" fill="#C98B4A"/>
+  <ellipse cx="200" cy="171" rx="58" ry="6" fill="none" stroke="#FFC878" stroke-width="1.5"/>
+  <g fill="#FFC878" opacity=".7"><circle cx="165" cy="171" r="2"/><circle cx="196" cy="172" r="1.6"/><circle cx="228" cy="170.5" r="2.2"/></g>
+  <!-- skewers -->
+  <g stroke="#D8B27A" stroke-width="2" stroke-linecap="round">
+    <line x1="158" y1="132" x2="170" y2="172"/><line x1="176" y1="130" x2="184" y2="172"/><line x1="194" y1="129" x2="198" y2="172"/><line x1="212" y1="130" x2="212" y2="172"/><line x1="230" y1="131" x2="226" y2="172"/><line x1="246" y1="133" x2="240" y2="172"/>
+  </g>
+  <g fill="#F3D9A8" stroke="#B88A52" stroke-width="1">
+    <rect x="161" y="141" width="12" height="9" rx="3"/><rect x="178" y="139" width="12" height="9" rx="3"/><rect x="195" y="138" width="12" height="9" rx="3"/><rect x="211" y="139" width="12" height="9" rx="3"/><rect x="227" y="140" width="12" height="9" rx="3"/><rect x="241" y="142" width="12" height="9" rx="3"/>
+    <rect x="164" y="154" width="12" height="9" rx="3" fill="#E9C48C"/><rect x="190" y="152" width="12" height="9" rx="3" fill="#E9C48C"/><rect x="220" y="153" width="12" height="9" rx="3" fill="#E9C48C"/>
+  </g>
+  <!-- cups -->
+  <g fill="#FFF2DC"><path d="M252 180l-3 16h16l-3-16z"/><path d="M270 182l-3 14h14l-3-14z"/></g>
+  <g fill="#8C433C" opacity=".8"><rect x="251" y="186" width="14" height="3"/><rect x="269" y="187" width="12" height="3"/></g>
+  <!-- posts -->
+  <rect x="106" y="86" width="5" height="112" fill="#3A281C"/><rect x="289" y="86" width="5" height="112" fill="#3A281C"/>
+  <!-- steam -->
+  <g id="steam" fill="none" stroke="#FFF2DC" stroke-width="3" stroke-linecap="round" opacity=".5">
+    <path class="st" d="M176 124c-8-10 8-16 0-26"/><path class="st" d="M200 122c-8-10 8-16 0-26"/><path class="st" d="M224 124c-8-10 8-16 0-26"/><path class="st" d="M246 126c-7-9 7-14 0-22"/>
+  </g>
+  <!-- canopy -->
+  <path d="M92 90L120 40h160l28 50z" fill="#8C433C"/>
+  <path d="M120 40h40l-8 50h-44zM200 40h40l12 50h-52z" fill="#A55349" opacity=".55"/>
+  <path d="M92 90h216v6c0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0 0 7-9 7-9 0z" fill="#8C433C"/>
+  <rect x="92" y="88" width="216" height="3" fill="#6C312C"/>
+  <path d="M200 40v50" stroke="#6C312C" stroke-width="2"/>
+  <!-- lamp -->
+  <line x1="200" y1="90" x2="200" y2="102" stroke="#3A281C" stroke-width="2"/>
+  <circle cx="200" cy="108" r="8" fill="#FFC878"/>
+  <circle cx="200" cy="108" r="26" fill="url(#glow)"/>
+  <g fill="#FFC878"><circle cx="140" cy="98" r="3"/><circle cx="170" cy="99" r="3"/><circle cx="230" cy="99" r="3"/><circle cx="260" cy="98" r="3"/></g>
+  <!-- snow -->
+  <g fill="#FFF2DC" opacity=".6"><circle cx="70" cy="70" r="1.6"/><circle cx="330" cy="110" r="1.8"/><circle cx="90" cy="180" r="1.4"/><circle cx="320" cy="200" r="1.6"/><circle cx="150" cy="30" r="1.5"/><circle cx="260" cy="24" r="1.7"/></g>
+</g>
+<g id="walls" style="opacity:.35">
+  <path d="M-1200 -600H34L74 40 74 262 34 330 -1200 330z" fill="#070D18"/>
+  <path d="M1600 -600H366L326 40 326 262 366 330 1600 330z" fill="#070D18"/>
+  <rect x="-1200" y="262" width="2800" height="600" fill="#0B1322" opacity=".0"/>
+</g>
+</svg>
+</div>
+<div id="controls">
+<button id="play" type="button"></button>
+<fieldset><legend id="t-spots"></legend>
+<div class="spots">
+<label><input type="radio" name="spot" value="pot"><span id="t-pot"></span></label>
+<label><input type="radio" name="spot" value="awning"><span id="t-awning"></span></label>
+<label><input type="radio" name="spot" value="alley"><span id="t-alley"></span></label>
+</div></fieldset>
+<div class="vol"><label for="vol" id="t-volume"></label><input id="vol" type="range" min="0" max="100" step="1"><output id="volout" for="vol"></output><button id="mute" type="button" aria-pressed="false"></button></div>
+<p id="msg" role="status" aria-live="polite"></p>
+</div>
+</div>
+<script>
+(function(){
+var STR={
+ko:{title:'어묵 포장마차 ASMR',intro:'자리를 옮겨 겨울밤 포장마차 소리를 들어 보세요.',spots:'듣는 자리',pot:'냄비 앞',awning:'천막 아래',alley:'골목 입구',start:'소리 켜기',pause:'일시 정지',resume:'다시 듣기',starting:'소리 준비 중…',volume:'음량',mute:'음소거',volumeValue:'{n}%',autoPaused:'다른 화면으로 이동해 소리를 멈췄어요.',audioFailed:'소리를 켜지 못했어요. 다시 눌러 보세요.',retry:'소리 다시 켜기',audioUnsupported:'이 브라우저에서는 그림만 볼 수 있어요.'},
+en:{title:'Fish Cake Cart ASMR',intro:'Move around the cart and listen to the winter night.',spots:'Listening spot',pot:'By the pot',awning:'Under the awning',alley:'At the alley entrance',start:'Turn on sound',pause:'Pause',resume:'Resume',starting:'Starting sound…',volume:'Volume',mute:'Mute',volumeValue:'{n}%',autoPaused:'Sound paused when you left this screen.',audioFailed:'Sound could not start. Try again.',retry:'Try sound again',audioUnsupported:'This browser can show the scene only.'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=STR[lang];
+document.documentElement.lang=lang;
+document.title=T.title;
+function $(id){return document.getElementById(id)}
+$('t-title').textContent=T.title;$('t-intro').textContent=T.intro;$('t-spots').textContent=T.spots;
+$('t-pot').textContent=T.pot;$('t-awning').textContent=T.awning;$('t-alley').textContent=T.alley;$('t-volume').textContent=T.volume;$('mute').textContent=T.mute;
+
+var KS='fish-cake-cart-asmr:spot',KV='fish-cake-cart-asmr:volume';
+var MIX={pot:[.8,.1,.1],awning:[.38,.47,.15],alley:[.18,.17,.65]};
+var CAM={all:'translate(200px,150px) scale(1.1) translate(-200px,-158px)',pot:'translate(200px,150px) scale(1.7) translate(-200px,-205px)',awning:'translate(200px,150px) scale(1.25) translate(-200px,-150px)',alley:'translate(200px,150px) scale(.72) translate(-200px,-165px)'};
+var WALL={pot:.3,awning:.45,alley:1};
+var spot='pot',volume=35,muted=false,framed=false; // framed: false = whole-cart overview until the listener picks or has saved a spot
+try{var s=localStorage.getItem(KS);if(/^(pot|awning|alley)$/.test(s)){spot=s;framed=true}}catch(e){}
+try{var v=localStorage.getItem(KV);if(/^(0|[1-9]\d?|100)$/.test(v))volume=+v}catch(e){}
+var mq=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
+var reduce=!!(mq&&mq.matches);
+document.documentElement.className=reduce?'rm':'';
+
+var AC=window.AudioContext||window.webkitAudioContext;
+var state=AC?'idle':'unsupported'; // idle|starting|playing|paused|error|unsupported
+var everPlayed=false,token=0;
+var ctx=null,G=null,timer=0,bubbles=[];
+var play=$('play'),vol=$('vol'),msg=$('msg');
+
+/* ---------- UI ---------- */
+function setMsg(k){msg.textContent=k?T[k]:''}
+function render(){
+  var k={idle:'start',starting:'starting',playing:'pause',paused:'resume',error:'retry'}[state];
+  if(state==='unsupported'){play.hidden=true;document.querySelector('.vol').hidden=true;setMsg('audioUnsupported')}
+  else{play.textContent=T[k];play.setAttribute('aria-disabled',state==='starting'?'true':'false')}
+  var on=state==='playing'&&!document.hidden;
+  if(on&&!raf&&!reduce){last=0;raf=requestAnimationFrame(frame)}
+}
+function renderVol(){
+  var t=T.volumeValue.replace('{n}',volume);
+  vol.value=volume;vol.setAttribute('aria-valuetext',t);$('volout').textContent=t;
+}
+function renderSpot(){
+  document.querySelector('input[name=spot][value='+spot+']').checked=true;
+  $('cam').style.transform=framed?CAM[spot]:CAM.all;$('walls').style.opacity=framed?WALL[spot]:.3;
+}
+function frameSpot(){if(!framed){framed=true;renderSpot()}}
+function onMotion(){
+  reduce=mq.matches;document.documentElement.className=reduce?'rm':'';
+  if(reduce){if(raf){cancelAnimationFrame(raf);raf=0}steamAt(0)}else render();
+}
+if(mq){if(mq.addEventListener)mq.addEventListener('change',onMotion);else if(mq.addListener)mq.addListener(onMotion)}
+
+/* ---------- steam ---------- */
+var steam=document.querySelectorAll('.st'),raf=0,last=0,clock=0;
+function steamAt(t){
+  for(var i=0;i<steam.length;i++){
+    var p=((t*.25+i*.27)%1);
+    steam[i].style.transform='translate('+Math.sin(t*1.3+i*2)*3+'px,'+(-p*14)+'px)';
+    steam[i].style.opacity=Math.sin(p*Math.PI).toFixed(2);
+  }
+}
+function frame(ts){
+  raf=0;
+  if(state!=='playing'||document.hidden)return;
+  var dt=last?Math.min(50,ts-last):16;last=ts;clock+=dt/1000;
+  steamAt(clock);
+  raf=requestAnimationFrame(frame);
+}
+for(var i=0;i<steam.length;i++){steam[i].style.opacity=.55}
+
+/* ---------- audio ---------- */
+function noiseSrc(){
+  var len=ctx.sampleRate*2,b=ctx.createBuffer(1,len,ctx.sampleRate),d=b.getChannelData(0);
+  for(var i=0;i<len;i++)d[i]=Math.random()*2-1;
+  var s=ctx.createBufferSource();s.buffer=b;s.loop=true;s.start(0,Math.random()*1.5);return s;
+}
+function build(){
+  var c=ctx.createDynamicsCompressor(),m=ctx.createGain();m.gain.value=0;
+  c.connect(m);m.connect(ctx.destination);
+  var m0=MIX[spot];
+  G={master:m,comp:c,srcs:[]};
+  // pot
+  var ps=noiseSrc(),plp=ctx.createBiquadFilter();plp.type='lowpass';plp.frequency.value=spot==='alley'?650:1600;
+  var pbed=ctx.createGain();pbed.gain.value=.35;
+  G.pot=ctx.createGain();G.pot.gain.value=m0[0];G.potLP=plp;G.bub=ctx.createGain();
+  ps.connect(plp);plp.connect(pbed);pbed.connect(G.pot);
+  var blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=1600;
+  G.bub.connect(blp);blp.connect(plp); // bubbles share pot distance filter
+  G.pot.connect(c);
+  // canvas
+  var cs=noiseSrc(),bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1800;bp.Q.value=.8;
+  G.swell=ctx.createGain();G.swell.gain.value=.12;
+  G.canvas=ctx.createGain();G.canvas.gain.value=m0[1];
+  cs.connect(bp);bp.connect(G.swell);G.swell.connect(G.canvas);G.canvas.connect(c);
+  // alley
+  var as=noiseSrc(),alp=ctx.createBiquadFilter();alp.type='lowpass';alp.frequency.value=500;
+  G.wind=ctx.createGain();G.wind.gain.value=.8;
+  G.alley=ctx.createGain();G.alley.gain.value=m0[2];
+  as.connect(alp);alp.connect(G.wind);G.wind.connect(G.alley);G.alley.connect(c);
+  G.srcs=[ps,cs,as];
+}
+function ramp(p,v,dur){
+  var t=ctx.currentTime;p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(v,t+dur);
+}
+function applyMix(dur){
+  if(!G)return;var m=MIX[spot];
+  ramp(G.pot.gain,m[0],dur);ramp(G.canvas.gain,m[1],dur);ramp(G.alley.gain,m[2],dur);
+  ramp(G.potLP.frequency,spot==='alley'?650:1600,dur);
+}
+function target(){return muted?0:.2*volume/100}
+var nb=0,ns=0,nw=0;
+function rnd(a,b){return a+Math.random()*(b-a)}
+function bubble(t){
+  var d=rnd(.05,.13),o=ctx.createOscillator(),g=ctx.createGain(),f=rnd(180,520);
+  o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*rnd(1.7,2.5),t+d);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(rnd(.25,.6),t+d*.15);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(G.bub);o.start(t);o.stop(t+d+.02);
+  var r={o:o,g:g};bubbles.push(r);
+  o.onended=function(){try{g.disconnect()}catch(e){}var i=bubbles.indexOf(r);if(i>-1)bubbles.splice(i,1)};
+}
+function tick(){
+  if(!ctx||!G)return;
+  var now=ctx.currentTime,end=now+.5;
+  if(nb<now)nb=now;
+  while(nb<end){bubble(nb);nb+=rnd(.14,.25)}
+  while(ns<end){
+    var d=rnd(.5,1.5),p=G.swell.gain;
+    p.setValueAtTime(.12,ns);p.linearRampToValueAtTime(rnd(.5,1),ns+d/2);p.linearRampToValueAtTime(.12,ns+d);
+    ns+=d+rnd(.2,1.2);
+  }
+  while(nw<end){
+    var w=rnd(3,6);G.wind.gain.linearRampToValueAtTime(rnd(.6,1),nw+w);nw+=w;
+  }
+}
+function schedStart(){
+  var now=ctx.currentTime;
+  G.swell.gain.cancelScheduledValues(now);G.swell.gain.setValueAtTime(.12,now);
+  G.wind.gain.cancelScheduledValues(now);G.wind.gain.setValueAtTime(.8,now);
+  nb=now+.02;ns=now+.3;nw=now;
+  tick();clearInterval(timer);timer=setInterval(tick,100);
+}
+function schedStop(){
+  clearInterval(timer);timer=0;
+  bubbles.slice().forEach(function(r){try{r.o.stop();r.o.disconnect();r.g.disconnect()}catch(e){}});bubbles=[];
+  if(G&&ctx){var now=ctx.currentTime;G.swell.gain.cancelScheduledValues(now);G.wind.gain.cancelScheduledValues(now)}
+}
+function silence(){ // immediate
+  schedStop();
+  if(G&&ctx){var p=G.master.gain,t=ctx.currentTime;p.cancelScheduledValues(t);p.setValueAtTime(0,t)}
+  if(ctx&&ctx.state==='running')ctx.suspend().catch(function(){});
+}
+function teardown(){
+  schedStop();
+  if(G)G.srcs.forEach(function(s){try{s.stop()}catch(e){}});
+  G=null;
+  if(ctx){try{ctx.close()}catch(e){}ctx=null}
+}
+function startPlay(){
+  var my=++token;state='starting';setMsg(null);render();
+  Promise.resolve().then(function(){
+    if(!ctx){ctx=new AC();build()}
+    return ctx.resume();
+  }).then(function(){
+    // stale startup: only silence if no newer attempt owns the context
+    if(my!==token){if(state!=='starting'&&state!=='playing')silence();return}
+    var p=G.master.gain,t=ctx.currentTime;
+    p.cancelScheduledValues(t);p.setValueAtTime(0,t);p.linearRampToValueAtTime(target(),t+.06);
+    applyMix(0.01);
+    schedStart();
+    state='playing';everPlayed=true;render();
+  }).catch(function(){
+    if(my!==token)return;
+    teardown();state='error';setMsg('audioFailed');render();
+  });
+}
+function pausePlay(){
+  token++;state='paused';setMsg(null);render();
+  schedStop();
+  var p=G.master.gain,t=ctx.currentTime,my=token;
+  p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(0,t+.12);
+  setTimeout(function(){if(my===token&&ctx&&state==='paused')ctx.suspend().catch(function(){})},140);
+}
+play.addEventListener('click',function(){
+  if(state==='starting'||state==='unsupported')return;
+  if(state==='playing')pausePlay();else startPlay();
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){
+    var s0=state;
+    token++;silence();
+    if(s0==='playing'){state='paused';pendingNote=true;render()}
+    else if(s0==='starting'){state=everPlayed?'paused':'idle';render()}
+  }else if(pendingNote){pendingNote=false;setMsg('autoPaused');render()}
+});
+var pendingNote=false;
+window.addEventListener('pagehide',function(){token++;teardown()});
+
+/* ---------- controls ---------- */
+document.querySelectorAll('input[name=spot]').forEach(function(r){
+  r.addEventListener('click',function(){if(r.value===spot)frameSpot()});
+  r.addEventListener('change',function(){
+    framed=true;
+    spot=r.value;try{localStorage.setItem(KS,spot)}catch(e){}
+    renderSpot();applyMix(.45);
+  });
+});
+vol.addEventListener('input',function(){
+  volume=Math.max(0,Math.min(100,Math.round(+vol.value)));
+  try{localStorage.setItem(KV,String(volume))}catch(e){}
+  muted=false;renderMute();renderVol();
+  if(G&&state==='playing')ramp(G.master.gain,target(),.06);
+});
+function renderMute(){$('mute').setAttribute('aria-pressed',muted?'true':'false')}
+$('mute').addEventListener('click',function(){
+  muted=!muted;renderMute();
+  if(G&&state==='playing')ramp(G.master.gain,target(),.06);
+});
+document.addEventListener('keydown',function(e){if(e.key===' '&&e.target===document.body)e.preventDefault()});
+renderSpot();renderVol();render();steamAt(0);
+})();
+</script>
+</body>
+</html>

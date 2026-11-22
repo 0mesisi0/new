@@ -135,6 +135,8 @@
     border-radius: 10px 6px 10px 7px; box-shadow: 0 4px 0 #0f0d23, 0 6px 0 #a7c447;
     font-size: clamp(1rem, 4vw, 1.25rem); font-weight: 950;
   }
+  #screen .go.locked { opacity: .55; cursor: default; }
+  #screen .go.locked:active { transform: none; }
   .go svg { width: 26px; height: 20px; }
   #screen .go:active { transform: translateY(3px); box-shadow: 0 1px 0 #0f0d23, 0 3px 0 #a7c447; }
   .runner { transform-origin: 50% 50%; transform-box: fill-box; animation: breathe 2.8s ease-in-out infinite; }
@@ -439,10 +441,12 @@
   let W = 0, H = 0, scale = 1, dpr = 1;
   let kbd = false, readyAt = 0;
   const parts = [];
-  motionPreference.addEventListener('change', () => {
+  function updateMotion() {
     syncVolume();
     if (reduced()) parts.length = 0;
-  });
+  }
+  if (typeof motionPreference.addEventListener === 'function') motionPreference.addEventListener('change', updateMotion);
+  else if (typeof motionPreference.addListener === 'function') motionPreference.addListener(updateMotion);
 
   function measure() {
     const r = field.getBoundingClientRect();
@@ -829,7 +833,9 @@
       `<p>${T.base} ${duration(elapsed)} + ${T.pen} ${duration(penalty)}</p><div class="receipt-rule"></div>` +
       `<p><b>${streakLine}</b></p>` + (isBest ? `<p class="nb">${T.newBest}</p>` : '') +
       `<p>${T.best}: <b>${duration(best)}</b></p></div>` +
-      `<button class="go" type="button" aria-describedby="screen-title total-label total">${T.retry}${arrow}</button>`, true);
+      `<button class="go locked" type="button" aria-describedby="screen-title total-label total">${T.retry}${arrow}</button>`, true);
+    const retry = screen.querySelector('.go');
+    setTimeout(() => retry.classList.remove('locked'), Math.max(0, readyAt - performance.now()));
     burst(innerWidth * .16, innerHeight * .42, confetti, 36, 1.1);
     burst(innerWidth * .84, innerHeight * .45, confetti, 36, 1.1);
   }
