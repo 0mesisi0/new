@@ -1,0 +1,21 @@
+{
+  "slug": "christmas-cake-slices",
+  "date": "2026-11-22",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "tags": ["크리스마스 케이크", "케이크 크기", "케이크 인원"],
+    "title": "크리스마스 케이크 조각 계산기",
+    "desc": "크리스마스 케이크 두 개의 지름과 인원수를 고르면, 한 사람 몫이 얼마나 달라지는지 조각 그림과 면적으로 바로 비교할 수 있어요.",
+    "howto": "인원수와 케이크 두 개의 지름을 고르세요. 색칠된 조각과 한 조각 면적을 비교하고, 결과를 복사해 공유할 수 있어요.",
+    "about": "원형 케이크를 똑같이 나눴을 때의 윗면 면적을 계산해요. 케이크의 높이와 무게는 계산에 들어가지 않아요."
+  },
+  "en": {
+    "tags": ["Christmas cake", "cake size", "cake portions"],
+    "title": "Christmas Cake Slice Calculator",
+    "desc": "Compare two round Christmas cakes at the same guest count. See how big each slice looks and how much the portion size changes.",
+    "howto": "Set the guest count and both cake diameters. Compare the highlighted slices and their areas, then copy the result to share.",
+    "about": "The calculator uses the top area of equal slices from round cakes. Height and weight are outside the calculation."
+  }
+}

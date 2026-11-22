@@ -1,0 +1,21 @@
+{
+  "slug": "year-end-date-picker",
+  "date": "2026-11-22",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "송년회 날짜 맞추기",
+    "tags": ["송년회", "모임 날짜", "일정 조율"],
+    "desc": "송년회 후보 날짜 세 개에 참석 가능 여부를 모아 가장 많이 모일 수 있는 날을 찾아요. 날짜별 인원을 복사해 단체 채팅방에 공유하세요.",
+    "howto": "후보 날짜 세 개와 인원수를 정한 뒤, 한 사람씩 가능한 날을 모두 골라 주세요. 결과에서 날짜별 인원을 확인하고 복사할 수 있어요.",
+    "about": "한 기기에서 최대 여섯 명의 응답을 모을 수 있어요. 날짜와 응답은 현재 화면에서만 사용하며, 나갔다 돌아오면 새로 시작해요."
+  },
+  "en": {
+    "title": "Find a Year-End Date",
+    "tags": ["year-end", "group scheduling", "availability"],
+    "desc": "See which of three dates works for the most people at your year-end gathering. Copy the headcounts for your group chat.",
+    "howto": "Set three candidate dates and the group size. Enter all the dates that work for each person, then review and copy the headcounts.",
+    "about": "Collect availability for up to six people on one device. Dates and responses stay in the open page. Reopening it starts a new tally."
+  }
+}

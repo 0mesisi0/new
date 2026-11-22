@@ -1,0 +1,21 @@
+{
+  "slug": "christmas-cake-price-compare",
+  "date": "2026-11-22",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "크리스마스 케이크 가격 비교",
+    "tags": ["크리스마스 케이크", "케이크 예약", "가격 비교"],
+    "desc": "크리스마스 케이크 두 개의 가격과 추가 비용을 넣어 보세요. 결제 총액과 1인분 가격을 나란히 보고 예산에 맞는 케이크를 고를 수 있어요.",
+    "howto": "케이크 A와 B의 가격, 인분 수, 추가 비용을 입력하고 ‘가격 비교’를 누르세요. 예산은 선택이에요. ‘예시 보기’로 바로 비교해 볼 수도 있어요.",
+    "about": "가격과 인분 수는 판매처 안내를 보고 직접 입력해요. 모든 금액은 원화로 계산하며 입력값은 이 브라우저에만 저장돼요."
+  },
+  "en": {
+    "title": "Christmas Cake Price Compare",
+    "tags": ["Christmas cake", "cake reservations", "price comparison"],
+    "desc": "Compare two Christmas cakes by checkout total and cost per serving. Include any extra fees and see which options fit your budget.",
+    "howto": "Enter the price, servings, and any extra fees for cakes A and B, then select Compare prices. Add a budget if you have one, or open the example.",
+    "about": "Enter the seller’s prices and serving estimates yourself. All amounts are in Korean won, and your entries stay in this browser."
+  }
+}

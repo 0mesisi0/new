@@ -1,0 +1,21 @@
+{
+  "slug": "puffer-zip",
+  "date": "2026-11-22",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "패딩 지퍼 올리기",
+    "desc": "패딩 지퍼에 옷감이 끼면 걸린 쪽을 빼 주세요. 왼쪽과 오른쪽을 번갈아 살피며 24초 안에 지퍼를 목 끝까지 올리는 게임이에요.",
+    "howto": "올리기 버튼이나 ↑를 길게 누르세요. 옷감이 끼면 걸린 쪽 버튼이나 ←·→를 누른 뒤 다시 올리세요.",
+    "about": "추운 날 현관 앞에서 꼭 한 번은 걸리는 패딩 지퍼를 24초짜리 게임으로 만들었어요.",
+    "tags": ["패딩", "지퍼", "겨울 게임"]
+  },
+  "en": {
+    "title": "Zip Up Your Puffer",
+    "desc": "Pull the fabric free whenever your puffer zipper catches. Watch both sides and zip all the way to the collar in 24 seconds.",
+    "howto": "Hold Zip up or ↑. When fabric catches, press the button on that side or use ← or →, then hold Zip up again.",
+    "about": "A 24-second game about that moment when your jacket zipper catches on your way out the door.",
+    "tags": ["puffer jacket", "zipper", "winter game"]
+  }
+}

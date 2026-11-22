@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>송년회 날짜 맞추기</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#F8F3E8;color:#23312D;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
+.app{height:100vh;height:100dvh;max-width:420px;margin:0 auto;display:flex;flex-direction:column;position:relative}
+.tabs{display:flex;gap:10px;padding:0 18px;flex:none;height:10px}
+.tabs i{width:26px;height:10px;background:#235746;border-radius:0 0 6px 6px}
+.tabs i:nth-child(2){background:#9D3A2C}.tabs i:nth-child(3){background:#c9a64d}
+#screen{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 18px 16px;overflow-x:hidden;overflow-y:auto}
+h1,h2{margin:0;font-size:1.5rem;line-height:1.2;outline:none}
+h1{font-size:1.75rem}
+p{margin:0;line-height:1.4}
+.hint{font-size:.9rem;color:#4a5a54}
+button,input,textarea{font:inherit;color:inherit}
+button{min-height:44px;min-width:44px;padding:8px 14px;border-radius:12px;border:2px solid #235746;background:#fffdf7;cursor:pointer;font-weight:600}
+button.pri{background:#235746;color:#fff}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #235746;outline-offset:2px}
+.actions{display:flex;flex-direction:column;gap:8px}
+.actions.row{flex-direction:row}.actions.row>button{flex:1}
+.actions.row>button.pri{flex:2}
+.field label{display:block;font-size:.85rem;font-weight:600;margin-bottom:2px}
+.field input{width:100%;min-height:44px;padding:8px 12px;border:2px solid #7a6f55;border-radius:12px;background:#fffdf7;font-variant-numeric:tabular-nums}
+.field input[aria-invalid=true]{border-color:#9D3A2C}
+.err{color:#9D3A2C;font-size:.85rem;font-weight:600}
+.err:empty{display:none}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper output{flex:1;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.date{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 12px;min-height:54px;background:#fffdf7;border-color:#7a6f55}
+.date[aria-pressed=true],.none[aria-pressed=true]{border-color:#235746;background:#e3efe8}
+.date .chk{width:24px;height:24px;border-radius:50%;border:2px solid #7a6f55;display:grid;place-items:center;flex:none;color:#fff;font-size:.9rem}
+.date[aria-pressed=true] .chk{background:#235746;border-color:#235746}
+.date .dt{flex:1}.date .st{font-size:.8rem;font-weight:500;color:#4a5a54}
+.dates{display:flex;flex-direction:column;gap:8px}
+.none{width:100%}
+.sample{align-self:flex-start;background:#c9a64d;color:#23312D;font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px}
+.headline{font-weight:700;color:#235746;font-size:1.05rem}
+#rows{display:flex;flex-direction:column;gap:8px}
+.row{background:#fffdf7;border:1px solid #d9cfb8;border-radius:12px;padding:8px 12px}
+.rtop{display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:22px;font-weight:600;font-size:.92rem}
+.badge{background:#235746;color:#fff;font-size:.72rem;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.bar{height:12px;background:#ebe3d0;border-radius:6px;margin:6px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;background:#5f7a6e;border-radius:6px;transform-origin:left;animation:grow .6s ease-out}
+.bar i.top{background:#235746}
+.noanim .bar i{animation:none}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.cnt{font-size:.85rem;font-variant-numeric:tabular-nums}
+#panel{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0}
+#panel textarea{flex:1;min-height:80px;resize:none;overflow:auto;padding:8px;border:2px solid #7a6f55;border-radius:12px;background:#fffdf7}
+.art{align-self:center;width:100%;max-width:260px;flex:none}
+.start{flex:1;justify-content:center}
+@media (max-height:560px){#screen{gap:6px;padding:10px 14px 10px}h1{font-size:1.4rem}h2{font-size:1.25rem}.date{min-height:48px;padding:4px 12px}.row{padding:5px 10px}.bar{margin:4px 0 2px;height:10px}.art{max-width:170px}.field label{margin-bottom:0}.hint,p{line-height:1.3}}
+@media (prefers-reduced-motion:reduce){.bar i{animation:none}}
+</style>
+</head>
+<body>
+<div class="app"><div class="tabs" aria-hidden="true"><i></i><i></i><i></i></div><main id="screen"></main></div>
+<div id="live" aria-live="polite" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"></div>
+<script>
+(function(){
+var S={
+ko:{appTitle:'송년회 날짜 맞추기',startIntro:'후보 날짜 세 개 중 가장 많이 모일 수 있는 날을 찾아요.',start:'날짜 정하기',example:'예시 보기',setupTitle:'모임 날짜 후보',setupHint:'날짜 세 개와 응답할 인원수를 정해 주세요.',dateField:'후보 날짜 {n}',datePlaceholder:'YYYY-MM-DD',dateInvalid:'실제 날짜를 YYYY-MM-DD 형식으로 입력해 주세요.',dateDuplicate:'앞에서 입력한 날짜와 달라야 해요.',groupSize:'응답 인원 {n}명',fewerPeople:'인원 한 명 줄이기',morePeople:'인원 한 명 늘리기',setupResetHint:'이 설정으로 계속하면 응답을 처음부터 다시 받아요.',back:'뒤로','continue':'응답 받기',personProgress:'{n}번째 응답 · 전체 {total}명',voteHint:'참석할 수 있는 날을 모두 골라 주세요.',available:'참석 가능',unmarked:'선택 안 함',noneAvailable:'참석 가능한 날 없음',responseRequired:'날짜를 고르거나 ‘참석 가능한 날 없음’을 선택해 주세요.',next:'다음 사람',showResult:'결과 보기',resultTitle:'날짜별 참석 가능 인원',sampleLabel:'예시 결과',winner:'{date}에 가장 많이 모일 수 있어요.',tie:'공동 1위 날짜가 {n}개예요.',noDate:'참석 가능한 날짜가 없어요.',topBadge:'최다 참석',count:'{total}명 중 {n}명',editVotes:'응답 수정',editSetup:'날짜·인원 수정',copy:'결과 복사',copied:'결과를 복사했어요.',manualCopy:'자동 복사가 되지 않았어요. 선택된 텍스트를 복사해 주세요.',copyText:'복사할 결과',closeCopy:'결과로 돌아가기',shareRow:'{date} · {count}',displayDate:'{y}년 {m}월 {d}일 ({weekday})',weekdays:['일','월','화','수','목','금','토'],months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']},
+en:{appTitle:'Find a Year-End Date',startIntro:'See which of three dates works for the most people.',start:'Set up dates',example:'View example',setupTitle:'Candidate dates',setupHint:'Enter three dates and the number of people who will answer.',dateField:'Candidate date {n}',datePlaceholder:'YYYY-MM-DD',dateInvalid:'Enter a valid date in YYYY-MM-DD format.',dateDuplicate:"Choose a date you haven't entered above.",groupSize:'Group size: {n}',fewerPeople:'Remove one person',morePeople:'Add one person',setupResetHint:'Continuing with these changes clears the previous responses.',back:'Back','continue':'Enter availability',personProgress:'Person {n} of {total}',voteHint:'Select every date that works for you.',available:'Available',unmarked:'Unselected',noneAvailable:'None of these dates work',responseRequired:'Select a date or choose “None of these dates work.”',next:'Next person',showResult:'See results',resultTitle:'Availability by date',sampleLabel:'Sample results',winner:'{date} works for the most people.',tie:'{n} dates tie for the most availability.',noDate:'None of these dates works for anyone.',topBadge:'Most available',count:'{n} of {total} available',editVotes:'Edit responses',editSetup:'Edit dates and group size',copy:'Copy results',copied:'Results copied.',manualCopy:'Automatic copy failed. Copy the selected text.',copyText:'Results to copy',closeCopy:'Back to results',shareRow:'{date} · {count}',displayDate:'{weekday}, {month} {d}, {y}',weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:(/^ko/i.test(navigator.language||'')?'ko':'en');
+var D=S[lang];
+document.documentElement.lang=lang;document.title=D.appTitle;
+function t(k,v){var s=D[k];return v?s.replace(/\{(\w+)\}/g,function(_,x){return v[x]}):s}
+var $=function(s){return document.querySelector(s)};
+var scrEl=$('#screen');
+
+function parse(s){
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s);if(!m)return null;
+  var y=+m[1],mo=+m[2],d=+m[3];if(y<1)return null;
+  var dt=new Date(0);dt.setUTCFullYear(y,mo-1,d);
+  if(dt.getUTCFullYear()!==y||dt.getUTCMonth()!==mo-1||dt.getUTCDate()!==d)return null;
+  return {y:y,mo:mo,d:d,wd:dt.getUTCDay()};
+}
+function disp(iso){var p=parse(iso);return t('displayDate',{y:p.y,m:p.mo,d:p.d,weekday:D.weekdays[p.wd],month:D.months[p.mo-1]})}
+function tally(T){
+  var c=[0,0,0];T.resp.forEach(function(r){if(r)r.forEach(function(i){c[i]++})});
+  var max=Math.max.apply(null,c),lead=[];
+  c.forEach(function(n,i){if(max>0&&n===max)lead.push(i)});
+  return {c:c,max:max,lead:lead};
+}
+function headline(T,r){
+  if(!r.lead.length)return t('noDate');
+  if(r.lead.length===1)return t('winner',{date:disp(T.dates[r.lead[0]])});
+  return t('tie',{n:r.lead.length});
+}
+function cnt(T,n){return t('count',{n:n,total:T.size})}
+var SAMPLE={dates:['2026-12-05','2026-12-12','2026-12-19'],size:4,resp:[[0,1],[1,2],[0,1],[2]]};
+
+var real=null,sample=false,scr='start',person=0,draft=null,setupFrom='start',copyOpen=false,lastAdv=0,demo=false;
+var cur=function(){return sample?SAMPLE:real};
+
+function focusH(){var h=$('#h');if(h)h.focus()}
+var viewId=0;
+function go(s,noFocus){
+  viewId++;scr=s;if(s!=='result')copyOpen=false;scrEl.className='';scrEl.innerHTML='';
+  ({start:vStart,setup:vSetup,vote:vVote,result:vResult})[s]();
+  if(!noFocus)focusH();
+}
+
+function vStart(){
+  scrEl.className='start';
+  scrEl.innerHTML='<h1 id="h" tabindex="-1">'+t('appTitle')+'</h1><p>'+t('startIntro')+'</p>'+
+  '<svg class="art" viewBox="0 0 260 120" aria-hidden="true"><g stroke="#23312D" stroke-width="2"><rect x="8" y="22" width="72" height="86" rx="8" fill="#fffdf7" transform="rotate(-6 44 65)"/><rect x="94" y="14" width="72" height="92" rx="8" fill="#fffdf7"/><rect x="180" y="22" width="72" height="86" rx="8" fill="#fffdf7" transform="rotate(6 216 65)"/></g><g transform="rotate(-6 44 65)"><rect x="8" y="22" width="72" height="20" rx="8" fill="#9D3A2C"/><text x="44" y="82" text-anchor="middle" font-size="30" font-weight="700" fill="#23312D">1</text></g><rect x="94" y="14" width="72" height="22" rx="8" fill="#235746"/><text x="130" y="82" text-anchor="middle" font-size="34" font-weight="700" fill="#235746">✓</text><g transform="rotate(6 216 65)"><rect x="180" y="22" width="72" height="20" rx="8" fill="#c9a64d"/><text x="216" y="82" text-anchor="middle" font-size="30" font-weight="700" fill="#23312D">3</text></g></svg>'+
+  '<div class="actions"><button class="pri" id="go">'+t('start')+'</button><button id="ex">'+t('example')+'</button></div>';
+  $('#go').onclick=function(){openSetup(null,'start')};
+  $('#ex').onclick=function(){sample=true;copyOpen=false;go('result')};
+}
+
+function openSetup(T,from){
+  setupFrom=from;
+  draft=T?{vals:T.dates.slice(),size:T.size}:{vals:['','',''],size:3};
+  go('setup');
+}
+function validDraft(){ // returns sorted ISO array if all valid and distinct, else null
+  var v=draft.vals.map(function(x){return x.trim()});
+  for(var i=0;i<3;i++){if(!parse(v[i])||v.indexOf(v[i])!==i)return null}
+  return v.slice().sort();
+}
+function vSetup(){
+  var f='';
+  for(var i=0;i<3;i++)f+='<div class="field"><label for="d'+i+'">'+t('dateField',{n:i+1})+'</label><input id="d'+i+'" type="text" autocomplete="off" spellcheck="false" placeholder="'+t('datePlaceholder')+'" aria-describedby="e'+i+'"><div class="err" id="e'+i+'" role="alert"></div></div>';
+  scrEl.innerHTML='<form id="f" novalidate style="display:contents"><h2 id="h" tabindex="-1">'+t('setupTitle')+'</h2><p class="hint">'+t('setupHint')+'</p>'+f+
+  '<div class="stepper" role="group" aria-labelledby="gs"><button type="button" id="mi" aria-label="'+t('fewerPeople')+'">−</button><output id="gs" aria-live="polite"></output><button type="button" id="pl" aria-label="'+t('morePeople')+'">+</button></div>'+
+  '<p class="err" id="rs" role="status"></p>'+
+  '<div class="actions row"><button type="button" id="bk">'+t('back')+'</button><button type="submit" class="pri">'+t('continue')+'</button></div></form>';
+  var ins=[0,1,2].map(function(i){return $('#d'+i)});
+  ins.forEach(function(el,i){
+    el.value=draft.vals[i];
+    el.oninput=function(){
+      draft.vals[i]=el.value;$('#e'+i).textContent='';el.removeAttribute('aria-invalid');
+      for(var j=i+1;j<3;j++){ // drop stale duplicate errors resolved by this edit
+        var s=draft.vals[j].trim();
+        if($('#e'+j).textContent===t('dateDuplicate')&&!draft.vals.slice(0,j).some(function(x){return x.trim()===s})){$('#e'+j).textContent='';ins[j].removeAttribute('aria-invalid')}
+      }
+      upd();
+    };
+  });
+  function upd(){
+    $('#gs').textContent=t('groupSize',{n:draft.size});
+    $('#mi').disabled=draft.size<=2;$('#pl').disabled=draft.size>=6;
+    var v=validDraft();
+    $('#rs').textContent=(real&&v&&(v.join()!==real.dates.join()||draft.size!==real.size))?t('setupResetHint'):'';
+  }
+  $('#mi').onclick=function(){if(draft.size>2){draft.size--;upd()}};
+  $('#pl').onclick=function(){if(draft.size<6){draft.size++;upd()}};
+  $('#bk').onclick=function(){
+    if(setupFrom==='vote')go('vote');
+    else if(setupFrom==='result')go('result');
+    else if(setupFrom==='sample'){sample=true;go('result')}
+    else go('start');
+  };
+  $('#f').onsubmit=function(e){
+    e.preventDefault();
+    var first=-1;
+    ins.forEach(function(el,i){
+      var s=el.value.trim(),msg='';
+      if(!parse(s))msg=t('dateInvalid');
+      else if(draft.vals.slice(0,i).some(function(x){return x.trim()===s}))msg=t('dateDuplicate');
+      $('#e'+i).textContent=msg;
+      if(msg){el.setAttribute('aria-invalid','true');if(first<0)first=i}else el.removeAttribute('aria-invalid');
+    });
+    if(first>=0){ins[first].focus();return}
+    var dates=validDraft();
+    if(!(real&&dates.join()===real.dates.join()&&draft.size===real.size)){
+      real={dates:dates,size:draft.size,resp:[]};
+      for(var i=0;i<draft.size;i++)real.resp.push(null);
+    }
+    sample=false;person=0;go('vote');
+  };
+  upd();
+}
+
+function vVote(){
+  var T=real,last=person===T.size-1,b='';
+  for(var i=0;i<3;i++)b+='<button type="button" class="date" data-i="'+i+'" aria-pressed="false"><span class="chk" aria-hidden="true"></span><span class="dt">'+disp(T.dates[i])+'</span><span class="st"></span></button>';
+  scrEl.innerHTML='<h2 id="h" tabindex="-1">'+t('personProgress',{n:person+1,total:T.size})+'</h2><p class="hint">'+t('voteHint')+'</p><div class="dates">'+b+'</div>'+
+  '<button type="button" class="none" id="none" aria-pressed="false">'+t('noneAvailable')+'</button><div class="err" id="req" role="alert"></div>'+
+  '<div class="actions row"><button type="button" id="bk">'+t('back')+'</button><button type="button" class="pri" id="nx">'+t(last?'showResult':'next')+'</button></div>';
+  function upd(){
+    var r=T.resp[person];
+    scrEl.querySelectorAll('.date').forEach(function(el){
+      var on=!!r&&r.indexOf(+el.dataset.i)>=0;
+      el.setAttribute('aria-pressed',on);
+      el.querySelector('.chk').textContent=on?'✓':'';
+      el.querySelector('.st').textContent=t(on?'available':'unmarked');
+    });
+    $('#none').setAttribute('aria-pressed',!!r&&r.length===0);
+  }
+  scrEl.querySelectorAll('.date').forEach(function(el){
+    el.onclick=function(){
+      var i=+el.dataset.i,r=(T.resp[person]||[]).slice(),k=r.indexOf(i);
+      if(k>=0)r.splice(k,1);else r.push(i);
+      T.resp[person]=r.length?r.sort():null;
+      $('#req').textContent='';upd();
+    };
+  });
+  $('#none').onclick=function(){T.resp[person]=[];$('#req').textContent='';upd()};
+  $('#bk').onclick=function(){
+    if(person>0){person--;go('vote')}
+    else openSetup(T,'vote');
+  };
+  $('#nx').onclick=function(){
+    var now=Date.now();if(now-lastAdv<250)return;
+    if(!T.resp[person]){$('#req').textContent=t('responseRequired');return}
+    lastAdv=now;
+    if(last){copyOpen=false;sample=false;go('result')}
+    else{person++;go('vote')}
+  };
+  upd();
+}
+
+function shareText(T,r){
+  var L=[t('appTitle')];
+  if(T===SAMPLE)L.push(t('sampleLabel'));
+  L.push(headline(T,r));
+  T.dates.forEach(function(d,i){L.push(t('shareRow',{date:disp(d),count:cnt(T,r.c[i])}))});
+  return L.join('\n');
+}
+function vResult(){
+  var T=cur(),r=tally(T),isS=T===SAMPLE,rows='';
+  if(demo)scrEl.className='noanim';
+  T.dates.forEach(function(d,i){
+    var top=r.lead.indexOf(i)>=0;
+    rows+='<div class="row"><div class="rtop"><span>'+disp(d)+'</span>'+(top?'<span class="badge">'+t('topBadge')+'</span>':'')+'</div><div class="bar"><i class="'+(top?'top':'')+'" style="width:'+(r.c[i]/T.size*100)+'%"></i></div><div class="cnt">'+cnt(T,r.c[i])+'</div></div>';
+  });
+  var body=copyOpen?'<div id="panel"><p class="hint" id="mc">'+t('manualCopy')+'</p><label for="ta" class="hint">'+t('copyText')+'</label><textarea id="ta" readonly aria-describedby="mc"></textarea><button type="button" id="cl">'+t('closeCopy')+'</button></div>':'<div id="rows">'+rows+'</div>';
+  scrEl.innerHTML=(isS?'<span class="sample">'+t('sampleLabel')+'</span>':'')+'<h2 id="h" tabindex="-1">'+t('resultTitle')+'</h2><p class="headline">'+headline(T,r)+'</p>'+body+
+  '<div class="actions"><button type="button" class="pri" id="cp">'+t('copy')+'</button>'+
+  (isS?'<button type="button" id="st">'+t('start')+'</button>':'<button type="button" id="ev">'+t('editVotes')+'</button><button type="button" id="es">'+t('editSetup')+'</button>')+'</div>';
+  if(copyOpen){
+    var ta=$('#ta');ta.value=shareText(T,r);ta.focus();ta.select();
+    $('#cl').onclick=function(){copyOpen=false;go('result',true);$('#cp').focus()};
+  }
+  $('#cp').onclick=function(){
+    var txt=shareText(T,r),id=viewId;
+    function fail(){
+      if(id!==viewId)return; // user already left this result view
+      copyOpen=true;go('result',true);
+      $('#live').textContent='';$('#live').textContent=t('manualCopy');
+    }
+    try{
+      if(!navigator.clipboard||!navigator.clipboard.writeText)return fail();
+      navigator.clipboard.writeText(txt).then(function(){
+        if(id!==viewId)return;
+        $('#cp').textContent='✓ '+t('copied');$('#live').textContent='';$('#live').textContent=t('copied');
+      },fail);
+    }catch(e){fail()}
+  };
+  if(isS)$('#st').onclick=function(){sample=false;copyOpen=false;openSetup(null,'sample')};
+  else{
+    $('#ev').onclick=function(){person=0;go('vote')};
+    $('#es').onclick=function(){openSetup(real,'result')};
+  }
+}
+
+if(location.hash==='#demo'){demo=true;sample=true;go('result',true)}
+else go('start',true);
+})();
+</script>
+</body>
+</html>

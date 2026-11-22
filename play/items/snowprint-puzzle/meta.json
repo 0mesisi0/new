@@ -1,0 +1,21 @@
+{
+  "slug": "snowprint-puzzle",
+  "date": "2026-11-22",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "눈길 발자국 퍼즐",
+    "desc": "한 칸씩 발자국을 남겨 눈 덮인 마당을 건너세요. 얼음 위에서는 쭉 미끄러지고, 새 눈을 모두 밟으면 집으로 들어갈 수 있어요.",
+    "howto": "옆 칸을 누르거나 방향키로 움직이세요. 얼음에서는 같은 방향으로 미끄러져요. 새 눈을 모두 밟고 문에 도착하세요.",
+    "about": "눈 위에 첫 발자국을 남기는 순간을 세 개의 작은 길찾기 퍼즐로 만들었어요.",
+    "tags": ["눈길", "발자국", "길찾기 퍼즐", "겨울 게임"]
+  },
+  "en": {
+    "title": "Snowprint Puzzle",
+    "desc": "Leave one footprint on every patch of fresh snow. Slide across ice and reach the warm front door in three small winter puzzles.",
+    "howto": "Tap a neighboring tile or use the arrow keys. Ice carries you in the same direction. Step on all the fresh snow, then reach the door.",
+    "about": "Three small path puzzles inspired by the first footprints in fresh snow.",
+    "tags": ["snow", "footprints", "path puzzle", "winter game"]
+  }
+}

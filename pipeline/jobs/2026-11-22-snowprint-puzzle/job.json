@@ -1,0 +1,67 @@
+{
+  "id": "2026-11-22-snowprint-puzzle",
+  "site": "play",
+  "slug": "snowprint-puzzle",
+  "status": "queued",
+  "stage": "build",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md",
+    "review": "05-review.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-21T22:28:50.723Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-21T22:29:38.828Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-21T22:29:39.384Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T22:31:57.875Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T23:45:33.174Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T23:48:29.249Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T23:49:54.222Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-21T23:53:49.786Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}

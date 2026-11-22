@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Snowprint Puzzle</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#14253C;color:#EAF3FF;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif}
+body{background:
+  radial-gradient(circle at 15% 12%,rgba(240,247,255,.10) 0 2px,transparent 3px),
+  radial-gradient(circle at 80% 30%,rgba(240,247,255,.08) 0 2px,transparent 3px),
+  radial-gradient(circle at 30% 80%,rgba(240,247,255,.08) 0 3px,transparent 4px),
+  linear-gradient(#14253C,#0E1B2E)}
+#app{height:100vh;height:100dvh;max-width:440px;margin:0 auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+section{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0}
+#startScreen{align-items:center;justify-content:center;text-align:center;gap:14px}
+h1{margin:0;font-size:clamp(24px,7vw,32px);color:#F0F7FF}
+h2{margin:0;font-size:20px;color:#FFD07A}
+p{margin:0}
+.goal{font-size:16px;line-height:1.4;padding:0 8px}
+.hud{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:15px;min-height:28px;align-items:center;padding:0 4px}
+#wrap{flex:1;min-height:0;padding:6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.board,.mini{display:grid;grid-template-columns:repeat(var(--cols),var(--cell));gap:3px;padding:8px;background:#1B3350;
+  border:2px solid #2B4A70;border-radius:16px;touch-action:none;user-select:none;-webkit-user-select:none}
+.mini{--cell:48px}
+.row{display:contents}
+.cell{position:relative;width:var(--cell);height:var(--cell);border-radius:9px;background:#F0F7FF}
+.cell svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cell.marked{background:#DCE8F5;box-shadow:inset 0 2px 4px rgba(56,86,121,.25)}
+.cell.ice{background:#9DD7EA}
+.cell.bank{background:#27405F}
+.cell.door{background:#22344F;border-radius:9px 9px 4px 4px}
+.cell.door.open{background:#5A4A2E;box-shadow:0 0 14px 3px rgba(255,208,122,.7)}
+.cell.me::after{content:"";position:absolute;inset:0;border-radius:9px;pointer-events:none}
+.board:focus-visible{outline:3px solid #FFD07A;outline-offset:-5px}
+.board:focus-visible .cell.me::after{box-shadow:inset 0 0 0 3px #0B1626,inset 0 0 0 5px #FFD07A}
+.puff{position:absolute;left:50%;top:50%;width:80%;height:80%;margin:-40% 0 0 -40%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 70%)}
+#status{min-height:40px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;line-height:1.3;padding:0 4px}
+.dpad,.acts{display:flex;gap:6px}
+button{font:inherit;font-weight:700;color:#EAF3FF;background:#2A4666;border:2px solid #3F6288;border-radius:12px;
+  min-width:44px;min-height:44px;padding:0 10px;cursor:pointer;touch-action:manipulation}
+button:hover:not(:disabled){background:#34567c}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible{outline:3px solid #FFD07A;outline-offset:2px}
+.dpad button{flex:1;font-size:20px}
+.acts button{flex:1;font-size:14px}
+button.emph,button.emph:hover:not(:disabled){background:#FFD07A;color:#14253C;border-color:#fff;box-shadow:0 0 12px rgba(255,208,122,.8)}
+button.big{min-height:52px;font-size:18px;background:#FFD07A;color:#14253C;border-color:#FFE9B8;width:100%}
+button.big:hover:not(:disabled){background:#ffdb96}
+#startScreen button.big{width:min(100%,280px)}
+#resultBox{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.stats{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;font-weight:700;font-size:15px}
+.new{color:#FFD07A}
+</style>
+</head>
+<body>
+<main id="app">
+  <section id="startScreen">
+    <h1 id="title"></h1>
+    <p class="goal" id="goal"></p>
+    <div class="mini" id="mini" aria-hidden="true"></div>
+    <button class="big" id="startBtn"></button>
+  </section>
+  <section id="gameScreen" hidden>
+    <div class="hud"><span id="yardP"></span><span id="snowP"></span></div>
+    <div id="wrap"><div class="board" id="board"></div></div>
+    <div class="dpad" id="dpad">
+      <button id="bL" data-d="L">◀</button><button id="bU" data-d="U">▲</button><button id="bD" data-d="D">▼</button><button id="bR" data-d="R">▶</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <div class="acts" id="acts">
+      <button id="undo"></button><button id="reset"></button><button id="finish"></button>
+    </div>
+    <div id="nextBox" hidden><button class="big" id="next"></button></div>
+    <div id="resultBox" hidden>
+      <h2 id="rHead"></h2>
+      <div class="stats"><span id="rScore"></span><span id="rBest"></span><span class="new" id="rNew"></span></div>
+      <button class="big" id="retry"></button>
+    </div>
+  </section>
+</main>
+<script>
+(function(){
+"use strict";
+var STR={
+ko:{appTitle:"눈길 발자국 퍼즐",startGoal:"새 눈을 한 번씩 밟고 문까지 가세요.",start:"시작하기",yardProgress:"마당 {current}/{total}",snowProgress:"발자국 {marked}/{total}",iceHint:"얼음에 들어서면 같은 방향으로 미끄러져요.",doorLocked:"새 눈을 모두 밟으면 문이 열려요.",doorOpen:"문이 열렸어요. 이제 들어가세요!",blocked:"그쪽으로는 갈 수 없어요.",alreadyMarked:"이미 발자국이 있는 칸이에요.",iceBlocked:"미끄러진 뒤 멈출 곳이 없어요.",stuck:"더 갈 곳이 없어요. 한 걸음 되돌려 보세요.",undo:"되돌리기",resetYard:"마당 다시",finishRun:"그만하기",yardCleared:"마당을 모두 건넜어요!",nextYard:"다음 마당",allCleared:"집에 도착했어요!",endedEarly:"여기까지 걸었어요",score:"점수 {score}/{max}",best:"최고 점수 {best}/{max}",newBest:"새 기록!",retry:"다시 하기",up:"위로",down:"아래로",left:"왼쪽으로",right:"오른쪽으로",boardLabel:"눈 덮인 마당",trailLabel:"남긴 발자국",tileAt:"{row}행 {col}열, {tile}",currentTileAt:"현재 위치, {row}행 {col}열, {tile}",tileStart:"출발 매트",tileSnow:"새 눈",tilePrint:"발자국",tileIce:"얼음",tileBank:"눈더미",tileLockedDoor:"잠긴 문",tileOpenDoor:"열린 문"},
+en:{appTitle:"Snowprint Puzzle",startGoal:"Step on every patch of snow once, then reach the door.",start:"Start",yardProgress:"Yard {current}/{total}",snowProgress:"Prints {marked}/{total}",iceHint:"Ice makes you slide in the same direction.",doorLocked:"Step on all the fresh snow to open the door.",doorOpen:"The door is open. Head inside!",blocked:"You can’t go that way.",alreadyMarked:"There’s already a footprint there.",iceBlocked:"There’s nowhere to land beyond the ice.",stuck:"You’re stuck. Try undoing a step.",undo:"Undo",resetYard:"Reset yard",finishRun:"Finish",yardCleared:"Yard cleared!",nextYard:"Next yard",allCleared:"You made it home!",endedEarly:"Your walk ends here",score:"Score {score}/{max}",best:"Best {best}/{max}",newBest:"New best!",retry:"Play again",up:"Up",down:"Down",left:"Left",right:"Right",boardLabel:"Snow-covered yard",trailLabel:"Your footprint trail",tileAt:"Row {row}, column {col}, {tile}",currentTileAt:"Current position, row {row}, column {col}, {tile}",tileStart:"Starting mat",tileSnow:"Fresh snow",tilePrint:"Footprint",tileIce:"Ice",tileBank:"Snowbank",tileLockedDoor:"Locked door",tileOpenDoor:"Open door"}
+};
+var qp=new URLSearchParams(location.search).get("lang");
+var lang=(qp==="ko"||qp==="en")?qp:((navigator.language||"").toLowerCase().indexOf("ko")===0?"ko":"en");
+var nf=new Intl.NumberFormat(lang);
+function t(k,v){var s=STR[lang][k];if(v)s=s.replace(/\{(\w+)\}/g,function(m,n){return typeof v[n]==="number"?nf.format(v[n]):v[n]});return s}
+document.documentElement.lang=lang;document.title=t("appTitle");
+
+var $=function(id){return document.getElementById(id)};
+var MAX=37,KEY="snowprint-puzzle:best:v1";
+var DIRS={U:[-1,0],D:[1,0],L:[0,-1],R:[0,1]};
+var RAW=[["S..","...","..D"],["S..###","...==.","..###.","..#D.."],["S...##","....=.","...##.","##.==.","##...D"]];
+var BD=RAW.map(function(g){var n=0,hasIce=false;g.forEach(function(r){for(var i=0;i<r.length;i++){if(r[i]===".")n++;if(r[i]==="=")hasIce=true}});
+  return{g:g,rows:g.length,cols:g[0].length,total:n,ice:hasIce}});
+var DEMO="RDLDRRUURDRDDLDRRR";
+
+/* ---- art ---- */
+var SV=function(b){return '<svg viewBox="0 0 40 40" aria-hidden="true">'+b+'</svg>'};
+var ART={
+print:SV('<g class="pr" fill="#385679"><ellipse cx="13" cy="14" rx="5" ry="7"/><ellipse cx="13" cy="27" rx="4" ry="3.2"/><ellipse cx="27" cy="19" rx="5" ry="7"/><ellipse cx="27" cy="32" rx="4" ry="3.2"/></g>'),
+mat:SV('<rect x="5" y="7" width="30" height="26" rx="4" fill="#385679" fill-opacity=".18" stroke="#385679" stroke-width="2"/><path d="M11 14H29M11 20H29M11 26H29" stroke="#385679" stroke-width="2.5" stroke-linecap="round"/>'),
+ice:SV('<path d="M6 30L20 9M15 35L31 12M25 36L35 23" stroke="#2F6F8F" stroke-width="3" stroke-linecap="round"/><path d="M5 14L12 6" stroke="#2F6F8F" stroke-width="2.5" stroke-linecap="round"/>'),
+bank:SV('<path d="M3 35C3 22 10 11 20 11s17 11 17 24z" fill="#F0F7FF"/><path d="M20 11c10 0 17 11 17 24H27c0-10-2-17-7-24z" fill="#C3D9EE"/><circle cx="14" cy="22" r="2" fill="#fff"/>'),
+locked:SV('<rect x="8" y="4" width="25" height="33" rx="3" fill="#9C7434" stroke="#5E4420" stroke-width="2"/><rect x="5" y="9" width="5" height="6" rx="1" fill="#2E200D"/><rect x="5" y="26" width="5" height="6" rx="1" fill="#2E200D"/><circle cx="27" cy="21" r="2.8" fill="#FFD07A" stroke="#5E4420"/><rect x="14" y="10" width="12" height="8" rx="2" fill="none" stroke="#5E4420" stroke-opacity=".6" stroke-width="1.5"/>'),
+open:SV('<rect x="8" y="4" width="25" height="33" rx="3" fill="#FFD07A"/><rect x="12" y="9" width="17" height="26" fill="#FFF3CF"/><path d="M8 4L18 7V34L8 37z" fill="#9C7434"/><rect x="5" y="9" width="5" height="6" rx="1" fill="#2E200D"/><rect x="5" y="26" width="5" height="6" rx="1" fill="#2E200D"/><path d="M8 37L3 40H38L33 37z" fill="#FFF3CF"/>'),
+me:SV('<g class="pc"><ellipse cx="14" cy="31" rx="4" ry="3" fill="#2A3D57"/><ellipse cx="26" cy="31" rx="4" ry="3" fill="#2A3D57"/><circle cx="20" cy="19" r="11" fill="#E4574C" stroke="#fff" stroke-width="2"/><circle cx="20" cy="18" r="5" fill="#fff"/><circle cx="20" cy="18" r="2" fill="#E4574C"/></g>')
+};
+
+/* ---- state ---- */
+var S={phase:"start"},best=0,pop=null,flashT=null,pend=null;
+function key(r,c){return r+","+c}
+function cur(){return BD[S.b]}
+function isOpen(){return S.marked.size===cur().total}
+function readBest(){try{var v=localStorage.getItem(KEY);if(v!==null&&/^\d+$/.test(v)&&+v<=MAX)return +v}catch(e){}return 0}
+function writeBest(v){try{localStorage.setItem(KEY,String(v))}catch(e){}}
+best=readBest();
+
+function loadBoard(i){S.b=i;S.marked=new Set();S.hist=[];S.pos=[0,0];S.msg=null}
+function newRun(){S={phase:"play",b:0,base:0,end:null,isNew:false,demo:false};loadBoard(0)}
+function score(){return S.base+S.marked.size}
+
+function tryMove(d){
+  var B=cur(),dr=DIRS[d][0],dc=DIRS[d][1],r=S.pos[0],c=S.pos[1],nr=r+dr,nc=c+dc;
+  function at(a,b){var row=B.g[a];return row?row[b]:undefined}
+  var first=[nr,nc],ch=at(nr,nc);
+  if(!ch||ch==="#")return{err:"blocked",t:first};
+  if(ch==="S")return{err:"blocked",t:first};
+  if(ch===".")return S.marked.has(key(nr,nc))?{err:"alreadyMarked",t:first}:{to:first,snow:1};
+  if(ch==="D")return isOpen()?{to:first,door:1}:{err:"doorLocked",t:first};
+  while(at(nr,nc)==="="){nr+=dr;nc+=dc}
+  var e=at(nr,nc);
+  if(e==="."&&!S.marked.has(key(nr,nc)))return{to:[nr,nc],snow:1};
+  if(e==="D"&&isOpen())return{to:[nr,nc],door:1};
+  return{err:"iceBlocked",t:first};
+}
+function canMove(){return["U","D","L","R"].some(function(d){return!tryMove(d).err})}
+
+function apply(d){ // returns result; mutates state on success
+  var res=tryMove(d);
+  if(res.err)return res;
+  if(res.door){S.pos=res.to;return res}
+  S.hist.push({from:S.pos.slice(),key:key(res.to[0],res.to[1])});
+  S.marked.add(key(res.to[0],res.to[1]));S.pos=res.to;S.msg=null;
+  return res;
+}
+function step(d){
+  if(S.phase!=="play")return;
+  var res=apply(d);
+  if(res.err){S.msg=res.err;flashT=res.t;refresh();return}
+  if(res.door){
+    if(S.b<2)S.phase="clear";else{finish("done");return}
+  }else pop=res.to;
+  refresh();
+}
+function undo(){
+  if(S.phase!=="play"||!S.hist.length)return;
+  var h=S.hist.pop();S.marked.delete(h.key);S.pos=h.from;S.msg=null;
+  refresh();if(!S.hist.length)$("board").focus({preventScroll:true});
+}
+function resetYard(){if(S.phase!=="play")return;loadBoard(S.b);refresh();$("board").focus({preventScroll:true})}
+function nextYard(){S.base+=cur().total;loadBoard(S.b+1);S.phase="play";refresh();$("board").focus({preventScroll:true})}
+function finish(end){
+  S.phase="result";S.end=end;S.isNew=false;
+  var sc=score(),prev=Math.max(best,readBest());
+  if(!S.demo){S.isNew=sc>prev;best=Math.max(prev,sc);writeBest(best)}else best=prev;
+  refresh();$("retry").focus();
+}
+function startRun(){newRun();refresh();$("board").focus({preventScroll:true})}
+
+/* ---- animation (rAF, dt capped 50ms) ---- */
+var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+var fxs=[],raf=0,last=0;
+function fx(dur,fn){
+  if(reduce||document.hidden){fn(1);return}
+  fxs.push({dur:dur,fn:fn,t:0});fn(0);
+  if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}
+}
+function tick(now){
+  var dt=Math.min(50,now-last);last=now;
+  fxs=fxs.filter(function(f){f.t+=dt;var p=Math.min(1,f.t/f.dur);f.fn(p);return p<1});
+  raf=fxs.length?requestAnimationFrame(tick):0;
+}
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden){fxs.forEach(function(f){f.fn(1)});fxs=[];if(raf)cancelAnimationFrame(raf);raf=0;pend=null}
+});
+function cellEl(r,c){return $("board").querySelector('[data-r="'+r+'"][data-c="'+c+'"]')}
+
+/* ---- rendering ---- */
+function tileName(B,r,c,marked,open){
+  var ch=B.g[r][c];
+  return t(ch==="S"?"tileStart":ch==="."?(marked.has(key(r,c))?"tilePrint":"tileSnow"):ch==="="?"tileIce":ch==="#"?"tileBank":open?"tileOpenDoor":"tileLockedDoor");
+}
+function build(el,bi,marked,pos,open,interactive){
+  var B=BD[bi];el.textContent="";el.style.setProperty("--cols",B.cols);
+  for(var r=0;r<B.rows;r++){
+    var row=document.createElement("div");row.className="row";if(interactive)row.setAttribute("role","row");
+    for(var c=0;c<B.cols;c++){
+      var ch=B.g[r][c],me=pos&&pos[0]===r&&pos[1]===c,cl="cell",h="";
+      var mk=ch==="."&&marked.has(key(r,c));
+      if(ch==="S")h=ART.mat;
+      else if(mk){cl+=" marked";h=ART.print}
+      else if(ch==="=")cl+=" ice",h=ART.ice;
+      else if(ch==="#")cl+=" bank",h=ART.bank;
+      else if(ch==="D"){cl+=open?" door open":" door";h=open?ART.open:ART.locked}
+      if(me){cl+=" me";h+=ART.me}
+      var d=document.createElement("div");d.className=cl;d.innerHTML=h;d.dataset.r=r;d.dataset.c=c;
+      if(interactive){
+        d.id="c"+r+"-"+c;d.setAttribute("role","gridcell");
+        d.setAttribute("aria-label",t(me?"currentTileAt":"tileAt",{row:r+1,col:c+1,tile:tileName(B,r,c,marked,open)}));
+      }
+      row.appendChild(d);
+    }
+    el.appendChild(row);
+  }
+}
+function layout(){
+  if(S.phase==="start"||!S.marked)return;
+  var B=cur(),w=$("wrap"),gap=3,pad=32;
+  var aw=w.clientWidth-pad,ah=w.clientHeight-pad;
+  var cell=Math.floor(Math.min((aw-(B.cols-1)*gap)/B.cols,(ah-(B.rows-1)*gap)/B.rows,84));
+  $("board").style.setProperty("--cell",Math.max(44,cell)+"px");
+}
+function statusText(){
+  if(S.phase==="clear")return t("yardCleared");
+  if(S.phase!=="play")return "";
+  if(S.stuck)return t("stuck");
+  if(S.msg)return t(S.msg);
+  if(isOpen())return t("doorOpen");
+  if(cur().ice&&!S.hist.length)return t("iceHint");
+  return t("doorLocked");
+}
+function refresh(){
+  var p=S.phase,st=p==="start";
+  $("startScreen").hidden=!st;$("gameScreen").hidden=st;
+  if(st)return;
+  var B=cur(),open=isOpen()||p==="clear"||(p==="result"&&S.end==="done");
+  S.stuck=p==="play"&&!canMove();
+  var bd=$("board");
+  build(bd,S.b,S.marked,S.pos,open,true);
+  if(p==="play"){
+    bd.tabIndex=0;bd.setAttribute("role","grid");bd.setAttribute("aria-label",t("boardLabel"));
+    bd.setAttribute("aria-activedescendant","c"+S.pos[0]+"-"+S.pos[1]);
+  }else{
+    bd.removeAttribute("tabindex");bd.removeAttribute("aria-activedescendant");
+    bd.setAttribute("role","grid");bd.setAttribute("aria-label",t(p==="result"?"trailLabel":"boardLabel"));
+  }
+  $("yardP").textContent=t("yardProgress",{current:S.b+1,total:3});
+  $("snowP").textContent=t("snowProgress",{marked:S.marked.size,total:B.total});
+  $("status").textContent=statusText();
+  $("dpad").hidden=$("acts").hidden=p!=="play";
+  $("nextBox").hidden=p!=="clear";
+  $("resultBox").hidden=p!=="result";
+  $("status").hidden=p==="result";
+  $("undo").disabled=!S.hist.length;
+  $("undo").classList.toggle("emph",!!S.stuck&&S.hist.length>0);
+  if(p==="result"){
+    var sc=score();
+    $("rHead").textContent=t(S.end==="done"?"allCleared":"endedEarly");
+    $("rScore").textContent=t("score",{score:sc,max:MAX});
+    $("rBest").textContent=t("best",{best:best,max:MAX});
+    $("rNew").textContent=S.isNew?t("newBest"):"";
+  }
+  layout();
+  if(p==="clear")$("next").focus();
+  // effects
+  if(pop){var pe=cellEl(pop[0],pop[1]);pop=null;if(pe)landFx(pe)}
+  if(flashT){var f=cellEl(flashT[0],flashT[1])||cellEl(S.pos[0],S.pos[1]);flashT=null;if(f)fx(450,function(q){f.style.boxShadow=q<1?"inset 0 0 0 4px rgba(255,110,90,"+(1-q)+")":""})}
+}
+function landFx(cell){
+  var pr=cell.querySelector(".pr"),pc=cell.querySelector(".pc");
+  var puff=document.createElement("span");puff.className="puff";cell.appendChild(puff);
+  fx(320,function(q){
+    puff.style.opacity=q<1?String(.8*(1-q)):"0";
+    puff.style.transform="scale("+(.6+1.0*q)+")";
+    if(q>=1)puff.remove();
+  });
+  if(pc)fx(180,function(q){pc.style.transformOrigin="50% 50%";pc.style.transformBox="fill-box";pc.style.transform="scale("+(.6+.4*q)+")"});
+  if(pr)fx(240,function(q){pr.style.opacity=String(.3+.7*q)});
+}
+
+/* ---- text ---- */
+function applyText(){
+  $("title").textContent=t("appTitle");$("goal").textContent=t("startGoal");$("startBtn").textContent=t("start");
+  $("undo").textContent=t("undo");$("reset").textContent=t("resetYard");$("finish").textContent=t("finishRun");
+  $("next").textContent=t("nextYard");$("retry").textContent=t("retry");
+  [["bU","up"],["bD","down"],["bL","left"],["bR","right"]].forEach(function(a){$(a[0]).setAttribute("aria-label",t(a[1]))});
+  $("board").setAttribute("aria-label",t("boardLabel"));
+}
+
+/* ---- input ---- */
+document.querySelectorAll(".dpad button").forEach(function(b){b.addEventListener("click",function(){step(b.dataset.d)})});
+$("undo").addEventListener("click",undo);
+$("reset").addEventListener("click",resetYard);
+$("finish").addEventListener("click",function(){if(S.phase==="play")finish("early")});
+$("next").addEventListener("click",function(){if(S.phase==="clear")nextYard()});
+$("retry").addEventListener("click",startRun);
+$("startBtn").addEventListener("click",startRun);
+
+var KEYS={ArrowUp:"U",ArrowDown:"D",ArrowLeft:"L",ArrowRight:"R"};
+document.addEventListener("keydown",function(e){
+  if(e.ctrlKey||e.metaKey||e.altKey||S.phase!=="play")return;
+  var d=KEYS[e.key];
+  if(d){e.preventDefault();if(!e.repeat)step(d);return}
+  if(e.key==="z"||e.key==="Z"){e.preventDefault();if(!e.repeat)undo()}
+});
+function cellOf(x,y){var el=document.elementFromPoint(x,y);return el&&el.closest?el.closest(".cell"):null}
+var bd=$("board");
+bd.addEventListener("pointerdown",function(e){
+  if(S.phase!=="play"||!e.isPrimary||(e.pointerType==="mouse"&&e.button!==0))return;
+  var c=cellOf(e.clientX,e.clientY);if(!c)return;
+  e.preventDefault();pend={id:e.pointerId,c:c.dataset.r+","+c.dataset.c};
+  try{bd.setPointerCapture(e.pointerId)}catch(x){}
+});
+bd.addEventListener("pointerup",function(e){
+  if(!pend||pend.id!==e.pointerId)return;
+  var p=pend;pend=null;e.preventDefault();
+  if(S.phase!=="play")return;
+  var c=cellOf(e.clientX,e.clientY);if(!c||c.dataset.r+","+c.dataset.c!==p.c)return;
+  var dr=+c.dataset.r-S.pos[0],dc=+c.dataset.c-S.pos[1];
+  if(Math.abs(dr)+Math.abs(dc)!==1)return;
+  step(dr<0?"U":dr>0?"D":dc<0?"L":"R");
+  bd.focus({preventScroll:true});
+});
+bd.addEventListener("pointercancel",function(){pend=null});
+window.addEventListener("resize",layout);
+window.addEventListener("orientationchange",layout);
+window.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest(".board"))e.preventDefault()});
+
+/* ---- boot ---- */
+applyText();
+build($("mini"),0,new Set(),[0,0],true,false);
+if(location.hash==="#demo"){
+  S={phase:"play",b:2,base:BD[0].total+BD[1].total,end:null,isNew:false,demo:true};loadBoard(2);
+  for(var i=0;i<DEMO.length;i++)apply(DEMO[i]);
+  S.phase="result";finish("done");
+}else refresh();
+})();
+</script>
+</body>
+</html>
