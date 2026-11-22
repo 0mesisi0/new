@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-gift-wrap-size-calculator",
+  "site": "play",
+  "slug": "gift-wrap-size-calculator",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T01:46:39.563Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:48:22.211Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a weird or beautiful interactive page, toy or visual sandbox (kind tool, category cool)"
+}
