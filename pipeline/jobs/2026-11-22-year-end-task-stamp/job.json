@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-year-end-task-stamp",
+  "site": "play",
+  "slug": "year-end-task-stamp",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T01:58:39.546Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T02:00:28.482Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a timer, counter or tracker people would open daily (kind tool)"
+}
