@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-fish-cake-stall-asmr",
+  "site": "play",
+  "slug": "fish-cake-stall-asmr",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T00:13:04.605Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T00:14:51.111Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
