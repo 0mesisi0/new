@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-pending-8",
+  "site": "play",
+  "slug": "foggy-window-doodles",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T01:48:25.230Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T01:50:02.252Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a humor or parody generator, receipt, certificate or meme maker (kind tool)"
+}
