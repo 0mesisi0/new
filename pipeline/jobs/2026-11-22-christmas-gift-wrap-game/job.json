@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-christmas-gift-wrap-game",
+  "site": "play",
+  "slug": "christmas-gift-wrap-game",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T08:15:01.083Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T08:16:50.812Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a fortune, personality or \"which type are you\" test with a shareable result card (kind tool)"
+}
