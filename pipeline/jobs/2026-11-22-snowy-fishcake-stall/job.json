@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-22-snowy-fishcake-stall",
+  "site": "play",
+  "slug": "snowy-fishcake-stall",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T00:10:58.653Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T00:13:01.221Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a humor or parody generator, receipt, certificate or meme maker (kind tool)"
+}
