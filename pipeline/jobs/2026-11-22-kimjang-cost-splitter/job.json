@@ -1,0 +1,37 @@
+{
+  "id": "2026-11-22-kimjang-cost-splitter",
+  "site": "play",
+  "slug": "kimjang-cost-splitter",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 2,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-22T06:24:41.740Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-22T06:26:43.031Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-22T06:28:45.991Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a quick quiz or trivia with funny wrong answers (kind tool)"
+}
