@@ -1,0 +1,41 @@
+{
+  "id": "annualLeave",
+  "slug": "annual-leave",
+  "date": "2026-11-23",
+  "sources": [
+    ["근로기준법 제60조 (연차 유급휴가)", "https://korea.legal/wiki/근로기준법-제60조/"],
+    ["연차유급휴가의 발생과 일수", "https://korea.legal/wiki/연차유급휴가의-발생과-일수/"],
+    ["비즈폼: 근속연수별 연차 발생 기준", "https://www.bizforms.co.kr/365guide/view.asp?number=141"],
+    ["비즈폼: 연차 사용 촉진 제도, 근로기준법 기준", "https://www.bizforms.co.kr/365guide/view.asp?number=149"],
+    ["비즈폼: 연차수당 계산법, 퇴사 전 미사용 연차", "https://www.bizforms.co.kr/guide365/176"],
+    ["시프티: 연차 사용 및 미사용 연차 수당 계산법", "https://shiftee.io/ko/blog/article/annual_leave-and-unused-leay-pay-guide-for-hr-managers"],
+    ["대한민국 정책브리핑: 고용노동부 연차 행정해석 변경", "https://www.korea.kr/news/policyNewsView.do?newsId=148868082"],
+    ["뉴시스: 고용부, 대법원 판결 따라 연차 행정해석 변경 (2021-12-16)", "https://www.newsis.com/view/NISX20211216_0001690217"]
+  ],
+  "ko": {
+    "nav": "연차 일수와 연차수당",
+    "title": "연차 며칠 생길까? 근속연수별 연차 일수와 연차수당 계산법",
+    "desc": "1년 미만은 한 달 개근마다 1일(최대 11일), 1년 80% 출근 시 15일, 3년차부터 2년마다 1일씩 늘어 최대 25일입니다. 미사용 연차수당 계산법과 사용촉진 제도까지 정리했습니다.",
+    "h1": "연차 일수와 연차수당 계산법",
+    "lead": "입사 1년 미만이면 한 달 개근할 때마다 연차가 1일씩 생겨 최대 11일입니다. 1년 동안 80% 이상 출근하면 15일이 생기고, 3년 이상 근무하면 2년마다 1일씩 늘어 최대 25일까지 받습니다. 쓰지 못한 연차는 1일 통상임금에 남은 일수를 곱해 수당으로 받습니다.",
+    "body": "<h2>근속 기간별 연차 일수</h2><div class=\"table-scroll\"><table><thead><tr><th>계속근로 기간</th><th>그 해 생기는 연차</th></tr></thead><tbody><tr><td>1년 미만</td><td>1개월 개근마다 1일 (최대 11일)</td></tr><tr><td>1년 이상 3년 미만</td><td>15일</td></tr><tr><td>3년 이상 5년 미만</td><td>16일</td></tr><tr><td>5년 이상 7년 미만</td><td>17일</td></tr><tr><td>7년 이상 9년 미만</td><td>18일</td></tr><tr><td>9년 이상 11년 미만</td><td>19일</td></tr><tr><td>11년 이상</td><td>2년마다 1일씩 추가</td></tr><tr><td>21년 이상</td><td>25일 (최대)</td></tr></tbody></table></div><p>15일은 1년 동안 80% 이상 출근했을 때 생깁니다. 3년 이상 근무하면 최초 1년을 넘는 근무 기간 2년마다 1일이 더해지고, 합계는 25일을 넘을 수 없습니다(근로기준법 제60조).</p><h2>언제 생기나요</h2><p>고용노동부는 2021년 대법원 판결에 따라 해석을 바꿨습니다. 연차는 기간을 다 채운 <strong>다음 날</strong> 근로관계가 있어야 생깁니다. 월 단위 연차는 한 달을 채운 다음 날 생기고, 15일 연차는 1년(365일)을 채운 다음 날인 366일째에도 근무해야 생깁니다. 그래서 딱 1년 근무하고 퇴사하면 15일 연차는 생기지 않습니다.</p><h2>연차수당 계산</h2><p><strong>연차수당 = 1일 통상임금 × 쓰지 못한 연차 일수</strong></p><p>예를 들어 시간당 통상임금이 12,000원이고 하루 8시간 근무한다면 1일 통상임금은 96,000원입니다. 연차 5일이 남으면 수당은 480,000원입니다. 퇴사할 때는 회사가 회계연도 기준으로 연차를 관리했더라도 입사일 기준으로 다시 계산해 정산해야 합니다. 연차수당은 퇴직금 평균임금에도 들어가니 <a href=\"{{severance}}\">퇴직금 계산기</a>에 함께 넣어 보세요.</p><h2>연차 사용촉진을 했다면</h2><p>회사가 법에 정한 절차를 서면으로 모두 거쳤는데도 근로자가 연차를 쓰지 않았다면, 회사는 남은 연차를 돈으로 보상하지 않아도 됩니다(근로기준법 제61조).</p><ol><li>연차 사용기간이 끝나기 6개월 전을 기준으로 10일 안에, 남은 일수를 알리고 사용 시기를 정해 달라고 서면으로 촉구합니다.</li><li>근로자가 10일 안에 시기를 알리지 않으면, 회사가 사용기간이 끝나기 2개월 전까지 사용 시기를 정해 서면으로 통보합니다.</li></ol><p>구두 안내만으로는 효력이 없습니다.</p><h2>연차가 적용되지 않는 경우</h2><ul><li>상시 근로자 5인 미만 사업장</li><li>4주 평균 주 소정근로시간이 15시간 미만인 근로자</li></ul><p>주 15시간 이상인 단시간 근로자는 통상 근로자와의 근로시간 비율에 따라 시간 단위로 연차를 받습니다.</p>",
+    "faq": [
+      ["입사 2년차인데 연차가 몇 개인가요?", "첫 1년 동안 80% 이상 출근했다면 2년차에 15일이 생깁니다. 첫 해에 월 단위로 생긴 연차(최대 11일)는 입사 후 1년 안에 써야 합니다."],
+      ["연차수당은 언제까지 청구할 수 있나요?", "임금채권이므로 3년 안에 청구해야 합니다. 퇴사 후 정산이 빠졌다면 회사에 먼저 요청하고, 받지 못하면 관할 고용노동부 지방관서에 진정할 수 있습니다."],
+      ["회사가 연차를 마음대로 쓰라고 날짜를 정할 수 있나요?", "법에 정한 사용촉진 절차를 서면으로 거친 경우에만 회사가 사용 시기를 지정할 수 있습니다. 이 절차를 거치지 않았다면 남은 연차는 수당으로 받아야 합니다."]
+    ]
+  },
+  "en": {
+    "nav": "Annual leave",
+    "title": "Annual Leave in Korea: How Many Days You Get and Unused Leave Pay",
+    "desc": "How annual leave works under Korean labor law: 1 day a month in your first year, 15 days after a year, up to 25 days with seniority, and how unused leave is paid out.",
+    "h1": "Annual leave in Korea: days and unused leave pay",
+    "lead": "In your first year in a Korean job you earn 1 day of paid leave for each full month worked, up to 11 days. After a year with at least 80% attendance you get 15 days, rising by 1 day every two years after your third year, to a maximum of 25. Leave you cannot use is paid out at your daily ordinary wage. These rules apply to foreign workers as well.",
+    "body": "<h2>Days by length of service</h2><div class=\"table-scroll\"><table><thead><tr><th>Continuous service</th><th>Leave for the year</th></tr></thead><tbody><tr><td>Under 1 year</td><td>1 day per full month (max 11)</td></tr><tr><td>1 to under 3 years</td><td>15 days</td></tr><tr><td>3 to under 5 years</td><td>16 days</td></tr><tr><td>5 to under 7 years</td><td>17 days</td></tr><tr><td>7 to under 9 years</td><td>18 days</td></tr><tr><td>9 to under 11 years</td><td>19 days</td></tr><tr><td>11 years and up</td><td>+1 day every two years</td></tr><tr><td>21 years and up</td><td>25 days (maximum)</td></tr></tbody></table></div><p>The 15 days require at least 80% attendance over the year. From three years of service, one day is added for every two years beyond the first, up to 25 days in total (Labor Standards Act, Article 60).</p><h2>When leave is earned</h2><p>Since a 2021 Supreme Court ruling, the Ministry of Employment and Labor treats leave as earned on the day <strong>after</strong> the period is completed. Monthly leave appears the day after each full month, and the 15 days appear only if you are still employed on day 366. If you leave after exactly one year, the 15 days are never earned.</p><h2>Unused leave pay</h2><p><strong>Payout = daily ordinary wage × unused days</strong></p><p>At an ordinary wage of ₩12,000 an hour and 8-hour days, a day is worth ₩96,000, so 5 unused days pay ₩480,000. When you leave, your employer must recalculate your leave from your start date, even if it tracked leave by calendar year. Leave pay also counts towards the wages used for severance, so include it in the <a href=\"{{severance}}\">severance pay calculator</a>.</p><h2>When the employer can avoid paying</h2><p>Under Article 61, the employer owes nothing for unused leave if it followed the leave-use promotion process in writing:</p><ol><li>Within the 10 days starting 6 months before your leave expires, it tells you how many days you have left and asks you to schedule them.</li><li>If you do not reply within 10 days, it sets the dates itself and notifies you at least 2 months before the leave expires.</li></ol><p>Spoken reminders do not count.</p><h2>Who is not covered</h2><ul><li>Workplaces with fewer than 5 regular employees</li><li>Workers contracted for under 15 hours a week on a 4-week average</li></ul><p>Part-time workers on 15 hours or more earn leave in hours, in proportion to their working time.</p>",
+    "faq": [
+      ["Do foreign workers get annual leave?", "Yes. The Labor Standards Act applies regardless of nationality or visa, as long as the workplace has 5 or more regular employees."],
+      ["How long do I have to claim unpaid leave pay?", "Three years, like other wage claims. Ask your employer first. If it is not paid, you can file a complaint with the local Ministry of Employment and Labor office."],
+      ["Can my employer force me to take leave on certain dates?", "Only after it has completed the written leave-use promotion process. Otherwise, unused days must be paid out."]
+    ]
+  }
+}
