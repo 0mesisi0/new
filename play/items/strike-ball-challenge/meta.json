@@ -1,0 +1,17 @@
+{
+  "slug": "strike-ball-challenge",
+  "date": "2026-11-23",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "스트라이크 볼 챌린지",
+    "desc": "오늘은 내가 주심! 공이 홈에 닿기 전에 스트라이크나 볼을 선언하고 자동 투구 판정(ABS)으로 결과를 확인하세요.",
+    "howto": "홈에 도착하기 전에 스트라이크(S·↑·←) 또는 볼(B·↓·→)을 누르세요. 판정 후 2초 안에 챌린지(C)로 오심을 뒤집을 수 있어요. 맞는 판정에 이의를 제기하면 기회를 잃어요."
+  },
+  "en": {
+    "title": "Strike or Ball Challenge",
+    "desc": "Take your place behind home plate. Call every pitch before it arrives, then check the automated strike zone for the verdict.",
+    "howto": "Call Strike (S, Up or Left) or Ball (B, Down or Right) before the pitch reaches the plate. Press Challenge (C) within two seconds. Challenging a correct call costs a life."
+  }
+}
