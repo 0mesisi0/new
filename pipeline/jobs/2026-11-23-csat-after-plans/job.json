@@ -1,0 +1,49 @@
+{
+  "id": "2026-11-23-csat-after-plans",
+  "site": "play",
+  "slug": "csat-after-plans",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 2,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-23T12:11:05.253Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-23T12:11:58.372Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-23T12:11:59.870Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-23T12:14:04.829Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "output rejected: missing Korean/English strings"
+    },
+    {
+      "at": "2026-11-23T12:16:15.920Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
