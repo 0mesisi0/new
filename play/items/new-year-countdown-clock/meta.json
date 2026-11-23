@@ -1,0 +1,29 @@
+{
+  "slug": "new-year-countdown-clock",
+  "date": "2026-11-22",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "16/9",
+  "ko": {
+    "title": "새해 카운트다운 시계",
+    "desc": "한국 시간으로 새해까지 남은 일·시·분·초를 확인하세요. 마지막 10초를 미리 세어 보고, 자정에는 화면을 띄워 함께 새해를 맞이해요.",
+    "howto": "시계를 열면 한국 시간 기준으로 남은 시간이 바로 보여요. ‘10초 리허설’을 누르면 새해를 맞는 순간을 미리 볼 수 있어요.",
+    "about": "한국 표준시(KST, UTC+9)를 사용해요. 남은 시간은 이 기기의 시계를 기준으로 계산해요.",
+    "tags": [
+      "새해 카운트다운",
+      "신년 카운트다운",
+      "한국 시간"
+    ]
+  },
+  "en": {
+    "title": "New Year Countdown Clock",
+    "desc": "Count down to midnight in Korea and rehearse the final 10 seconds. Keep the clock open to ring in the New Year together.",
+    "howto": "Open the clock to see how much time is left until midnight in Korea. Select “10-second rehearsal” to preview the celebration.",
+    "about": "The countdown uses Korea Standard Time (KST, UTC+9) and reads the current time from your device clock.",
+    "tags": [
+      "new year countdown",
+      "midnight",
+      "Korea time"
+    ]
+  }
+}

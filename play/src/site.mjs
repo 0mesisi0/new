@@ -24,13 +24,13 @@ export const categories = [
 
 export const ui = {
   ko: {
-    home: '홈', newest: '오늘의 신작', popular: '좋아요 많은 작품', like: '좋아요', dislike: '별로예요', voteThanks: '투표했어요', voteFail: '투표를 저장하지 못했어요', all: '전체', more: '더 보기', play: '하는 법', related: '같은 카테고리',
+    home: '홈', newest: '오늘의 신작', fresh: '새로 올라온 작품', popular: '좋아요 많은 작품', like: '좋아요', dislike: '별로예요', voteThanks: '투표했어요', voteFail: '투표를 저장하지 못했어요', all: '전체', more: '더 보기', play: '하는 법', related: '같은 카테고리',
     fullscreen: '전체화면', share: '공유하기', copied: '링크를 복사했어요', items: '개', other: 'English',
     about: '소개', privacy: '개인정보처리방침', categories: '카테고리', added: '올린 날',
     noscript: '이 게임을 하려면 자바스크립트를 켜 주세요.', notFound: '페이지를 찾을 수 없습니다.',
   },
   en: {
-    home: 'Home', newest: "Today's pick", popular: 'Most liked', like: 'Like', dislike: 'Dislike', voteThanks: 'Thanks for voting', voteFail: 'Could not save your vote', all: 'All', more: 'More', play: 'How to play', related: 'More like this',
+    home: 'Home', newest: "Today's pick", fresh: 'Just added', popular: 'Most liked', like: 'Like', dislike: 'Dislike', voteThanks: 'Thanks for voting', voteFail: 'Could not save your vote', all: 'All', more: 'More', play: 'How to play', related: 'More like this',
     fullscreen: 'Full screen', share: 'Share', copied: 'Link copied', items: '', other: '한국어',
     about: 'About', privacy: 'Privacy', categories: 'Categories', added: 'Added',
     noscript: 'Please enable JavaScript to play.', notFound: 'Page not found.',
