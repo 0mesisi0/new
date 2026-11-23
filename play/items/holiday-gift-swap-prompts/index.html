@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>연말 선물 교환 미션 뽑기</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:#771F35;color:#2B2024;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;height:100vh;height:100dvh;width:100vw}
+main{height:100%;width:100%;max-width:420px;margin:0 auto;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:0}
+@media (min-width:600px) and (min-height:700px){main{gap:18px}}
+h1{margin:0;color:#FFF3DC;font-size:clamp(18px,5vw,24px);text-align:center;line-height:1.2}
+.sub{margin:0;color:#FFF3DC;opacity:.9;text-align:center;font-size:15px;line-height:1.35}
+.tag{position:relative;width:100%;background:#FFF3DC;border-radius:14px;box-shadow:0 6px 0 rgba(0,0,0,.25);overflow:hidden;min-height:0;flex:0 1 auto;display:flex;flex-direction:column}
+.art{display:block;width:100%;height:clamp(56px,16vh,150px);background:#FBE6BE;flex:none}
+.start .art{height:clamp(90px,28vh,220px)}
+.tagbody{padding:12px 16px 16px;text-align:center;transform-origin:top center;overflow:auto}
+.art{transform-origin:top center}
+.art.fold{animation:fold .18s ease-out}
+@keyframes fold{from{transform:scaleY(.6);opacity:.3}to{transform:none;opacity:1}}
+h2{margin:0 0 6px;font-size:clamp(18px,5.5vw,24px);line-height:1.25;overflow-wrap:anywhere}
+h2:focus{outline:3px solid #771F35;outline-offset:2px}
+.rule{margin:0;font-size:clamp(15px,4.2vw,17px);line-height:1.45;overflow-wrap:anywhere}
+.manual{padding:14px 16px;text-align:left}
+.manual p{margin:0 0 8px;font-size:15px}
+.manual label{display:block;font-weight:700;margin-bottom:4px;font-size:14px}
+textarea{width:100%;height:5.6em;font:inherit;font-size:15px;line-height:1.4;padding:8px;border:2px solid #214F3D;border-radius:8px;background:#fff;color:#2B2024;resize:none}
+.btns{width:100%;display:flex;flex-direction:column;gap:8px}
+button{min-height:48px;width:100%;font:inherit;font-weight:700;font-size:17px;border-radius:12px;border:2px solid #FFF3DC;cursor:pointer;padding:8px 16px}
+.primary{background:#214F3D;color:#FFF3DC}
+.secondary{background:transparent;color:#FFF3DC}
+button:disabled{opacity:.55;cursor:default}
+button:focus-visible{outline:3px solid #FFD36B;outline-offset:2px}
+textarea:focus-visible{outline:3px solid #771F35;outline-offset:2px}
+button:active:not(:disabled){transform:translateY(1px)}
+.status{height:20px;margin:0;color:#FFF3DC;font-size:14px;text-align:center;line-height:20px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){.art.fold{animation:none}}
+</style>
+</head>
+<body>
+<main id="app">
+  <h1 id="title"></h1>
+  <p class="sub" id="sub"></p>
+  <div class="tag start" id="tag">
+    <svg class="art" id="art" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <circle cx="200" cy="22" r="9" fill="#771F35"/>
+      <rect x="0" y="52" width="400" height="26" fill="#771F35"/>
+      <rect x="0" y="52" width="400" height="5" fill="#9b3450"/>
+      <rect x="176" y="0" width="48" height="120" fill="#214F3D" opacity=".0"/>
+      <path d="M200 65 C160 25 110 30 130 62 C145 85 185 72 200 65Z" fill="#214F3D"/>
+      <path d="M200 65 C240 25 290 30 270 62 C255 85 215 72 200 65Z" fill="#214F3D"/>
+      <path d="M200 65 L165 108 L190 100Z" fill="#1a3f31"/>
+      <path d="M200 65 L235 108 L210 100Z" fill="#1a3f31"/>
+      <circle cx="200" cy="65" r="12" fill="#2d6b53"/>
+    </svg>
+    <div class="tagbody" id="body" hidden>
+      <h2 id="theme" tabindex="-1"></h2>
+      <p class="rule" id="rule"></p>
+    </div>
+    <div class="manual" id="manual" hidden>
+      <p id="mhelp"></p>
+      <label for="mtext" id="mlabel"></label>
+      <textarea id="mtext" readonly></textarea>
+    </div>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite" hidden></p>
+  <div class="btns">
+    <button type="button" class="primary" id="draw"></button>
+    <button type="button" class="primary" id="copy" hidden></button>
+    <button type="button" class="secondary" id="again" hidden></button>
+    <button type="button" class="primary" id="close" hidden></button>
+  </div>
+</main>
+<script>
+(function(){
+'use strict';
+var DECK=[
+['cold-day','추운 날 손이 가는 선물','추운 날 집에 돌아왔을 때 바로 손이 갈 물건을 골라요.','Cold-Day Comfort','Pick something you would reach for as soon as you got home on a cold day.'],
+['one-color','한 가지 색 선물','선물에서 가장 많이 보이는 색을 하나 골라, 같은 색으로 포장해요.','One-Color Gift','Wrap your gift in its main color.'],
+['desk-corner','책상 한 귀퉁이','책상 한쪽에 놓고 자주 쓸 만한 작은 물건을 골라요.','A Corner of the Desk','Pick something small enough to keep on a desk and useful enough to reach for often.'],
+['pocket','주머니 속 선물','코트 주머니에 쏙 들어가는 선물을 골라요.','Pocket-Sized Gift','Pick a gift that fits in a coat pocket.'],
+['ready-now','열자마자 쓸 수 있는 선물','포장을 뜯은 자리에서 바로 써 볼 수 있는 걸 골라요.','Ready to Use','Pick something the recipient can try as soon as they unwrap it.'],
+['sunday','일요일 아침 선물','느긋한 일요일 아침에 꺼내 쓰고 싶은 물건을 골라요.','Sunday Morning Gift','Pick something you would use on a slow Sunday morning.'],
+['two-uses','두 가지 쓰임새','두 가지 방법으로 쓸 수 있는 물건을 고르고, 쪽지에 그 방법을 적어요.','One Gift, Two Uses','Pick something with two uses and write both on a note.'],
+['boring-upgrade','매일 쓰는 물건의 변신','평소 자주 쓰는 물건 중에 재질이나 모양이 마음에 드는 걸 골라요.','An Everyday Upgrade','Pick an everyday object with a material or shape you especially like.'],
+['sound-clue','소리로 주는 힌트','선물에서 날 법한 소리를 의성어로 적어 포장 겉에 붙여요.','A Sound Clue','Write the sound your gift might make on the outside of the wrapping.'],
+['drawn-clue','그림으로 주는 힌트','선물의 쓰임새를 알려 주는 작은 그림을 포장 겉에 그려요.','A Doodled Clue','Draw a small clue on the wrapping that hints at what the gift does.'],
+['first-letter','ㅅ으로 시작하는 선물','이름이 ‘ㅅ’으로 시작하는 선물을 골라요.','A Gift That Starts With S','Pick a gift whose name starts with S.'],
+['next-year','새해 첫 주에 쓸 선물','새해 첫 주에 한 번쯤 써 보고 싶은 물건을 골라요.','First Week of the New Year','Pick something you would like to use at least once in the first week of the new year.']
+];
+var S={
+ko:{appTitle:'연말 선물 교환 미션 뽑기',startSub:'모임에서 함께 쓸 선물 미션을 하나 뽑아 보세요.',draw:'미션 뽑기',drawAgain:'다른 미션',copy:'미션 복사',copied:'미션을 복사했어요.',manualHelp:'아래 문구를 선택해서 복사해 주세요.',manualLabel:'복사할 미션',closeManual:'미션으로 돌아가기'},
+en:{appTitle:'Holiday Gift Swap Prompts',startSub:'Draw one gift prompt for everyone in your group.',draw:'Draw a prompt',drawAgain:'Draw another',copy:'Copy prompt',copied:'Prompt copied.',manualHelp:'Select and copy the text below.',manualLabel:'Prompt to copy',closeManual:'Back to prompt'}
+};
+var KEY='holiday-gift-swap-prompts:last-card:v1';
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:(/^ko/i.test(navigator.language||'')?'ko':'en');
+var T=S[lang],ci=lang==='ko'?1:3;
+document.documentElement.lang=lang;
+document.title=T.appTitle;
+
+function $(id){return document.getElementById(id)}
+var el={title:$('title'),sub:$('sub'),tag:$('tag'),art:$('art'),body:$('body'),theme:$('theme'),rule:$('rule'),manual:$('manual'),mhelp:$('mhelp'),mlabel:$('mlabel'),mtext:$('mtext'),status:$('status'),draw:$('draw'),copy:$('copy'),again:$('again'),close:$('close')};
+el.title.textContent=T.appTitle;el.sub.textContent=T.startSub;
+el.draw.textContent=T.draw;el.again.textContent=T.drawAgain;el.copy.textContent=T.copy;
+el.mhelp.textContent=T.manualHelp;el.mlabel.textContent=T.manualLabel;el.close.textContent=T.closeManual;
+
+var last=null,order=[],pos=0,cur=null,timer=0;
+try{var v=localStorage.getItem(KEY);if(DECK.some(function(c){return c[0]===v}))last=v}catch(e){}
+
+function shuffle(avoid){
+  var a=DECK.map(function(c){return c[0]});
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}
+  if(avoid&&a[0]===avoid){var t2=a[0];a[0]=a[1];a[1]=t2}
+  order=a;pos=0;
+}
+shuffle(last);
+
+function next(){
+  if(pos>=order.length)shuffle(last);
+  var id=order[pos++];last=id;
+  try{localStorage.setItem(KEY,id)}catch(e){}
+  return DECK.filter(function(c){return c[0]===id})[0];
+}
+window.__gsp={next:next};
+
+function reveal(){
+  cur=next();
+  clearTimeout(timer);el.status.hidden=true;el.status.textContent='';
+  el.theme.textContent=cur[ci];el.rule.textContent=cur[ci+1];
+  el.sub.hidden=true;el.tag.classList.remove('start');
+  el.body.hidden=false;el.draw.hidden=true;el.copy.hidden=false;el.again.hidden=false;
+  el.status.hidden=false;
+  el.art.classList.remove('fold');void el.art.getBoundingClientRect();el.art.classList.add('fold');
+  el.theme.focus();
+}
+function setBusy(b){el.copy.disabled=b;el.again.disabled=b}
+function text(c){return c[ci]+'\n'+c[ci+1]}
+function manual(t){
+  el.mtext.value=t;
+  el.body.hidden=true;el.art.hidden=true;el.manual.hidden=false;
+  el.copy.hidden=true;el.again.hidden=true;el.close.hidden=false;
+  el.status.hidden=true;
+  el.mtext.focus();el.mtext.select();
+}
+function doCopy(){
+  var c=cur,t=text(c);
+  setBusy(true);
+  clearTimeout(timer);el.status.textContent='';
+  var p;
+  try{p=navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()}catch(e){p=Promise.reject(e)}
+  p.then(function(){
+    setBusy(false);
+    el.status.textContent=T.copied;
+    clearTimeout(timer);timer=setTimeout(function(){el.status.textContent=''},2000);
+    el.copy.focus();
+  },function(){setBusy(false);manual(t)});
+}
+function closeManual(){
+  clearTimeout(timer);el.status.textContent='';
+  el.manual.hidden=true;el.art.hidden=false;el.body.hidden=false;el.close.hidden=true;
+  el.copy.hidden=false;el.again.hidden=false;el.status.hidden=false;
+  el.copy.focus();
+}
+el.draw.addEventListener('click',reveal);
+el.again.addEventListener('click',reveal);
+el.copy.addEventListener('click',doCopy);
+el.close.addEventListener('click',closeManual);
+document.addEventListener('visibilitychange',function(){if(document.hidden)el.art.classList.remove('fold')});
+})();
+</script>
+</body>
+</html>
