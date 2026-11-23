@@ -1,0 +1,21 @@
+{
+  "slug": "holiday-gift-swap-prompts",
+  "date": "2026-11-22",
+  "category": "random",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "연말 선물 교환 미션 뽑기",
+    "tags": ["선물교환", "송년회", "크리스마스"],
+    "desc": "송년회나 크리스마스 모임에서 어떤 선물을 교환할지 고민된다면, 한 번 눌러 모두가 함께 쓸 미션을 뽑아 보세요. 마음에 드는 미션은 단톡방에 붙여넣을 수 있어요.",
+    "howto": "‘미션 뽑기’를 누르고, 마음에 드는 카드가 나오면 ‘미션 복사’를 눌러 단톡방에 붙여넣으세요. ‘다른 미션’을 누르면 새 카드가 나와요.",
+    "about": "미션 하나를 뽑아 모임의 공통 선물 규칙으로 써 보세요. 예산은 모임에서 따로 정하면 돼요."
+  },
+  "en": {
+    "title": "Holiday Gift Swap Prompts",
+    "tags": ["gift-swap", "holiday-party", "prompts"],
+    "desc": "Draw a gift swap prompt for your holiday party. Each card pairs a theme with one rule you can paste into the group chat.",
+    "howto": "Draw a prompt, then copy your favorite into the group chat. Choose “Draw another” to reveal a new card.",
+    "about": "Use one card as the shared gift rule for your group. You can agree on a budget separately."
+  }
+}
