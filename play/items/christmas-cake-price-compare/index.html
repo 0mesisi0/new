@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>크리스마스 케이크 가격 비교</title>
+<link rel="icon" href="data:,">
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100vh;height:100dvh;overflow:hidden;background:#FFF7E9;color:#382534;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-variant-numeric:tabular-nums}
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#app{position:relative;display:flex;flex-direction:column;height:100vh;height:100dvh}
 main{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 12px;max-width:640px;width:100%;margin:0 auto;-webkit-overflow-scrolling:touch}
 h1{font-size:1.35rem;margin:0 0 4px}
 h2{font-size:1.2rem;margin:0 0 10px}
@@ -21,12 +22,15 @@ input{width:100%;min-height:44px;font:inherit;font-size:1rem;padding:6px 10px;bo
 input[aria-invalid=true]{border-color:#B3261E;background:#fff0ee}
 .err{color:#B3261E;font-size:.85rem;margin-top:3px}
 .err:empty{display:none}
-.bar{flex:none;display:flex;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#FFF7E9;border-top:2px solid #382534;max-width:640px;width:100%;margin:0 auto}
-button{font:inherit;font-weight:700;min-height:44px;padding:8px 14px;border-radius:12px;border:2px solid #9B3154;cursor:pointer;flex:1}
+.bar{flex:none;display:flex;gap:8px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));background:#FFF7E9;border-top:2px solid #382534;max-width:640px;width:100%;margin:0 auto}
+.keyboard .bar{padding:4px 16px}
+@media (max-height:350px){.bar{padding-top:4px;padding-bottom:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}}
+button{font:inherit;font-weight:700;min-width:44px;min-height:44px;padding:8px 14px;border-radius:12px;border:2px solid #9B3154;cursor:pointer;flex:1}
 .pri{background:#9B3154;color:#fff}
 .sec{background:#fff;color:#9B3154}
 button:focus-visible,input:focus-visible{outline:3px solid #205E4F;outline-offset:2px}
 [hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .tag{display:inline-block;background:#382534;color:#FFF7E9;border-radius:8px;padding:2px 10px;font-size:.85rem;font-weight:700;margin-bottom:8px}
 .res{animation:in .25s ease-out}
 @keyframes in{from{opacity:0}to{opacity:1}}
@@ -46,6 +50,7 @@ ul.bud b{color:#9B3154}
 </head>
 <body>
 <form id="app" novalidate>
+<div id="validation-status" class="sr-only" role="status" aria-atomic="true"></div>
 <main id="main">
   <section id="edit">
     <h1 id="h1"></h1>
@@ -97,7 +102,8 @@ function $(id){return document.getElementById(id)}
 var fieldsEl=$('fields'),html='';
 function fieldHtml(f){
   var name=(f[1]?S[f[1]]+' ':'')+S[f[2]];
-  return '<div class="f"><label for="'+f[0]+'">'+S[f[2]]+'</label><input id="'+f[0]+'" type="text" inputmode="numeric" autocomplete="off" maxlength="'+MAX+'" aria-label="'+name+'" aria-describedby="e_'+f[0]+'" aria-invalid="false"><div class="err" id="e_'+f[0]+'"></div></div>';
+  var required=f[3]==='money'||f[3]==='serv'?' required':'';
+  return '<div class="f"><label for="'+f[0]+'">'+S[f[2]]+'</label><input id="'+f[0]+'" type="text" inputmode="numeric" autocomplete="off" maxlength="'+MAX+'" aria-label="'+name+'" aria-describedby="e_'+f[0]+'" aria-invalid="false"'+required+'><div class="err" id="e_'+f[0]+'"></div></div>';
 }
 ['cakeA','cakeB'].forEach(function(c){
   html+='<fieldset><legend>'+S[c]+'</legend>'+F.filter(function(f){return f[1]===c}).map(fieldHtml).join('')+'</fieldset>';
@@ -128,16 +134,71 @@ function mark(f,bad){
   var el=$(f[0]);el.setAttribute('aria-invalid',bad?'true':'false');$('e_'+f[0]).textContent=bad?errMsg(f):'';
 }
 
+var app=$('app'),main=$('main'),host=window,frame=null;
+// The same-origin wrapper owns the visual viewport when its keyboard opens.
+try{
+  frame=window.frameElement;
+  if(frame)host=window.parent;
+}catch(e){}
+var viewport=host.visualViewport,layoutQueued=false,shiftFrame=false;
+function queueLayout(allowShift){
+  shiftFrame=shiftFrame||allowShift;
+  if(layoutQueued)return;
+  layoutQueued=true;
+  requestAnimationFrame(function(){
+    layoutQueued=false;
+    var mayShift=shiftFrame;
+    shiftFrame=false;
+    var active=document.activeElement;
+    var input=active&&active.tagName==='INPUT'?active:null;
+    // A tap on the action bar may blur the input before the tap completes.
+    var fit=viewport&&viewport.height<host.innerHeight-1&&(input||app.classList.contains('keyboard'));
+    var top=0,height=window.innerHeight;
+    if(fit){
+      var frameTop=frame?frame.getBoundingClientRect().top:0;
+      var visibleTop=viewport.offsetTop,visibleBottom=visibleTop+viewport.height;
+      if(frame&&input&&mayShift&&frameTop>visibleTop&&frameTop+height>visibleBottom){
+        host.scrollBy(0,Math.ceil(Math.min(frameTop-visibleTop,frameTop+height-visibleBottom)));
+        frameTop=frame.getBoundingClientRect().top;
+      }
+      top=Math.max(0,Math.ceil(visibleTop-frameTop));
+      height=Math.floor(Math.min(height,visibleBottom-frameTop))-top;
+      fit=height>0;
+    }
+    app.classList.toggle('keyboard',!!fit);
+    app.style.top=fit?top+'px':'';
+    app.style.height=fit?height+'px':'';
+    if(input){
+      var fieldRect=input.getBoundingClientRect(),panelRect=main.getBoundingClientRect();
+      if(fieldRect.top<panelRect.top+4||fieldRect.bottom>panelRect.bottom-4){
+        main.scrollTop+=(fieldRect.top+fieldRect.bottom-panelRect.top-panelRect.bottom)/2;
+      }
+    }
+  });
+}
+window.addEventListener('resize',function(){queueLayout(true)});
+if(viewport){
+  viewport.addEventListener('resize',function(){queueLayout(true)});
+  viewport.addEventListener('scroll',function(){queueLayout(false)});
+}
+if(frame)host.addEventListener('scroll',function(){if(viewport)queueLayout(false)});
+
+var status=$('validation-status'),announcement;
+function clearAnnouncement(){
+  clearTimeout(announcement);
+  status.textContent='';
+}
 var last=null;
 F.forEach(function(f){
   var el=$(f[0]);el.value=draft[f[0]];
   el.addEventListener('input',function(){
     draft[f[0]]=el.value.slice(0,MAX);last=f[0];save();
+    clearAnnouncement();
     if(el.getAttribute('aria-invalid')==='true'&&!read(f).bad)mark(f,false);
   });
-  el.addEventListener('focus',function(){setTimeout(function(){try{el.scrollIntoView({block:'center'})}catch(e){}},300)});
+  el.addEventListener('focus',function(){queueLayout(true)});
+  el.addEventListener('blur',function(){queueLayout(false)});
 });
-window.addEventListener('resize',function(){var a=document.activeElement;if(a&&a.tagName==='INPUT')try{a.scrollIntoView({block:'center'})}catch(e){}});
 
 function exactLower(totA,sA,totB,sB){var x=totA*sB,y=totB*sA;return x<y?'A':(x>y?'B':null)}
 function perServ(t,s){return Math.floor((2*t+s)/(2*s))}
@@ -177,7 +238,7 @@ function show(v,example){
   $('bCompare').hidden=$('bExample').hidden=v!=='edit';
   $('bEdit').hidden=v!=='result';$('bBack').hidden=v!=='example';
   var r=$('result');
-  if(v!=='edit'){r.classList.remove('res');void r.offsetWidth;r.classList.add('res');$('main').scrollTop=0;$('rh').focus()}
+  if(v!=='edit'){clearAnnouncement();r.classList.remove('res');void r.offsetWidth;r.classList.add('res');main.scrollTop=0;$('rh').focus()}
 }
 function toEdit(){
   show('edit');
@@ -185,8 +246,18 @@ function toEdit(){
 }
 function submit(){
   var vals={},first=null;
-  F.forEach(function(f){var r=read(f);mark(f,!!r.bad);if(r.bad&&!first)first=f[0];vals[f[0]]=r.v});
-  if(first){$(first).focus();return}
+  clearAnnouncement();
+  F.forEach(function(f){var r=read(f);mark(f,!!r.bad);if(r.bad&&!first)first=f;vals[f[0]]=r.v});
+  if(first){
+    var el=$(first[0]);
+    if(el===document.activeElement){
+      announcement=setTimeout(function(){status.textContent=errMsg(first)},50);
+      queueLayout(true);
+    }else{
+      el.focus();
+    }
+    return;
+  }
   render({aP:vals.aPrice,aF:vals.aFee,aS:vals.aServ,bP:vals.bPrice,bF:vals.bFee,bS:vals.bServ,bud:vals.budget});
   show('result');
 }

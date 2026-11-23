@@ -29,7 +29,14 @@ h2{margin:0;font-size:20px;line-height:1.2}
 .rib{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
 .curl{transform-box:fill-box;transform-origin:center;animation:curl .12s ease-out}
 @keyframes curl{from{transform:scale(.4)}to{transform:scale(1)}}
-@media (prefers-reduced-motion:reduce){.curl{animation:none}}
+.seg{stroke-dasharray:1;animation:seg .24s ease-out}
+@keyframes seg{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.pop{transform-origin:center;animation:pop .3s .12s ease-out}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+html.hid .curl,html.hid .seg,html.hid .pop{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.curl,.seg,.pop{animation:none}}
+button.cell{display:block;padding:0;min-width:0;min-height:0;flex:none;border:0;border-radius:10px;font:inherit;color:inherit;cursor:pointer;box-shadow:inset 0 0 0 2px #B8620F}
+button.cell:active{transform:none;box-shadow:inset 0 0 0 2px #B8620F}
 .foot{display:flex;gap:10px;width:100%}
 button{font:inherit;font-weight:800;font-size:16px;min-height:48px;min-width:44px;border:0;border-radius:14px;background:#F69A35;color:#30231B;padding:0 14px;cursor:pointer;box-shadow:0 3px 0 #C4741B;flex:1}
 button.sec{background:#FFFDF7;box-shadow:0 3px 0 #E8D5B0}
@@ -37,7 +44,18 @@ button:active{transform:translateY(2px);box-shadow:none}
 button:disabled{opacity:.45;cursor:default}
 button:focus-visible{outline:3px solid #1E6FD9;outline-offset:3px}
 button.big{min-height:56px;font-size:20px;width:100%;flex:none}
-@media (max-height:420px) and (min-aspect-ratio:1/1){
+@media (max-height:420px) and (max-width:479px){
+#app{padding:4px 16px;gap:3px}
+h1{font-size:20px}h2{font-size:17px;line-height:1.1}
+.score{font-size:17px;min-height:20px}
+.hint{font-size:12px;min-height:0}
+.plate{padding:5px}
+.top{font-size:12px}
+button{min-height:44px}button.big{min-height:44px;font-size:18px}
+.bd{min-height:0!important}.badge{min-height:20px;padding:1px 10px}
+.plate[aria-hidden=true] .board{width:140px;height:140px}
+}
+@media (max-height:420px) and (min-aspect-ratio:1/1) and (min-width:480px){
 #app{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;row-gap:0;align-content:center;align-items:center;max-width:640px;padding:8px 16px}
 #app>.plate{grid-column:1;grid-row:1/span 8;align-self:center}
 #app>:not(.plate){grid-column:2;margin:3px 0}
@@ -74,7 +92,8 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(bests))}catch(e){}}
 var S={screen:'start',bi:0,route:[],newBest:false,fresh:false};
 var app=document.getElementById('app'),live=document.getElementById('live');
 
-function say(m){live.textContent='';setTimeout(function(){live.textContent=m},30)}
+var sayTimer=0;
+function say(m){live.textContent='';clearTimeout(sayTimer);sayTimer=setTimeout(function(){live.textContent=m},30)}
 function B(){return BOARDS[S.bi]}
 function tip(){return S.route[S.route.length-1]}
 function legal(){
@@ -92,17 +111,25 @@ function legal(){
 function ribbon(b,route,animate){
   var n=route.length;if(!n)return'';
   var P=route.map(function(i){return[(i%b.cols)*100+50,Math.floor(i/b.cols)*100+50]});
-  var d='M'+P[0][0]+' '+P[0][1];
+  var d='M'+P[0][0]+' '+P[0][1],cur=P[0];
   if(n===1)d+=' L'+P[0][0]+' '+P[0][1];
+  var dBefore=d;
   for(var k=1;k<n;k++){
     if(k<n-1){
       var p=P[k],q=P[k-1],r=P[k+1];
       var ax=Math.sign(p[0]-q[0]),ay=Math.sign(p[1]-q[1]),bx=Math.sign(r[0]-p[0]),by=Math.sign(r[1]-p[1]);
       d+=' L'+(p[0]-ax*32)+' '+(p[1]-ay*32)+' Q'+p[0]+' '+p[1]+' '+(p[0]+bx*32)+' '+(p[1]+by*32);
-    }else d+=' L'+P[k][0]+' '+P[k][1];
+      cur=[p[0]+bx*32,p[1]+by*32];dBefore=d;
+    }else{dBefore=d+(n===2?' L'+cur[0]+' '+cur[1]:'');d+=' L'+P[k][0]+' '+P[k][1]}
   }
   var e=P[n-1];
-  return '<svg class="rib" viewBox="0 0 '+b.cols*100+' '+b.rows*100+'" aria-hidden="true"><path d="'+d+'" fill="none" stroke="#D96F12" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="#F69A35" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>'+(animate?'<circle class="curl" cx="'+e[0]+'" cy="'+e[1]+'" r="17" fill="#FFB866"/>':'')+'</svg>';
+  // final move: draw everything but the last segment, then slide the last segment in against the stem
+  var fin=animate&&n>1&&route[n-1]===b.e;
+  function pair(dd,cls,extra){return '<path d="'+dd+'" fill="none" stroke="#D96F12" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"'+extra+'/><path d="'+dd+'" fill="none" stroke="#F69A35" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"'+extra+'/>'}
+  var body;
+  if(fin)body=pair(dBefore,'','')+pair('M'+cur[0]+' '+cur[1]+' L'+e[0]+' '+e[1],'',' class="seg" pathLength="1"');
+  else body=pair(d,'','')+(animate?'<circle class="curl" cx="'+e[0]+'" cy="'+e[1]+'" r="17" fill="#FFB866"/>':'');
+  return '<svg class="rib" viewBox="0 0 '+b.cols*100+' '+b.rows*100+'" aria-hidden="true">'+body+'</svg>';
 }
 var TABSVG='<svg class="mark" viewBox="0 0 100 100"><path d="M8 8h34l10 12H8z" fill="#FFFDF7" stroke="#30231B" stroke-width="5" stroke-linejoin="round"/></svg>';
 var STEMSVG='<svg class="mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="22" fill="#2F6347" stroke="#30231B" stroke-width="4"/><path d="M50 30V12" stroke="#2F6347" stroke-width="9" stroke-linecap="round"/><path d="M54 18q18-8 26 6q-18 8-26-6z" fill="#3E8A5F" stroke="#30231B" stroke-width="3"/></svg>';
@@ -121,7 +148,11 @@ function boardHTML(mode){
     parts.push(ch==='S'?t('cellTab'):ch==='E'?t('cellStem'):v?t('cellPeeled'):t('cellPeel'));
     if(a)parts.push(t('cellAvailable'));
     var label=t('cellLabel',{row:Math.floor(i/b.cols)+1,col:i%b.cols+1,state:parts.join(', ')});
-    h+='<div class="'+cls+'" data-i="'+i+'"'+(mode==='deco'?'':' role="img" aria-label="'+label+'"')+'>'+(ch==='S'?TABSVG:ch==='E'?STEMSVG:'')+'</div>';
+    var stem=STEMSVG;
+    if(ch==='E'&&mode==='static'&&S.fresh)stem=STEMSVG.replace('class="mark"','class="mark pop"');
+    var inner=(ch==='S'?TABSVG:ch==='E'?stem:'');
+    if(a)h+='<button type="button" class="'+cls+'" data-i="'+i+'" tabindex="-1" aria-label="'+label+'">'+inner+'</button>';
+    else h+='<div class="'+cls+'" data-i="'+i+'"'+(mode==='deco'?'':' role="img" aria-label="'+label+'"')+'>'+inner+'</div>';
   });
   h+=ribbon(b,route,mode!=='deco'&&S.fresh&&route.length>1)+'</div></div>';
   return h;
@@ -143,7 +174,7 @@ function render(){
     h='<div class="top"><span>'+t('boardNumber',{n:n+1,total:3})+'</span><span>'+best+'</span></div>'+
       '<h2 id="res-h">'+t(sc===b.cap?'perfect':'complete')+'</h2>'+
       '<div class="score" id="res-s">'+t('score',{score:sc,max:b.cap})+'</div>'+
-      '<div style="min-height:24px">'+(S.newBest?'<span class="badge">'+t('newBest')+'</span>':'')+'</div>'+boardHTML('static')+
+      '<div class="bd" style="min-height:24px">'+(S.newBest?'<span class="badge">'+t('newBest')+'</span>':'')+'</div>'+boardHTML('static')+
       '<div class="foot"><button id="retry" aria-describedby="res-h res-s">'+t('retry')+'</button><button class="sec" id="next">'+t('next')+'</button></div>';
   }
   app.innerHTML=h;
@@ -180,30 +211,12 @@ function step(dr,dc){
   move(r*b.cols+c);
 }
 
-// pointer: one gesture = press and release on same square
-var down=null;
-app.addEventListener('pointerdown',function(e){
-  var c=e.target.closest&&e.target.closest('#board [data-i]');
-  down=c&&e.isPrimary!==false?{id:e.pointerId,i:+c.dataset.i}:null;
-  if(c)e.preventDefault();
-});
-app.addEventListener('pointerup',function(e){
-  var d=down;down=null;
-  if(!d||d.id!==e.pointerId)return;
-  var el=document.elementFromPoint(e.clientX,e.clientY);
-  var c=el&&el.closest&&el.closest('#board [data-i]');
-  if(c&&+c.dataset.i===d.i)move(d.i);
-});
-app.addEventListener('pointermove',function(e){
-  if(!down||down.id!==e.pointerId)return;
-  var el=document.elementFromPoint(e.clientX,e.clientY);
-  var c=el&&el.closest&&el.closest('#board [data-i]');
-  if(!c||+c.dataset.i!==down.i)down=null; // left the pressed square: it is a drag, not a tap
-});
-app.addEventListener('pointercancel',function(){down=null});
+// available squares are real buttons: one click = one move (primary tap/click, keyboard, or screen-reader activation).
+// A press on one square released on another fires no click on either, so drags make no move.
 app.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('button');if(!b)return;
   var id=b.id;
+  if(b.dataset&&b.dataset.i!==undefined&&b.classList.contains('cell')){move(+b.dataset.i);return}
   if(id==='go')open(0);
   else if(id==='undo')undo();
   else if(id==='restart'||id==='retry')restart();
@@ -216,17 +229,19 @@ document.addEventListener('keydown',function(e){
   if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.repeat)return;
   if(S.screen==='start'&&e.key==='Enter'&&!(tg&&tg.tagName==='BUTTON')){e.preventDefault();open(0);return}
   if(S.screen!=='play')return;
-  if(ARROWS[e.key]&&tg&&tg.id==='board'){e.preventDefault();step(ARROWS[e.key][0],ARROWS[e.key][1]);return}
+  if(ARROWS[e.key]&&tg&&tg.closest&&tg.closest('#board')){e.preventDefault();step(ARROWS[e.key][0],ARROWS[e.key][1]);return}
   if(e.key==='z'||e.key==='Z'||e.code==='KeyZ'){e.preventDefault();undo()}
   else if(e.key==='r'||e.key==='R'||e.code==='KeyR'){e.preventDefault();restart()}
 });
 
 function size(){
-  var land=matchMedia('(max-height:420px) and (min-aspect-ratio:1/1)').matches;
-  var w=land?innerWidth-32-20-16-190:Math.min(innerWidth,440)-32-20,hh=land?innerHeight-16-20-4:innerHeight-272;
-  var b=Math.max(192,Math.min(w,hh,380)); // 192+ keeps 4-column tiles >= 44px
+  var land=matchMedia('(max-height:420px) and (min-aspect-ratio:1/1) and (min-width:480px)').matches;
+  var tiny=!land&&matchMedia('(max-height:420px) and (max-width:479px)').matches;
+  var w=land?innerWidth-32-20-16-190:Math.min(innerWidth,440)-32-20,hh=land?innerHeight-16-20-4:tiny?innerHeight-139:innerHeight-272;
+  var b=Math.max(tiny?185:192,Math.min(w,hh,380)); // 185+ keeps 4-column tiles >= 44px
   document.documentElement.style.setProperty('--b',Math.floor(b)+'px');
 }
+document.addEventListener('visibilitychange',function(){document.documentElement.className=document.hidden?'hid':''});
 addEventListener('resize',size);size();
 render();focusId('go');
 })();

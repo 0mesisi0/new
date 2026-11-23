@@ -45,15 +45,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 .rtop{display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:22px;font-weight:600;font-size:.92rem}
 .badge{background:#235746;color:#fff;font-size:.72rem;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .bar{height:12px;background:#ebe3d0;border-radius:6px;margin:6px 0 4px;overflow:hidden}
-.bar i{display:block;height:100%;background:#8d9b94;border-radius:6px;transform-origin:left;animation:grow .6s ease-out}
+.bar i{display:block;height:100%;background:#5f7a6e;border-radius:6px;transform-origin:left;animation:grow .6s ease-out}
 .bar i.top{background:#235746}
 .noanim .bar i{animation:none}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .cnt{font-size:.85rem;font-variant-numeric:tabular-nums}
 #panel{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0}
 #panel textarea{flex:1;min-height:80px;resize:none;overflow:auto;padding:8px;border:2px solid #7a6f55;border-radius:12px;background:#fffdf7}
-.ok{color:#235746;font-weight:600;font-size:.9rem;min-height:1.2em}
-.ok:empty{display:none}
 .art{align-self:center;width:100%;max-width:260px;flex:none}
 .start{flex:1;justify-content:center}
 @media (max-height:560px){#screen{gap:6px;padding:10px 14px 10px}h1{font-size:1.4rem}h2{font-size:1.25rem}.date{min-height:48px;padding:4px 12px}.row{padding:5px 10px}.bar{margin:4px 0 2px;height:10px}.art{max-width:170px}.field label{margin-bottom:0}.hint,p{line-height:1.3}}
@@ -105,7 +103,7 @@ var cur=function(){return sample?SAMPLE:real};
 function focusH(){var h=$('#h');if(h)h.focus()}
 var viewId=0;
 function go(s,noFocus){
-  viewId++;scr=s;scrEl.className='';scrEl.innerHTML='';
+  viewId++;scr=s;if(s!=='result')copyOpen=false;scrEl.className='';scrEl.innerHTML='';
   ({start:vStart,setup:vSetup,vote:vVote,result:vResult})[s]();
   if(!noFocus)focusH();
 }
@@ -238,7 +236,7 @@ function vResult(){
   });
   var body=copyOpen?'<div id="panel"><p class="hint" id="mc">'+t('manualCopy')+'</p><label for="ta" class="hint">'+t('copyText')+'</label><textarea id="ta" readonly aria-describedby="mc"></textarea><button type="button" id="cl">'+t('closeCopy')+'</button></div>':'<div id="rows">'+rows+'</div>';
   scrEl.innerHTML=(isS?'<span class="sample">'+t('sampleLabel')+'</span>':'')+'<h2 id="h" tabindex="-1">'+t('resultTitle')+'</h2><p class="headline">'+headline(T,r)+'</p>'+body+
-  '<div class="actions"><button type="button" class="pri" id="cp">'+t('copy')+'</button><p class="ok" id="ok" role="status"></p>'+
+  '<div class="actions"><button type="button" class="pri" id="cp">'+t('copy')+'</button>'+
   (isS?'<button type="button" id="st">'+t('start')+'</button>':'<button type="button" id="ev">'+t('editVotes')+'</button><button type="button" id="es">'+t('editSetup')+'</button>')+'</div>';
   if(copyOpen){
     var ta=$('#ta');ta.value=shareText(T,r);ta.focus();ta.select();
@@ -255,7 +253,7 @@ function vResult(){
       if(!navigator.clipboard||!navigator.clipboard.writeText)return fail();
       navigator.clipboard.writeText(txt).then(function(){
         if(id!==viewId)return;
-        $('#ok').textContent=t('copied');$('#live').textContent='';$('#live').textContent=t('copied');
+        $('#cp').textContent='✓ '+t('copied');$('#live').textContent='';$('#live').textContent=t('copied');
       },fail);
     }catch(e){fail()}
   };

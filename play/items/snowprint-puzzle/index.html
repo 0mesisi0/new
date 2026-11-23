@@ -35,7 +35,7 @@ p{margin:0}
 .cell.door{background:#22344F;border-radius:9px 9px 4px 4px}
 .cell.door.open{background:#5A4A2E;box-shadow:0 0 14px 3px rgba(255,208,122,.7)}
 .cell.me::after{content:"";position:absolute;inset:0;border-radius:9px;pointer-events:none}
-.board:focus-visible{outline:3px solid #FFD07A;outline-offset:3px}
+.board:focus-visible{outline:3px solid #FFD07A;outline-offset:-5px}
 .board:focus-visible .cell.me::after{box-shadow:inset 0 0 0 3px #0B1626,inset 0 0 0 5px #FFD07A}
 .puff{position:absolute;left:50%;top:50%;width:80%;height:80%;margin:-40% 0 0 -40%;border-radius:50%;pointer-events:none;
   background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 70%)}
@@ -48,7 +48,7 @@ button:disabled{opacity:.4;cursor:default}
 button:focus-visible{outline:3px solid #FFD07A;outline-offset:2px}
 .dpad button{flex:1;font-size:20px}
 .acts button{flex:1;font-size:14px}
-button.emph{background:#FFD07A;color:#14253C;border-color:#fff;box-shadow:0 0 12px rgba(255,208,122,.8)}
+button.emph,button.emph:hover:not(:disabled){background:#FFD07A;color:#14253C;border-color:#fff;box-shadow:0 0 12px rgba(255,208,122,.8)}
 button.big{min-height:52px;font-size:18px;background:#FFD07A;color:#14253C;border-color:#FFE9B8;width:100%}
 button.big:hover:not(:disabled){background:#ffdb96}
 #startScreen button.big{width:min(100%,280px)}
@@ -109,7 +109,7 @@ var SV=function(b){return '<svg viewBox="0 0 40 40" aria-hidden="true">'+b+'</sv
 var ART={
 print:SV('<g class="pr" fill="#385679"><ellipse cx="13" cy="14" rx="5" ry="7"/><ellipse cx="13" cy="27" rx="4" ry="3.2"/><ellipse cx="27" cy="19" rx="5" ry="7"/><ellipse cx="27" cy="32" rx="4" ry="3.2"/></g>'),
 mat:SV('<rect x="5" y="7" width="30" height="26" rx="4" fill="#385679" fill-opacity=".18" stroke="#385679" stroke-width="2"/><path d="M11 14H29M11 20H29M11 26H29" stroke="#385679" stroke-width="2.5" stroke-linecap="round"/>'),
-ice:SV('<path d="M6 30L20 9M15 35L31 12M25 36L35 23" stroke="#fff" stroke-opacity=".8" stroke-width="2.5" stroke-linecap="round"/><path d="M5 14L12 6" stroke="#fff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>'),
+ice:SV('<path d="M6 30L20 9M15 35L31 12M25 36L35 23" stroke="#2F6F8F" stroke-width="3" stroke-linecap="round"/><path d="M5 14L12 6" stroke="#2F6F8F" stroke-width="2.5" stroke-linecap="round"/>'),
 bank:SV('<path d="M3 35C3 22 10 11 20 11s17 11 17 24z" fill="#F0F7FF"/><path d="M20 11c10 0 17 11 17 24H27c0-10-2-17-7-24z" fill="#C3D9EE"/><circle cx="14" cy="22" r="2" fill="#fff"/>'),
 locked:SV('<rect x="8" y="4" width="25" height="33" rx="3" fill="#9C7434" stroke="#5E4420" stroke-width="2"/><rect x="5" y="9" width="5" height="6" rx="1" fill="#2E200D"/><rect x="5" y="26" width="5" height="6" rx="1" fill="#2E200D"/><circle cx="27" cy="21" r="2.8" fill="#FFD07A" stroke="#5E4420"/><rect x="14" y="10" width="12" height="8" rx="2" fill="none" stroke="#5E4420" stroke-opacity=".6" stroke-width="1.5"/>'),
 open:SV('<rect x="8" y="4" width="25" height="33" rx="3" fill="#FFD07A"/><rect x="12" y="9" width="17" height="26" fill="#FFF3CF"/><path d="M8 4L18 7V34L8 37z" fill="#9C7434"/><rect x="5" y="9" width="5" height="6" rx="1" fill="#2E200D"/><rect x="5" y="26" width="5" height="6" rx="1" fill="#2E200D"/><path d="M8 37L3 40H38L33 37z" fill="#FFF3CF"/>'),
@@ -134,7 +134,7 @@ function tryMove(d){
   function at(a,b){var row=B.g[a];return row?row[b]:undefined}
   var first=[nr,nc],ch=at(nr,nc);
   if(!ch||ch==="#")return{err:"blocked",t:first};
-  if(ch==="S")return{err:"alreadyMarked",t:first};
+  if(ch==="S")return{err:"blocked",t:first};
   if(ch===".")return S.marked.has(key(nr,nc))?{err:"alreadyMarked",t:first}:{to:first,snow:1};
   if(ch==="D")return isOpen()?{to:first,door:1}:{err:"doorLocked",t:first};
   while(at(nr,nc)==="="){nr+=dr;nc+=dc}

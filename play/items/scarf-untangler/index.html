@@ -36,6 +36,7 @@ button:focus-visible{outline:4px solid #4B2A5E;outline-offset:2px}
   <div id="board"></div>
   <div id="fb" role="status" aria-live="polite"></div>
   <div id="pad"></div>
+  <div id="pdesc" hidden></div>
 
   <section class="ov" id="vStart">
     <h1 data-t="appTitle"></h1>
@@ -90,8 +91,11 @@ function blocker(k,n,gone){ // lowest remaining higher strip crossing n
 }
 
 var $=function(id){return document.getElementById(id)};
-var st,bestMem=0,lastAct={},lastTrans=0,ghosts=[],raf=0,lastTs=0;
-var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var st,bestMem=0,lastAct={},ghosts=[],raf=0,lastTs=0;
+var mq=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):null;
+var reduce=!!(mq&&mq.matches);
+function onMq(){reduce=!!mq.matches;if(reduce){ghosts=[];drawGhosts();}}
+if(mq){if(mq.addEventListener)mq.addEventListener('change',onMq);else if(mq.addListener)mq.addListener(onMq);}
 function readBest(){try{var v=localStorage.getItem('scarf-untangler:best:v1');if(v!==null&&/^\d+$/.test(v)){var n=parseInt(v,10);if(n>=0&&n<=1500)return n;}}catch(e){}return 0;}
 function writeBest(n){try{localStorage.setItem('scarf-untangler:best:v1',String(n));}catch(e){}}
 bestMem=readBest();
@@ -124,7 +128,7 @@ function render(){
  s+='<rect x="-.6" y="-.6" width="7.2" height="7.2" rx=".4" fill="#EADFCB"/>';
  s+=stripSvg(S,g);
  for(i=0;i<S.length;i++)if(!g[i+1])s+=tabEl(S[i],i);
- if(st.hint)s+='<circle cx="'+st.hint.x+'" cy="'+st.hint.y+'" r=".55" fill="none" stroke="#A8213B" stroke-width=".16"/>'+(reduce?'':'');
+ if(st.hint)s+='<circle cx="'+st.hint.x+'" cy="'+st.hint.y+'" r=".55" fill="none" stroke="#fff" stroke-width=".34"/><circle cx="'+st.hint.x+'" cy="'+st.hint.y+'" r=".55" fill="none" stroke="'+DARK+'" stroke-width=".18"/><circle cx="'+st.hint.x+'" cy="'+st.hint.y+'" r=".55" fill="none" stroke="#F3C9C9" stroke-width=".07"/>';
  s+='<g id="gh"></g></svg>';
  $('board').innerHTML=s;
  $('kn').textContent=t('knotProgress',{current:st.k+1});
@@ -133,7 +137,7 @@ function render(){
  var b=$('pad').children;
  for(i=0;i<6;i++){var x=b[i],has=i<S.length&&!g[i+1];x.disabled=!has;x.className=(st.hint&&st.hint.n===i+1)?'hit':'';
   if(has){var on=[];for(var m=i+2;m<=S.length;m++)if(!g[m]&&cross(S[i],S[m-1]))on.push(t('stripN',{n:m}));
-   x.setAttribute('aria-label',t('pullStrip',{strip:i+1})+'. '+(on.length?t('onTop',{list:on.join(', ')}):t('freeNow')));}}
+   $('pd'+i).textContent=on.length?t('onTop',{list:on.join(', ')}):t('freeNow');}}
  drawGhosts();
 }
 function drawGhosts(){
@@ -175,7 +179,7 @@ function pull(n){
  if(wasF){var b=$('pad').children;for(var j=1;j<=6;j++){var m=((n-1+j)%6);if(!b[m].disabled){b[m].focus();break;}}}
 }
 function endKnot(){
- var p=kpts();st.total+=p;st.pts.push(p);lastTrans=Date.now();st.hint=null;
+ var p=kpts();st.total+=p;st.pts.push(p);st.hint=null;
  if(st.k<2){
   st.screen='clear';st.fb='knotCleared';st.fbv={current:st.k+1};render();
   $('cH').textContent=t('knotCleared',{current:st.k+1});
@@ -200,26 +204,29 @@ function swatch(i){
  return s+'<path d="M4 29H54" stroke="'+DARK+'" stroke-opacity=".35" stroke-width="2"/></svg>';
 }
 function begin(){
- fresh();st.screen='play';lastTrans=0;startKnot(0);
+ fresh();st.screen='play';startKnot(0);
 }
 
 // build pad
 (function(){
  var p=$('pad'),h='';
- for(var i=1;i<=6;i++)h+='<button type="button" data-n="'+i+'" aria-label="'+t('pullStrip',{strip:i})+'">'+i+'</button>';
+ for(var i=1;i<=6;i++)h+='<button type="button" data-n="'+i+'" aria-label="'+t('pullStrip',{strip:i})+'" aria-describedby="pd'+(i-1)+'">'+i+'</button>';
  p.innerHTML=h;
- p.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;if(Date.now()-lastTrans<180)return;var n=+b.dataset.n;if(dup('p'+n))return;pull(n);});
+ var d='';for(i=0;i<6;i++)d+='<span id="pd'+i+'"></span>';
+ $('pdesc').innerHTML=d;
+ p.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;var n=+b.dataset.n;if(dup('p'+n))return;pull(n);});
  document.querySelectorAll('[data-t]').forEach(function(el){el.textContent=t(el.dataset.t);});
  $('miniSvg').setAttribute('viewBox',VB);
  var S=KNOTS[0],s='<rect x="-.6" y="-.6" width="7.2" height="7.2" rx=".4" fill="#EADFCB"/>'+stripSvg(S);
  S.forEach(function(a,i){s+=tabEl(a,i);});
  $('miniSvg').innerHTML=s;
- function guard(id,fn){$(id).addEventListener('click',function(){if(Date.now()-lastTrans<180)return;if(dup(id))return;fn();});}
- guard('bStart',begin);
- guard('bNext',function(){startKnot(st.k+1);});
- guard('bRetry',begin);
+ function guard(id,scr,fn){$(id).addEventListener('click',function(){if(st.screen!==scr)return;if(dup(id))return;fn();});}
+ guard('bStart','start',begin);
+ guard('bNext','clear',function(){startKnot(st.k+1);});
+ guard('bRetry','over',begin);
  document.addEventListener('keydown',function(e){
-  if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+  if(e.repeat){if(e.key==='Enter'||e.key===' ')e.preventDefault();return;}
+  if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
   if(st.screen!=='play'||!/^[1-6]$/.test(e.key))return;
   var n=+e.key,S=KNOTS[st.k];
   if(n>S.length||st.gone[n])return;
