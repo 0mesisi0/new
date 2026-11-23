@@ -5,8 +5,8 @@ Add new ideas at the bottom. Prefer questions people search for, tied to a calcu
 
 - [x] 2027년에 달라지는 월급·노동 제도 / What changes for workers in Korea in 2027
 - [x] 연말정산 환급 많이 받는 공제 항목 / Year-end tax settlement deductions for foreigners
-- [ ] 퇴사 전에 꼭 확인할 것 (퇴직금·연차·실업급여) / Checklist before quitting a job in Korea
-- [ ] 연차휴가 일수 계산과 연차수당 / Annual leave entitlement in Korea
+- [x] 퇴사 전에 꼭 확인할 것 (퇴직금·연차·실업급여) / Checklist before quitting a job in Korea
+- [x] 연차휴가 일수 계산과 연차수당 / Annual leave entitlement in Korea
 - [ ] 퇴직소득세 계산 방법 / How severance pay is taxed in Korea
 - [ ] 주 52시간제와 연장·야간·휴일근로수당 / Overtime, night and holiday pay in Korea
 - [ ] 근로계약서 필수 항목 / What a Korean employment contract must include
