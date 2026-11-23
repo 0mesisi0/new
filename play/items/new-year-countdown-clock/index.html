@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>새해 카운트다운 시계</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{height:100vh;height:100dvh;background:#11172B;color:#FFF8E8;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif;font-variant-numeric:tabular-nums;position:relative;touch-action:none}
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:clamp(8px,3vh,28px) 14px clamp(8px,2.5vh,20px);gap:clamp(4px,1.5vh,14px)}
+h1{font-size:clamp(1rem,3.4vh + 1vw,1.9rem);font-weight:700;letter-spacing:-.01em}
+h1:focus,h2:focus{outline:2px solid #FFF8E8;outline-offset:4px;border-radius:4px}
+#target,#rlabel{font-size:clamp(.78rem,2vh + .6vw,1.1rem);opacity:.85;overflow-wrap:anywhere}
+#rlabel{color:#F5C86A;opacity:1;font-weight:700}
+#main{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,2vh,18px)}
+#tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:min(100%,340px)}
+@media (min-width:560px){#tiles{grid-template-columns:repeat(4,1fr);width:min(100%,760px);gap:16px}}
+.tile{background:#1c2542;border:1px solid #2c3866;border-radius:14px;padding:clamp(4px,1.6vh,16px) 6px}
+.tile b{display:block;font-size:clamp(1.9rem,min(11vh,12vw),5.5rem);line-height:1.1;color:#F5C86A}
+.tile span{font-size:clamp(.72rem,1.8vh + .5vw,1.05rem);opacity:.85}
+#big,#year{font-weight:800;color:#F5C86A;line-height:1;font-size:clamp(4rem,min(42vh,70vw),20rem)}
+#year{font-size:clamp(3rem,min(26vh,26vw),12rem)}
+#greeting{font-size:clamp(1.3rem,5vh + 1.5vw,3rem);font-weight:800}
+.pop{animation:pop .45s ease-out}
+@keyframes pop{0%{transform:scale(1.25);opacity:.2}60%{transform:scale(.97);opacity:1}100%{transform:scale(1)}}
+button{font:inherit;font-weight:700;min-width:44px;min-height:48px;padding:10px 22px;border:0;border-radius:999px;background:#F5C86A;color:#11172B;cursor:pointer;touch-action:manipulation;max-width:100%}
+button:focus-visible{outline:3px solid #FFF8E8;outline-offset:3px}
+button:active{transform:scale(.97)}
+#note{font-size:clamp(.7rem,1.6vh + .5vw,.95rem);color:#E6DFCB;background:#11172B;padding:4px 10px;border-radius:8px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#horizon{position:absolute;z-index:0;left:-20%;right:-20%;bottom:-26vh;height:34vh;border-radius:50% 50% 0 0/100% 100% 0 0;background:radial-gradient(ellipse at 50% 0,#2c3866,#11172B 70%);border-top:2px solid #3a4880;pointer-events:none}
+body.greet #horizon{background:radial-gradient(ellipse at 50% 0,#F5C86A,#11172B 75%);border-top-color:#F5C86A}
+.c{position:absolute;top:35%;left:50%;width:9px;height:14px;z-index:2;pointer-events:none;animation:fly .9s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+@media (prefers-reduced-motion:reduce){.pop,.c{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 id="title" tabindex="-1"></h1>
+    <p id="target"></p>
+    <p id="rlabel" hidden></p>
+  </header>
+  <main id="main">
+    <div id="timer" role="timer">
+      <div id="tiles" aria-hidden="true">
+        <div class="tile"><b id="v-d"></b><span id="l-d"></span></div>
+        <div class="tile"><b id="v-h"></b><span id="l-h"></span></div>
+        <div class="tile"><b id="v-m"></b><span id="l-m"></span></div>
+        <div class="tile"><b id="v-s"></b><span id="l-s"></span></div>
+      </div>
+      <div id="big" aria-hidden="true" hidden></div>
+      <span id="tv" class="sr"></span>
+    </div>
+    <div id="greetbox" hidden>
+      <div id="year"></div>
+      <h2 id="greeting" tabindex="-1"></h2>
+    </div>
+    <button id="rehearse" type="button"></button>
+    <button id="back" type="button" hidden></button>
+    <button id="next" type="button" hidden></button>
+  </main>
+  <footer id="note"></footer>
+</div>
+<div id="horizon"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+var OFF=32400000;
+var T={
+ko:{appTitle:'새해 카운트다운 시계',target:'{year}년 1월 1일 00:00 · 한국 시간 (KST)',days:'일',hours:'시간',minutes:'분',seconds:'초',timerLabel:'새해까지 남은 시간',timerValue:'{days}일 {hours}시간 {minutes}분 {seconds}초',finalTen:'새해까지 10초',rehearse:'10초 리허설',rehearsalLabel:'{year}년 새해 리허설',rehearsalTimerLabel:'리허설 남은 시간',secondsValue:'{seconds}초',backToLive:'실제 시계로 돌아가기',yearDisplay:'{year}년',greeting:'새해 복 많이 받으세요!',nextCountdown:'다음 새해 카운트다운 보기',clockNote:'이 기기의 시계를 기준으로 계산해요.'},
+en:{appTitle:'New Year Countdown Clock',target:'January 1, {year} at 00:00 KST',days:'Days',hours:'Hours',minutes:'Minutes',seconds:'Seconds',timerLabel:'Time until the New Year',timerValue:'{days} d {hours} h {minutes} min {seconds} s',finalTen:'Final 10 seconds to the New Year',rehearse:'10-second rehearsal',rehearsalLabel:'{year} New Year rehearsal',rehearsalTimerLabel:'Rehearsal time remaining',secondsValue:'{seconds} s',backToLive:'Back to live clock',yearDisplay:'{year}',greeting:'Happy New Year!',nextCountdown:'Show next countdown',clockNote:'Based on this device’s clock.'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:(String(navigator.language||'').toLowerCase().split('-')[0]==='ko'?'ko':'en');
+var D=T[lang];
+function f(k,o){return D[k].replace(/\{(\w+)\}/g,function(_,n){return o[n]})}
+function $(id){return document.getElementById(id)}
+document.documentElement.lang=lang;
+document.title=D.appTitle;
+var E={};['title','target','rlabel','timer','tiles','big','tv','greetbox','year','greeting','rehearse','back','next','note','live'].forEach(function(i){E[i]=$(i)});
+E.title.textContent=D.appTitle;E.note.textContent=D.clockNote;
+E.rehearse.textContent=D.rehearse;E.back.textContent=D.backToLive;E.next.textContent=D.nextCountdown;
+E.greeting.textContent=D.greeting;
+$('l-d').textContent=D.days;$('l-h').textContent=D.hours;$('l-m').textContent=D.minutes;$('l-s').textContent=D.seconds;
+var reduce=matchMedia('(prefers-reduced-motion:reduce)');
+
+function kstYear(n){return new Date(n+OFF).getUTCFullYear()}
+function midnight(y){return Date.UTC(y,0,1)-OFF}
+var dismissed=null;     // year whose greeting was dismissed
+var reh=null;           // {year,elapsed,last}
+var timer=null,confTimer=null;
+var shown='',lastBig=null,announced='';
+
+// live state from device clock
+function liveState(now){
+  var y=kstYear(now),since=now-midnight(y);
+  if(since>=0&&since<60000&&dismissed!==y)return{k:'greet',year:y};
+  var ty=y+1,s=Math.max(0,Math.ceil((midnight(ty)-now)/1000));
+  if(s>=1&&s<=10)return{k:'final',year:ty,s:s};
+  return{k:'clock',year:ty,s:s};
+}
+function pad(n){return n<10?'0'+n:''+n}
+
+function confetti(){
+  clearConfetti();
+  if(reduce.matches||document.hidden)return;
+  var cols=['#F5C86A','#FFF8E8','#E8A94B','#FFE9A8'],fr=document.createDocumentFragment();
+  for(var i=0;i<24;i++){
+    var c=document.createElement('i'),a=Math.random()*Math.PI*2,d=80+Math.random()*Math.min(240,innerWidth/2);
+    c.className='c';c.style.background=cols[i%4];
+    c.style.setProperty('--x',(Math.cos(a)*d)+'px');
+    c.style.setProperty('--y',(Math.sin(a)*d*.8+60)+'px');
+    c.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    fr.appendChild(c);
+  }
+  document.body.appendChild(fr);
+  confTimer=setTimeout(clearConfetti,900);
+}
+function clearConfetti(){
+  clearTimeout(confTimer);confTimer=null;
+  var l=document.querySelectorAll('.c');for(var i=0;i<l.length;i++)l[i].remove();
+}
+function say(key,text){if(announced!==key){announced=key;E.live.textContent=text}}
+function pop(){
+  if(reduce.matches)return;
+  E.big.classList.remove('pop');void E.big.offsetWidth;E.big.classList.add('pop');
+}
+
+// view: {k:'clock'|'final'|'greet', rehearsal:bool, year, s, ...}
+function render(v){
+  var key=(v.reh?'r':'l')+v.k+v.year;
+  var changed=key!==shown;
+  var prevFocus=document.activeElement;
+  var isFinal=v.k==='final'||v.k==='rcount';
+  var isGreet=v.k==='greet'||v.k==='rgreet';
+  E.tiles.hidden=v.k!=='clock';
+  E.big.hidden=!isFinal;
+  E.timer.hidden=isGreet;
+  E.greetbox.hidden=!isGreet;
+  E.target.hidden=!!v.reh;
+  E.rlabel.hidden=!v.reh;
+  E.rehearse.hidden=v.reh||v.k!=='clock';
+  E.back.hidden=!v.reh;
+  E.next.hidden=v.k!=='greet';
+  document.body.classList.toggle('greet',isGreet);
+  if(!v.reh)E.target.textContent=f('target',{year:v.year});
+  if(v.reh)E.rlabel.textContent=f('rehearsalLabel',{year:v.year});
+  if(isGreet)E.year.textContent=f('yearDisplay',{year:v.year});
+  E.timer.setAttribute('aria-label',v.reh?D.rehearsalTimerLabel:D.timerLabel);
+  if(v.k==='clock'){
+    var s=v.s,d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sc=s%60;
+    $('v-d').textContent=d;$('v-h').textContent=pad(h);$('v-m').textContent=pad(m);$('v-s').textContent=pad(sc);
+    E.tv.textContent=f('timerValue',{days:d,hours:pad(h),minutes:pad(m),seconds:pad(sc)});
+    E.timer.dataset.value=s;
+  }else if(isFinal){
+    var txt=String(v.s);
+    if(E.big.textContent!==txt||changed){E.big.textContent=txt;pop()}
+    E.tv.textContent=f('secondsValue',{seconds:v.s});
+    E.timer.dataset.value=v.s;
+  }
+  if(changed){
+    shown=key;announced='';
+    if(v.k==='final')say(key,D.finalTen);
+    if(isGreet){say(key,D.greeting);confetti()}
+  }
+  // focus
+  if(prevFocus&&prevFocus!==document.body&&prevFocus.hidden===false&&!prevFocus.closest('[hidden]'))return;
+  if(changed||prevFocus===document.body||!prevFocus||prevFocus.closest('[hidden]')||prevFocus.hidden){
+    if(v.focus){v.focus.focus();return}
+    var dest=isGreet?E.greeting:E.title;
+    dest.focus({preventScroll:true});
+  }
+}
+
+function tick(){
+  clearTimeout(timer);timer=null;
+  if(document.hidden)return;
+  var now=Date.now(),ls=liveState(now),perf=performance.now(),next=1000-(now%1000)+8;
+  if(reh&&(ls.k!=='clock'||ls.year!==reh.year)){reh=null;clearConfetti();shown=''}   // real final ten / greeting / new target year wins
+  if(reh){
+    if(reh.last!==null)reh.elapsed+=perf-reh.last;
+    reh.last=perf;
+    var rem=10000-reh.elapsed;
+    if(rem>0){
+      render({reh:true,k:'rcount',year:reh.year,s:Math.ceil(rem/1000)});
+      next=Math.min(next,(rem%1000||1000)+8);   // earlier of live and rehearsal second boundary
+    }else{
+      render({reh:true,k:'rgreet',year:reh.year});
+    }
+  }else{
+    render(ls);
+  }
+  timer=setTimeout(tick,Math.max(16,next));
+}
+
+function startRehearsal(){
+  if(reh)return;
+  var ls=liveState(Date.now());
+  if(ls.k!=='clock')return;
+  reh={year:ls.year,elapsed:0,last:null};
+  E.live.textContent='';announced='';
+  render({reh:true,k:'rcount',year:reh.year,s:10,focus:E.back});
+  E.back.focus({preventScroll:true});
+  tick();
+}
+function backToLive(){
+  if(!reh)return;
+  reh=null;clearConfetti();
+  var ls=liveState(Date.now());
+  shown='';
+  render(Object.assign({},ls,{focus:ls.k==='clock'?E.rehearse:null}));
+  if(ls.k==='clock')E.rehearse.focus({preventScroll:true});
+  tick();
+}
+E.rehearse.addEventListener('click',startRehearsal);
+E.back.addEventListener('click',backToLive);
+E.next.addEventListener('click',function(){
+  var ls=liveState(Date.now());
+  if(ls.k==='greet')dismissed=ls.year;
+  tick();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&reh){e.preventDefault();backToLive()}
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){
+    clearTimeout(timer);timer=null;clearConfetti();
+    if(reh&&reh.last!==null){reh.elapsed+=performance.now()-reh.last;reh.last=null}
+  }else{
+    if(reh)reh.last=null;   // hidden time not counted
+    tick();
+  }
+});
+document.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
+addEventListener('resize',function(){});
+tick();
+})();
+</script>
+</body>
+</html>
