@@ -1,0 +1,21 @@
+{
+  "slug": "gift-wrap-sprint",
+  "date": "2026-11-22",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["선물 포장", "크리스마스 게임"],
+    "title": "선물 포장 챌린지",
+    "desc": "화살표 순서대로 포장지를 접어 30초 동안 선물을 포장해요. 순서를 한 번도 틀리지 않으면 선물마다 보너스 점수를 받아요.",
+    "howto": "화면의 방향 버튼을 누르거나 키보드 방향키를 써요. 화살표 순서대로 접어서 30초 안에 선물을 최대한 많이 포장하세요.",
+    "about": "누구나 같은 순서로 선물을 포장해요. 친구와 점수를 비교해 보세요. 최고 기록은 이 브라우저에 저장돼요."
+  },
+  "en": {
+    "tags": ["gift wrapping", "Christmas game"],
+    "title": "Gift Wrap Sprint",
+    "desc": "Fold the paper in arrow order and wrap as many gifts as you can in 30 seconds. Earn a bonus for every gift you wrap without a mistake.",
+    "howto": "Tap the direction buttons or use the arrow keys. Follow the fold order and wrap as many gifts as you can in 30 seconds.",
+    "about": "Everyone wraps the same sequence of gifts. Compare scores with a friend. Your best score is saved in this browser."
+  }
+}
