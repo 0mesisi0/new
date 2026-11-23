@@ -1,0 +1,43 @@
+{
+  "id": "quitChecklist",
+  "slug": "before-quitting-checklist",
+  "date": "2026-11-22",
+  "sources": [
+    ["국가법령정보센터 법령해석: 근로자퇴직급여 보장법 제9조 퇴직금 지급기간", "https://www.law.go.kr/LSW//expcInfoP.do?expcSeq=338875"],
+    ["근로자퇴직급여 보장법 제9조 (퇴직금의 지급 등)", "https://korea.legal/wiki/근로자퇴직급여-보장법-제9조/"],
+    ["미래에셋투자와연금센터: 퇴직급여 수령과 세금 납부", "https://investpension.miraeasset.com/contents/view.do?idx=13932"],
+    ["대한민국 정책브리핑: 고용노동부 연차 행정해석 변경", "https://www.korea.kr/news/policyNewsView.do?newsId=148868082"],
+    ["뉴시스: 고용부, 대법원 판결 따라 연차 행정해석 변경 (2021-12-16)", "https://www.newsis.com/view/NISX20211216_0001690217"],
+    ["고용보험법 제48조 (수급기간 및 수급일수)", "https://korea.legal/wiki/고용보험법-제48조/"],
+    ["로톡: 2026년 실업급여 수급 요건 정리", "https://www.lawtalk.co.kr/posts/143966"],
+    ["국민건강보험공단 소식지: 임의계속가입", "https://www.nhis.or.kr/static/alim/paper/oldpaper/202211/sub/23.html"],
+    ["회사가 사직서를 수리하지 않을 때 퇴사일을 정하는 방법 (민법 제660조)", "https://korea.legal/wiki/회사가-사직서를-수리하지-않을-때-퇴사일을-정/"],
+    ["잡플래닛: 퇴사 상식 레벨테스트 정답 및 해설", "https://www.jobplanet.co.kr/contents/news-4389/퇴사-상식-레벨테스트-정답-및-해설"]
+  ],
+  "ko": {
+    "nav": "퇴사 전 체크리스트",
+    "title": "퇴사 전 꼭 확인할 5가지 – 퇴직금 지급일·남은 연차·실업급여·건강보험",
+    "desc": "퇴사 전에 퇴직금 지급 기한(14일)과 IRP 이전, 남은 연차 수당, 실업급여 신청 기한(12개월), 사직 효력일, 건강보험 임의계속가입을 확인하세요. 놓치면 받을 돈이 줄어듭니다.",
+    "h1": "퇴사 전 꼭 확인할 5가지",
+    "lead": "퇴사 날짜를 정하기 전에 다섯 가지를 확인하세요. 퇴직금은 퇴직 후 14일 안에 받아야 하고, 남은 연차는 수당으로 정산해야 합니다. 실업급여는 이직 다음 날부터 12개월 안에 다 받아야 합니다. 사직서는 회사가 수리하지 않아도 일정 기간이 지나면 효력이 생기고, 건강보험료는 임의계속가입으로 줄일 수 있습니다.",
+    "body": "<h2>1. 퇴직금: 14일 안에, IRP 계좌로</h2><p>회사는 퇴직일로부터 14일 안에 퇴직금을 줘야 합니다. 특별한 사정이 있을 때만 서로 합의해 날짜를 미룰 수 있습니다. 퇴직 당시 만 55세 미만이면 퇴직금은 원칙적으로 본인 명의 개인형퇴직연금(IRP) 계좌로 들어갑니다. 계좌를 지정하지 않으면 회사가 본인 명의 IRP로 옮깁니다. 퇴직금이 300만 원 이하인 경우 등은 예외입니다. 받을 금액은 <a href=\"{{severance}}\">퇴직금 계산기</a>로 미리 확인하세요. 14일이 지나도록 합의 없이 지급되지 않으면 관할 지방고용노동관서에 진정할 수 있습니다.</p><h2>2. 남은 연차: 수당으로 정산</h2><ul><li>1년 동안 80% 이상 출근하면 15일의 연차가 생깁니다. 1년 미만 기간에는 한 달 개근할 때마다 1일씩 생깁니다.</li><li>퇴사할 때 쓰지 못한 연차는 <strong>1일 통상임금 × 남은 일수</strong>로 수당을 받습니다.</li><li>주의: 딱 1년(365일)을 채우고 퇴사하면 15일 연차는 생기지 않습니다. 고용노동부 해석상 366일째에도 근무해야 15일이 생깁니다. 퇴사일을 하루 늦추면 수당이 크게 달라질 수 있습니다.</li><li>회사가 법에 맞게 연차 사용 촉진을 했다면 수당이 나오지 않을 수 있습니다.</li></ul><h2>3. 실업급여: 받을 수 있는지, 언제까지인지</h2><p>이직일 이전 18개월 동안 고용보험 가입 기간(피보험단위기간)이 합쳐서 180일 이상이어야 합니다. 이직 사유도 비자발적이어야 합니다. 권고사직이나 계약 만료가 해당하고, 자진 퇴사도 임금 체불처럼 정당한 사유가 있으면 인정될 수 있습니다. 구직급여는 <strong>이직 다음 날부터 12개월 안에</strong> 받아야 하고, 이 기간이 지나면 남은 날수가 있어도 사라집니다. 퇴사 후 바로 신청하세요. 예상 금액은 <a href=\"{{unemployment}}\">실업급여 계산기</a>로 볼 수 있습니다.</p><h2>4. 사직 효력일: 회사가 수리하지 않으면</h2><p>기간을 정하지 않은 근로계약이라면 회사가 사직서를 받아 주지 않아도 퇴사할 수 있습니다(민법 제660조). 기준일은 사직서를 낸 날이 아니라 회사가 받은 날입니다. 시급제나 일급제는 1개월이 지나면 효력이 생깁니다. 월급제는 통고를 받은 달의 다음 달이 끝나야 효력이 생깁니다. 예를 들어 10월 15일에 통고하면 12월 1일입니다. 그 전에 출근하지 않으면 결근으로 처리될 수 있으니, 이메일 같은 서면으로 날짜를 남기세요.</p><h2>5. 건강보험: 임의계속가입</h2><p>퇴사하면 지역가입자로 바뀌어 보험료가 오를 수 있습니다. 퇴직 전 18개월 동안 직장가입자였던 기간이 합쳐서 1년 이상이면 <strong>임의계속가입</strong>을 신청해 최대 36개월 동안 직장 때 수준의 보험료를 낼 수 있습니다. 신청은 퇴직 후 처음 받은 지역보험료 고지서의 납부기한에서 2개월이 지나기 전까지 해야 합니다. 지역보험료가 오히려 더 쌀 수도 있으니 국민건강보험공단(1577-1000)에 두 금액을 비교해 보세요.</p>",
+    "faq": [
+      ["퇴직금을 나눠서 주겠다고 하는데 괜찮나요?", "퇴직금은 퇴직일로부터 14일 안에 주는 것이 원칙입니다. 지급일을 미루려면 근로자와 합의해야 하므로, 동의하지 않는다면 거절할 수 있습니다."],
+      ["입사 1년이 되는 날 퇴사하면 연차수당은 얼마나 받나요?", "1년 미만 기간에 생긴 연차(최대 11일) 중 쓰지 않은 날만큼 받습니다. 15일 연차는 366일째에도 근무해야 생기므로 딱 1년 근무하고 퇴사하면 생기지 않습니다."],
+      ["실업급여는 퇴사 후 언제 신청해야 하나요?", "가능한 한 바로 신청하세요. 구직급여는 이직 다음 날부터 12개월 안에 받아야 하고, 신청이 늦으면 받을 날수가 남아 있어도 사라집니다."]
+    ]
+  },
+  "en": {
+    "nav": "Before you quit",
+    "title": "Quitting a Job in Korea: 5 Things to Check First",
+    "desc": "Before you resign in Korea, check when severance is due, how unused leave is paid, the deadline for unemployment benefits, when your resignation takes effect, and your health insurance options.",
+    "h1": "Quitting a job in Korea: 5 things to check first",
+    "lead": "Five things decide how much you walk away with when you leave a job in Korea. Severance must be paid within 14 days. Unused annual leave is paid out. Unemployment benefits run out 12 months after you leave. A resignation takes effect even if your employer refuses it, and you may be able to keep your workplace health insurance rate. These rules apply to foreign workers too.",
+    "body": "<h2>1. Severance: within 14 days, usually into an IRP</h2><p>Your employer must pay severance within 14 days of your last day. The date can only be pushed back if you both agree, for a special reason. If you are under 55, severance normally goes into an Individual Retirement Pension (IRP) account in your name, with some exceptions such as severance of ₩3 million or less. Estimate the amount with the <a href=\"{{severance}}\">severance pay calculator</a>. If 14 days pass with no payment and no agreement, you can file a complaint with the local Ministry of Employment and Labor office.</p><h2>2. Unused annual leave is paid out</h2><ul><li>You earn 15 days of leave after a year with at least 80% attendance. Before that, you earn 1 day for each full month worked.</li><li>Leave you have not used when you quit is paid as <strong>daily ordinary wage × unused days</strong>.</li><li>Watch the date: if you leave after exactly one year (365 days), the 15 days do not arise. Under the Ministry's interpretation you must still be employed on day 366. Moving your last day by one day can make a large difference.</li><li>If your employer properly ran the legal leave-use promotion process, the payout may not apply.</li></ul><h2>3. Unemployment benefits: eligibility and the 12-month clock</h2><p>You need at least 180 insured days in the 18 months before you leave, and the departure must be involuntary: a recommended resignation, a contract ending, or quitting for a justified reason such as unpaid wages. Benefits must be paid out <strong>within 12 months of the day after you leave</strong>. Days you have not received by then are lost, so apply straight away. See the <a href=\"{{unemployment}}\">unemployment benefit calculator</a> for the amount.</p><h2>4. When your resignation takes effect</h2><p>On an open-ended contract you can resign even if your employer will not accept it (Civil Act Article 660). The clock starts when your employer receives the notice. Hourly or daily-paid workers are free after one month. Monthly-paid workers are free once the month after the notice month has ended. For example, notice received on 15 October takes effect on 1 December. Keep working until then, or the days may be treated as absences, and give notice in writing, by email for example.</p><h2>5. Health insurance after you leave</h2><p>Once you leave, you move to regional health insurance, which can cost more. If you were a workplace subscriber for at least one year in the last 18 months, you can apply for <strong>voluntary continued coverage</strong> and pay a workplace-level premium for up to 36 months. Apply before two months have passed from the due date of your first regional insurance bill. Regional premiums are sometimes cheaper, so ask the National Health Insurance Service (1577-1000) to compare both.</p>",
+    "faq": [
+      ["Do foreign workers get severance and unused leave pay?", "Yes. These rules come from the Labor Standards Act and the Employee Retirement Benefit Security Act and apply regardless of nationality."],
+      ["My employer wants to pay severance in instalments. Do I have to accept?", "No. Severance is due within 14 days, and a later date needs your agreement."],
+      ["How soon after leaving should I apply for unemployment benefits?", "Right away. Benefits must be received within 12 months of the day after you leave, and anything not received by then is lost."]
+    ]
+  }
+}
