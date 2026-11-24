@@ -1,0 +1,63 @@
+{
+  "id": "2026-11-25-pending",
+  "site": "play",
+  "slug": null,
+  "status": "failed",
+  "stage": "idea",
+  "attempts": 3,
+  "maxAttempts": 3,
+  "owner": "codex",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T21:07:20.416Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-24T21:08:11.493Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-24T21:08:12.092Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T21:08:19.434Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "codex exited with 1: 6Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: \"Bearer resource_metadata=\\\"https://mcp.context7.com/.well-known/oauth-protected-resource/mcp\\\"\" })\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM.\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM."
+    },
+    {
+      "at": "2026-11-24T21:08:26.720Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "codex exited with 1: 6Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: \"Bearer resource_metadata=\\\"https://mcp.context7.com/.well-known/oauth-protected-resource/mcp\\\"\" })\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM.\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM."
+    },
+    {
+      "at": "2026-11-24T21:08:34.132Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "codex exited with 1: enticate_header: \"Bearer resource_metadata=\\\"https://mcp.context7.com/.well-known/oauth-protected-resource/mcp\\\"\" })\nwarning: clamping SessionEnd hook timeout to 3s in C:\\Users\\mesisi\\.codex\\plugins\\cache\\openai-codex\\codex\\1.0.6\\hooks\\hooks.json\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM.\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM."
+    },
+    {
+      "at": "2026-11-24T21:08:34.133Z",
+      "stage": "idea",
+      "status": "failed",
+      "by": "codex",
+      "error": "gave up after 3 attempts"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
