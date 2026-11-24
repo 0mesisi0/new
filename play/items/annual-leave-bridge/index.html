@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>연차 붙이기 계산기 2027</title>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1f2a44;--red:#e0453d;--blue:#3a6fd8;--org:#f29d38;--band:#fde6c4;--gray:#9aa0aa;--redt:#b3322b;--bluet:#2a58b8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:10px 12px 0;max-width:1100px;margin:0 auto}
+#left{flex:none;min-width:0}
+header h1{margin:0;font-size:20px;line-height:1.2}
+header p{margin:2px 0 8px;font-size:13px;color:#566079}
+#nLabel{font-size:12px;color:#566079;margin-bottom:4px}
+#chips{display:flex;gap:6px}
+.chip{flex:1;min-height:44px;border-radius:12px;background:var(--card);border:2px solid #d9d4c7;font-weight:700;font-size:15px}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+#cards{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;padding:12px 2px 8px;scroll-snap-type:x proximity}
+#cards.swap{animation:swap .15s ease-out}
+@keyframes swap{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.card{position:relative;flex:none;width:min(78vw,260px);text-align:left;background:var(--card);border:2px solid transparent;border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px #1f2a4420;scroll-snap-align:start;overflow:hidden}
+.card.on{border-color:var(--org)}
+.card .big{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.card .rg{font-weight:700;margin-top:2px;font-size:14px}
+.card .lv{font-size:12px;color:#566079;margin-top:4px}
+.card .hs{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.card .hs span{background:#fbe0de;color:#b3322b;font-size:11px;padding:2px 7px;border-radius:99px}
+.card .eff{display:inline-block;margin-top:8px;background:var(--band);color:#8a5200;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
+.ribbon{position:absolute;top:10px;right:-26px;transform:rotate(35deg);background:#c4352e;color:#fff;font-size:11px;font-weight:700;padding:2px 30px}
+#empty{padding:18px 8px;color:#566079;font-size:14px}
+#right{flex:1;min-height:0;display:flex;flex-direction:column}
+#scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
+#sum{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:12px;padding:8px 10px;font-size:13px;font-weight:600;min-height:44px}
+#sum span{flex:1}
+#reset{min-height:44px;min-width:44px;padding:0 12px;border-radius:10px;background:#ece7da;font-weight:700;font-size:13px}
+#nav{display:flex;align-items:center;justify-content:space-between;margin:10px 0 4px}
+#nav b{font-size:16px}
+#nav button{width:44px;height:44px;border-radius:12px;background:var(--card);font-size:18px;font-weight:700}
+#nav button:disabled{opacity:.3;cursor:default}
+#wd,#grid{display:grid;grid-template-columns:repeat(7,minmax(44px,1fr));gap:0}
+#wd div{text-align:center;font-size:12px;font-weight:700;padding:2px 0;color:#566079}
+#wd div:first-child{color:var(--redt)}#wd div:last-child{color:var(--bluet)}
+@media(max-width:331px){#scroll{margin:0 -6px;padding:0 6px 8px;overflow-x:hidden}#wd,#grid{margin:0 -6px}}
+.cell{position:relative;min-height:44px;min-width:44px;border:1px solid transparent;background-clip:padding-box;border-radius:8px;background-color:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:2px 1px;font-size:14px;font-weight:600;overflow:hidden}
+.cell.blank{background:none;pointer-events:none}
+.cell.we{background-color:#eceae4}
+.cell.band{background-color:var(--band)}
+.cell.sun,.cell.hol{color:var(--redt)}
+.cell.sat{color:var(--bluet)}
+.cell.hol{color:var(--redt)}
+.cell.lv{background-color:var(--org);color:var(--ink)}
+.cell.dim{opacity:.4}
+.cell.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.cell .hn{display:block;font-size:8px;line-height:1.1;font-weight:600;width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .bd{position:absolute;right:2px;top:2px;font-size:9px;background:#fff;color:#8a5200;border-radius:4px;padding:0 3px;line-height:1.3;font-weight:800}
+.cell .dot{display:none;width:5px;height:5px;border-radius:50%;background:var(--red);margin-top:2px}
+#grid.tiny .hn{display:none}
+#grid.tiny .cell.hol .dot{display:block}
+#grid.tiny .cell.lv .dot{background:var(--ink)}
+#grid.anim .cell.band{animation:fill .3s ease-out both;animation-delay:calc(var(--i)*20ms)}
+@keyframes fill{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.shake{animation:shake .2s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+#note{font-size:11px;color:#566079;margin:8px 2px 0;line-height:1.4}
+#acts{flex:none;display:flex;gap:8px;padding:8px 0 calc(10px + env(safe-area-inset-bottom));background:var(--bg)}
+#acts button{flex:1;min-height:48px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;font-size:15px}
+#acts button:disabled{background:#c9c5ba;color:#f4f1ea;cursor:default}
+#toast{position:fixed;left:50%;bottom:84px;transform:translate(-50%,10px);background:var(--ink);color:#fff;padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:9;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:720px){
+  #app{flex-direction:row;gap:20px;padding:14px 16px 0}
+  #left{width:340px;display:flex;flex-direction:column;min-height:0;padding-bottom:12px}
+  #cards{flex-direction:column;overflow-x:hidden;overflow-y:auto;touch-action:pan-y;flex:1;min-height:0;scroll-snap-type:none}
+  .card{width:100%}
+  #right{flex:1}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="left">
+    <header><h1 id="t"></h1><p id="s"></p></header>
+    <div id="nLabel"></div>
+    <div id="chips"></div>
+    <div id="cards" aria-live="polite"></div>
+  </section>
+  <section id="right">
+    <div id="scroll">
+      <div id="sum"><span id="sumT"></span><button id="reset"></button></div>
+      <div id="nav"><button id="prev">◀</button><b id="mt"></b><button id="next">▶</button></div>
+      <div id="wd"></div>
+      <div id="grid"></div>
+      <p id="note"></p>
+    </div>
+    <div id="acts"><button id="copy"></button><button id="ics"></button></div>
+  </section>
+</div>
+<div id="toast" role="status"></div>
+<script>
+(function(){
+'use strict';
+var Q=new URLSearchParams(location.search).get('lang')||navigator.language||'ko';
+var L=/^ko/i.test(Q)?'ko':'en';
+document.documentElement.lang=L;
+
+var T={ko:{
+appTitle:'연차 붙이기 계산기 2027',sub:'연차 며칠로 최대 며칠 쉴 수 있을까?',nLabel:'쓸 수 있는 연차',
+nChip:'{n}일',best:'최장',days:'{L}일',leaveList:'연차 {w}일: {dates}',eff:'연차 1일 = {e}일 휴식',
+empty:'남은 기간에 이 조건으로 붙일 연휴가 없어요',planEmpty:'카드를 누르거나 달력의 평일을 눌러 연차를 넣어 보세요',
+plan:'내 계획: 연차 {x}일 · 최장 {y}일 연휴 ({range})',reset:'초기화',copy:'텍스트 복사',ics:'캘린더 저장',
+copied:'복사했어요',copyFail:'복사하지 못했어요',icsOk:'캘린더 파일을 저장했어요',icsFail:'저장하지 못했어요',
+alreadyOff:'이미 쉬는 날이에요',past:'지난 날짜예요',prev:'이전 달',next:'다음 달',
+wd:['일','월','화','수','목','금','토'],wdFull:['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+outOfData:'2027년 이후 공휴일 데이터는 아직 없어요',
+note:'법정·대체공휴일 기준, 토·일 휴무 가정. 임시공휴일·회사 휴무는 미포함',
+icsSummary:'연차 (하루한판)',shareHead:'🗓️ 내 연차 계획 (연차 {x}일)',
+line:'· {range} {L}일 연휴 (연차: {dates})',
+aWeekday:'평일',aWeekend:'주말',aOn:'연차',aOff:'연차 아님',
+monthT:'{y}년 {m}월',rangeFmt:'{a} ~ {b}',rd:'{m}.{d}({w})',dateLabel:'{y}년 {m}월 {d}일 {wd}',nChip1:'{n}일',bd:'연'},
+en:{
+appTitle:'Leave Bridge Planner 2027',sub:'How long a break can a few leave days buy?',nLabel:'Leave days to spend',
+nChip:'{n} days',best:'Longest',days:'{L} days',leaveList:'{w} leave: {dates}',eff:'1 leave day = {e} days off',
+empty:'No breaks left in range for this many days',planEmpty:'Tap a card or a weekday to add leave',
+plan:'My plan: {x} leave · longest break {y} days ({range})',reset:'Reset',copy:'Copy text',ics:'Save to calendar',
+copied:'Copied',copyFail:'Could not copy',icsOk:'Calendar file saved',icsFail:'Could not save',
+alreadyOff:'Already a day off',past:'That day has passed',prev:'Previous month',next:'Next month',
+wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],wdFull:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+mon:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+monFull:['January','February','March','April','May','June','July','August','September','October','November','December'],
+outOfData:'Holiday data ends with 2027',
+note:'Public and substitute holidays, Sat–Sun off. Excludes temporary and company holidays',
+icsSummary:'Leave (Daily Toybox)',shareHead:'🗓️ My leave plan ({x} days)',
+line:'· {range} {L}-day break (leave: {dates})',
+aWeekday:'weekday',aWeekend:'weekend',aOn:'leave',aOff:'no leave',
+monthT:'{M} {y}',rangeFmt:'{a} – {b}',rd:'{M} {d}',dateLabel:'{wd}, {M} {d}, {y}',nChip1:'{n} day',bd:'L'}};
+var S_=T[L];
+function f(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+function nChip(n){return f(n===1?S_.nChip1:S_.nChip,{n:n})}
+
+// holidays [ko,en]
+var HOL={
+'2026-12-25':['성탄절','Christmas'],
+'2027-01-01':['신정',"New Year's Day"],
+'2027-02-06':['설날 연휴','Seollal'],
+'2027-02-07':['설날','Seollal'],
+'2027-02-08':['설날 연휴','Seollal'],
+'2027-02-09':['대체공휴일(설날)','Substitute holiday'],
+'2027-03-01':['삼일절','Independence Movement Day'],
+'2027-05-01':['노동절','Labor Day'],
+'2027-05-03':['대체공휴일(노동절)','Substitute holiday'],
+'2027-05-05':['어린이날',"Children's Day"],
+'2027-05-13':['부처님오신날',"Buddha's Birthday"],
+'2027-06-06':['현충일','Memorial Day'],
+'2027-07-17':['제헌절','Constitution Day'],
+'2027-07-19':['대체공휴일(제헌절)','Substitute holiday'],
+'2027-08-15':['광복절','Liberation Day'],
+'2027-08-16':['대체공휴일(광복절)','Substitute holiday'],
+'2027-09-14':['추석 연휴','Chuseok'],
+'2027-09-15':['추석','Chuseok'],
+'2027-09-16':['추석 연휴','Chuseok'],
+'2027-10-03':['개천절','National Foundation Day'],
+'2027-10-04':['대체공휴일(개천절)','Substitute holiday'],
+'2027-10-09':['한글날','Hangul Day'],
+'2027-10-11':['대체공휴일(한글날)','Substitute holiday'],
+'2027-12-25':['성탄절','Christmas'],
+'2027-12-27':['대체공휴일(성탄절)','Substitute holiday'],
+'2028-01-01':['신정',"New Year's Day"]
+};
+// 노동절·제헌절(+대체 5/3, 7/19)은 2027 월력요항(KASA 공고)으로 확정. 음력 공휴일(설 2/7, 부처님오신날 5/13, 추석 9/15)도 같은 공고 기준으로 대조할 것.
+function hn(k){return HOL[k][L==='ko'?0:1]}
+
+function p2(n){return n<10?'0'+n:''+n}
+function key(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function parse(k){var a=k.split('-');return new Date(+a[0],+a[1]-1,+a[2])}
+function add(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n)}
+function midnight(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+var END=new Date(2028,0,2);
+
+function build(today){
+  var days=[],idx={};
+  for(var d=midnight(today);d<=END;d=add(d,1)){
+    var k=key(d),w=d.getDay();
+    idx[k]=days.length;
+    days.push({d:d,k:k,wd:w,hol:!!HOL[k],off:w===0||w===6||!!HOL[k]});
+  }
+  return {days:days,idx:idx};
+}
+
+function rec(B,N){
+  var days=B.days,n=days.length,c=[],a,b,w,i;
+  for(a=0;a<n;a++){
+    if(a>0&&days[a-1].off)continue;
+    w=0;var h=0;
+    // ponytail: O(n²) 스캔, 범위 몇 년으로 늘면 투포인터로
+    for(b=a;b<n;b++){
+      if(!days[b].off)w++;
+      if(days[b].hol)h++;
+      if(w>N)break;
+      if(w>=1&&h>=1&&(b===n-1||!days[b+1].off))c.push({a:a,b:b,L:b-a+1,w:w});
+    }
+  }
+  c.sort(function(x,y){return y.L-x.L||x.w-y.w||x.a-y.a});
+  var used=new Array(n),out=[];
+  for(i=0;i<c.length&&out.length<6;i++){
+    var x=c[i],ok=true;
+    for(var j=x.a;j<=x.b;j++)if(used[j]){ok=false;break}
+    if(!ok)continue;
+    for(j=x.a;j<=x.b;j++)used[j]=1;
+    var lv=[],hs=[];
+    for(j=x.a;j<=x.b;j++){
+      if(!days[j].off)lv.push(days[j].k);
+      else if(days[j].hol&&hs.indexOf(hn(days[j].k))<0)hs.push(hn(days[j].k));
+    }
+    x.lv=lv;x.hs=hs;out.push(x);
+  }
+  return out;
+}
+
+function planSegs(B,S){
+  var days=B.days,out=[],i=0,n=days.length;
+  while(i<n){
+    if(!(days[i].off||S[days[i].k])){i++;continue}
+    var a=i,has=false;
+    while(i<n&&(days[i].off||S[days[i].k])){if(S[days[i].k])has=true;i++}
+    if(has){var lv=[];for(var j=a;j<i;j++)if(S[days[j].k])lv.push(days[j].k);out.push({a:a,b:i-1,L:i-a,lv:lv})}
+  }
+  return out;
+}
+
+function md(d){return (d.getMonth()+1)+'.'+d.getDate()}
+function mdk(k){return md(parse(k))}
+function fmtRange(da,db){
+  function one(d){return f(S_.rd,{m:d.getMonth()+1,M:(S_.mon||[])[d.getMonth()],d:d.getDate(),w:S_.wd[d.getDay()]})}
+  return f(S_.rangeFmt,{a:one(da),b:one(db)});
+}
+
+// state
+var today,B,N=2,S={},cards=[],view={y:2026,m:0},anim=false;
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function $(id){return document.getElementById(id)}
+function outData(){return B.days.length===0}
+function minMonth(){return outData()?{y:2027,m:11}:{y:today.getFullYear(),m:today.getMonth()}}
+function clampView(){
+  var lo=minMonth(),hi={y:2028,m:0},v=view.y*12+view.m;
+  if(outData())v=2027*12+11;
+  v=Math.max(lo.y*12+lo.m,Math.min(hi.y*12+hi.m,v));
+  view={y:Math.floor(v/12),m:v%12};
+}
+function savePlan(){ls('alb:plan',JSON.stringify(Object.keys(S).sort()))}
+function loadPlan(){
+  S={};
+  try{var a=JSON.parse(ls('alb:plan')||'[]');if(Array.isArray(a))a.forEach(function(k){
+    var i=B.idx[k];if(i!==undefined&&!B.days[i].off)S[k]=1})}catch(e){}
+}
+function refresh(){ // recompute data for the current date
+  today=midnight(new Date());B=build(today);
+  for(var k in S){var i=B.idx[k];if(i===undefined||B.days[i].off)delete S[k]}
+  cards=outData()?[]:rec(B,N);
+}
+
+function toast(m){
+  var t=$('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove('show')},1700);
+}
+
+function renderStatic(){
+  document.title=S_.appTitle;
+  $('t').textContent=S_.appTitle;$('s').textContent=S_.sub;$('nLabel').textContent=S_.nLabel;
+  $('reset').textContent=S_.reset;$('copy').textContent=S_.copy;$('ics').textContent=S_.ics;
+  $('prev').setAttribute('aria-label',S_.prev);$('next').setAttribute('aria-label',S_.next);
+  $('note').textContent=S_.note;
+  $('wd').innerHTML=S_.wd.map(function(w){return '<div>'+w+'</div>'}).join('');
+  var c='';for(var n=1;n<=5;n++)c+='<button class="chip" data-n="'+n+'">'+nChip(n)+'</button>';
+  $('chips').innerHTML=c;
+}
+function renderChips(){
+  var cs=$('chips').children;
+  for(var i=0;i<cs.length;i++){var on=+cs[i].dataset.n===N;cs[i].classList.toggle('on',on);cs[i].setAttribute('aria-pressed',on)}
+}
+function renderCards(swap){
+  var el=$('cards'),h='';
+  if(!cards.length){
+    h='<div id="empty">'+(outData()?S_.outOfData:S_.empty)+'</div>';
+  }else cards.forEach(function(c,i){
+    var da=B.days[c.a].d,db=B.days[c.b].d,e=Math.round(c.L/c.w*10)/10;
+    h+='<button class="card" data-i="'+i+'">'+(i===0?'<span class="ribbon">'+S_.best+'</span>':'')+
+      '<div class="big">'+f(S_.days,{L:c.L})+'</div><div class="rg">'+fmtRange(da,db)+'</div>'+
+      '<div class="lv">'+f(S_.leaveList,{w:c.w,dates:c.lv.map(mdk).join(' · ')})+'</div>'+
+      '<div class="hs">'+c.hs.map(function(x){return '<span>'+x+'</span>'}).join('')+'</div>'+
+      '<span class="eff">'+f(S_.eff,{e:e})+'</span></button>';
+  });
+  el.innerHTML=h;el.scrollLeft=0;el.scrollTop=0;
+  if(swap){el.classList.remove('swap');void el.offsetWidth;el.classList.add('swap')}
+  markCards();
+}
+function sameSet(lv){
+  var k,c=0;for(k in S)c++;
+  if(c!==lv.length)return false;
+  return lv.every(function(x){return S[x]});
+}
+function markCards(){
+  var cs=$('cards').querySelectorAll('.card');
+  for(var i=0;i<cs.length;i++)cs[i].classList.toggle('on',sameSet(cards[i].lv));
+}
+function renderSummary(){
+  var segs=planSegs(B,S),x=Object.keys(S).length;
+  if(!x){$('sumT').textContent=S_.planEmpty}
+  else{
+    var best=segs[0];segs.forEach(function(s){if(s.L>best.L)best=s});
+    $('sumT').textContent=f(S_.plan,{x:x,y:best.L,range:fmtRange(B.days[best.a].d,B.days[best.b].d)});
+  }
+  $('reset').style.visibility=x?'visible':'hidden';
+  $('copy').disabled=$('ics').disabled=!x;
+}
+function renderCal(){
+  clampView();
+  var y=view.y,m=view.m,lo=minMonth();
+  $('mt').textContent=f(S_.monthT,{y:y,m:m+1,M:(S_.monFull||[])[m]});
+  $('prev').disabled=outData()||y*12+m<=lo.y*12+lo.m;
+  $('next').disabled=outData()||y*12+m>=2028*12;
+  var ae=document.activeElement,fk=ae&&ae.dataset&&ae.dataset.k&&$('grid').contains(ae)?ae.dataset.k:null;
+  var band={},bi=0;
+  planSegs(B,S).forEach(function(s){for(var i=s.a;i<=s.b;i++)band[B.days[i].k]=bi++});
+  var first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),h='',i,tk=key(today);
+  for(i=0;i<first;i++)h+='<div class="cell blank"></div>';
+  for(var d=1;d<=dim;d++){
+    var dt=new Date(y,m,d),k=key(dt),w=dt.getDay(),hol=HOL[k],inR=B.idx[k]!==undefined,lv=!!S[k];
+    var cl='cell';
+    if(w===0)cl+=' sun';if(w===6)cl+=' sat';
+    if(w===0||w===6||hol)cl+=' we';
+    if(hol)cl+=' hol';
+    if(!inR)cl+=' dim';
+    if(k===tk)cl+=' today';
+    var style='';
+    if(lv)cl+=' lv';
+    else if(band[k]!==undefined){cl+=' band';style=' style="--i:'+band[k]+'"'}
+    if(lv&&band[k]!==undefined)style=' style="--i:'+band[k]+'"';
+    var st=hol?hn(k):(w===0||w===6?S_.aWeekend:S_.aWeekday);
+    var label=f(S_.dateLabel,{y:y,m:m+1,M:(S_.monFull||[])[m],d:d,wd:S_.wdFull[w]})+', '+st+(!hol&&w>0&&w<6?', '+(lv?S_.aOn:S_.aOff):'');
+    h+='<button class="'+cl+'"'+style+' data-k="'+k+'" aria-label="'+label+'"><span>'+d+'</span>'+
+      (hol?'<span class="hn">'+hn(k)+'</span><span class="dot"></span>':'')+(lv?'<span class="bd">'+S_.bd+'</span>':'')+'</button>';
+  }
+  var g=$('grid');g.innerHTML=h;
+  g.classList.toggle('tiny',g.clientWidth/7<44);
+  if(fk){var fe=g.querySelector('[data-k="'+fk+'"]');if(fe)fe.focus({preventScroll:true})}
+  if(anim){g.classList.remove('anim');void g.offsetWidth;g.classList.add('anim');clearTimeout(renderCal.t);renderCal.t=setTimeout(function(){g.classList.remove('anim');anim=false},700)}
+  else g.classList.remove('anim');
+}
+function renderAll(swap){renderChips();renderCards(swap);renderSummary();renderCal()}
+function renderPlan(){markCards();renderSummary();renderCal()}
+
+function setN(n){
+  if(n<1||n>5)return;
+  N=n;ls('alb:n',''+n);cards=outData()?[]:rec(B,N);
+  renderChips();renderCards(true);
+}
+function applyCard(i){
+  var c=cards[i];if(!c)return;
+  S={};c.lv.forEach(function(k){S[k]=1});savePlan();
+  var d=B.days[c.a].d;view={y:d.getFullYear(),m:d.getMonth()};
+  anim=true;renderPlan();
+}
+function toggle(k){
+  var i=B.idx[k],cell=$('grid').querySelector('[data-k="'+k+'"]');
+  var bad=null;
+  if(i===undefined)bad=parse(k)<today?S_.past:S_.outOfData;
+  else if(B.days[i].off)bad=S_.alreadyOff;
+  if(bad){
+    toast(bad);
+    if(cell){cell.classList.remove('shake');void cell.offsetWidth;cell.classList.add('shake')}
+    return;
+  }
+  if(S[k])delete S[k];else S[k]=1;
+  savePlan();renderPlan();
+}
+function reset(){S={};savePlan();renderPlan()}
+
+function shareText(){
+  var segs=planSegs(B,S),x=Object.keys(S).length;
+  var lines=[f(S_.shareHead,{x:x})];
+  segs.forEach(function(s){
+    lines.push(f(S_.line,{range:fmtRange(B.days[s.a].d,B.days[s.b].d),L:s.L,dates:s.lv.map(mdk).join(', ')}));
+  });
+  lines.push('play.mesisi.net');
+  return lines.join('\n');
+}
+function copy(){
+  if(!Object.keys(S).length)return;
+  var t=shareText();
+  function fb(){
+    try{
+      var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(ta);ta.select();
+      var ok=document.execCommand('copy');document.body.removeChild(ta);
+      toast(ok?S_.copied:S_.copyFail);
+    }catch(e){toast(S_.copyFail)}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){toast(S_.copied)},fb);
+  }else fb();
+}
+function compact(k){return k.replace(/-/g,'')}
+function saveIcs(){
+  var ks=Object.keys(S).sort();if(!ks.length)return;
+  try{
+    var runs=[],cur=null;
+    ks.forEach(function(k){
+      if(cur&&key(add(parse(cur.e),1))===k)cur.e=k;else{cur={s:k,e:k};runs.push(cur)}
+    });
+    var st=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+    var out=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Daily Toybox//Leave Bridge Planner//EN','CALSCALE:GREGORIAN'];
+    runs.forEach(function(r){
+      out.push('BEGIN:VEVENT',
+        'UID:'+compact(r.s)+'-'+Math.random().toString(36).slice(2,10)+'@play.mesisi.net',
+        'DTSTAMP:'+st,
+        'DTSTART;VALUE=DATE:'+compact(r.s),
+        'DTEND;VALUE=DATE:'+compact(key(add(parse(r.e),1))),
+        'SUMMARY:'+S_.icsSummary,'END:VEVENT');
+    });
+    out.push('END:VCALENDAR');
+    var url=URL.createObjectURL(new Blob([out.join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'}));
+    var a=document.createElement('a');a.href=url;a.download='annual-leave-2027.ics';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url)},1000);
+    toast(S_.icsOk);
+  }catch(e){toast(S_.icsFail)}
+}
+
+// events
+$('chips').addEventListener('click',function(e){var b=e.target.closest('.chip');if(b)setN(+b.dataset.n)});
+$('cards').addEventListener('click',function(e){var b=e.target.closest('.card');if(b)applyCard(+b.dataset.i)});
+$('grid').addEventListener('click',function(e){var b=e.target.closest('.cell');if(b&&b.dataset.k)toggle(b.dataset.k)});
+$('prev').addEventListener('click',function(){view.m--;if(view.m<0){view.m=11;view.y--}renderCal()});
+$('next').addEventListener('click',function(){view.m++;if(view.m>11){view.m=0;view.y++}renderCal()});
+$('reset').addEventListener('click',reset);
+$('copy').addEventListener('click',copy);
+$('ics').addEventListener('click',saveIcs);
+window.addEventListener('keydown',function(e){
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  var k=e.key;
+  if(k>='1'&&k<='5'){e.preventDefault();setN(+k)}
+  else if(k==='ArrowLeft'){e.preventDefault();$('prev').click()}
+  else if(k==='ArrowRight'){e.preventDefault();$('next').click()}
+  else if(k==='ArrowUp'||k==='ArrowDown'){
+    var cs=[].slice.call($('cards').querySelectorAll('.card'));if(!cs.length)return;
+    e.preventDefault();
+    var i=cs.indexOf(document.activeElement);
+    i=i<0?0:Math.max(0,Math.min(cs.length-1,i+(k==='ArrowDown'?1:-1)));
+    cs[i].focus();cs[i].scrollIntoView({block:'nearest',inline:'nearest'});
+  }
+  else if(k==='c'||k==='C')copy();
+  else if(k==='s'||k==='S')saveIcs();
+  else if(k==='Backspace'){e.preventDefault();reset()}
+});
+window.addEventListener('resize',renderCal);
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden)return;
+  if(key(midnight(new Date()))!==key(today)){refresh();renderAll(false)}
+});
+
+// self-check: open with #selftest, result goes to console
+function demo(){
+  var B0=build(new Date(2026,10,25));
+  function has(n,a,b,Lx){
+    var r=rec(B0,n).filter(function(c){return B0.days[c.a].k===a&&B0.days[c.b].k===b});
+    console.assert(r.length===1&&r[0].L===Lx,'demo fail N='+n+' '+a+'~'+b);
+  }
+  var r4=rec(B0,4);
+  console.assert(B0.days[r4[0].a].k==='2027-09-09'&&B0.days[r4[0].b].k==='2027-09-19'&&r4[0].L===11,'demo top');
+  console.assert(r4[0].lv.join()==='2027-09-09,2027-09-10,2027-09-13,2027-09-17','demo top leave');
+  var xm=r4.filter(function(c){return B0.days[c.a].k==='2026-12-25'})[0];
+  console.assert(xm&&B0.days[xm.b].k==='2027-01-03'&&xm.L===10&&xm.lv.join()==='2026-12-28,2026-12-29,2026-12-30,2026-12-31','demo xmas');
+  console.assert(B0.days[B0.idx['2027-05-03']].off&&B0.days[B0.idx['2027-07-19']].off,'demo substitute');
+  has(4,'2027-10-02','2027-10-11',10);has(3,'2027-02-06','2027-02-14',9);
+  has(2,'2027-09-11','2027-09-19',9);has(1,'2027-05-13','2027-05-16',4);
+  console.log('demo done');
+}
+if(location.hash==='#selftest')demo();
+
+// init
+var sn=parseInt(ls('alb:n'),10);if(sn>=1&&sn<=5)N=sn;
+today=midnight(new Date());B=build(today);loadPlan();
+renderStatic();
+if(location.hash==='#demo'){
+  N=4;S={};cards=rec(B,N);
+  var xc=cards.filter(function(c){return B.days[c.a].k==='2026-12-25'})[0]||cards[0];
+  if(xc)xc.lv.forEach(function(k){S[k]=1});
+  view={y:2026,m:11};
+}else{
+  cards=outData()?[]:rec(B,N);
+  var fk=Object.keys(S).sort()[0];
+  view=fk?{y:+fk.slice(0,4),m:+fk.slice(5,7)-1}:{y:today.getFullYear(),m:today.getMonth()};
+}
+renderAll(false);
+})();
+</script>
+</body>
+</html>

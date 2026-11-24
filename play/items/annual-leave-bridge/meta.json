@@ -1,0 +1,21 @@
+{
+  "slug": "annual-leave-bridge",
+  "date": "2026-11-25",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "연차 붙이기 계산기 2027",
+    "desc": "연차 며칠을 쓸지 고르면 2026 성탄절부터 2027년 말까지 가장 길게 쉬는 날짜를 바로 추천해요. 달력을 눌러 내 계획도 직접 짜 보세요.",
+    "howto": "위에서 연차 일수(1~5일)를 고르면 추천 연휴 카드가 나와요. 카드를 누르면 달력에 표시되고, 평일을 눌러 연차를 직접 넣거나 뺄 수 있어요. '텍스트 복사'나 '캘린더 저장'으로 계획을 챙기세요.",
+    "about": "2026년 11월 기준 법정 공휴일과 대체공휴일로 계산해요. 임시공휴일이나 회사 휴무일은 들어 있지 않으니 회사 규정을 꼭 확인하세요. 토·일 휴무 기준이에요.",
+    "tags": ["연차계산기", "황금연휴"]
+  },
+  "en": {
+    "title": "Leave Bridge Planner 2027",
+    "desc": "Pick how many leave days you can spare and see the longest breaks from Christmas 2026 to the end of 2027. Tap the calendar to build your own plan.",
+    "howto": "Choose 1-5 leave days at the top to see suggested breaks. Tap a card to show it on the calendar, or tap weekdays to add and remove leave yourself. Copy the plan or save it as a calendar file.",
+    "about": "Based on Korean public and substitute holidays known as of November 2026. Temporary holidays and company days off are not included, so check your workplace rules. Assumes Saturdays and Sundays off.",
+    "tags": ["annual-leave", "holidays"]
+  }
+}
