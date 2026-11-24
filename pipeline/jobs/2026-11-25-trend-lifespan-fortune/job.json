@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-trend-lifespan-fortune",
+  "site": "play",
+  "slug": "trend-lifespan-fortune",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T22:52:53.336Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-24T22:54:57.118Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
