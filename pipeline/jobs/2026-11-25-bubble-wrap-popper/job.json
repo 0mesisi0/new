@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-bubble-wrap-popper",
+  "site": "play",
+  "slug": "bubble-wrap-popper",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T23:00:32.747Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-24T23:02:22.561Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a weird or beautiful interactive page, toy or visual sandbox (kind tool, category cool)"
+}
