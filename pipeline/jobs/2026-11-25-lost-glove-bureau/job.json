@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-lost-glove-bureau",
+  "site": "play",
+  "slug": "lost-glove-bureau",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T19:25:28.056Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T19:27:21.763Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "an information cheat sheet, checklist or guide for everyday Korean life (kind tool)"
+}
