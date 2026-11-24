@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-snow-duck-maker",
+  "site": "play",
+  "slug": "snow-duck-maker",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T23:07:39.108Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-24T23:09:46.959Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "an information cheat sheet, checklist or guide for everyday Korean life (kind tool)"
+}
