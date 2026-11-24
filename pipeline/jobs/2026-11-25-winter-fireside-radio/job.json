@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-winter-fireside-radio",
+  "site": "play",
+  "slug": "winter-fireside-radio",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T23:02:25.953Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-24T23:04:53.541Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a one-thumb arcade or reaction mini game (kind game)"
+}
