@@ -1,0 +1,21 @@
+{
+  "slug": "lost-glove-bureau",
+  "date": "2026-11-25",
+  "category": "weird",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "장갑 한 짝 분실물 센터",
+    "tags": ["장갑 한 짝", "분실물", "겨울"],
+    "desc": "겨울 분실물 센터에서 왼손 장갑과 오른손 장갑을 골라 보세요. 짝이 된 두 장갑이 함께 맡을 엉뚱한 일이 펼쳐져요.",
+    "howto": "왼손 장갑 하나를 고른 뒤 오른손 장갑 하나를 골라요. 결과에서 ‘오른손 바꾸기’를 누르면 같은 왼손 장갑으로 다른 이야기를 볼 수 있어요.",
+    "about": "겨울에 홀로 남은 장갑 한 짝에서 시작한 짧은 장난감이에요. 장갑과 이야기는 모두 창작이에요."
+  },
+  "en": {
+    "title": "Lost Glove Bureau",
+    "tags": ["lost gloves", "winter", "odd pairings"],
+    "desc": "Pair two stray winter gloves and see what odd job they take together. Six illustrated endings are tucked away at the lost-and-found.",
+    "howto": "Pick one left glove, then one right glove. On the result screen, choose “Swap right glove” to see another ending with the same left glove.",
+    "about": "A tiny winter toy inspired by gloves that lose their partners. Every glove and story is original."
+  }
+}
