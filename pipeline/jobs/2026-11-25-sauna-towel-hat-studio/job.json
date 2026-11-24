@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-sauna-towel-hat-studio",
+  "site": "play",
+  "slug": "sauna-towel-hat-studio",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T19:38:17.437Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T19:40:07.815Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a timer, counter or tracker people would open daily (kind tool)"
+}
