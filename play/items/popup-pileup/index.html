@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pop-Up Pileup</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:#152B32}
+body{font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#202827}
+#root{position:fixed;inset:0;height:100vh;height:100dvh;padding:12px;display:flex;justify-content:center;
+ background:#152B32}
+#frame{width:100%;max-width:420px;height:100%;display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:14px;
+ background-color:#C99A62;
+ background-image:radial-gradient(#b0834d 1.5px,transparent 2px),radial-gradient(#dcb27a 1.5px,transparent 2px);
+ background-size:14px 14px,22px 22px;background-position:0 0,7px 9px;border:3px solid #0d1d22;touch-action:none}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#152B32;background:#FFF6E4;border-radius:10px;padding:6px 10px;min-height:44px}
+h1{font-size:clamp(14px,4.2vw,18px);line-height:1.15}
+.meta{font-size:12px;opacity:.85}
+#timer{font-size:clamp(22px,7vw,30px);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+#timer.low{color:#A23525}
+#hint{font-size:14px;font-weight:700;color:#FFF6E4;background:#152B32;border-radius:8px;padding:4px 10px;min-height:28px;display:flex;align-items:center}
+#board{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;touch-action:none}
+.card{flex:1;min-height:44px;max-height:150px;display:flex;flex-direction:column;justify-content:center;gap:4px;text-align:left;
+ font:inherit;color:#202827;background:#FFF6E4;border:2px solid #202827;border-radius:12px;padding:8px 12px;cursor:pointer;
+ box-shadow:0 3px 0 rgba(0,0,0,.35);position:relative;touch-action:none;transform-origin:center;
+ transition:transform .18s ease,opacity .18s ease}
+.card:focus-visible{outline:4px solid #152B32;outline-offset:2px;box-shadow:0 3px 0 rgba(0,0,0,.35),0 0 0 8px #FFF6E4}
+.card::before{content:"";position:absolute;top:-6px;left:50%;width:10px;height:10px;border-radius:50%;background:#A23525;border:2px solid #202827}
+.top{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800}
+.pos{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:50%;background:#202827;color:#FFF6E4}
+.type{padding:1px 8px;border-radius:6px;color:#fff}
+.type.ad{background:#A23525}.type.notice{background:#176358}
+.type.ad::before{content:"▲ "}.type.notice::before{content:"● "}
+.head{font-size:clamp(15px,4.6vw,20px);font-weight:700;line-height:1.25}
+.card.fold{transform:scaleY(.08) scaleX(.9);opacity:0}
+.card.wrong{box-shadow:inset 0 0 0 4px #A23525,0 3px 0 rgba(0,0,0,.35);background:#f4e1d0}
+.card.wrong:focus-visible{box-shadow:inset 0 0 0 4px #A23525,0 3px 0 rgba(0,0,0,.35),0 0 0 8px #FFF6E4}
+.card:disabled{cursor:default}
+#status{min-height:30px;font-size:14px;font-weight:800;color:#FFF6E4;background:#A23525;border-radius:8px;padding:4px 10px;display:flex;align-items:center;visibility:hidden}
+#status.on{visibility:visible}
+#result{flex:1;min-height:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;
+ background:#FFF6E4;border:2px solid #202827;border-radius:14px;padding:14px}
+#result h2{font-size:clamp(20px,6vw,26px)}
+#big{font-size:clamp(36px,12vw,56px);font-weight:800;font-variant-numeric:tabular-nums}
+#result p{font-size:16px;font-weight:600}
+#nb{color:#A23525;font-weight:800;min-height:1.2em}
+#retry{min-height:56px;min-width:200px;font:inherit;font-size:20px;font-weight:800;color:#FFF6E4;background:#176358;border:2px solid #202827;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #0d3b34}
+#retry:focus-visible{outline:4px solid #A23525;outline-offset:3px}
+#retry:active{transform:translateY(2px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body.res #board,body.res #hint,body.res #status{display:none}
+body.res #result{display:flex}
+@media (prefers-reduced-motion:reduce){
+ .card{transition:none}
+ .card.fold{transform:none;opacity:1;box-shadow:inset 0 0 0 4px #176358,0 3px 0 rgba(0,0,0,.35);background:#d9ebe4}
+}
+</style>
+</head>
+<body>
+<div id="root"><div id="frame">
+ <header>
+  <div><h1 id="title"></h1><div class="meta"><span id="round"></span> · <span id="score"></span></div></div>
+  <div id="timer"></div>
+ </header>
+ <div id="hint"></div>
+ <div id="board"></div>
+ <div id="status"></div>
+ <section id="result" aria-hidden="true">
+  <h2 id="rh"></h2>
+  <div id="big"></div>
+  <p id="rl"></p>
+  <p id="rb"></p>
+  <div id="nb"></div>
+  <button id="retry" type="button"></button>
+ </section>
+</div></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+(function(){
+var T={
+ko:{appTitle:'팝업창 닫기 게임',startHint:'광고 팝업만 눌러 닫으세요.',round:'{round}/10 화면',timer:'{seconds}초',timerLabel:'남은 시간 {seconds}초',
+ score:'광고 {score}/10개 닫음',ad:'광고',notice:'안내',cardLabel:'{position}번, {type}. {headline}',wrong:'안내창이에요. 2초 차감',
+ clear:'광고를 모두 닫았어요!',timeout:'시간이 다 됐어요',best:'최고 기록 {best}/10',newBest:'최고 기록을 깼어요!',timeLeft:'{seconds}초 남기고 성공',
+ retry:'다시 하기',resultAnnouncement:'{heading} {scoreLine}. {bestLine}.',
+ boards:[
+ ['도서 반납함은 입구 옆','엘리베이터 공기 한 병','분실 장갑은 안내실에'],
+ ['양말 한 짝 전용 옷걸이','자전거 거치대 청소 중','게시판은 누구나 이용 가능'],
+ ['우산꽂이는 현관 안쪽','도서 반납함은 입구 옆','물웅덩이 테두리 스티커'],
+ ['분실 장갑은 안내실에','박수 소리 보관함','자전거 거치대 청소 중'],
+ ['게시판은 누구나 이용 가능','우산꽂이는 현관 안쪽','연필 그림자 받침대'],
+ ['먼지 전용 액자','도서 반납함은 입구 옆','자전거 거치대 청소 중'],
+ ['우산꽂이는 현관 안쪽','쉼표 모양 베개','분실 장갑은 안내실에'],
+ ['자전거 거치대 청소 중','게시판은 누구나 이용 가능','빈 상자 전용 덮개'],
+ ['책갈피 전용 책','분실 장갑은 안내실에','우산꽂이는 현관 안쪽'],
+ ['도서 반납함은 입구 옆','뒷걸음질용 슬리퍼','게시판은 누구나 이용 가능']]},
+en:{appTitle:'Pop-Up Pileup',startHint:'Tap the ad to close it.',round:'Board {round}/10',timer:'{seconds}s',timerLabel:'{seconds} seconds left',
+ score:'Ads closed {score}/10',ad:'Ad',notice:'Notice',cardLabel:'Card {position}, {type}. {headline}',wrong:"That's a notice. −2 seconds",
+ clear:'You closed every ad!',timeout:'Time’s up',best:'Best {best}/10',newBest:'New best!',timeLeft:'Cleared with {seconds}s left',
+ retry:'Play again',resultAnnouncement:'{heading} {scoreLine}. {bestLine}.',
+ boards:[
+ ['Book drop by the entrance','Bottled elevator air','Lost glove at reception'],
+ ['Hanger for one sock','Bike rack cleaning today','Bulletin board open to all'],
+ ['Umbrella stand inside the door','Book drop by the entrance','Puddle border stickers'],
+ ['Lost glove at reception','Applause storage box','Bike rack cleaning today'],
+ ['Bulletin board open to all','Umbrella stand inside the door','Pencil shadow stand'],
+ ['Picture frame for dust','Book drop by the entrance','Bike rack cleaning today'],
+ ['Umbrella stand inside the door','Comma-shaped pillow','Lost glove at reception'],
+ ['Bike rack cleaning today','Bulletin board open to all','Lid for empty boxes'],
+ ['Book for your bookmarks','Lost glove at reception','Umbrella stand inside the door'],
+ ['Book drop by the entrance','Slippers for walking backwards','Bulletin board open to all']]}
+};
+var AD=[2,1,3,2,3,1,2,3,1,2]; // 1-based ad position per round
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var S=T[lang];
+function f(k,o){var s=S[k];for(var p in o)s=s.replace('{'+p+'}',o[p]);return s}
+document.documentElement.lang=lang;document.title=S.appTitle;
+
+var $=function(i){return document.getElementById(i)};
+var KEY='popup-pileup:best',TOTAL=30000;
+var demo=location.hash==='#demo';
+
+function readBest(){try{var v=localStorage.getItem(KEY);return(v!==null&&/^(10|[0-9])$/.test(v))?+v:0}catch(e){return 0}}
+function writeBest(n){try{localStorage.setItem(KEY,String(n))}catch(e){}}
+var bestMem=readBest(); // demo shows 10 without touching this
+
+// foreground clock: pauses while hidden
+var fgAcc=0,fgLast=performance.now(),paused=document.hidden;
+function fg(){if(!paused){var n=performance.now();fgAcc+=n-fgLast;fgLast=n}return fgAcc}
+document.addEventListener('visibilitychange',function(){
+ cancelAnimationFrame(rafId);
+ if(document.hidden){fg();paused=true}else{fgLast=performance.now();paused=false;lastRaf=0;rafId=requestAnimationFrame(loop)}
+});
+
+var mode,round,score,startFg,penalty,lockUntil,pendingAt,wrongIdx,frozenLeft;
+var cards=[],downRound=-1,rafId=0;
+var board=$('board');
+for(var i=0;i<3;i++){
+ var b=document.createElement('button');b.type='button';
+ b.innerHTML='<span class="top"><span class="pos"></span><span class="type"></span></span><span class="head"></span>';
+ (function(i){
+  b.addEventListener('pointerdown',function(){settle();downRound=(fg()<lockUntil||pendingAt)?-2:round});
+  b.addEventListener('click',function(){
+   settle();var d=downRound;downRound=-1;
+   if(d!==-1&&d!==round)return; // press began on another board or during lock
+   pick(i)});
+ })(i);
+ board.appendChild(b);cards.push(b);b.className='card';
+}
+
+function remaining(){
+ if(mode==='result')return frozenLeft;
+ if(mode==='start')return TOTAL;
+ return TOTAL-(fg()-startFg)-penalty;
+}
+function secs(ms){return Math.max(0,Math.ceil(ms/1000))}
+function renderBoard(){
+ var row=S.boards[round];
+ for(var i=0;i<3;i++){
+  var c=cards[i],isAd=AD[round]===i+1,type=isAd?S.ad:S.notice;
+  c.className='card';
+  c.querySelector('.pos').textContent=i+1;
+  var t=c.querySelector('.type');t.textContent=type;t.className='type '+(isAd?'ad':'notice');
+  c.querySelector('.head').textContent=row[i];
+  c.setAttribute('aria-label',f('cardLabel',{position:i+1,type:type,headline:row[i]}));
+ }
+ $('round').textContent=f('round',{round:round+1});
+}
+function renderHud(){
+ var s=secs(remaining());
+ var tm=$('timer');tm.textContent=f('timer',{seconds:s});tm.setAttribute('aria-label',f('timerLabel',{seconds:s}));
+ tm.className=s<=5&&mode==='play'?'low':'';
+ $('score').textContent=f('score',{score:score});
+}
+function say(m){$('live').textContent='';setTimeout(function(){$('live').textContent=m},30)}
+function setStatus(m){var s=$('status');s.textContent=m||'';s.className=m?'on':''}
+
+function reset(focus){
+ mode='start';round=0;score=0;penalty=0;lockUntil=0;pendingAt=0;wrongIdx=-1;frozenLeft=TOTAL;
+ document.body.className='';$('result').setAttribute('aria-hidden','true');
+ $('hint').textContent=S.startHint;setStatus('');
+ renderBoard();renderHud();
+ if(focus)cards[0].focus();
+}
+function showResult(cleared){
+ var left=Math.max(0,remaining());
+ pendingAt=0;
+ mode='result';frozenLeft=left;
+ var isNew=false,best;
+ if(demo){best=10}
+ else{
+  best=Math.max(bestMem,readBest());
+  if(score>best){best=score;isNew=true;writeBest(best)}
+  bestMem=best;
+ }
+ var heading=f(cleared?'clear':'timeout');
+ var scoreLine=f('score',{score:score});
+ var bestLine=f('best',{best:best});
+ $('rh').textContent=heading;
+ $('big').textContent=score+'/10';
+ $('rl').textContent=cleared?f('timeLeft',{seconds:secs(left)}):scoreLine;
+ $('rb').textContent=bestLine;
+ $('nb').textContent=isNew?S.newBest:'';
+ $('retry').textContent=S.retry;
+ document.body.className='res';$('result').setAttribute('aria-hidden','false');
+ renderHud();
+ say(f('resultAnnouncement',{heading:heading,scoreLine:scoreLine,bestLine:bestLine}));
+ $('retry').focus();
+}
+function settle(){ // apply due transition / deadline
+ if(mode!=='play')return;
+ if(remaining()<=0){showResult(false);return}
+ if(pendingAt&&fg()>=pendingAt){pendingAt=0;round++;renderBoard();say(f('round',{round:round+1}))}
+}
+function pick(i){
+ if(mode==='result')return;
+ settle();
+ if(mode==='result')return;
+ if(mode==='play'&&fg()<lockUntil)return;
+ if(pendingAt)return;
+ if(mode==='start'){mode='play';startFg=fg();$('hint').textContent=S.startHint}
+ if(wrongIdx>=0){cards[wrongIdx].classList.remove('wrong');wrongIdx=-1}
+ setStatus('');
+ if(AD[round]===i+1){
+  score++;
+  renderHud();
+  if(round===9){showResult(true);return}
+  cards[i].classList.add('fold');
+  lockUntil=fg()+180;pendingAt=lockUntil;
+ }else{
+  penalty+=2000;
+  if(remaining()<=0){renderHud();showResult(false);return}
+  wrongIdx=i;cards[i].classList.add('wrong');
+  setStatus(S.wrong);say(S.wrong);
+  lockUntil=fg()+350;
+  renderHud();
+ }
+}
+document.addEventListener('keydown',function(e){
+ if(e.repeat){if(e.key==='Enter'&&e.target.tagName==='BUTTON')e.preventDefault();return}
+ downRound=-1;
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ if(mode==='result')return;
+ var k=e.key;
+ if(k==='1'||k==='2'||k==='3'){e.preventDefault();pick(+k-1)}
+});
+$('retry').addEventListener('click',function(){demo=false;reset(true)});
+['touchmove','gesturestart'].forEach(function(n){$('frame').addEventListener(n,function(e){e.preventDefault()},{passive:false})});
+
+var lastRaf=0;
+function loop(t){
+ if(document.hidden)return;
+ var dt=lastRaf?Math.min(50,t-lastRaf):0;lastRaf=t; // dt capped; clock uses fg()
+ if(mode==='play'){settle();if(mode==='play')renderHud()}
+ rafId=requestAnimationFrame(loop);
+}
+
+$('title').textContent=S.appTitle;
+$('retry').textContent=S.retry;
+reset(false);
+if(demo){score=10;penalty=0;frozenLeft=8000;mode='result';showResult(true)}
+rafId=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

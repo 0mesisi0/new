@@ -1,0 +1,21 @@
+{
+  "slug": "mini-curling",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["컬링", "컬링 게임", "겨울 스포츠"],
+    "title": "미니 컬링",
+    "desc": "스톤을 다섯 번 밀어 표적 한가운데를 노려요. 레인을 고르고 힘 표시가 눈금에 닿는 순간 스톤을 보내 최고 기록에 도전하세요.",
+    "howto": "표적이 있는 레인을 고르세요. 힘 표시가 목표 눈금과 겹칠 때 ‘스톤 보내기’를 누르세요. 키보드는 ←·→와 스페이스바를 쓰면 돼요.",
+    "about": "컬링의 표적 맞히기를 다섯 번의 투구로 즐기는 겨울 미니게임이에요. 매번 같은 표적에 도전할 수 있어요."
+  },
+  "en": {
+    "tags": ["curling", "winter sports", "timing"],
+    "title": "Mini Curling",
+    "desc": "Pick a lane and time your release to slide five curling stones toward the center. How close can you get to a perfect 15?",
+    "howto": "Pick the lane with the target. Release when the moving power marker lines up with the target mark. Use ← and → to aim and Space to release.",
+    "about": "A winter target practice game inspired by curling. Play the same five targets each round and try to beat your best."
+  }
+}

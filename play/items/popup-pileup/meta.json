@@ -1,0 +1,21 @@
+{
+  "slug": "popup-pileup",
+  "date": "2026-11-23",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "팝업창 닫기 게임",
+    "desc": "가짜 웹페이지에 안내창과 광고창이 함께 떴어요. 30초 안에 광고 팝업만 골라 닫고 열 화면을 모두 정리해 보세요.",
+    "howto": "광고 카드 전체를 누르거나 숫자 키 1~3을 누르세요. 안내를 누르면 2초가 줄어요. 30초 안에 광고 10개를 닫으면 성공이에요.",
+    "about": "쓸모 있는 동네 소식 사이에 엉뚱한 광고를 끼워 넣은 30초짜리 순발력 게임이에요. 최고 기록은 이 브라우저에 저장돼요.",
+    "tags": ["팝업창 닫기", "순발력 게임"]
+  },
+  "en": {
+    "title": "Pop-Up Pileup",
+    "desc": "A fake webpage is filling up with silly ads. Close the ad on each of ten boards before your 30 seconds run out.",
+    "howto": "Tap an ad card or press 1–3. Picking a notice costs two seconds. Close all ten ads within 30 seconds to clear the game.",
+    "about": "A 30-second sorting game with useful neighborhood notices and wonderfully useless ads. Your best score is saved in this browser.",
+    "tags": ["popup game", "reaction game"]
+  }
+}

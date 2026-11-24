@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>엉뚱한 버스 도착 전광판</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{height:100vh;height:100dvh;background:#131C2C;color:#FFF0CD;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR","Malgun Gothic",sans-serif;
+  background-image:radial-gradient(circle at 50% 38%,rgba(255,200,90,.16),transparent 55%),
+  radial-gradient(2px 2px at 12% 20%,#fff8 50%,transparent 51%),radial-gradient(2px 2px at 82% 12%,#fff8 50%,transparent 51%),
+  radial-gradient(3px 3px at 30% 55%,#fff6 50%,transparent 51%),radial-gradient(2px 2px at 90% 60%,#fff7 50%,transparent 51%),
+  radial-gradient(3px 3px at 65% 30%,#fff6 50%,transparent 51%),radial-gradient(2px 2px at 8% 75%,#fff7 50%,transparent 51%)}
+#app{height:100%;max-width:420px;margin:0 auto;padding:12px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px}
+header{text-align:center}
+h1{font-size:clamp(17px,5.5vw,24px);line-height:1.2}
+.sub{font-size:14px;opacity:.8;margin-top:2px}
+.scene{position:relative;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.roof{width:100%;height:12px;background:#28374C;border-radius:8px 8px 2px 2px;box-shadow:0 4px 14px rgba(255,200,90,.25)}
+.shelter{width:100%;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;
+  background:linear-gradient(#28374C,#202C3E);border-left:6px solid #28374C;border-right:6px solid #28374C}
+.shelter.has-roof{}
+.bench{width:84%;height:10px;background:#3b4d66;border-radius:4px;position:relative}
+.bench::before,.bench::after{content:"";position:absolute;top:10px;width:8px;height:14px;background:#28374C}
+.bench::before{left:10%}.bench::after{right:10%}
+.ground{width:100%;height:10px;background:#E8EEF7;border-radius:0 0 8px 8px;margin-top:14px;opacity:.9}
+.board{position:relative;width:100%;background:#FFF0CD;color:#382C21;border-radius:10px;padding:12px 14px;text-align:center;
+  border:3px solid #382C21;box-shadow:0 0 0 3px #FFD27A55,0 8px 22px #0006;display:flex;flex-direction:column;gap:6px;justify-content:center;min-height:0}
+.board .flip{position:absolute;inset:0;border-radius:7px;background:#FFE3A0;opacity:0;pointer-events:none}
+.board.flipping .flip{animation:flip 140ms ease-out}
+@keyframes flip{0%{opacity:.9;transform:scaleY(1)}100%{opacity:0;transform:scaleY(.1)}}
+.label{font-size:12px;font-weight:700;letter-spacing:.02em;color:#7a5a2e;border:1px dashed #7a5a2e;border-radius:999px;padding:2px 10px;align-self:center}
+.name{font-size:clamp(17px,5vw,22px);font-weight:800;overflow-wrap:anywhere}
+.arrival{font-size:clamp(26px,9vw,38px);font-weight:900;line-height:1.15;color:#B3341A;overflow-wrap:anywhere}
+.detail{font-size:clamp(14px,4vw,16px);line-height:1.4;overflow-wrap:anywhere}
+.waiting{font-size:clamp(20px,6.5vw,28px);font-weight:800;line-height:1.25}
+.panel{display:grid;gap:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{min-height:44px;padding:8px 10px;border:0;border-radius:12px;font:inherit;font-weight:700;font-size:15px;line-height:1.2;
+  background:#FFD27A;color:#382C21;cursor:pointer;touch-action:manipulation;transition:transform .08s}
+button:active{transform:scale(.97)}
+button.sec{background:#34475F;color:#FFF0CD}
+button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.fb{min-height:20px;font-size:13px;text-align:center;line-height:1.3}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media(max-height:520px){.sub{font-size:13px;line-height:1.25}.ground{margin-top:8px}.board{padding:8px 10px;gap:4px}}
+@media(prefers-reduced-motion:reduce){.board.flipping .flip{animation:none}button{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1 id="t"></h1><p class="sub" id="sub"></p></header>
+  <div class="scene">
+    <div class="roof"></div>
+    <div class="shelter"><div class="board" id="board">
+      <div class="flip" aria-hidden="true"></div>
+      <span class="label" id="label"></span>
+      <div id="startTxt" class="waiting"></div>
+      <div id="noticeTxt" hidden>
+        <div class="name" id="name"></div>
+        <div class="arrival" id="arr"></div>
+        <div class="detail" id="det"></div>
+      </div>
+    </div></div>
+    <div class="bench"></div>
+    <div class="ground"></div>
+  </div>
+  <div class="panel">
+    <div id="startBtns" class="panel">
+      <button id="bStart"></button>
+      <button id="bOpenFav" class="sec" hidden></button>
+    </div>
+    <div id="noticeBtns" class="grid" hidden>
+      <button id="bNext"></button>
+      <button id="bFav" class="sec"></button>
+      <button id="bCopy" class="sec"></button>
+      <button id="bBack" class="sec"></button>
+    </div>
+    <div class="fb" id="fb" role="status"></div>
+  </div>
+  <div class="sr" id="live" aria-live="polite"></div>
+</div>
+<script>
+(function(){
+var KEY='odd-bus-arrivals:favorite:v1';
+var IDS=['blanket','pocket','detour','soup','echo','slow'];
+var S={
+ko:{appTitle:'엉뚱한 버스 도착 전광판',startSub:'오늘은 어떤 버스가 올까요?',waiting:'새 안내를 기다리는 중',fictionLabel:'가상 버스 안내',start:'도착 안내 보기',openFavorite:'찜한 안내 보기',next:'다음 안내',saveFavorite:'찜하기',removeFavorite:'찜 해제',favoriteSaved:'이 기기에 찜했어요.',favoriteSessionOnly:'이 탭에서만 찜했어요.',favoriteRemoved:'찜을 해제했어요.',favoriteRemoveFailed:'이 탭에서 찜을 해제했어요. 새로고침하면 다시 나타날 수 있어요.',copy:'안내 복사',copied:'안내를 복사했어요.',copyFailed:'복사할 수 없어요. 전광판의 글을 직접 선택해 주세요.',back:'처음으로',
+ n:{blanket:['이불행','5분만 더','버스가 이불을 다시 덮었어요.'],pocket:['주머니행','손이 따뜻해지면','버스도 두 손을 주머니에 넣고 있어요.'],detour:['한 바퀴 더행','모퉁이 한 번 더','가로등한테 인사를 깜빡했대요.'],soup:['국물 한 모금행','한 모금 뒤','버스가 후후 불고 있어요.'],echo:['메아리행','곧, 곧, 곧','안내 방송이 먼저 와서 기다리고 있어요.'],slow:['천천히행','서두르지 않는 중','오늘은 쉼표마다 정차해요.']}},
+en:{appTitle:'Odd Bus Arrivals',startSub:'What bus is coming today?',waiting:'Waiting for a notice',fictionLabel:'Fictional bus notice',start:'Check arrivals',openFavorite:'Open favorite',next:'Next notice',saveFavorite:'Save favorite',removeFavorite:'Remove favorite',favoriteSaved:'Saved on this device.',favoriteSessionOnly:'Saved for this tab only.',favoriteRemoved:'Favorite removed.',favoriteRemoveFailed:'Removed for this tab. It may reappear after reload.',copy:'Copy notice',copied:'Notice copied.',copyFailed:'Couldn’t copy. Select the text on the board to copy it manually.',back:'Back',
+ n:{blanket:['Blanket Express','Five more minutes','The bus pulled its blanket back up.'],pocket:['Pocket Local','When your hands warm up','The bus has both hands in its pockets too.'],detour:['One More Loop','One more corner','It forgot to say hello to the streetlamp.'],soup:['Soup Stop Shuttle','In one sip','The bus is blowing on its soup.'],echo:['Echo Express','Soon, soon, soon','The announcement got here first and is waiting.'],slow:['Take It Slow Local','Taking its time','Today it stops at every comma.']}}};
+
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:(String(navigator.language||'').split('-')[0].toLowerCase()==='ko'?'ko':'en');
+var L=S[lang];
+document.documentElement.lang=lang;
+document.title=L.appTitle;
+
+var demo=location.hash==='#demo';
+var fav=null;
+if(!demo){try{var v=localStorage.getItem(KEY);if(IDS.indexOf(v)>=0)fav=v;}catch(e){}}
+
+var $=function(i){return document.getElementById(i)};
+var screen='start',cur=null,queue=[],seq=0;
+
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function others(ids){return IDS.filter(function(x){return ids.indexOf(x)<0})}
+function refill(){
+  if(demo){queue=IDS.slice();}else{queue=shuffle(IDS.slice());}
+  if(queue[0]===cur&&queue.length>1){var t=queue[0];queue[0]=queue[1];queue[1]=t}
+}
+function feedback(k){$('fb').textContent=k?L[k]:''}
+function flip(){
+  var b=$('board');b.classList.remove('flipping');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||document.hidden)return;
+  void b.offsetWidth;b.classList.add('flipping');
+}
+function render(){
+  var n=screen==='notice';
+  $('t').textContent=L.appTitle;
+  $('sub').textContent=L.startSub;$('sub').hidden=n;
+  $('label').textContent=L.fictionLabel;
+  $('startTxt').textContent=L.waiting;$('startTxt').hidden=n;
+  $('noticeTxt').hidden=!n;
+  $('startBtns').hidden=n;$('noticeBtns').hidden=!n;
+  $('bStart').textContent=L.start;
+  $('bOpenFav').textContent=L.openFavorite;$('bOpenFav').hidden=!fav;
+  $('bNext').textContent=L.next;$('bCopy').textContent=L.copy;$('bBack').textContent=L.back;
+  $('bFav').textContent=(fav&&fav===cur)?L.removeFavorite:L.saveFavorite;
+  if(n){var d=L.n[cur];$('name').textContent=d[0];$('arr').textContent=d[1];$('det').textContent=d[2];}
+}
+function show(id){
+  cur=id;screen='notice';seq++;feedback();render();flip();
+  var d=L.n[id];$('live').textContent=d[0]+'. '+d[1]+'. '+d[2];
+}
+$('bStart').onclick=function(){
+  if(demo){queue=IDS.slice(1)}else{queue=shuffle(IDS.slice(1))}
+  show('blanket');$('bNext').focus();
+};
+$('bOpenFav').onclick=function(){
+  if(!fav)return;
+  queue=demo?others([fav]):shuffle(others([fav]));
+  show(fav);$('bNext').focus();
+};
+$('bNext').onclick=function(){
+  if(!queue.length)refill();
+  show(queue.shift());
+};
+$('bFav').onclick=function(){
+  if(fav===cur){
+    fav=null;var ok=true;
+    if(!demo){try{localStorage.removeItem(KEY)}catch(e){ok=false}}else ok=false;
+    render();feedback(ok?'favoriteRemoved':'favoriteRemoveFailed');
+  }else{
+    fav=cur;var ok2=true;
+    if(!demo){try{localStorage.setItem(KEY,cur)}catch(e){ok2=false}}else ok2=false;
+    render();feedback(ok2?'favoriteSaved':'favoriteSessionOnly');
+  }
+};
+$('bCopy').onclick=function(){
+  var d=L.n[cur],my=seq,txt=[L.fictionLabel,d[0],d[1],d[2]].join('\n');
+  function done(k){if(my===seq&&screen==='notice')feedback(k)}
+  try{
+    if(!navigator.clipboard||!navigator.clipboard.writeText)return done('copyFailed');
+    navigator.clipboard.writeText(txt).then(function(){done('copied')},function(){done('copyFailed')});
+  }catch(e){done('copyFailed')}
+};
+function back(){screen='start';seq++;feedback();render();$('live').textContent='';$('bStart').focus()}
+$('bBack').onclick=back;
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&screen==='notice'&&!e.defaultPrevented&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&document.activeElement&&document.activeElement!==document.documentElement){
+    e.preventDefault();back();
+  }
+});
+document.addEventListener('visibilitychange',function(){if(document.hidden)$('board').classList.remove('flipping')});
+
+if(demo){queue=IDS.slice(1);show('blanket');$('bNext').focus();}else render();
+})();
+</script>
+</body>
+</html>

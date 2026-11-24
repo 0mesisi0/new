@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>겨울 그림자 실험실</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#EEF3F8;color:#172533;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif}
+#app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+h1{margin:0;font-size:20px;line-height:1.2}
+p{margin:0}
+#instruction{font-size:13px;line-height:1.3}
+#scenes{flex:1 1 0;min-height:0;display:flex;flex-direction:column;gap:6px}
+.scene{flex:1 1 0;min-height:0;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;border:1px solid #B9C7D6;background:#fff}
+.scene h2{margin:0;padding:3px 8px;font-size:12px;line-height:1.3;display:flex;flex-wrap:wrap;justify-content:space-between;column-gap:8px;font-weight:700}
+.scene h2 span:last-child{font-weight:600}
+.scene.w h2{background:#DDEBFA}
+.scene.s h2{background:#FFF0D0}
+.scene svg{flex:1 1 0;min-height:0;width:100%;display:block}
+#ratio{font-size:16px;font-weight:800;text-align:center;line-height:1.25}
+#notes{font-size:11px;line-height:1.3;text-align:center}
+.timerow{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700}
+#time{width:100%;height:44px;margin:0;display:block;touch-action:none;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+#time::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:linear-gradient(90deg,#DDEBFA,#FFF0D0);border:1px solid #5F7690}
+#time::-moz-range-track{height:8px;border-radius:4px;background:linear-gradient(90deg,#DDEBFA,#FFF0D0);border:1px solid #5F7690}
+#time::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-12px;border-radius:50%;background:#345176;border:3px solid #fff;box-shadow:0 1px 4px #0006}
+#time::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#345176;border:3px solid #fff;box-shadow:0 1px 4px #0006}
+:focus-visible{outline:3px solid #172533;outline-offset:2px}
+.btns{display:flex;gap:8px}
+button{flex:1;min-height:44px;border:0;border-radius:10px;background:#345176;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;padding:4px 8px}
+button.alt{background:#fff;color:#172533;border:2px solid #345176}
+button:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){button:active{transform:none}}
+#status{min-height:16px;font-size:12px;line-height:16px;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-height:560px){h1{font-size:17px}#instruction{font-size:12px}#ratio{font-size:14px}#app{gap:4px;padding:6px 12px}}
+@media (min-height:760px){#app{padding-top:16px;padding-bottom:16px;gap:10px}}
+</style>
+</head>
+<body>
+<main id="app">
+  <h1 id="title"></h1>
+  <p id="instruction"></p>
+  <div id="scenes">
+    <section class="scene w" aria-labelledby="hw"><h2 id="hw"><span id="wName"></span><span id="wVal"></span></h2><svg id="svgW" viewBox="0 0 360 150" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"></svg></section>
+    <section class="scene s" aria-labelledby="hs"><h2 id="hs"><span id="sName"></span><span id="sVal"></span></h2><svg id="svgS" viewBox="0 0 360 150" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"></svg></section>
+  </div>
+  <p id="ratio"></p>
+  <p id="notes"><span id="expl"></span> <span id="cap"></span></p>
+  <div>
+    <div class="timerow"><label for="time" id="timeLabel"></label><span id="timeShow"></span></div>
+    <input id="time" type="range" min="0" max="8" step="1" value="0">
+  </div>
+  <div class="btns"><button id="copy" type="button"></button><button id="reset" type="button" class="alt"></button></div>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="announce" class="sr" role="status" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+'use strict';
+var STR={
+ko:{appTitle:'겨울 그림자 실험실',instruction:'시간을 움직여 1m 막대의 그림자를 비교해 보세요.',winter:'동지 · 겨울',summer:'하지 · 여름',solarTime:'태양시',timeValue:'태양시 {time}',angleValue:'태양 고도 {angle}°',lengthValue:'그림자 {length}m',rulerTicks:'0m · 1m · 2m · 3m',ratio:'겨울 그림자는 여름의 {ratio}배예요.',explanation:'태양이 낮을수록 같은 막대의 그림자가 길어져요.',modelCaption:'북위 37.5° 모형 · 태양이 가장 높을 때가 정오예요.',copy:'비교 결과 복사',reset:'정오로 돌아가기',copied:'비교 결과를 복사했어요.',copyFailed:'복사하지 못했어요. 화면을 캡처해 주세요.',shareHeader:'겨울 그림자 실험실 · 북위 37.5° 모형 · 태양시 {time}',shareWinter:'동지 · 태양 고도 {angle}° · 그림자 {length}m',shareSummer:'하지 · 태양 고도 {angle}° · 그림자 {length}m',shareRatio:'겨울 그림자는 여름의 {ratio}배예요.'},
+en:{appTitle:'Winter Shadow Lab',instruction:'Move the slider to compare shadows from two 1 m posts.',winter:'Winter solstice',summer:'Summer solstice',solarTime:'Solar time',timeValue:'{time} solar time',angleValue:'Sun elevation {angle}°',lengthValue:'Shadow {length} m',rulerTicks:'0 m · 1 m · 2 m · 3 m',ratio:'The winter shadow is {ratio}× as long.',explanation:'The lower the Sun, the longer the same post’s shadow.',modelCaption:'Model at 37.5°N · Noon is when the Sun is highest.',copy:'Copy comparison',reset:'Back to noon',copied:'Comparison copied.',copyFailed:'Couldn’t copy. You can take a screenshot.',shareHeader:'Winter Shadow Lab · 37.5°N model · {time} solar time',shareWinter:'Winter solstice · Sun elevation {angle}° · Shadow {length} m',shareSummer:'Summer solstice · Sun elevation {angle}° · Shadow {length} m',shareRatio:'The winter shadow is {ratio}× as long.'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=STR[lang];
+document.documentElement.lang=lang;
+document.title=T.appTitle;
+function f(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k];});}
+function $(id){return document.getElementById(id);}
+
+var KEY='winter-shadow-lab:time-step:v1';
+var demo=location.hash==='#demo';
+var LAT=37.5,DEC=23.44,R=Math.PI/180;
+var slider=$('time');
+
+function elev(dec,t){
+  var H=15*(t-12)*R,p=LAT*R,d=dec*R;
+  return Math.asin(Math.sin(p)*Math.sin(d)+Math.cos(p)*Math.cos(d)*Math.cos(H));
+}
+function calc(step){
+  var t=12+step*0.25;
+  var aw=elev(-DEC,t),as=elev(DEC,t);
+  var lw=1/Math.tan(aw),ls=1/Math.tan(as);
+  var mins=720+step*15;
+  var hh=String(Math.floor(mins/60)).padStart(2,'0'),mm=String(mins%60).padStart(2,'0');
+  return {time:hh+':'+mm,aw:aw,as:as,lw:lw,ls:ls,ratio:lw/ls};
+}
+function fmt(c){
+  return {time:c.time,wa:(c.aw/R).toFixed(1),sa:(c.as/R).toFixed(1),wl:c.lw.toFixed(2),sl:c.ls.toFixed(2),ratio:c.ratio.toFixed(1)};
+}
+function lines(c){
+  var v=fmt(c);
+  return [f(T.shareHeader,{time:v.time}),f(T.shareWinter,{angle:v.wa,length:v.wl}),f(T.shareSummer,{angle:v.sa,length:v.sl}),f(T.shareRatio,{ratio:v.ratio})];
+}
+
+/* scenes */
+var X0=60,SC=72,GY=104;
+function build(svg,sky,ground,shadow){
+  var s='<rect width="360" height="150" fill="'+sky+'"/><rect y="'+GY+'" width="360" height="46" fill="'+ground+'"/>';
+  s+='<line x1="'+X0+'" y1="'+(GY+6)+'" x2="'+(X0+3*SC)+'" y2="'+(GY+6)+'" stroke="#172533" stroke-width="1.5"/>';
+  var labels=T.rulerTicks.split(' · ');
+  for(var i=0;i<4;i++){
+    var x=X0+i*SC;
+    s+='<line x1="'+x+'" y1="'+(GY+2)+'" x2="'+x+'" y2="'+(GY+11)+'" stroke="#172533" stroke-width="1.5"/>';
+    s+='<text x="'+x+'" y="143" text-anchor="middle" font-size="21" font-weight="700" fill="#172533" font-family="system-ui,sans-serif">'+labels[i]+'</text>';
+  }
+  s+='<line class="sh" x1="'+X0+'" y1="'+GY+'" y2="'+GY+'" stroke="'+shadow+'" stroke-width="6" stroke-linecap="round"/>';
+  s+='<line class="ray" stroke="#8A5A00" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  s+='<rect x="'+(X0-3)+'" y="'+(GY-SC)+'" width="6" height="'+SC+'" rx="1.5" fill="#172533"/>';
+  s+='<circle class="sun" r="7" fill="#FFC83D" stroke="#C98A00" stroke-width="1.5"/>';
+  svg.innerHTML=s;
+  return {sh:svg.querySelector('.sh'),ray:svg.querySelector('.ray'),sun:svg.querySelector('.sun')};
+}
+var sW=build($('svgW'),'#DDEBFA','#C3D6EA','#345176');
+var sS=build($('svgS'),'#FFF0D0','#EBD3A0','#9B4B2F');
+function drawScene(o,a,len){
+  var ex=X0+len*SC,tx=X0,ty=GY-SC;
+  var sx=tx-22*Math.cos(a),sy=ty-22*Math.sin(a);
+  o.sh.setAttribute('x2',ex);
+  o.ray.setAttribute('x1',ex);o.ray.setAttribute('y1',GY);
+  o.ray.setAttribute('x2',sx);o.ray.setAttribute('y2',sy);
+  o.sun.setAttribute('cx',sx);o.sun.setAttribute('cy',sy);
+}
+
+/* state */
+var committed=0,shown=0,dragging=false,ver=0,copySeq=0,statusTimer=0,frame=0;
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function readStore(){
+  if(demo)return 0;
+  try{var v=localStorage.getItem(KEY);if(/^[0-8]$/.test(v))return +v;}catch(e){}
+  return 0;
+}
+function writeStore(n){
+  if(demo)return;
+  try{localStorage.setItem(KEY,String(n));}catch(e){}
+}
+function draw(){
+  frame=0;
+  var c=calc(shown),v=fmt(c);
+  drawScene(sW,c.aw,c.lw);drawScene(sS,c.as,c.ls);
+  $('wVal').textContent=f(T.angleValue,{angle:v.wa})+' · '+f(T.lengthValue,{length:v.wl});
+  $('sVal').textContent=f(T.angleValue,{angle:v.sa})+' · '+f(T.lengthValue,{length:v.sl});
+  $('ratio').textContent=f(T.ratio,{ratio:v.ratio});
+  var tv=f(T.timeValue,{time:v.time});
+  $('timeShow').textContent=tv;
+  slider.setAttribute('aria-valuetext',tv);
+}
+function schedule(){
+  if(reduce){draw();return;}
+  if(document.hidden||frame)return;
+  frame=requestAnimationFrame(draw);
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){if(frame){cancelAnimationFrame(frame);frame=0;}}
+  else draw();
+});
+function clearStatus(){clearTimeout(statusTimer);$('status').textContent='';}
+function setShown(n){
+  if(n!==shown)ver++;
+  shown=n;clearStatus();schedule();
+}
+function commit(n,force){
+  var changed=n!==committed;
+  committed=n;shown=n;slider.value=n;
+  writeStore(n);
+  if(frame){cancelAnimationFrame(frame);frame=0;}
+  draw();
+  if(changed||force){
+    ver++;clearStatus();
+    $('announce').textContent=lines(calc(n)).join(' ');
+  }
+}
+
+var dragId=null;
+slider.addEventListener('pointerdown',function(e){if(dragId===null){dragId=e.pointerId;dragging=true;}});
+window.addEventListener('pointerup',function(e){
+  if(!dragging||e.pointerId!==dragId)return;
+  dragging=false;dragId=null;
+  commit(+slider.value);
+});
+window.addEventListener('pointercancel',function(e){
+  if(!dragging||e.pointerId!==dragId)return;
+  dragging=false;dragId=null;
+  slider.value=committed;setShown(committed);draw();
+});
+slider.addEventListener('input',function(){
+  var n=+slider.value;
+  if(dragging)setShown(n);else commit(n);
+});
+slider.addEventListener('change',function(){if(!dragging)commit(+slider.value);});
+
+/* copy */
+function showStatus(msg){
+  clearTimeout(statusTimer);
+  $('status').textContent=msg;
+  statusTimer=setTimeout(function(){$('status').textContent='';},4000);
+}
+function fallbackCopy(text){
+  var ta=document.createElement('textarea'),ok=false,prev=document.activeElement;
+  ta.value=text;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(ta);ta.select();
+  try{ok=document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+  if(prev&&prev.focus&&prev!==document.body)prev.focus();
+  return ok;
+}
+$('copy').addEventListener('click',function(){
+  var text=lines(calc(shown)).join('\n');
+  var my=++copySeq,v0=ver;
+  function done(ok){
+    if(my!==copySeq||v0!==ver)return;
+    showStatus(ok?T.copied:T.copyFailed);
+  }
+  function fb(){if(my!==copySeq||v0!==ver)return;done(fallbackCopy(text));}
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){done(true);},fb);
+      return;
+    }
+  }catch(e){}
+  fb();
+});
+$('reset').addEventListener('click',function(){
+  copySeq++;
+  slider.value=0;commit(0,true);
+});
+
+/* static text */
+$('title').textContent=T.appTitle;
+$('instruction').textContent=T.instruction;
+$('wName').textContent=T.winter;
+$('sName').textContent=T.summer;
+$('expl').textContent=T.explanation;
+$('cap').textContent=T.modelCaption;
+$('timeLabel').textContent=T.solarTime;
+$('copy').textContent=T.copy;
+$('reset').textContent=T.reset;
+
+committed=readStore();shown=committed;slider.value=committed;
+draw();
+window.addEventListener('resize',function(){draw();});
+})();
+</script>
+</body>
+</html>

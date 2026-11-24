@@ -1,0 +1,21 @@
+{
+  "slug": "pocket-hand-warmer",
+  "date": "2026-11-23",
+  "category": "cool",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "핫팩 흔들기",
+    "desc": "화면 속 핫팩을 톡톡 누르면 파란 주머니에 주황빛이 번져요. 여덟 번 흔들어 따뜻해진 핫팩을 코트 주머니에 쏙 넣어 보세요.",
+    "howto": "핫팩을 누르거나 버튼에 초점을 두고 Enter 또는 Space 키를 누르세요. 여덟 번 흔들면 주머니에 넣을 수 있어요.",
+    "about": "추운 날 코트 주머니 속 핫팩을 떠올리며 만든 화면 속 장난감이에요.",
+    "tags": ["핫팩", "겨울", "손난로"]
+  },
+  "en": {
+    "title": "Pocket Hand Warmer",
+    "desc": "Tap the hand warmer eight times, then tuck it into a coat pocket and watch the lining glow.",
+    "howto": "Tap the pouch, or focus it and press Enter or Space. After eight shakes, tuck it into the pocket.",
+    "about": "A little toy inspired by finding a warm pouch in your coat pocket on a cold day.",
+    "tags": ["hand warmer", "winter", "sensory toy"]
+  }
+}

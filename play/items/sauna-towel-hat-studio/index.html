@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sauna Towel Hat Studio</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFF5E8;color:#34243A;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif}
+#col{width:100%;max-width:420px;margin:0 auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px;height:100dvh;overflow:hidden}
+h1{margin:0;font-size:18px;line-height:24px;text-align:center}
+#intro{margin:0;font-size:14px;line-height:18px;text-align:center}
+#card{background:#fff;border:2px solid #34243A;border-radius:14px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:4px}
+#art{display:block;border-radius:8px;transition:transform .12s;touch-action:manipulation;pointer-events:none}
+#art.pop{transform:scale(1.04)}
+#cap{margin:0;font-size:14px;line-height:20px;text-align:center;min-height:20px}
+button{font:inherit;touch-action:manipulation;min-height:44px;width:100%;border:2px solid #34243A;border-radius:12px;cursor:pointer}
+.set{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 14px;background:#DCCFEB;color:#34243A;font-size:15px}
+.set b{font-weight:700}
+#save{background:#34243A;color:#fff;font-size:16px;font-weight:700}
+button:focus-visible{outline:3px solid #34243A;outline-offset:2px;box-shadow:0 0 0 5px #fff}
+#status{margin:0;min-height:32px;font-size:12px;line-height:16px;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){#art{transition:none}}
+</style>
+</head>
+<body>
+<div id="col">
+  <h1 id="h"></h1>
+  <p id="intro"></p>
+  <div id="card"><canvas id="art" role="img"></canvas><p id="cap"></p></div>
+  <button class="set" id="b-shape" type="button"></button>
+  <button class="set" id="b-color" type="button"></button>
+  <button class="set" id="b-expression" type="button"></button>
+  <button id="save" type="button"></button>
+  <p id="status"></p>
+  <div class="sr" id="live" aria-live="polite"></div>
+</div>
+<script>
+(function(){
+var T={ko:{title:'찜질방 양머리 꾸미기',intro:'수건을 말고 표정을 골라요.',shape:'수건 모양',round:'동글동글',big:'큼직하게',floppy:'한쪽만 축',color:'수건 색',cream:'크림색',mint:'민트색',peach:'복숭아색',expression:'표정',sleepy:'졸려요',proud:'뿌듯해요',startled:'깜짝이야',sleepyCaption:'5분만 더 누워 있을래요.',proudCaption:'오늘 양머리 잘 말렸다!',startledCaption:'벌써 집에 갈 시간이라고요?',previewLabel:'양머리 사진. {shape}, {color}, {expression}.',settingLabel:'{label}, {value}',expressionChanged:'{label}, {value}. {caption}',save:'이미지 저장',saving:'이미지 만드는 중…',downloadStarted:'다운로드를 시작했어요.',saveFailed:'저장하지 못했어요. 사진을 화면에서 캡처해 주세요.',wordmark:'하루한판'},
+en:{title:'Sauna Towel Hat Studio',intro:'Roll the towel and pick a face.',shape:'Towel rolls',round:'Round',big:'Big',floppy:'Floppy',color:'Towel color',cream:'Cream',mint:'Mint',peach:'Peach',expression:'Expression',sleepy:'Sleepy',proud:'Proud',startled:'Startled',sleepyCaption:'Five more minutes on the mat.',proudCaption:'My towel rolls came out great!',startledCaption:'Time to go home already?',previewLabel:'Towel hat portrait. {shape}, {color}, {expression}.',settingLabel:'{label}, {value}',expressionChanged:'{label}, {value}. {caption}',save:'Save image',saving:'Preparing image…',downloadStarted:'Download started.',saveFailed:'Couldn’t save the image. Please take a screenshot.',wordmark:'Daily Toybox'}};
+var OPT={shape:['round','big','floppy'],color:['cream','mint','peach'],expression:['sleepy','proud','startled']};
+var FILL={cream:'#F2D49A',mint:'#ADE0CD',peach:'#F5B8AA'};
+var INK='#34243A';
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().split('-')[0]==='ko'?'ko':'en');
+document.documentElement.lang=lang;
+var L=T[lang];
+function f(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+document.title=L.title;
+
+var demo=location.hash==='#demo';
+var st={shape:'round',color:'cream',expression:'sleepy'};
+function key(k){return 'sauna-towel-hat-studio:v1:'+k}
+if(demo){st={shape:'big',color:'mint',expression:'proud'}}
+else Object.keys(OPT).forEach(function(k){try{var v=localStorage.getItem(key(k));if(OPT[k].indexOf(v)>=0)st[k]=v}catch(e){}});
+
+var $=function(id){return document.getElementById(id)};
+var art=$('art'),ctx=null;
+try{ctx=art.getContext('2d')}catch(e){}
+$('h').textContent=L.title;$('intro').textContent=L.intro;
+
+/* ---- renderer: art square at (x,y) size S ---- */
+function coil(c,cx,cy,r,fill,S){
+  c.fillStyle=fill;c.strokeStyle=INK;c.lineWidth=S*0.014;c.lineJoin=c.lineCap='round';
+  c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();c.stroke();
+  c.beginPath();
+  for(var a=0;a<=Math.PI*5;a+=0.2){var rr=r*0.86*(1-a/(Math.PI*5.6));var px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;a?c.lineTo(px,py):c.moveTo(px,py)}
+  c.stroke();
+}
+function draw(c,x,y,S,s){
+  c.save();c.translate(x,y);
+  var n=8,t=S/n;
+  for(var i=0;i<n;i++)for(var j=0;j<n;j++){c.fillStyle=(i+j)%2?'#DCCFEB':'#FFF5E8';c.fillRect(i*t,j*t,t+1,t+1)}
+  var lw=S*0.014,fill=FILL[s.color];
+  c.strokeStyle=INK;c.lineWidth=lw;c.lineJoin=c.lineCap='round';
+  // robe
+  c.fillStyle='#9DB4E0';c.beginPath();c.ellipse(S*.5,S*1.0,S*.36,S*.22,0,0,Math.PI*2);c.fill();c.stroke();
+  // face
+  c.fillStyle='#FFD9B8';c.beginPath();c.arc(S*.5,S*.56,S*.25,0,Math.PI*2);c.fill();c.stroke();
+  c.fillStyle='rgba(240,120,120,.45)';
+  [.34,.66].forEach(function(px){c.beginPath();c.ellipse(S*px,S*.64,S*.04,S*.025,0,0,Math.PI*2);c.fill()});
+  // expression
+  c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=S*0.014;
+  [.4,.6].forEach(function(px){
+    var ex=S*px,ey=S*.56,r=S*.03;
+    if(s.expression==='sleepy'){c.beginPath();c.arc(ex,ey,r,0,Math.PI);c.fill();c.beginPath();c.moveTo(ex-r*1.2,ey);c.lineTo(ex+r*1.2,ey);c.stroke()}
+    else if(s.expression==='proud'){c.beginPath();c.arc(ex,ey+r*.8,r*1.1,Math.PI*1.1,Math.PI*1.9);c.stroke()}
+    else{c.fillStyle='#fff';c.beginPath();c.arc(ex,ey,r*1.2,0,Math.PI*2);c.fill();c.stroke();c.fillStyle=INK;c.beginPath();c.arc(ex,ey,r*.45,0,Math.PI*2);c.fill()}
+  });
+  c.beginPath();
+  if(s.expression==='sleepy'){c.moveTo(S*.46,S*.69);c.lineTo(S*.54,S*.69);c.stroke()}
+  else if(s.expression==='proud'){c.arc(S*.5,S*.64,S*.08,Math.PI*.12,Math.PI*.88);c.stroke()}
+  else{c.arc(S*.5,S*.7,S*.028,0,Math.PI*2);c.fillStyle='#8A3B4E';c.fill();c.stroke()}
+  // towel band
+  c.fillStyle=fill;c.strokeStyle=INK;c.lineWidth=lw;
+  c.beginPath();c.moveTo(S*.25,S*.3);c.quadraticCurveTo(S*.5,S*.2,S*.75,S*.3);c.lineTo(S*.74,S*.43);c.quadraticCurveTo(S*.5,S*.35,S*.26,S*.43);c.closePath();c.fill();c.stroke();
+  c.beginPath();[.4,.5,.6].forEach(function(px){c.moveTo(S*px,S*(px===.5?.27:.285));c.lineTo(S*px,S*(px===.5?.37:.385))});c.stroke();
+  // coils
+  var k=s.shape==='big'?1.25:1,r=S*.1*k,cy=S*.34;
+  coil(c,S*.24,cy,r,fill,S);
+  if(s.shape==='floppy'){c.save();c.translate(S*.76,cy+S*.08);c.rotate(25*Math.PI/180);coil(c,0,0,r,fill,S);c.restore()}
+  else coil(c,S*.76,cy,r,fill,S);
+  c.restore();
+}
+function wrapLines(c,text,w){
+  var out=[],words=text.split(' '),cur='';
+  if(words.length<2&&lang==='ko'){words=text.split('')}
+  var sep=words===text.split('')?'':' ';
+  words.forEach(function(wd){var t=cur?cur+sep+wd:wd;if(cur&&c.measureText(t).width>w){out.push(cur);cur=wd}else cur=t});
+  if(cur)out.push(cur);return out;
+}
+/* ---- UI ---- */
+var live=$('live'),statusEl=$('status'),capEl=$('cap'),saveB=$('save'),popT=0;
+function capText(s){return L[s.expression+'Caption']}
+function valText(k){return L[st[k]]}
+function names(){return {shape:L[st.shape],color:L[st.color],expression:L[st.expression]}}
+function layout(){
+  var col=$('col');art.style.width=art.style.height='0px';
+  var free=window.innerHeight-col.scrollHeight;
+  var side=Math.floor(Math.max(110,Math.min(Math.min(col.clientWidth,420)-20-16,free-2)));
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  art.style.width=art.style.height=side+'px';
+  art.width=art.height=Math.round(side*dpr);
+  paint();
+}
+function paint(){
+  if(document.hidden||!ctx)return;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,art.width,art.height);
+  draw(ctx,0,0,art.width,st);
+}
+function labels(){
+  ['shape','color','expression'].forEach(function(k){
+    var b=$('b-'+k);
+    b.innerHTML='<span></span><b></b>';
+    b.firstChild.textContent=L[k];b.lastChild.textContent=valText(k);
+    b.setAttribute('aria-label',f(L.settingLabel,{label:L[k],value:valText(k)}));
+  });
+  capEl.textContent=capText(st);
+  art.setAttribute('aria-label',f(L.previewLabel,names()));
+}
+var pending=false;
+saveB.textContent=L.save;
+function change(k){
+  var o=OPT[k];st[k]=o[(o.indexOf(st[k])+1)%o.length];
+  if(!demo)try{localStorage.setItem(key(k),st[k])}catch(e){}
+  statusEl.textContent='';
+  labels();
+  live.textContent=k==='expression'?f(L.expressionChanged,{label:L[k],value:valText(k),caption:capText(st)}):f(L.settingLabel,{label:L[k],value:valText(k)});
+  layout();
+  clearTimeout(popT);art.classList.remove('pop');
+  if(!document.hidden&&!matchMedia('(prefers-reduced-motion:reduce)').matches){art.classList.add('pop');popT=setTimeout(function(){art.classList.remove('pop')},120)}
+}
+['shape','color','expression'].forEach(function(k){$('b-'+k).addEventListener('click',function(){change(k)})});
+document.addEventListener('keydown',function(e){
+  if(e.repeat&&(e.key==='Enter'||e.key===' ')&&e.target&&e.target.tagName==='BUTTON')e.preventDefault();
+});
+function save(){
+  if(pending)return;
+  pending=true;saveB.textContent=L.saving;saveB.setAttribute('aria-disabled','true');statusEl.textContent='';
+  var s={shape:st.shape,color:st.color,expression:st.expression},cap=L[s.expression+'Caption'],mark=L.wordmark;
+  function done(msg){pending=false;saveB.textContent=L.save;saveB.removeAttribute('aria-disabled');statusEl.textContent=msg}
+  try{
+    var c=document.createElement('canvas');c.width=c.height=1080;
+    var c2=c.getContext('2d');
+    c2.fillStyle='#FFF5E8';c2.fillRect(0,0,1080,1080);
+    draw(c2,110,30,860,s);
+    c2.strokeStyle=INK;c2.lineWidth=6;c2.strokeRect(110,30,860,860);
+    c2.fillStyle=INK;c2.textAlign='center';c2.textBaseline='middle';
+    c2.font='700 44px system-ui,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif';
+    var lines=wrapLines(c2,cap,900);
+    lines.forEach(function(t,i){c2.fillText(t,540,945+i*50-(lines.length-1)*0)});
+    c2.font='600 28px system-ui,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif';
+    c2.globalAlpha=.7;c2.fillText(mark,540,1050);c2.globalAlpha=1;
+    c.toBlob(function(b){
+      try{
+        if(!b)throw 0;
+        var u=URL.createObjectURL(b),a=document.createElement('a');
+        a.href=u;a.download='sauna-towel-portrait.png';document.body.appendChild(a);a.click();a.remove();
+        setTimeout(function(){URL.revokeObjectURL(u)},4000);
+        done(L.downloadStarted);
+      }catch(e){done(L.saveFailed)}
+    },'image/png');
+  }catch(e){done(L.saveFailed)}
+}
+saveB.addEventListener('click',save);
+window.addEventListener('resize',layout);
+document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(popT);art.classList.remove('pop')}else layout()});
+labels();layout();
+})();
+</script>
+</body>
+</html>

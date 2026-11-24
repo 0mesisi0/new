@@ -1,0 +1,21 @@
+{
+  "slug": "dns-address-trace",
+  "date": "2026-11-23",
+  "category": "tech",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "DNS 주소 찾기",
+    "desc": "브라우저가 도메인 이름으로 IP 주소를 찾는 과정을 한 단계씩 따라가 보세요. 같은 이름을 다시 조회해 캐시가 있으면 무엇이 달라지는지 확인할 수 있어요.",
+    "howto": "‘조회 시작’을 누르고 ‘다음 단계’로 요청을 따라가세요. 주소를 찾으면 ‘같은 이름 다시 조회’를 눌러 두 경로를 비교하세요.",
+    "about": "예시 도메인과 IP 주소로 DNS 조회를 보여 주는 오프라인 시뮬레이션이에요. 리졸버가 조회 결과를 저장해 두는 캐시에 초점을 맞췄어요.",
+    "tags": ["DNS", "DNS 작동 원리", "도메인", "캐시"]
+  },
+  "en": {
+    "title": "How DNS Finds an Address",
+    "desc": "Follow a DNS lookup from a domain name to an IP address, then try the same lookup again to see what the cache changes.",
+    "howto": "Select “Start lookup” and follow the request with “Next step.” When the address arrives, select “Look up again” to compare the two routes.",
+    "about": "This offline simulation uses an example domain and IP address to show how a resolver looks up and caches a DNS answer.",
+    "tags": ["DNS", "name resolution", "domain names", "cache"]
+  }
+}

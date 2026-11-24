@@ -1,0 +1,23 @@
+{
+  "slug": "sauna-towel-hat-studio",
+  "date": "2026-11-25",
+  "category": "weird",
+  "kind": "tool",
+  "aspect": "3/4",
+  "tags": {
+    "ko": ["찜질방", "양머리", "수건", "프로필 사진"],
+    "en": ["jjimjilbang", "towel hat", "avatar", "winter"]
+  },
+  "ko": {
+    "title": "찜질방 양머리 꾸미기",
+    "desc": "찜질방 수건을 동글동글 말아 나만의 양머리 사진을 꾸며요. 수건 모양과 색, 표정을 골라 완성한 사진을 저장할 수 있어요.",
+    "howto": "수건 모양, 색, 표정 버튼을 눌러 사진을 바꿔요. 마음에 들면 ‘이미지 저장’을 눌러요.",
+    "about": "찜질방에서 수건 양끝을 말아 쓰는 양머리를 그림으로 꾸미는 장난감이에요."
+  },
+  "en": {
+    "title": "Sauna Towel Hat Studio",
+    "desc": "Make a cartoon jjimjilbang portrait with a rolled towel hat. Pick the rolls, color, and expression, then save your portrait.",
+    "howto": "Tap the roll, color, or expression button to change the portrait. Choose “Save image” when it looks right.",
+    "about": "A portrait toy inspired by the Korean jjimjilbang towel hat, made by rolling both ends of a towel."
+  }
+}

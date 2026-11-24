@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How DNS Finds an Address</title>
+<style>
+:root{--paper:#F6F3EA;--ink:#172B38;--blue:#185D80;--green:#216346;--line:rgba(23,43,56,.3)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif}
+.app{height:100vh;height:100dvh;max-width:640px;margin:0 auto;display:flex;flex-direction:column}
+header{padding:10px 14px 4px;flex:none}
+.sim{display:inline-block;font-size:12px;border:1px solid var(--ink);border-radius:99px;padding:1px 8px}
+.ttl{font-size:13px;font-weight:700;margin:6px 0 0}
+h1{font-size:20px;margin:2px 0 4px;line-height:1.2}
+h1:focus{outline:3px solid var(--ink);outline-offset:3px;border-radius:4px}
+.ready h1{font-size:26px}
+.dom{font-size:13px}
+.dom code,.ip{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace}
+.dom code{font-size:16px;font-weight:700;background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1px 8px;margin-left:4px}
+main{flex:1;min-height:0;overflow:auto;padding:4px 14px 8px}
+.intro{margin:4px 0;font-size:15px}.note{margin:2px 0 6px;font-size:13px;opacity:.8}
+.map{position:relative;height:clamp(150px,34dvh,260px);margin:6px 0}
+.map svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.node{position:absolute;width:29%;min-height:44px;transform:translate(-50%,-50%);background:#fff;border:2px solid var(--ink);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;padding:3px;line-height:1.2;z-index:1}
+.node.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,93,128,.25)}
+.node.ans{border-color:var(--green);box-shadow:0 0 0 3px rgba(33,99,70,.25)}
+.node.done{border-color:var(--blue)}
+.node.off{border-style:dashed;border-color:var(--ink);background:var(--paper)}
+.ip{display:inline-block;color:#fff;background:var(--green);border-radius:6px;padding:0 6px;font-size:12px;margin-top:2px}
+.cap{font-size:15px;line-height:1.45;margin:6px 0;min-height:3em}
+.pill{display:inline-block;font-size:13px;font-weight:700;border-radius:8px;padding:3px 10px;background:#fff;border:2px solid var(--blue);color:var(--blue)}
+.panel{background:#fff;border:2px solid var(--green);border-radius:12px;padding:8px 12px;margin:6px 0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.panel b{font-size:13px;color:var(--green)}.panel .ip{font-size:18px;padding:2px 10px;margin:0}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.cmp div{background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px;font-size:13px;font-weight:600}
+.cmp div+div{border-color:var(--green)}
+.cmp strong{display:block;font-size:30px;line-height:1.1}
+footer{flex:none;display:flex;gap:8px;padding:8px 14px 12px;border-top:1px solid var(--line)}
+button{font:inherit;font-weight:700;min-height:48px;min-width:48px;padding:0 16px;border-radius:12px;border:2px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+button.pri{flex:1;background:var(--blue);border-color:var(--blue);color:#fff}
+button#again,button#restart{background:var(--green);border-color:var(--green);color:#fff;flex:1}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@keyframes hi{from{opacity:.25}to{opacity:1}}
+.pulse{animation:hi .45s ease-out}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+.hid .pulse{animation:none}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <span class="sim" id="sim"></span>
+    <div class="ttl" id="ttl"></div>
+    <h1 id="h" tabindex="-1"></h1>
+    <div class="dom"><span id="dl"></span><code>example.com</code></div>
+  </header>
+  <main>
+    <p class="intro" id="intro"></p><p class="note" id="note"></p>
+    <div class="map" id="map" aria-hidden="true">
+      <svg id="svg"></svg>
+      <div class="node" id="n-browser" style="left:16%;top:22%"></div>
+      <div class="node" id="n-resolver" style="left:62%;top:22%"></div>
+      <div class="node" id="n-root" style="left:16%;top:80%"></div>
+      <div class="node" id="n-tld" style="left:50%;top:80%"></div>
+      <div class="node" id="n-authoritative" style="left:84%;top:80%"></div>
+    </div>
+    <div id="cnt"></div>
+    <p class="cap" id="cap"></p>
+    <div class="panel" id="panel" hidden><b id="ipl"></b><span class="ip">192.0.2.10</span></div>
+    <div class="cmp" id="cmp" hidden><div id="c1"></div><div id="c2"></div></div>
+  </main>
+  <footer>
+    <button id="start" class="pri"></button>
+    <button id="back" hidden></button>
+    <button id="next" class="pri" hidden></button>
+    <button id="again" hidden></button>
+    <button id="restart" hidden></button>
+  </footer>
+  <div class="sr" id="live" role="status" aria-live="polite"></div>
+</div>
+<script>
+(function(){
+var T={
+ko:{appTitle:'DNS 주소 찾기',intro:'브라우저는 도메인 이름으로 IP 주소를 어떻게 찾을까요?',modelNote:'리졸버의 캐시가 비어 있을 때부터 시작해요.',simulation:'오프라인 시뮬레이션',domainLabel:'예시 도메인',browser:'브라우저',resolver:'리졸버',root:'루트 서버',tld:'.com 서버',authoritative:'권한 서버',start:'조회 시작',step:'{n}/5단계',back:'이전',next:'다음 단계',answer:'주소를 찾았어요',ip:'예시 IPv4 주소',again:'같은 이름 다시 조회',compare:'같은 이름, 더 짧은 경로',firstCount:'첫 조회 · 상위 DNS 서버에 {n}회 질의',repeatCount:'다시 조회 · 상위 DNS 서버에 {n}회 질의',restart:'처음부터',
+cap:['브라우저가 리졸버에 example.com의 IP 주소를 물어요. 리졸버의 캐시는 비어 있어요.','루트 서버가 리졸버에 .com을 담당하는 서버를 알려 줘요.','.com 서버가 리졸버에 example.com의 권한 서버를 알려 줘요.','example.com의 권한 서버가 예시 IPv4 주소 192.0.2.10을 응답해요.','리졸버가 주소를 캐시에 저장하고 브라우저에 돌려줘요.'],
+rep:'리졸버가 캐시에 저장된 주소를 바로 돌려줘요. 루트, .com, 권한 서버에 다시 물을 필요가 없어요.'},
+en:{appTitle:'How DNS Finds an Address',intro:'How does your browser find an IP address from a domain name?',modelNote:'Start with an empty resolver cache.',simulation:'Offline simulation',domainLabel:'Example domain',browser:'Browser',resolver:'Resolver',root:'Root server',tld:'.com server',authoritative:'Authoritative server',start:'Start lookup',step:'Step {n} of 5',back:'Back',next:'Next step',answer:'Address found',ip:'Example IPv4 address',again:'Look up again',compare:'Same name, shorter route',firstCount:'First lookup · {n} upstream DNS queries',repeatCount:'Repeat lookup · {n} upstream DNS queries',restart:'Start over',
+cap:['The browser asks the resolver for the IP address of example.com. The resolver’s cache is empty.','The root server points the resolver to the servers for .com.','The .com server points the resolver to the authoritative server for example.com.','The authoritative server for example.com returns the example IPv4 address 192.0.2.10.','The resolver caches the address and returns it to the browser.'],
+rep:'The resolver returns the cached address right away. It can skip the root, .com, and authoritative servers.'}
+};
+var q2=new URLSearchParams(location.search),q=q2.get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'en').toLowerCase().split('-')[0]==='ko'?'ko':'en');
+var t=T[lang];
+document.documentElement.lang=lang;document.title=t.appTitle;
+var $=function(i){return document.getElementById(i)};
+var fmt=function(s,n){return s.replace('{n}',n)};
+// state: screen ready|step|compare, n 1..5
+var screen='ready',n=0;
+var pressed=null;
+['browser','resolver','root','tld','authoritative'].forEach(function(k){$('n-'+k).dataset.k=k});
+$('sim').textContent=t.simulation;$('dl').textContent=t.domainLabel;
+$('intro').textContent=t.intro;$('note').textContent=t.modelNote;
+$('ipl').textContent=t.ip;
+['start','back','next','again','restart'].forEach(function(k){$(k).textContent=t[k]});
+
+function edges(){
+  // [from,to,mode] mode: f=a->b, b=b->a, d=both; cls
+  if(screen==='compare')return{all:[['browser','resolver']],act:[['browser','resolver','d','g']],done:[]};
+  var all=[['browser','resolver'],['resolver','root'],['resolver','tld'],['resolver','authoritative']];
+  var act=[],done=[];
+  if(screen==='step'){
+    if(n===1)act=[['browser','resolver','f','b']];
+    if(n===2)act=[['resolver','root','d','b']];
+    if(n===3)act=[['resolver','tld','d','b']];
+    if(n===4)act=[['resolver','authoritative','d','b']];
+    if(n===5){act=[['browser','resolver','b','g']];done=[['resolver','root'],['resolver','tld'],['resolver','authoritative']]}
+  }
+  return{all:all,act:act,done:done};
+}
+function pt(k,w,h,tx,ty){ // edge point of node k toward (tx,ty)
+  var r=$('n-'+k).getBoundingClientRect(),m=$('map').getBoundingClientRect();
+  var cx=r.left-m.left+r.width/2,cy=r.top-m.top+r.height/2,dx=tx-cx,dy=ty-cy;
+  var s=Math.min(dx?r.width/2/Math.abs(dx):1e9,dy?r.height/2/Math.abs(dy):1e9);
+  return[cx+dx*s,cy+dy*s];
+}
+function ctr(k){var r=$('n-'+k).getBoundingClientRect(),m=$('map').getBoundingClientRect();return[r.left-m.left+r.width/2,r.top-m.top+r.height/2]}
+function head(x,y,ox,oy,c){ // arrowhead at x,y pointing away from ox,oy
+  var a=Math.atan2(y-oy,x-ox),L=11,W=.45;
+  return '<polygon fill="'+c+'" points="'+x+','+y+' '+(x-L*Math.cos(a-W))+','+(y-L*Math.sin(a-W))+' '+(x-L*Math.cos(a+W))+','+(y-L*Math.sin(a+W))+'"/>';
+}
+function draw(){
+  var e=edges(),s='';
+  var line=function(a,b,mode,c,w,dash,cls){
+    var ca=ctr(a),cb=ctr(b),p=pt(a,0,0,cb[0],cb[1]),q=pt(b,0,0,ca[0],ca[1]);
+    var o='<g class="'+(cls||'')+'"><line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+c+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="2 5" stroke-linecap="round"':'')+'/>';
+    if(mode==='f'||mode==='d')o+=head(q[0],q[1],p[0],p[1],c);
+    if(mode==='b'||mode==='d')o+=head(p[0],p[1],q[0],q[1],c);
+    return o+'</g>';
+  };
+  e.all.forEach(function(x){s+=line(x[0],x[1],'',  'rgba(23,43,56,.35)',2,true)});
+  // completed first route: solid, medium stroke, no arrowheads (return arrow stays thick + green)
+  e.done.forEach(function(x){s+=line(x[0],x[1],'','#185D80',3,false)});
+  e.act.forEach(function(x){s+=line(x[0],x[1],x[2],x[3]==='g'?'#216346':'#185D80',5,false,'pulse')});
+  $('svg').innerHTML=s;
+}
+function render(){
+  var ready=screen==='ready',cmp=screen==='compare',a5=screen==='step'&&n===5;
+  document.body.className=ready?'ready':'';
+  $('ttl').hidden=ready;$('ttl').textContent=t.appTitle;
+  var h=ready?t.appTitle:cmp?t.compare:a5?t.answer:fmt(t.step,n);
+  $('h').textContent=h;
+  $('intro').hidden=$('note').hidden=!ready;
+  var counter=$('cnt');
+  var caption=ready?'':cmp?t.rep:t.cap[n-1];
+  $('cap').textContent=caption;$('cap').hidden=ready;
+  // counter
+  var uc=[0,0,1,2,3,3][n]||0;
+  counter.innerHTML=screen==='step'?'<span class="pill">'+fmt(t.step,n)+' · '+fmt(t.firstCount,uc)+'</span>':'';
+  $('panel').hidden=!(a5||cmp);
+  $('cmp').hidden=!cmp;
+  if(cmp){$('c1').innerHTML='<strong aria-hidden="true">3</strong>'+fmt(t.firstCount,3);$('c2').innerHTML='<strong aria-hidden="true">0</strong>'+fmt(t.repeatCount,0);}
+  // nodes
+  ['browser','resolver','root','tld','authoritative'].forEach(function(k){
+    var el=$('n-'+k),on=false,ans=false,off=false,dn=false;
+    if(screen==='step'){
+      dn=n===5&&(k==='root'||k==='tld'||k==='authoritative');
+      on=(n===1&&(k==='browser'||k==='resolver'))||(n===2&&(k==='resolver'||k==='root'))||(n===3&&(k==='resolver'||k==='tld'))||(n===4&&(k==='resolver'||k==='authoritative'));
+      ans=n===5&&(k==='browser'||k==='resolver');
+    }else if(cmp){ans=k==='browser'||k==='resolver';off=!ans}
+    el.className='node'+(on?' on':'')+(ans?' ans':'')+(off?' off':'')+(dn?' done':'');
+    el.innerHTML=t[k]+(k==='authoritative'&&screen==='step'&&n===4?'<span class="ip">192.0.2.10</span>':'');
+  });
+  $('start').hidden=!ready;
+  $('back').hidden=screen!=='step';
+  $('next').hidden=!(screen==='step'&&n<5);
+  $('again').hidden=!a5;
+  $('restart').hidden=!cmp;
+  draw();
+  // focus / announce
+  var hd=$('h');hd.removeAttribute('aria-describedby');
+  if(pressed&&pressed.hidden){
+    // focus moves to heading: caption (and counter at step 5, counts on Compare) read as its description
+    if(!ready)hd.setAttribute('aria-describedby',a5?'cnt cap':cmp?'cap c1 c2':'cap');
+    hd.focus();$('live').textContent=''}
+  else if(pressed&&screen==='step'){$('live').textContent=fmt(t.step,n)+'. '+caption}
+  pressed=null;
+}
+function go(btn,fn){btn.addEventListener('click',function(){pressed=btn;fn();render()});
+  btn.addEventListener('keydown',function(e){if(e.repeat&&(e.key==='Enter'||e.key===' '))e.preventDefault()})}
+go($('start'),function(){screen='step';n=1});
+go($('next'),function(){if(n<5)n++});
+go($('back'),function(){if(n>1)n--;else{screen='ready';n=0}});
+go($('again'),function(){screen='compare'});
+go($('restart'),function(){screen='ready';n=0});
+addEventListener('resize',draw);
+document.addEventListener('visibilitychange',function(){document.documentElement.classList.toggle('hid',document.hidden);document.body.classList.toggle('hid',document.hidden)});
+if(location.hash==='#demo'||q2.get('thumb')==='1'){screen='compare';n=5}
+render();
+})();
+</script>
+</body>
+</html>
