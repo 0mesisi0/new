@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-draft-detective",
+  "site": "play",
+  "slug": "draft-detective",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T19:36:32.111Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T19:38:13.997Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
