@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>문풍지 외풍 탐정</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#17252D;color:#FAEBCF;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+#app{height:100vh;height:100dvh;width:100%;max-width:480px;margin:0 auto;padding:10px 12px;display:flex;flex-direction:column}
+section{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center}
+section[hidden]{display:none}
+h1,h2{margin:0;text-align:center;line-height:1.2;outline:none}
+h1{font-size:clamp(24px,7vw,34px)}
+h2{font-size:clamp(18px,5vw,22px)}
+h1:focus-visible,h2:focus-visible{outline:3px solid #FFC878;outline-offset:3px;border-radius:6px}
+p{margin:0}
+.hint{margin:8px 0;text-align:center;font-size:clamp(14px,4vw,17px);opacity:.9}
+.btn{min-height:48px;min-width:140px;padding:10px 24px;border:0;border-radius:14px;background:#FFC878;color:#17252D;font:700 18px system-ui,sans-serif;cursor:pointer;transition:transform .08s}
+.btn.alt{background:#34515E;color:#FAEBCF}
+.btn.pressed{filter:brightness(.85)}
+.btn[hidden]{display:none}
+button:focus-visible{outline:3px solid #A6E9F5;outline-offset:3px}
+.stage{flex:1;min-height:0;width:100%;display:grid;grid-template-columns:64px 1fr 64px;align-items:stretch;gap:4px;margin:6px 0}
+.stage.small{flex:1;grid-template-columns:1fr}
+.col{display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:6px;min-height:0}
+.door{min-height:0;min-width:0;width:100%;height:100%}
+.strip{position:relative;display:flex;flex-direction:column;align-items:center;min-width:48px;min-height:44px;padding:2px 0 0;border:2px solid transparent;border-radius:10px;background:rgba(250,235,207,.06);color:#FAEBCF;font:700 15px system-ui,sans-serif;cursor:pointer;touch-action:none}
+.strip svg{flex:1;min-height:0;width:100%;overflow:visible}
+.strip.right svg{transform:scaleX(-1)}
+.strip.pressed svg{transform:scale(.94)}
+.strip.right.pressed svg{transform:scaleX(-1) scale(.94)}
+.strip.sealed{cursor:default;background:rgba(255,200,120,.12)}
+.strip.miss{border-color:#FAEBCF;animation:shake .3s}
+.strip.pop{animation:pop .35s}
+.strip:disabled{cursor:default;color:#FAEBCF}
+.flutter{transform-origin:30px 6px;animation:flutter .5s ease-in-out infinite alternate}
+.air{animation:air .5s ease-in-out infinite alternate}
+.paused *{animation-play-state:paused!important}
+@keyframes flutter{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+@keyframes air{from{opacity:.75}to{opacity:1}}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pop{50%{transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.counters{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:clamp(13px,3.8vw,15px);margin-top:4px;opacity:.95}
+.fb{min-height:2.6em;width:100%;text-align:center;font-size:clamp(14px,4vw,16px);display:flex;align-items:center;justify-content:center;color:#FAEBCF}
+.nextwrap{min-height:52px;display:flex;align-items:center;justify-content:center}
+.card{width:100%;background:#34515E;border-radius:18px;padding:14px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.card .doorill{width:min(34vw,120px);height:auto;max-height:28dvh}
+.big{font-size:clamp(30px,10vw,44px);font-weight:800;color:#FFC878;line-height:1.1}
+.newbest{color:#FFC878;font-weight:700}
+.btns{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:12px}
+#start,#result{justify-content:center}
+#start .stage{flex:0 1 auto;height:min(46dvh,320px);width:min(70%,240px);margin:8px 0}
+@media (max-height:520px){#app{padding:6px 10px}.hint{margin:4px 0}.card{padding:8px}.btns{flex-direction:row;margin-top:8px}.btn{min-height:44px;min-width:110px;padding:8px 14px;font-size:16px}.counters{margin-top:2px}.nextwrap{min-height:48px}}
+</style>
+</head>
+<body>
+<main id="app">
+<section id="start">
+  <h1 id="t-title"></h1>
+  <p class="hint" id="t-hint"></p>
+  <div class="stage small" aria-hidden="true"><svg class="door" id="previewDoor" viewBox="0 0 220 300" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <button class="btn" id="startBtn"></button>
+</section>
+
+<section id="play" hidden>
+  <h2 id="roomH" tabindex="-1"></h2>
+  <div class="counters"><span id="progress"></span><span id="misses"></span></div>
+  <div class="stage">
+    <div class="col" id="colL"></div>
+    <svg class="door" id="door" viewBox="0 0 120 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+    <div class="col" id="colR"></div>
+  </div>
+  <div class="fb" id="fb" aria-live="polite"></div>
+  <div class="nextwrap"><button class="btn" id="nextBtn" hidden></button></div>
+</section>
+
+<section id="result" hidden>
+  <div class="card">
+    <h2 id="resH" tabindex="-1"></h2>
+    <svg class="doorill" viewBox="0 0 120 170" aria-hidden="true">
+      <rect x="6" y="4" width="108" height="162" rx="6" fill="#34515E"/>
+      <rect x="6" y="4" width="108" height="162" rx="6" fill="#FFC878" opacity=".45"/>
+      <rect x="22" y="20" width="76" height="52" rx="4" fill="none" stroke="#FAEBCF" stroke-opacity=".5" stroke-width="3"/>
+      <rect x="22" y="88" width="76" height="62" rx="4" fill="none" stroke="#FAEBCF" stroke-opacity=".5" stroke-width="3"/>
+      <circle cx="94" cy="82" r="5" fill="#FAEBCF"/>
+    </svg>
+    <div class="big" id="resScore"></div>
+    <div id="resBest"></div>
+    <div id="resRun"></div>
+    <div class="newbest" id="resNew" hidden></div>
+  </div>
+  <div class="btns">
+    <button class="btn" id="retryBtn"></button>
+    <button class="btn alt" id="titleBtn"></button>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+var KEY='draft-detective:best';
+var I18N={
+ko:{appTitle:'문풍지 외풍 탐정',startHint:'흔들리는 종이를 눌러 문틈을 막으세요.',start:'시작',room:'{room}/3번 방',roomProgress:'막은 틈 {sealed}/{total}',misses:'헛짚은 횟수 {misses}/3',stripDraft:'{n}번 종이, 흔들림',stripStill:'{n}번 종이, 움직임 없음',stripSealed:'{n}번 문틈, 막음',sealedFeedback:'문틈을 막았어요.',missFeedback:'이 종이는 움직이지 않아요.',roomClear:'이 방의 외풍을 모두 막았어요.',nextRoom:'다음 방',resultClear:'세 방의 외풍을 모두 막았어요!',resultMiss:'세 번 헛짚어서 도전이 끝났어요.',score:'점수 {score}점',best:'최고 기록 {best}점',runProgress:'막은 문틈 {sealed}/6',newBest:'새 최고 기록!',retry:'다시 하기',titleScreen:'처음으로'},
+en:{appTitle:'Draft Detective',startHint:'Tap a fluttering strip to seal the gap.',start:'Start',room:'Room {room} of 3',roomProgress:'Gaps sealed {sealed}/{total}',misses:'Misses {misses}/3',stripDraft:'Strip {n}, fluttering',stripStill:'Strip {n}, still',stripSealed:'Gap {n}, sealed',sealedFeedback:'Gap sealed.',missFeedback:'This strip is still.',roomClear:'All drafts in this room are sealed.',nextRoom:'Next room',resultClear:'You stopped every draft!',resultMiss:'Three misses. Run over.',score:'Score {score}',best:'Best {best}',runProgress:'Total gaps sealed {sealed}/6',newBest:'New best!',retry:'Play again',titleScreen:'Title screen'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+document.documentElement.lang=lang;
+function t(k,v){var s=I18N[lang][k];for(var x in (v||{}))s=s.replace('{'+x+'}',v[x]);return s}
+document.title=t('appTitle');
+
+var ROOMS=[[2],[1,6],[3,4,5]];
+var $=function(id){return document.getElementById(id)};
+var S={screen:'start',room:1,sealed:[],total:0,misses:0,done:false,lock:0,demo:/demo/.test(location.hash)};
+var best=0;
+
+function readBest(){try{var v=localStorage.getItem(KEY);if(v!==null&&/^\d+$/.test(v)){var n=+v;if(n<=60)return n}}catch(e){}return 0}
+function writeBest(n){try{localStorage.setItem(KEY,String(n))}catch(e){}}
+if(!S.demo)best=readBest();
+
+/* ---------- art ---------- */
+var PAPER='#FAEBCF',AIR='#A6E9F5',TAPE='#FFC878';
+var ART={
+still:'<rect x="20" y="6" width="22" height="76" rx="2" fill="'+PAPER+'"/><rect x="17" y="3" width="28" height="6" rx="2" fill="#34515E" stroke="'+PAPER+'" stroke-width="1.5"/>',
+draft:'<g class="flutter"><path d="M20 6H42L50 40L40 82L20 80L30 42Z" fill="'+PAPER+'"/></g><g class="air" fill="none" stroke="'+AIR+'" stroke-width="3" stroke-linecap="round"><path d="M50 30Q56 34 62 30"/><path d="M50 52Q56 56 62 52"/></g>',
+sealed:'<rect x="20" y="6" width="22" height="76" rx="2" fill="'+PAPER+'"/><rect x="10" y="32" width="42" height="22" rx="3" fill="'+TAPE+'" stroke="#17252D" stroke-width="1.5" transform="rotate(-6 31 43)"/><path d="M20 43L28 51L43 35" fill="none" stroke="#17252D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+function stripSvg(st){return '<svg viewBox="-4 0 68 88" aria-hidden="true" focusable="false">'+ART[st]+'</svg>'}
+function doorSvg(warm,flutter){
+  var g='<rect x="14" y="4" width="92" height="292" rx="6" fill="#34515E" stroke="#0f1a20" stroke-width="3"/>'+
+  '<rect x="28" y="22" width="64" height="100" rx="4" fill="none" stroke="#FAEBCF" stroke-opacity=".3" stroke-width="3"/>'+
+  '<rect x="28" y="150" width="64" height="124" rx="4" fill="none" stroke="#FAEBCF" stroke-opacity=".3" stroke-width="3"/>'+
+  '<circle cx="90" cy="140" r="6" fill="#FAEBCF"/>'+
+  '<rect x="14" y="4" width="92" height="292" rx="6" fill="#FFC878" opacity="'+(warm/6*0.45).toFixed(3)+'"/>';
+  return g;
+}
+
+/* ---------- build play DOM ---------- */
+var strips=[];
+function mk(i){
+  var b=document.createElement('button');
+  b.className='strip'+(i>3?' right':'');b.type='button';b.dataset.i=i;
+  b.innerHTML='<span class="svgw" style="display:contents"></span><span class="n">'+i+'</span>';
+  b.addEventListener('click',function(){activate(i)});
+  strips[i]=b;return b;
+}
+for(var i=1;i<=6;i++)$(i<=3?'colL':'colR').appendChild(mk(i));
+
+function stState(i){
+  if(S.sealed.indexOf(i)>=0)return 'sealed';
+  return ROOMS[S.room-1].indexOf(i)>=0?'draft':'still';
+}
+function refreshStrips(){
+  for(var i=1;i<=6;i++){
+    var b=strips[i],st=stState(i);
+    if(b.dataset.st!==st){b.dataset.st=st;b.firstChild.outerHTML;b.querySelector('.svgw').innerHTML=stripSvg(st)}
+    b.classList.toggle('sealed',st==='sealed');
+    b.setAttribute('aria-label',t(st==='sealed'?'stripSealed':st==='draft'?'stripDraft':'stripStill',{n:i}));
+    b.disabled=S.done;
+    if(st==='sealed'){b.setAttribute('aria-disabled','true');b.tabIndex=-1}else{b.removeAttribute('aria-disabled');b.tabIndex=0}
+  }
+}
+function refreshHud(){
+  $('roomH').textContent=t('room',{room:S.room});
+  $('progress').textContent=t('roomProgress',{sealed:S.sealed.length,total:ROOMS[S.room-1].length});
+  $('misses').textContent=t('misses',{misses:S.misses});
+  $('door').innerHTML=doorSvg(S.total);
+}
+
+/* ---------- screens ---------- */
+var gen=0;
+function show(name){
+  gen++;S.screen=name;
+  ['start','play','result'].forEach(function(n){$(n).hidden=n!==name});
+}
+function setFb(s){$('fb').textContent=s}
+function enterRoom(room,focus){
+  gen++;S.room=room;S.sealed=[];S.done=false;S.lock=0;
+  $('nextBtn').hidden=true;setFb('');
+  show('play');refreshHud();refreshStrips();
+  if(focus)$('roomH').focus();
+}
+function startRun(){
+  S.total=0;S.misses=0;
+  enterRoom(1,true);
+}
+function toStart(){
+  S.demo=false;S.total=0;S.misses=0;S.sealed=[];S.done=false;
+  best=Math.max(best,readBest());
+  show('start');
+}
+function retry(){
+  if(S.demo){S.demo=false;best=Math.max(best,readBest())}
+  startRun();
+}
+function nextFocusFrom(i){
+  for(var k=1;k<=6;k++){var j=((i-1+k)%6)+1;if(S.sealed.indexOf(j)<0)return j}
+  return 0;
+}
+function finish(){
+  S.done=true;
+  var score=Math.max(0,10*S.total-5*S.misses);
+  var prev=best,isNew=false;
+  if(!S.demo){var st=readBest();if(st>prev)prev=st;}
+  if(score>prev){isNew=true;prev=score}
+  if(!S.demo){best=prev;if(isNew)writeBest(score)}
+  show('result');
+  var clear=S.total===6;
+  $('resH').textContent=t(clear?'resultClear':'resultMiss');
+  $('resScore').textContent=t('score',{score:score});
+  $('resBest').textContent=t('best',{best:prev});
+  $('resRun').textContent=t('runProgress',{sealed:S.total});
+  $('resNew').textContent=t('newBest');$('resNew').hidden=!isNew;
+  $('resH').focus();
+}
+function activate(i){
+  if(S.screen!=='play'||S.done)return;
+  var now=performance.now();
+  if(now<S.lock)return;
+  if(S.sealed.indexOf(i)>=0)return;
+  S.lock=now+250;
+  var b=strips[i],wasFocus=document.activeElement===b;
+  if(ROOMS[S.room-1].indexOf(i)>=0){
+    S.sealed.push(i);S.total++;
+    var roomDone=S.sealed.length===ROOMS[S.room-1].length;
+    if(roomDone&&S.room===3){finish();return}
+    if(roomDone)S.done=true;
+    refreshHud();refreshStrips();
+    b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');
+    if(roomDone){
+      setFb(t('roomClear')+' '+t('roomProgress',{sealed:S.sealed.length,total:S.sealed.length}));
+      var nb=$('nextBtn');nb.textContent=t('nextRoom');nb.hidden=false;nb.focus();
+    }else{
+      setFb(t('sealedFeedback')+' '+t('roomProgress',{sealed:S.sealed.length,total:ROOMS[S.room-1].length}));
+      if(wasFocus){var j=nextFocusFrom(i);if(j)strips[j].focus()}
+    }
+  }else{
+    S.misses++;
+    refreshHud();
+    setFb(t('missFeedback')+' '+t('misses',{misses:S.misses}));
+    b.classList.remove('miss');void b.offsetWidth;b.classList.add('miss');
+    setTimeout(function(){b.classList.remove('miss')},450);
+    if(S.misses>=3){finish();return}
+  }
+}
+
+/* ---------- events ---------- */
+$('startBtn').addEventListener('click',startRun);
+$('nextBtn').addEventListener('click',function(){if(S.screen==='play'&&S.done&&S.room<3)enterRoom(S.room+1,true)});
+$('retryBtn').addEventListener('click',retry);
+$('titleBtn').addEventListener('click',toStart);
+document.addEventListener('keydown',function(e){
+  if(e.repeat){if(e.key==='Enter'||e.key===' ')e.preventDefault();return}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  var m=/^[1-6]$/.exec(e.key);
+  if(m&&S.screen==='play'&&!S.done){e.preventDefault();activate(+m[0])}
+});
+function press(e){var b=e.target.closest&&e.target.closest('.btn,.strip');if(b){b.classList.add('pressed');b._pg=gen}}
+function release(){var l=document.querySelectorAll('.pressed');for(var i=0;i<l.length;i++)l[i].classList.remove('pressed')}
+document.addEventListener('pointerdown',press);
+['pointerup','pointercancel','pointerleave','dragstart'].forEach(function(n){document.addEventListener(n,release,true)});
+document.addEventListener('visibilitychange',function(){
+  document.documentElement.classList.toggle('paused',document.hidden);
+  gen++;release();
+});
+$('play').addEventListener('contextmenu',function(e){e.preventDefault()});
+// drop clicks from presses begun before a room change/hide
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.btn,.strip');if(!b)return;
+  var p=b._pg;b._pg=undefined;
+  if(p!==undefined&&p!==gen){e.stopImmediatePropagation();e.preventDefault()}
+},true);
+
+/* ---------- static text ---------- */
+$('t-title').textContent=t('appTitle');
+$('t-hint').textContent=t('startHint');
+$('startBtn').textContent=t('start');
+$('retryBtn').textContent=t('retry');
+$('titleBtn').textContent=t('titleScreen');
+// preview door: one flutter strip, rest inert
+(function(){
+  var p='<g transform="translate(0,0)">'+doorSvg(1).replace(/x="14"/g,'x="64"').replace(/cx="90"/,'cx="140"').replace(/x="28"/g,'x="78"')+'</g>';
+  var s='<g transform="translate(0,30) scale(1.1)">'+ART.still+'</g>'+
+        '<g transform="translate(0,120) scale(1.1)">'+ART.draft+'</g>'+
+        '<g transform="translate(0,210) scale(1.1)">'+ART.still+'</g>'+
+        '<g transform="translate(150,30) scale(1.1)">'+ART.still+'</g>'+
+        '<g transform="translate(150,120) scale(1.1)">'+ART.still+'</g>'+
+        '<g transform="translate(150,210) scale(1.1)">'+ART.still+'</g>';
+  $('previewDoor').innerHTML=p+s;
+})();
+
+/* ---------- demo ---------- */
+if(S.demo){
+  S.total=2;S.misses=0;
+  S.room=2;S.sealed=[1];S.done=false;
+  show('play');refreshHud();refreshStrips();
+}
+})();
+</script>
+</body>
+</html>
