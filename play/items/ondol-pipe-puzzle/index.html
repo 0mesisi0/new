@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>온돌 배관 잇기</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#131B25;color:#E8EEF3;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR","Malgun Gothic",sans-serif;-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0;--gut:36px}
+[hidden]{display:none!important}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;overflow:hidden;text-align:center}
+h1{margin:0;font-size:clamp(22px,6vw,30px);color:#FFB75D}
+h2{margin:0;font-size:clamp(18px,5vw,24px);color:#FFB75D}
+p{margin:0}
+.sub{font-size:15px;color:#C7D4DF;max-width:320px}
+.big{font-size:clamp(22px,6vw,28px);font-weight:800}
+button{font:inherit;color:inherit}
+.btn{min-width:160px;min-height:52px;padding:10px 28px;border:0;border-radius:26px;background:#FFB75D;color:#1B1408;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 4px 0 #B8782B;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #B8782B}
+:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:14px;font-weight:700;color:#C7D4DF}
+.board{display:grid;grid-template-columns:var(--gut) repeat(4,var(--cell)) var(--gut);grid-template-rows:repeat(4,var(--cell));touch-action:none;user-select:none;-webkit-user-select:none;--warm:0}
+.floor{background:color-mix(in srgb,#FFB75D calc(var(--warm) * 38%),#202B3A);border:1px solid #2F3E52}
+.pipe{position:relative;margin:0;padding:0;border:2px solid #4A6078;border-radius:8px;background:color-mix(in srgb,#FFB75D calc(var(--warm) * 25%),#2A394B);touch-action:none;cursor:pointer;display:block;width:100%;height:100%}
+div.pipe{cursor:default}
+.pipe.locked{cursor:default}
+.pipe svg{display:block;width:100%;height:100%;pointer-events:none}
+.pipe.lit{border-color:#FFB75D}
+.pipe.hint{box-shadow:0 0 0 3px #131B25,0 0 0 6px #FFE0A8}
+button.pipe.hint{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 3px #131B25,0 0 0 8px #FFE0A8}}
+.mark{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;line-height:1.1;gap:2px;overflow:hidden;color:#C7D4DF}
+.mark i{display:block;width:20px;height:20px}
+.mark.in i{background:#FFB75D;border-radius:50%;clip-path:none;box-shadow:0 0 0 2px #FFE0A8}
+.mark.out i{background:#0B1118;border:2px solid #C7D4DF;border-radius:3px}
+.foot{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{40%{transform:scale(1.04)}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-height:520px){.screen{gap:4px;padding:4px}.foot{min-height:84px;gap:4px}.btn{min-height:46px}}
+@media (prefers-reduced-motion:reduce){.pipe.hint,.pop{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="start" class="screen">
+    <h1 data-t="appTitle"></h1>
+    <p class="sub" data-t="instruction"></p>
+    <div id="startBoard" aria-hidden="true"></div>
+    <button id="playBtn" class="btn" data-t="play"></button>
+    <p id="startBest" class="sub"></p>
+  </section>
+
+  <section id="play" class="screen" hidden>
+    <div class="stats"><span id="stRoom"></span><span id="stTurns"></span><span id="stRun"></span></div>
+    <div id="playBoard" role="group"></div>
+    <div class="foot">
+      <p id="hint" class="sub"></p>
+      <div id="clearBox" hidden style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <h2 id="clearTitle" data-t="roomClear"></h2>
+        <p id="clearPts" class="sub"></p>
+        <button id="nextBtn" class="btn"></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen" hidden>
+    <h2 data-t="resultTitle"></h2>
+    <div id="resultBoard" aria-hidden="true"></div>
+    <p id="finalScore" class="big"></p>
+    <p id="bestScore" class="sub"></p>
+    <p id="newBest" class="big" style="color:#FFB75D" data-t="newBest" hidden></p>
+    <button id="retryBtn" class="btn" data-t="retry"></button>
+  </section>
+  <div id="live" class="sr" aria-live="polite"></div>
+</div>
+<script>
+(function(){
+'use strict';
+var DICT={
+ko:{appTitle:'온돌 배관 잇기',instruction:'배관을 돌려 입구와 출구를 이어요.',play:'시작하기',room:'방 {current}/{total}',turns:'회전 {turns}회',runPoints:'누적 {score}점',inlet:'입구',outlet:'출구',tutorial:'테두리가 있는 배관을 한 번 돌려 보세요.',boardLabel:'방 {current} 배관판',pipeTurn:'{row}행 {col}열. 열린 방향 {directions}. 눌러서 돌리기.',pipeLocked:'{row}행 {col}열. 열린 방향 {directions}.',up:'위',right:'오른쪽',down:'아래',left:'왼쪽',roomClear:'방이 따뜻해졌어요!',roomPoints:'이번 방 {points}점',clearAnnouncement:'방 {current} 완료. {points}점을 얻었어요.',next:'다음 방',viewScore:'점수 보기',resultTitle:'세 방 모두 따뜻해졌어요!',finalScore:'최종 점수 {score}/{max}',bestScore:'최고 점수 {best}점',newBest:'새 최고 기록!',retry:'다시 하기'},
+en:{appTitle:'Ondol Pipe Puzzle',instruction:'Turn the pipes to join the inlet and outlet.',play:'Play',room:'Room {current}/{total}',turns:'Turns {turns}',runPoints:'Run points {score}',inlet:'Inlet',outlet:'Outlet',tutorial:'Turn the outlined pipe once.',boardLabel:'Pipe board for room {current}',pipeTurn:'Row {row}, column {col}. Open {directions}. Press to turn.',pipeLocked:'Row {row}, column {col}. Open {directions}.',up:'up',right:'right',down:'down',left:'left',roomClear:'Room warmed up!',roomPoints:'Room points {points}',clearAnnouncement:'Room {current} complete. You earned {points} points.',next:'Next room',viewScore:'View score',resultTitle:'All three rooms are warm!',finalScore:'Final score {score}/{max}',bestScore:'Best score {best}',newBest:'New best!',retry:'Play again'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var D=DICT[lang];
+function t(k,v){var s=D[k];if(v)for(var n in v)s=s.replace('{'+n+'}',v[n]);return s}
+document.documentElement.lang=lang;
+document.title=D.appTitle;
+document.querySelectorAll('[data-t]').forEach(function(e){e.textContent=t(e.getAttribute('data-t'))});
+
+var $=function(id){return document.getElementById(id)};
+var reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var KEY='ondol-pipe-puzzle:best:v1',MAX=300;
+var DR=[-1,0,1,0],DC=[0,1,0,-1];
+// ordered paths [row,col] (1-based) + initial clockwise turns away from solution
+// straight pipes repeat every 2 turns, so k is odd/0 for them; min turns = 1/7/13 (checked in makeRoom)
+var ROOMS=[
+ {p:[[2,1],[2,2],[3,2],[3,3],[3,4]],k:[0,1,0,0,0]},
+ {p:[[1,1],[1,2],[2,2],[2,3],[3,3],[4,3],[4,4]],k:[1,1,2,1,1,0,1]},
+ {p:[[4,1],[3,1],[2,1],[2,2],[1,2],[1,3],[2,3],[3,3],[3,4]],k:[2,1,1,3,1,2,1,1,3]}
+];
+
+var memBest=0,run=0,roomIdx=0,room=null,raf=0;
+function readBest(){try{var s=localStorage.getItem(KEY);if(s!==null&&/^\d+$/.test(s)){var n=parseInt(s,10);if(n<=MAX&&n%5===0)return n}}catch(e){}return 0}
+function best(){return Math.max(memBest,readBest())}
+
+function dirOf(a,b){var dr=b[0]-a[0],dc=b[1]-a[1];for(var d=0;d<4;d++)if(DR[d]===dr&&DC[d]===dc)return d}
+function makeRoom(i){
+  var R=ROOMS[i],n=R.p.length,cells=[],min=0;
+  for(var j=0;j<n;j++){
+    var c=R.p[j];
+    var a=j===0?3:dirOf(c,R.p[j-1]);
+    var b=j===n-1?1:dirOf(c,R.p[j+1]);
+    cells.push({r:c[0],c:c[1],solved:[a,b],rot:(4-R.k[j])%4,turned:false,el:null});
+    min+=Math.abs(a-b)===2?R.k[j]%2:R.k[j];
+  }
+  return {i:i,min:min,cells:cells,turns:0,locked:false,points:0,p:0};
+}
+function opens(c){return [(c.solved[0]+c.rot)%4,(c.solved[1]+c.rot)%4]}
+function trace(rm){
+  var cells=rm.cells,n=cells.length,map={},lit=[],seen={};
+  cells.forEach(function(c,i){map[c.r+','+c.c]=i});
+  var i=0,enter=3;
+  for(;;){
+    var o=opens(cells[i]);
+    if(o.indexOf(enter)<0||seen[i])return{lit:lit,clear:false};
+    seen[i]=1;lit.push(i);
+    var ex=o[0]===enter?o[1]:o[0];
+    var nr=cells[i].r+DR[ex],nc=cells[i].c+DC[ex];
+    if(nr<1||nr>4||nc<1||nc>4)return{lit:lit,clear:i===n-1&&ex===1&&lit.length===n};
+    var j=map[nr+','+nc];
+    if(j===undefined)return{lit:lit,clear:false};
+    enter=(ex+2)%4;i=j;
+  }
+}
+
+var E=[[50,0],[100,50],[50,100],[0,50]];
+function pipeSVG(o,lit,wave){
+  var a=E[o[0]],b=E[o[1]];
+  var d=Math.abs(o[0]-o[1])===2?'M'+a+'L'+b:'M'+a+'L50,50L'+b;
+  var s='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><g fill="none" stroke-linejoin="round">';
+  s+='<path d="'+d+'" stroke="#C7D4DF" stroke-width="40"/>';
+  s+=lit?'<path d="'+d+'" stroke="#FFB75D" stroke-width="28"/>':'<path d="'+d+'" stroke="#202B3A" stroke-width="12"/>';
+  if(wave)s+='<path d="'+d+'" stroke="#FFF1D6" stroke-width="14"/>';
+  return s+'</g></svg>';
+}
+function dirNames(o){return [0,1,2,3].filter(function(d){return o.indexOf(d)>=0}).map(function(d){return t(['up','right','down','left'][d])}).join(', ')}
+
+// build a board: mode 'play' (buttons) or 'static'
+function buildBoard(el,rm,mode,rn){
+  el.innerHTML='';el.className='board';
+  for(var r=1;r<=4;r++)for(var c=1;c<=4;c++){
+    var f=document.createElement('div');f.className='floor';f.style.gridArea=r+'/'+(c+1);el.appendChild(f);
+  }
+  var first=rm.cells[0],last=rm.cells[rm.cells.length-1];
+  [[first,'in','inlet',1],[last,'out','outlet',6]].forEach(function(m){
+    var d=document.createElement('div');d.className='mark '+m[1];d.style.gridArea=m[0].r+'/'+m[3];
+    d.innerHTML='<i></i><span>'+t(m[2])+'</span>';el.appendChild(d);
+  });
+  rm.cells.forEach(function(c,i){
+    var e=document.createElement(mode==='play'?'button':'div');
+    e.className='pipe';e.style.gridArea=c.r+'/'+(c.c+1);
+    if(mode==='play'){e.type='button';e.dataset.i=i}
+    c.el=e;el.appendChild(e);
+  });
+  rm.board=el;rm.mode=mode;
+  paint(rm);
+}
+function paint(rm,waveCount){
+  var tr=trace(rm),lit={};tr.lit.forEach(function(i){lit[i]=1});
+  rm.cells.forEach(function(c,i){
+    var o=opens(c),e=c.el;
+    e.innerHTML=pipeSVG(o,!!lit[i],waveCount!==undefined&&i<waveCount&&rm.p<1);
+    e.classList.toggle('lit',!!lit[i]);
+    e.classList.toggle('hint',rm.i===0&&i===1&&!c.turned&&!rm.locked);
+    e.classList.toggle('locked',rm.locked);
+    if(rm.mode==='play'){
+      e.disabled=rm.locked;
+      e.setAttribute('aria-label',t(rm.locked?'pipeLocked':'pipeTurn',{row:c.r,col:c.c,directions:dirNames(o)}));
+    }
+  });
+  rm.board.style.setProperty('--warm',rm.p);
+  return tr;
+}
+function solvedRoom(i){var rm=makeRoom(i);rm.cells.forEach(function(c){c.rot=0});rm.p=1;return rm}
+
+// layout
+function layout(){
+  var W=document.documentElement.clientWidth,H=window.innerHeight,g=36;
+  function cs(res,min){var c=Math.floor(Math.min((W-2*g-16)/4,(H-res)/4,(360-2*g)/4));return Math.max(min,c)}
+  var cp=cs(215,44),cstart=cs(250,28),cres=cs(290,24);
+  $('playBoard').style.setProperty('--cell',cp+'px');
+  $('startBoard').style.setProperty('--cell',cstart+'px');
+  $('resultBoard').style.setProperty('--cell',cres+'px');
+}
+addEventListener('resize',layout);addEventListener('orientationchange',layout);
+
+function show(id){['start','play','result'].forEach(function(s){$(s).hidden=s!==id})}
+function say(s){$('live').textContent='';setTimeout(function(){$('live').textContent=s},30)}
+
+// start screen
+var preview=makeRoom(0);
+function showStart(){
+  cancelAnimationFrame(raf);
+  preview=makeRoom(0);buildBoard($('startBoard'),preview,'static');
+  $('startBest').textContent=t('bestScore',{best:best()});
+  show('start');layout();$('playBtn').focus();
+}
+
+function startGame(){run=0;startRoom(0)}
+function startRoom(i){
+  cancelAnimationFrame(raf);
+  roomIdx=i;room=makeRoom(i);
+  var b=$('playBoard');b.setAttribute('aria-label',t('boardLabel',{current:i+1}));
+  buildBoard(b,room,'play');
+  $('clearBox').hidden=true;
+  $('hint').hidden=false;$('hint').textContent=t(i===0?'tutorial':'instruction');
+  hud();show('play');layout();
+  room.cells[i===0?1:0].el.focus();
+}
+function hud(){
+  $('stRoom').textContent=t('room',{current:roomIdx+1,total:3});
+  $('stTurns').textContent=t('turns',{turns:room.turns});
+  $('stRun').textContent=t('runPoints',{score:run});
+}
+
+function turn(i){
+  if(!room||room.locked)return;
+  var c=room.cells[i];
+  c.rot=(c.rot+1)%4;c.turned=true;room.turns++;
+  var tr=trace(room);
+  if(tr.clear){
+    room.locked=true; // synchronous lock: no extra turn/points
+    room.points=Math.max(70,100-5*Math.max(0,room.turns-room.min));
+    run+=room.points;
+    paint(room);hud();
+    clearUI();
+  }else{paint(room);hud()}
+  var s=c.el.firstChild;
+  if(!reduced&&s&&s.animate)s.animate([{transform:'rotate(-90deg)'},{transform:'none'}],{duration:140,easing:'ease-out'});
+}
+function clearUI(){
+  $('hint').hidden=true;
+  $('clearPts').textContent=t('roomPoints',{points:room.points});
+  var last=roomIdx===2;
+  $('nextBtn').textContent=t(last?'viewScore':'next');
+  $('clearBox').hidden=false;$('clearBox').classList.remove('pop');void $('clearBox').offsetWidth;if(!reduced)$('clearBox').classList.add('pop');
+  say(t('clearAnnouncement',{current:roomIdx+1,points:room.points}));
+  $('nextBtn').focus();
+  animateClear();
+}
+function animateClear(){
+  var n=room.cells.length,rm=room;
+  if(reduced){rm.p=1;paint(rm);return}
+  rm.p=0;paint(rm,0);
+  runClear(rm);
+}
+// advances rm.p from its saved value; fresh timestamp each (re)start
+function runClear(rm){
+  var n=rm.cells.length,last=null;
+  function step(now){
+    if(room!==rm||document.hidden)return; // hidden: stop, resume on visibilitychange
+    var dt=last===null?0:Math.min(50,now-last);last=now;
+    rm.p=Math.min(1,rm.p+dt/400);
+    paint(rm,Math.ceil(rm.p*n));
+    if(rm.p<1)raf=requestAnimationFrame(step);
+  }
+  raf=requestAnimationFrame(step);
+}
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&room&&room.locked&&room.p<1&&!reduced){cancelAnimationFrame(raf);runClear(room)}
+});
+
+function showResult(){
+  cancelAnimationFrame(raf);
+  var prev=best(),isNew=run>prev;
+  if(isNew){memBest=run;try{localStorage.setItem(KEY,String(run))}catch(e){}}
+  buildBoard($('resultBoard'),solvedRoom(2),'static');
+  $('finalScore').textContent=t('finalScore',{score:run,max:MAX});
+  $('bestScore').textContent=t('bestScore',{best:Math.max(prev,run)});
+  $('newBest').hidden=!isNew;
+  show('result');layout();
+  say(t('finalScore',{score:run,max:MAX}));
+  $('retryBtn').focus();
+}
+
+// events
+$('playBtn').addEventListener('click',startGame);
+$('retryBtn').addEventListener('click',startGame);
+$('nextBtn').addEventListener('click',function(){if(roomIdx<2)startRoom(roomIdx+1);else showResult()});
+
+var pb=$('playBoard');
+pb.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.pipe');
+  if(b&&b.dataset.i!==undefined)turn(+b.dataset.i);
+});
+pb.addEventListener('keydown',function(e){
+  var b=e.target.closest&&e.target.closest('.pipe');
+  if(!b||b.dataset.i===undefined)return;
+  if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){
+    e.preventDefault();
+    if(!e.repeat)turn(+b.dataset.i);
+    return;
+  }
+  var d={ArrowUp:0,ArrowRight:1,ArrowDown:2,ArrowLeft:3}[e.key];
+  if(d===undefined)return;
+  e.preventDefault();
+  var c=room.cells[+b.dataset.i],r=c.r,cc=c.c;
+  for(;;){
+    r+=DR[d];cc+=DC[d];
+    if(r<1||r>4||cc<1||cc>4)return;
+    var f=room.cells.filter(function(x){return x.r===r&&x.c===cc})[0];
+    if(f){f.el.focus();return}
+  }
+});
+pb.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Spacebar')e.preventDefault()});
+
+layout();
+showStart();
+})();
+</script>
+</body>
+</html>

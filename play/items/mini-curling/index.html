@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>미니 컬링</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#14263A;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#17334B}
+#shell{width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center}
+#app{width:100%;height:100%;max-width:520px;max-height:960px;background:#14263A;color:#fff;display:flex;flex-direction:column;padding:8px 10px 10px;gap:6px}
+header{display:flex;justify-content:space-between;align-items:baseline;min-height:24px;font-weight:700;font-variant-numeric:tabular-nums}
+h1{margin:0;font-size:clamp(20px,5vw,28px);text-align:center;width:100%}
+#status{min-height:20px;text-align:center;font-size:14px;color:#DEEFF5}
+#rinkWrap{flex:1;min-height:0;display:flex;touch-action:none;border-radius:10px;outline-offset:2px}
+#rink{width:100%;height:100%;display:block;touch-action:none;border-radius:10px}
+.panel{display:flex;flex-direction:column;gap:6px}
+.lanes{display:flex;gap:6px}
+button{font:inherit;font-weight:700;touch-action:manipulation;min-height:44px;min-width:44px;border-radius:10px;border:2px solid #DEEFF5;background:#1f3d5a;color:#fff;cursor:pointer;padding:0 12px}
+.lanes button{flex:1}
+button[aria-pressed=true]{background:#DEEFF5;color:#17334B;border-color:#fff}
+button.primary{background:#B43B45;border-color:#fff;font-size:18px;min-height:48px}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:3px solid #FFD36B;outline-offset:2px}
+.gauge{position:relative;height:28px;background:#DEEFF5;border-radius:14px;overflow:hidden}
+.notch{position:absolute;top:0;bottom:0;width:6px;margin-left:-3px;background:#B43B45;border-left:1px solid #fff;border-right:1px solid #fff}
+.marker{position:absolute;top:2px;bottom:2px;width:6px;margin-left:-3px;background:#17334B;border-radius:3px}
+.glabel{font-size:12px;color:#DEEFF5;margin-top:-2px}
+#result{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+#result h2{margin:0;font-size:24px}
+.big{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums}
+#newBest{color:#FFD36B;font-weight:800;font-size:20px}
+ol{display:flex;gap:8px;list-style:none;margin:0;padding:0}
+ol li{width:44px;height:44px;border-radius:50%;background:#DEEFF5;color:#17334B;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+@media (max-height:520px){#app{gap:4px;padding:6px 8px 8px}.big{font-size:32px}#result{gap:6px}}
+</style>
+</head>
+<body>
+<div id="shell"><main id="app">
+<header id="head"><h1 id="title"></h1></header>
+<div id="status" role="status" aria-live="polite"></div>
+<div id="rinkWrap">
+<svg id="rink" viewBox="0 0 300 220" preserveAspectRatio="xMidYMid meet" role="img">
+<rect width="300" height="220" rx="10" fill="#DEEFF5"/>
+<g stroke="#9DC3D3" stroke-width="1" stroke-dasharray="3 4"><line x1="105" y1="0" x2="105" y2="220"/><line x1="195" y1="0" x2="195" y2="220"/></g>
+<line x1="0" y1="210" x2="300" y2="210" stroke="#B43B45" stroke-width="3"/>
+<line id="guide" y1="0" y2="220" stroke="#17334B" stroke-width="2" opacity=".6"/>
+<g id="target">
+<circle r="24" fill="#2F6E9E" stroke="#17334B" stroke-width="1.5"/>
+<circle r="16" fill="#F4FAFC" stroke="#17334B" stroke-width="1.5"/>
+<circle r="8" fill="#B43B45" stroke="#17334B" stroke-width="1.5"/>
+<circle r="1.5" fill="#17334B"/>
+</g>
+<g id="stone">
+<ellipse cy="2" rx="7.5" ry="7" fill="#17334B" opacity=".25"/>
+<circle r="7" fill="#8C97A3" stroke="#17334B" stroke-width="1.5"/>
+<circle r="4.8" fill="#B43B45"/>
+<rect x="-3.5" y="-1.2" width="7" height="2.4" rx="1.2" fill="#fff" stroke="#17334B" stroke-width=".6"/>
+</g>
+<text id="pts" font-size="16" font-weight="800" fill="#17334B" stroke="#fff" stroke-width="3" paint-order="stroke" style="font-variant-numeric:tabular-nums" hidden></text>
+</svg>
+</div>
+<section id="startPanel" class="panel"><p id="hint" style="margin:0;text-align:center;font-size:15px"></p><button id="startBtn" class="primary"></button></section>
+<section id="playPanel" class="panel" hidden>
+<div id="lanes" class="lanes" role="group"></div>
+<div class="glabel" id="powerLabel"></div>
+<div class="gauge" aria-hidden="true"><div class="notch" id="notch"></div><div class="marker" id="marker"></div></div>
+<button id="releaseBtn" class="primary"></button>
+</section>
+<section id="result" hidden>
+<h2 id="rTitle"></h2><div class="big" id="rTotal"></div><div id="rBest"></div><div id="newBest" hidden></div>
+<div id="rLabel" style="font-size:13px;color:#DEEFF5"></div><ol id="rList"></ol>
+<button id="retryBtn" class="primary"></button>
+</section>
+</main></div>
+<script>
+(function(){
+var S={
+ko:{appTitle:'미니 컬링',startHint:'레인을 고르고 힘 표시를 눈금에 맞춰 스톤을 보내세요.',start:'시작',shot:'{n}/5번째 투구',laneGroup:'레인 선택',left:'왼쪽',center:'가운데',right:'오른쪽',power:'힘 조절',release:'스톤 보내기',rinkPreview:'가운데 레인에 스톤과 표적이 있는 컬링장',shotReady:'{n}번째 투구. 표적은 {lane} 레인, 목표 힘은 {power}%예요.',landed:'{points}점 획득. 합계 {total}점.',total:'점수 {total}/15',resultTitle:'다섯 번의 투구 완료',best:'최고 기록 {best}/15',newBest:'최고 기록을 깼어요!',shotScores:'투구별 점수',shotScore:'{n}번째 투구 {points}점',retry:'다시 하기',rink:'컬링장'},
+en:{appTitle:'Mini Curling',startHint:'Pick a lane and release when the power marker reaches the notch.',start:'Start',shot:'Shot {n} of 5',laneGroup:'Choose a lane',left:'Left',center:'Center',right:'Right',power:'Power',release:'Release stone',rinkPreview:'Curling rink preview with a stone and target in the center lane',shotReady:'Shot {n}. Target lane {lane}, target power {power}%.',landed:'Shot score {points}. Total {total}.',total:'Score {total}/15',resultTitle:'Round complete',best:'Best {best}/15',newBest:'New best!',shotScores:'Shot scores',shotScore:'Shot {n}, score {points}',retry:'Play again',rink:'Curling rink'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=S[lang];
+function f(k,o){var s=T[k];for(var p in o)s=s.replace('{'+p+'}',o[p]);return s}
+document.documentElement.lang=lang;document.title=T.appTitle;
+
+var LX=[60,150,240],LK=['left','center','right'];
+var SHOTS=[[1,50],[0,35],[2,75],[1,65],[0,85]];
+var KEY='mini-curling:best:v1';
+function $(i){return document.getElementById(i)}
+function readBest(){try{var v=localStorage.getItem(KEY);if(v!==null&&/^\d+$/.test(v)){var n=+v;if(n>=0&&n<=15)return n}}catch(e){}return 0}
+function writeBest(n){try{localStorage.setItem(KEY,String(n))}catch(e){}}
+var best=readBest();
+
+var phase='start',shot=0,lane=1,total=0,scores=[],power=0,aimT=0,glideT=0,holdT=0;
+var stoneX=150,stoneY=194,landY=194,landPts=0,showPts=false,reduce=false;
+try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+function landOf(p){return 194-1.6*p}
+
+// static text
+$('title').textContent=T.appTitle;$('hint').textContent=T.startHint;$('startBtn').textContent=T.start;
+$('lanes').setAttribute('aria-label',T.laneGroup);$('powerLabel').textContent=T.power;
+$('releaseBtn').textContent=T.release;$('retryBtn').textContent=T.retry;
+$('rTitle').textContent=T.resultTitle;$('newBest').textContent=T.newBest;$('rLabel').textContent=T.shotScores;
+$('rink').setAttribute('aria-label',T.rinkPreview);
+var laneBtns=[0,1,2].map(function(i){var b=document.createElement('button');b.type='button';b.textContent=T[LK[i]];b.addEventListener('click',function(){setLane(i)});$('lanes').appendChild(b);return b});
+
+function setLane(i){if(phase!=='aim'||document.hidden)return;lane=i;stoneX=LX[i];render()}
+
+function render(){
+ var tg=SHOTS[Math.min(shot,4)];
+ var tl=phase==='start'?1:tg[0],tp=phase==='start'?50:tg[1];
+ $('target').setAttribute('transform','translate('+LX[tl]+','+landOf(tp)+')');
+ $('guide').setAttribute('x1',LX[lane]);$('guide').setAttribute('x2',LX[lane]);
+ $('stone').setAttribute('transform','translate('+stoneX+','+stoneY+')');
+ var p=$('pts');if(showPts){p.removeAttribute('hidden');p.textContent='+'+landPts;
+  var right=stoneX>200;p.setAttribute('x',right?stoneX-12:stoneX+12);p.setAttribute('text-anchor',right?'end':'start');p.setAttribute('y',stoneY+5)}else p.setAttribute('hidden','');
+ laneBtns.forEach(function(b,i){b.setAttribute('aria-pressed',i===lane?'true':'false');b.disabled=phase!=='aim'});
+ $('releaseBtn').disabled=phase!=='aim';
+ var rw=$('rinkWrap');
+ if(phase==='aim'){rw.setAttribute('tabindex','0');rw.setAttribute('role','group');rw.setAttribute('aria-label',T.rink)}
+ else{rw.removeAttribute('tabindex');rw.removeAttribute('role');rw.removeAttribute('aria-label')}
+ $('marker').style.left=power+'%';$('notch').style.left=tp+'%';
+ $('head').innerHTML='';
+ if(phase==='play'||phase==='aim'||phase==='glide'||phase==='hold'){
+  var a=document.createElement('span');a.textContent=f('shot',{n:shot+1});var b=document.createElement('span');b.textContent=f('total',{total:total});$('head').appendChild(a);$('head').appendChild(b)}
+ else if(phase==='start'){var h=document.createElement('h1');h.textContent=T.appTitle;$('head').appendChild(h)}
+}
+function say(t){$('status').textContent=t}
+
+function startAim(){
+ phase='aim';aimT=0;power=0;stoneX=LX[lane];stoneY=194;showPts=false;
+ var tg=SHOTS[shot];
+ say(f('shotReady',{n:shot+1,lane:T[LK[tg[0]]],power:tg[1]}));
+ $('rink').setAttribute('aria-label',T.rink);
+ render();$('releaseBtn').focus();
+}
+function reset(){shot=0;lane=1;total=0;scores=[];power=0;stoneX=150;stoneY=194;showPts=false;$('result').hidden=true;$('rinkWrap').hidden=false;$('startPanel').hidden=true;$('playPanel').hidden=false;startAim()}
+function release(){
+ if(phase!=='aim'||document.hidden)return;
+ var tg=SHOTS[shot];
+ landY=landOf(power);
+ var dx=LX[lane]-LX[tg[0]],dy=landY-landOf(tg[1]),d=Math.sqrt(dx*dx+dy*dy);
+ landPts=d<=8?3:d<=16?2:d<=24?1:0;
+ phase='glide';glideT=0;render();
+ if(reduce){glideT=600;stoneY=landY;land()}
+}
+function land(){
+ stoneY=landY;total+=landPts;scores.push(landPts);showPts=true;phase='hold';holdT=0;
+ say(f('landed',{points:landPts,total:total}));render();
+}
+function finish(){
+ phase='result';
+ var fresh=readBest();if(fresh>best)best=fresh;
+ var nb=total>best;if(nb){best=total;writeBest(best)}
+ $('rTotal').textContent=f('total',{total:total});$('rBest').textContent=f('best',{best:best});$('newBest').hidden=!nb;
+ $('rList').innerHTML='';
+ scores.forEach(function(s,i){var li=document.createElement('li');li.textContent=s;li.setAttribute('aria-label',f('shotScore',{n:i+1,points:s}));$('rList').appendChild(li)});
+ $('rinkWrap').hidden=true;$('playPanel').hidden=true;$('result').hidden=false;$('status').textContent='';
+ render();$('retryBtn').focus();
+}
+
+$('startBtn').addEventListener('click',reset);
+$('retryBtn').addEventListener('click',reset);
+$('releaseBtn').addEventListener('click',release);
+$('rinkWrap').addEventListener('pointerdown',function(e){if(phase==='aim')e.preventDefault()});
+
+document.addEventListener('keydown',function(e){
+ if(e.repeat){if((e.key==='Enter'||e.key===' ')&&e.target.tagName==='BUTTON')e.preventDefault();return}
+ if(phase==='aim'&&!document.hidden){
+  if(e.key==='ArrowLeft'){e.preventDefault();setLane(Math.max(0,lane-1))}
+  else if(e.key==='ArrowRight'){e.preventDefault();setLane(Math.min(2,lane+1))}
+  else if((e.key===' '||e.code==='Space')&&e.target===$('rinkWrap')){e.preventDefault();release()}
+ }else if((e.key===' '||e.key==='ArrowLeft'||e.key==='ArrowRight')&&e.target===$('rinkWrap'))e.preventDefault();
+});
+document.addEventListener('keyup',function(e){if((e.key===' ')&&e.target===$('rinkWrap'))e.preventDefault()});
+
+var last=null;
+document.addEventListener('visibilitychange',function(){last=null});
+function frame(now){
+ requestAnimationFrame(frame);
+ if(document.hidden){last=null;return}
+ if(last===null){last=now;return}
+ var dt=Math.min(50,now-last);last=now;
+ if(phase==='aim'){
+  aimT+=dt;var t=aimT%2400;power=t<1200?t/12:(2400-t)/12;
+  $('marker').style.left=power+'%';
+ }else if(phase==='glide'){
+  glideT+=dt;var u=Math.min(1,glideT/600),e=1-Math.pow(1-u,3);
+  stoneY=194+(landY-194)*e;
+  if(u>=1)land();else render();
+ }else if(phase==='hold'){
+  holdT+=dt;
+  if(holdT>=650){if(shot>=4)finish();else{shot++;startAim()}}
+ }
+}
+render();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

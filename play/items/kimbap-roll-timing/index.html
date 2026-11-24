@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>김밥 말기 타이밍</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#7b5232;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;color:#25221D;-webkit-tap-highlight-color:transparent}
+body{height:100vh;height:100dvh;padding:12px;background:repeating-linear-gradient(90deg,#8a5a36 0 38px,#7b5232 38px 40px)}
+#stage{max-width:480px;height:100%;margin:0 auto;background:#FFF6E3;border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:6px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+#top{display:flex;justify-content:space-between;font-weight:700;font-size:15px;min-height:20px}
+#head{text-align:center;min-height:30px}
+#head h1,#head h2{margin:0;font-size:clamp(20px,6vw,28px);line-height:1.2}
+#head p{margin:4px 0 0;font-size:14px}
+#view{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;user-select:none;-webkit-user-select:none}
+#view svg{max-width:100%;max-height:100%;flex:1 1 auto;min-height:0;width:100%}
+#mat{width:100%;flex:1;min-height:0;display:flex;touch-action:none}
+#fb{min-height:2.7em;text-align:center;font-weight:700;font-size:15px;display:flex;flex-direction:column;justify-content:center}
+#act{min-height:52px;border:0;border-radius:14px;background:#327650;color:#fff;font:700 18px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 0 #1f4d33;touch-action:manipulation}
+#act:active{transform:translateY(3px);box-shadow:0 1px 0 #1f4d33}
+#act:focus-visible{outline:4px solid #25221D;outline-offset:2px}
+.big{font-size:clamp(26px,8vw,38px);font-weight:800;margin:0 0 6px;text-align:center}
+.tray{display:flex;gap:6px;width:100%;background:#D6AA6A;border-radius:14px;padding:8px 6px;justify-content:space-around}
+.tray div{flex:1;text-align:center;font-size:12px;font-weight:700;min-width:0}
+.tray svg{width:100%;height:auto;max-height:110px;flex:none}
+.rs{margin:4px 0 0;font-weight:800;font-size:20px}
+.pop{animation:pop .4s ease-out}
+@keyframes pop{0%{stroke-width:7;stroke:#327650}100%{stroke-width:1.5}}
+.slice{animation:sl .25s ease-out}
+@keyframes sl{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.pop,.slice{animation:none}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="top"><span id="tl"></span><span id="tr"></span></div>
+  <div id="head"></div>
+  <div id="view"></div>
+  <div id="fb" aria-live="polite"></div>
+  <button id="act" type="button"></button>
+</div>
+<script>
+(function(){
+var D={
+ko:{title:'김밥 말기 타이밍',instruction:'재료가 초록 칸에 들어오면 눌러요.',start:'김밥 말기 시작',rollProgress:'{roll}/3줄',score:'점수 {score}점',radish:'단무지',carrot:'당근',spinach:'시금치',matLabel:'김 위에서 움직이는 {filling}',place:'재료 놓기',perfect:'정중앙! +3점',good:'초록 칸 안! +2점',miss:'칸 밖에 놓였어요. +0점',rollDone:'{roll}번째 김밥 완성!',sliceLabel:'{roll}번째 김밥 단면',rollScore:'{score}/9점',trayRollScore:'{roll}번째 줄 · {score}/9점',nextRoll:'다음 줄 말기',showResult:'점수 보기',resultTitle:'김밥 세 줄 완성!',total:'총 {score}/27점',best:'최고 기록 {score}점',newBest:'새 최고 기록!',retry:'다시 말기',pts:'+{points}'},
+en:{title:'Kimbap Roll Timing',instruction:'Tap when the filling enters the green band.',start:'Start rolling',rollProgress:'Roll {roll} of 3',score:'Score {score}',radish:'Pickled radish',carrot:'Carrot',spinach:'Spinach',matLabel:'{filling} moving across the seaweed',place:'Place filling',perfect:'Right in the middle! +3',good:'In the band! +2',miss:'Outside the band. +0',rollDone:'Roll {roll} is ready!',sliceLabel:'Cross-section of roll {roll}',rollScore:'{score}/9',trayRollScore:'Roll {roll} · {score}/9',nextRoll:'Make the next roll',showResult:'See my score',resultTitle:'Three rolls ready!',total:'Total {score}/27',best:'Best {score}',newBest:'New high score!',retry:'Roll again',pts:'+{points}'}
+};
+var q=null;try{q=new URLSearchParams(location.search).get('lang')}catch(e){}
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=D[lang];
+document.documentElement.lang=lang;document.title=T.title;
+function f(k,o){var s=T[k];for(var n in o)s=s.replace('{'+n+'}',Math.round(o[n]));return s}
+function fv(k,o){var s=T[k];for(var n in o)s=s.replace('{'+n+'}',o[n]);return s}
+
+var KEY='kimbap-roll-timing:best:v1',KINDS=['radish','carrot','spinach'],PASS=[0,1.8,1.5,1.2];
+var COL={radish:'#F2C230',carrot:'#E8742A',spinach:'#3E8E41'};
+var LY=[52,105,158];
+var $=function(i){return document.getElementById(i)};
+function reduced(){return !!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)}
+var down=null;
+
+function readBest(){try{var v=localStorage.getItem(KEY);if(v!==null&&/^(0|[1-9]\d*)$/.test(v)&&+v<=27)return +v}catch(e){}return null}
+var memBest=readBest();
+
+var S;
+function reset(){S={screen:'start',roll:1,idx:0,pl:[null,[],[],[]],x:-1,dir:1,fb:0,fold:null,clock:0,t0:-1000,newBest:false,best:null}}
+reset();
+function total(){var t=0;for(var r=1;r<=3;r++)S.pl[r].forEach(function(p){t+=p.pts});return t}
+function rollPts(r){var t=0;S.pl[r].forEach(function(p){t+=p.pts});return t}
+
+function shp(k,cx,cy,w,h,cls){
+  var c=COL[k],a='fill="'+c+'" stroke="#25221D" stroke-width="1.5"'+(cls?' class="'+cls+'"':'');
+  if(k==='radish')return '<rect x="'+(cx-w/2)+'" y="'+(cy-h/2)+'" width="'+w+'" height="'+h+'" rx="'+(h*.2)+'" '+a+'/>';
+  if(k==='carrot')return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+w/2+'" ry="'+h/2+'" '+a+'/>';
+  return '<polygon points="'+(cx-w/2)+','+(cy+h/2)+' '+cx+','+(cy-h/2)+' '+(cx+w/2)+','+(cy+h/2)+'" '+a+'/>';
+}
+function px(x){return 150+x*120}
+
+function matSVG(lane,placed,activeKind,showMarker){
+  var s='<svg viewBox="0 0 300 210" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
+  s+='<rect x="0" y="0" width="300" height="210" rx="12" fill="#D6AA6A"/>';
+  for(var i=10;i<300;i+=14)s+='<line x1="'+i+'" y1="4" x2="'+i+'" y2="206" stroke="#B88A48" stroke-width="2"/>';
+  s+='<rect x="22" y="12" width="256" height="186" rx="6" fill="#233D33"/>';
+  s+='<rect x="30" y="20" width="240" height="170" rx="4" fill="#F6EED6"/>';
+  for(i=0;i<3;i++)s+='<rect x="30" y="'+(LY[i]-23)+'" width="240" height="46" fill="'+(i%2?'#EDE2C2':'#F1E8CB')+'"/>';
+  var cy=LY[lane];
+  s+='<rect x="120" y="'+(cy-23)+'" width="60" height="46" fill="#327650" opacity=".2"/>';
+  s+='<path d="M127 '+(cy-21)+'H120V'+(cy+21)+'H127M173 '+(cy-21)+'H180V'+(cy+21)+'H173" fill="none" stroke="#327650" stroke-width="3.5" stroke-linecap="round"/>';
+  s+='<line x1="150" y1="'+(cy-23)+'" x2="150" y2="'+(cy+23)+'" stroke="#327650" stroke-width="2" stroke-dasharray="4 3"/>';
+  placed.forEach(function(p,i){s+=shp(KINDS[i],px(p.x),LY[i],38,20)});
+  if(showMarker)s+='<g id="mk" transform="translate('+px(S.x)+' 0)">'+shp(activeKind,0,cy,38,20)+'</g>';
+  return s+'<g id="lb"></g></svg>';
+}
+function sliceSVG(r,deco){
+  var R=60,s='<svg viewBox="-70 -70 140 140" '+(deco?'aria-hidden="true"':'role="img" aria-label="'+fv('sliceLabel',{roll:r})+'" class="slice"')+'>';
+  s+='<circle r="'+R+'" fill="#233D33"/><circle r="'+R*.84+'" fill="#FBF4DC" stroke="#E4D8B4" stroke-width="1"/>';
+  S.pl[r].forEach(function(p,i){s+=shp(KINDS[i],.48*R*p.x,(i-1)*.26*R,.34*R,.2*R)});
+  return s+'</svg>';
+}
+
+function render(){
+  var sc=S.screen,t=$('top'),h=$('head'),v=$('view'),fb=$('fb'),b=$('act');
+  $('tl').textContent=$('tr').textContent='';
+  if(sc==='play'||sc==='reveal'){$('tl').textContent=fv('rollProgress',{roll:S.roll});$('tr').textContent=f('score',{score:total()})}
+  if(sc==='start'){
+    h.innerHTML='<h1></h1><p></p>';h.firstChild.textContent=T.title;h.lastChild.textContent=T.instruction;
+    S.x=0;v.innerHTML='<div id="mat">'+matSVG(0,[],'radish',true)+'</div>';
+    fb.textContent=memBest===null?'':fv('best',{score:memBest});
+    b.textContent=T.start;
+  }else if(sc==='play'){
+    h.innerHTML='<h2></h2>';h.firstChild.textContent=T[KINDS[S.idx]];
+    v.innerHTML='<div id="mat" role="img" aria-label="'+fv('matLabel',{filling:T[KINDS[S.idx]]})+'">'+matSVG(S.idx,S.pl[S.roll].slice(0,S.idx),KINDS[S.idx],true)+'</div>';
+    b.textContent=T.place;
+  }else if(sc==='reveal'){
+    h.innerHTML='<h2></h2>';h.firstChild.textContent=fv('rollDone',{roll:S.roll});
+    v.innerHTML=sliceSVG(S.roll)+'<p class="rs"></p>';v.lastChild.textContent=f('rollScore',{score:rollPts(S.roll)});
+    b.textContent=S.roll<3?T.nextRoll:T.showResult;
+  }else{
+    h.innerHTML='<h2></h2>';h.firstChild.textContent=T.resultTitle;
+    var tr='';for(var r=1;r<=3;r++)tr+='<div>'+sliceSVG(r,true)+'<span>'+f('trayRollScore',{roll:r,score:rollPts(r)})+'</span></div>';
+    v.innerHTML='<p class="big"></p><div class="tray">'+tr+'</div>';v.firstChild.textContent=f('total',{score:total()});
+    fb.innerHTML='<span></span><span></span>';
+    fb.firstChild.textContent=S.newBest?T.newBest:'';fb.lastChild.textContent=fv('best',{score:S.best});
+    b.textContent=T.retry;
+  }
+  if(sc!=='start'&&sc!=='result')fb.setAttribute('aria-live','polite');
+}
+function go(name,free){S.screen=name;S.t0=free?-1000:S.clock;S.fold=null;S.fb=0;down=null;render();$('act').focus()}
+function startRoll(){S.idx=0;S.x=-1;S.dir=1;$('fb').textContent='';go('play')}
+function startFilling(){S.x=S.idx===1?1:-1;S.dir=S.idx===1?-1:1;render()}
+
+function locked(){return document.hidden||S.clock-S.t0<400}
+function place(){
+  if(S.screen!=='play'||S.fb>0||S.fold!==null||locked())return;
+  S.fb=300;
+  var a=Math.abs(S.x),pts=a<=0.1?3:a<=0.25?2:0,key=pts===3?'perfect':pts===2?'good':'miss';
+  S.pl[S.roll].push({x:S.x,pts:pts});
+  $('fb').textContent=T[key];
+  $('tr').textContent=f('score',{score:total()});
+  var m=$('mk');
+  if(m){m.firstChild.setAttribute('class','pop');
+    var lb=$('lb');lb.innerHTML='<text x="'+px(S.x)+'" y="'+(LY[S.idx]-26)+'" text-anchor="middle" font-size="16" font-weight="800" fill="'+(pts?'#327650':'#8a2f2f')+'" stroke="#FFF6E3" stroke-width="3" paint-order="stroke"></text>';lb.firstChild.textContent=fv('pts',{points:pts});}
+}
+function act(){
+  if(S.screen==='play'){place();return}
+  if(locked())return;
+  if(S.screen==='start'){startRoll()}
+  else if(S.screen==='reveal'){
+    if(S.roll<3){S.roll++;startRoll()}
+    else{
+      var prev=memBest,st=readBest();
+      if(st!==null&&(prev===null||st>prev))prev=st;
+      var tot=total();
+      S.newBest=prev===null||tot>prev;
+      S.best=S.newBest?tot:prev;
+      memBest=S.best;
+      try{localStorage.setItem(KEY,String(S.best))}catch(e){}
+      go('result');
+    }
+  }else if(S.screen==='result'){reset();down=null;S.screen='play';S.t0=S.clock;S.fb=0;$('fb').textContent='';render();$('act').focus()}
+}
+$('act').addEventListener('click',act);
+function onMat(e){return !!(e.target.closest&&e.target.closest('#mat'))}
+$('view').addEventListener('pointerup',function(e){
+  var ok=down===e.pointerId;down=null;
+  if(!ok||S.screen!=='play'||!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;
+  if(onMat(e)){e.preventDefault();place()}
+});
+$('view').addEventListener('pointerdown',function(e){
+  e.preventDefault();
+  down=(S.screen==='play'&&S.fb===0&&S.fold===null&&!locked()&&e.isPrimary&&(e.pointerType!=='mouse'||e.button===0)&&onMat(e))?e.pointerId:null;
+});
+document.addEventListener('pointercancel',function(){down=null});
+document.addEventListener('keydown',function(e){
+  if(e.repeat||e.isComposing){
+    if(e.target===$('act')&&(e.key==='Enter'||e.key===' '||e.code==='Space'))e.preventDefault();
+    return;
+  }
+  if((e.code==='Space'||e.key===' ')&&S.screen==='play'){
+    var ae=document.activeElement;
+    if(ae&&ae.tagName==='BUTTON')return;
+    e.preventDefault();place();
+  }
+});
+['gesturestart','dblclick'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
+
+function step(ms){
+  S.clock+=ms;
+  if(S.screen!=='play')return;
+  if(S.fb>0){
+    S.fb-=ms;
+    if(S.fb<=0){S.fb=0;
+      if(S.idx<2){S.idx++;startFilling()}
+      else S.fold=0;
+    }
+    return;
+  }
+  if(S.fold!==null){
+    S.fold+=ms;var d=reduced()?0:200,p=d?Math.min(S.fold/d,1):1;
+    var sv=$('view').querySelector('svg');if(sv){sv.style.transform='scaleX('+(1-.6*p)+')'}
+    if(p>=1)go('reveal',true);
+    return;
+  }
+  var dx=2/PASS[S.roll]*ms/1000;
+  S.x+=S.dir*dx;
+  if(S.x>1){S.x=2-S.x;S.dir=-1}
+  if(S.x<-1){S.x=-2-S.x;S.dir=1}
+  var m=$('mk');if(m)m.setAttribute('transform','translate('+px(S.x)+' 0)');
+}
+var last=null,raf=0;
+function frame(ts){
+  raf=requestAnimationFrame(frame);
+  if(last===null){last=ts;return}
+  var dt=Math.min(ts-last,50);last=ts;
+  step(dt);
+}
+function onVis(){
+  down=null;
+  if(document.hidden){cancelAnimationFrame(raf);raf=0;last=null}
+  else if(!raf){last=null;raf=requestAnimationFrame(frame)}
+}
+document.addEventListener('visibilitychange',onVis);
+render();$('act').focus();
+if(!document.hidden)raf=requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

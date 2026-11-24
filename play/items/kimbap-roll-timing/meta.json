@@ -1,0 +1,21 @@
+{
+  "slug": "kimbap-roll-timing",
+  "date": "2026-11-23",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["김밥", "타이밍 게임"],
+    "title": "김밥 말기 타이밍",
+    "desc": "움직이는 재료를 초록 칸에 맞춰 김밥 세 줄을 말아 보세요. 완성된 단면을 보면 어떤 재료가 삐뚤어졌는지 한눈에 보여요.",
+    "howto": "재료가 초록 칸에 들어오면 ‘재료 놓기’를 누르세요. 스페이스바로도 놓을 수 있어요. 세 줄을 말아 27점에 도전하세요.",
+    "about": "단무지, 당근, 시금치가 놓인 위치에 따라 김밥 단면이 달라지는 타이밍 게임이에요."
+  },
+  "en": {
+    "tags": ["kimbap", "timing game"],
+    "title": "Kimbap Roll Timing",
+    "desc": "Time your taps to line up the fillings in three kimbap rolls. Each sliced roll shows where your fillings landed.",
+    "howto": "Tap Place filling or press Space when the filling enters the green band. Make three rolls and aim for 27 points.",
+    "about": "A timing game where every misplaced strip of radish, carrot or spinach shows up in the sliced roll."
+  }
+}

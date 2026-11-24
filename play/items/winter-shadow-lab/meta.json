@@ -1,0 +1,21 @@
+{
+  "slug": "winter-shadow-lab",
+  "date": "2026-11-23",
+  "category": "learn",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "겨울 그림자 실험실",
+    "desc": "같은 1m 막대인데 겨울 그림자는 왜 더 길까요? 시간 손잡이를 움직여 동지와 하지의 햇빛 각도와 그림자 길이를 한눈에 비교해 보세요.",
+    "howto": "시간 손잡이를 끌거나 방향키를 누르세요. 같은 시각에 동지와 하지의 그림자가 얼마나 다른지 비교할 수 있어요.",
+    "about": "북위 37.5°의 평평한 땅에 세운 1m 막대를 가정한 모형이에요. 시간은 태양이 가장 높이 뜨는 때를 정오로 잡아요.",
+    "tags": ["겨울 그림자", "동지", "하지", "태양 고도"]
+  },
+  "en": {
+    "title": "Winter Shadow Lab",
+    "desc": "Why is a winter shadow longer? Move the time slider to compare the Sun’s angle and a 1 m post’s shadow at the two solstices.",
+    "howto": "Drag the time slider or use its arrow keys. Compare the winter and summer shadows at the same solar time.",
+    "about": "The model uses a 1 m post on level ground at 37.5°N. Solar noon is when the Sun is highest in the sky.",
+    "tags": ["winter shadows", "winter solstice", "summer solstice", "solar elevation"]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "slug": "times-tables-speedrun",
+  "date": "2026-11-23",
+  "category": "learn",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "구구단 60초 퀴즈",
+    "desc": "60초 동안 2단부터 9단까지 구구단 문제를 풀어 보세요. 라운드가 끝나면 최고 기록과 틀린 문제를 확인할 수 있어요.",
+    "howto": "보기 네 개 중 정답을 고르세요. 숫자 키 1~4로도 고를 수 있어요. 정답 하나당 1점이에요.",
+    "about": "구구단을 짧게 연습하는 게임이에요. 최고 기록은 이 브라우저에 저장돼요.",
+    "tags": ["구구단", "곱셈", "암산"]
+  },
+  "en": {
+    "title": "60-Second Times Tables",
+    "desc": "Answer multiplication questions for 60 seconds. Try to beat your best score, then review the facts you missed.",
+    "howto": "Pick one of four answers, or press 1–4. Each correct answer earns one point.",
+    "about": "A quick way to practice times tables. Your best score is saved in this browser.",
+    "tags": ["times-tables", "multiplication", "mental-math"]
+  }
+}

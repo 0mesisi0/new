@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>중복 할인 계산기</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{height:100vh;height:100dvh;background:#e6ecf2;color:#14213d;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif;font-variant-numeric:tabular-nums}
+.app{height:100%;max-width:480px;margin:0 auto;padding:clamp(6px,2vh,18px) 12px;display:flex;flex-direction:column;gap:clamp(5px,1.4vh,12px);min-height:0}
+h1{margin:0;font-size:clamp(17px,3.4vh,24px);line-height:1.2}
+.intro{margin:0;font-size:clamp(12px,2.2vh,15px);opacity:.8}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
+.field{min-width:0;display:flex;flex-direction:column;gap:2px}
+.field label{font-size:12px;font-weight:600;line-height:1.2}
+.field input{width:100%;min-width:0;height:44px;padding:0 10px;font:inherit;font-size:16px;color:inherit;background:#fbfaf6;border:2px solid #b8c4d2;border-radius:8px}
+.field input:focus-visible{outline:3px solid #0f8f8a;outline-offset:1px}
+.field input[aria-invalid=true]{border-color:#c0392b;background:#fff4f2}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{min-width:0;position:relative;background:#fbfaf6;border:3px solid #cdd6e0;border-radius:12px;padding:10px 8px 8px;text-align:center;overflow:hidden}
+.card::before{content:"";position:absolute;top:6px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#e6ecf2;border:2px solid #cdd6e0}
+.card.best{border-color:#0f8f8a}
+.card.best::before{border-color:#0f8f8a}
+.card h2{margin:12px 0 2px;font-size:13px;line-height:1.2}
+.amt{font-size:clamp(20px,6.4vw,30px);font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.badge{display:inline-block;margin-top:4px;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700;background:#0f8f8a;color:#fff;visibility:hidden}
+.best .badge{visibility:visible}
+.summary{margin:0;min-height:2.8em;font-size:14px;line-height:1.4;font-weight:600}
+.summary.err{color:#b02a1c}
+.note{margin:0;font-size:12px;opacity:.75}
+button{min-height:44px;padding:0 16px;font:inherit;font-weight:700;color:#fff;background:#14213d;border:0;border-radius:10px;cursor:pointer}
+button:focus-visible{outline:3px solid #0f8f8a;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+  <h1 id="title"></h1>
+  <p class="intro" id="intro"></p>
+  <div class="grid" role="group" id="fields">
+    <div class="field"><label for="f0" id="l0"></label><input id="f0" type="text" inputmode="numeric" autocomplete="off" value="100000"></div>
+    <div class="field"><label for="f1" id="l1"></label><input id="f1" type="text" inputmode="decimal" autocomplete="off" value="20"></div>
+    <div class="field"><label for="f2" id="l2"></label><input id="f2" type="text" inputmode="decimal" autocomplete="off" value="10"></div>
+    <div class="field"><label for="f3" id="l3"></label><input id="f3" type="text" inputmode="numeric" autocomplete="off" value="5000"></div>
+  </div>
+  <div class="cards">
+    <section class="card" id="c0"><h2 id="n0"></h2><div class="amt" id="a0"></div><span class="badge" id="b0" aria-hidden="true"></span></section>
+    <section class="card" id="c1"><h2 id="n1"></h2><div class="amt" id="a1"></div><span class="badge" id="b1" aria-hidden="true"></span></section>
+  </div>
+  <p class="summary" id="summary"></p>
+  <p class="note" id="note"></p>
+  <button type="button" id="restore"></button>
+  <div class="sr" id="live" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+var T={
+ko:{title:"중복 할인 계산기",intro:"쿠폰은 언제 써야 더 쌀까요?",labels:["정가 (원)","첫 할인 (%)","추가 할인 (%)","정액 쿠폰 (원)"],restoreExample:"예시 값 넣기",couponFirst:"쿠폰 먼저",couponLast:"쿠폰 나중에",cheaper:"더 저렴",differenceFirst:"쿠폰을 먼저 쓰면 ₩{amount} 더 저렴해요.",differenceLast:"쿠폰을 나중에 쓰면 ₩{amount} 더 저렴해요.",tie:"어느 순서로 써도 최종가가 같아요.",missing:"{field} 값을 입력해 주세요.",invalidWon:"{field} 값을 0~9,999,999 사이의 정수로 입력해 주세요.",invalidRate:"{field} 값을 0~100 사이로 입력해 주세요. 소수점 둘째 자리까지 쓸 수 있어요.",rounding:"단계마다 할인액의 원 미만은 버려요.",price:"₩{amount}",unavailable:"—",unavailableLabel:"계산 결과 없음"},
+en:{title:"Stacked Discount Calculator",intro:"When does the coupon save you more?",labels:["List price (₩)","First discount (%)","Second discount (%)","Fixed coupon (₩)"],restoreExample:"Restore example",couponFirst:"Coupon first",couponLast:"Coupon last",cheaper:"Lower price",differenceFirst:"Using the coupon first saves ₩{amount} more.",differenceLast:"Using the coupon last saves ₩{amount} more.",tie:"Both orders give the same final price.",missing:"Enter a value for {field}.",invalidWon:"For {field}, enter a whole number from 0 to 9,999,999.",invalidRate:"For {field}, enter 0 to 100 with up to two decimal places.",rounding:"Each discount amount is rounded down to the nearest won.",price:"₩{amount}",unavailable:"—",unavailableLabel:"No total available"}
+};
+var q=new URLSearchParams(location.search).get("lang");
+var lang=(q==="ko"||q==="en")?q:(/^ko/i.test(navigator.language||"")?"ko":"en");
+var S=T[lang];
+document.documentElement.lang=lang;
+document.title=S.title;
+var $=function(id){return document.getElementById(id)};
+var EX=["100000","20","10","5000"];
+var isRate=[false,true,true,false];
+var inp=[0,1,2,3].map(function(i){return $("f"+i)});
+
+$("title").textContent=S.title;
+$("intro").textContent=S.intro;
+$("note").textContent=S.rounding;
+$("restore").textContent=S.restoreExample;
+$("n0").textContent=S.couponFirst;$("n1").textContent=S.couponLast;
+$("b0").textContent=S.cheaper;$("b1").textContent=S.cheaper;
+S.labels.forEach(function(t,i){$("l"+i).textContent=t});
+
+function norm(s){
+  return s.replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0)})
+    .replace(/[．｡。]/g,".").replace(/，/g,",").trim();
+}
+// returns integer, or null if blank (missing), or NaN if invalid
+function parse(s,rate){
+  s=norm(s);
+  if(s==="")return null;
+  if(rate){
+    if(!/^(\d+(\.\d{1,2})?|\.\d{1,2})$/.test(s))return NaN;
+    var p=s.split("."),v=parseInt(p[0]||"0",10)*100+parseInt(((p[1]||"")+"00").slice(0,2),10);
+    return v>10000?NaN:v;
+  }
+  if(!/^(\d+|\d{1,3}(,\d{3})+)$/.test(s))return NaN;
+  var w=parseInt(s.replace(/,/g,""),10);
+  return w>9999999?NaN:w;
+}
+function afterRate(p,r){return p-Math.floor(p*r/10000)}
+function calc(P,r1,r2,C){
+  var cpn=function(p){return Math.max(0,p-C)};
+  return{first:afterRate(afterRate(cpn(P),r1),r2),last:cpn(afterRate(afterRate(P,r1),r2))};
+}
+function fmt(n){return S.price.replace("{amount}",n.toLocaleString(lang==="ko"?"ko-KR":"en-US"))}
+function msg(t,field){return S[t].replace("{field}",field)}
+
+var liveTimer;
+function announce(text){
+  clearTimeout(liveTimer);
+  liveTimer=setTimeout(function(){$("live").textContent=text},600);
+}
+function setAmt(i,text,ok){
+  var el=$("a"+i);
+  el.textContent=text;
+  if(ok){el.removeAttribute("role");el.removeAttribute("aria-label")}
+  else{el.setAttribute("role","img");el.setAttribute("aria-label",S.unavailableLabel)}
+}
+function update(){
+  var vals=inp.map(function(el,i){return parse(el.value,isRate[i])});
+  var firstBad=-1;
+  inp.forEach(function(el,i){
+    var bad=vals[i]===null||vals[i]!==vals[i];
+    if(bad){el.setAttribute("aria-invalid","true");if(firstBad<0)firstBad=i}
+    else el.removeAttribute("aria-invalid");
+    el.removeAttribute("aria-describedby");
+  });
+  var sum=$("summary"),text;
+  $("c0").classList.remove("best");$("c1").classList.remove("best");
+  if(firstBad>=0){
+    var v=vals[firstBad];
+    text=msg(v===null?"missing":(isRate[firstBad]?"invalidRate":"invalidWon"),S.labels[firstBad]);
+    inp[firstBad].setAttribute("aria-describedby","summary");
+    setAmt(0,S.unavailable,false);setAmt(1,S.unavailable,false);
+    sum.classList.add("err");
+  }else{
+    var r=calc(vals[0],vals[1],vals[2],vals[3]);
+    setAmt(0,fmt(r.first),true);setAmt(1,fmt(r.last),true);
+    sum.classList.remove("err");
+    if(r.first===r.last)text=S.tie;
+    else{
+      var f=r.first<r.last;
+      $(f?"c0":"c1").classList.add("best");
+      text=S[f?"differenceFirst":"differenceLast"].replace("{amount}",Math.abs(r.first-r.last).toLocaleString(lang==="ko"?"ko-KR":"en-US"));
+    }
+  }
+  sum.textContent=text;
+  announce(text);
+}
+inp.forEach(function(el){el.addEventListener("input",update)});
+$("restore").addEventListener("click",function(){
+  inp.forEach(function(el,i){el.value=EX[i]});
+  update();
+});
+update();
+$("live").textContent=$("summary").textContent;
+})();
+</script>
+</body>
+</html>

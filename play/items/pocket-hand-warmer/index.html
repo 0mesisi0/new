@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>핫팩 흔들기</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100vh;height:100dvh;overflow:hidden;background:#0d1622;color:#EAF1F6;
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+#app{height:100vh;height:100dvh;max-width:440px;margin:0 auto;background:#172638;display:flex;flex-direction:column;
+  padding:10px 16px 14px;touch-action:manipulation;user-select:none;-webkit-user-select:none;overflow:hidden}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
+h1{margin:0;font-size:1.25rem;line-height:1.2}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#sound{min-height:44px;min-width:44px;padding:0 14px;border-radius:22px;border:2px solid #FFC477;background:transparent;font-size:.9rem}
+#sound[aria-pressed=true]{background:#FFC477;color:#172638}
+#msg{flex:none;margin:6px 0 0;text-align:center;font-size:1rem;line-height:1.35;min-height:2.7em}
+#stage{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center}
+#scene{position:relative;width:225px;height:300px}
+#scene svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#prog{flex:none;text-align:center;font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums;margin:4px 0 8px;color:#FFC477}
+#primary{flex:none;min-height:56px;width:100%;border-radius:28px;border:0;background:#FFC477;color:#172638;font-size:1.1rem;font-weight:700;padding:0 16px}
+#primary[aria-disabled=true]{opacity:.6}
+#live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stitch{fill:rgba(23,38,56,.12);stroke:#172638;stroke-width:1.5;transition:fill .15s}
+.stitch.on{fill:#FFF3D6}
+#lining{transition:fill .5s}
+#glow{opacity:0;transition:opacity .6s}
+.result #glow{opacity:1}
+.result #lining{fill:#FFC477}
+.result .pstitch{stroke:#FFC477}
+.pstitch{stroke:#4a6584;transition:stroke .5s}
+@media (prefers-reduced-motion:reduce){.stitch,#lining,#glow,.pstitch{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 id="title"></h1>
+    <button id="sound" type="button" aria-pressed="false"></button>
+  </header>
+  <p id="msg"></p>
+  <div id="stage">
+    <div id="scene">
+      <svg viewBox="0 0 300 400" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="g" cx="50%" cy="30%" r="70%">
+            <stop offset="0" stop-color="#FFC477" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#FFC477" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="300" height="400" fill="#172638"/>
+        <rect id="lining" x="50" y="205" width="200" height="40" rx="10" fill="#0b121b"/>
+        <g id="slide">
+          <g id="shakeG" style="transform-box:fill-box;transform-origin:center">
+            <rect id="body" x="85" y="40" width="130" height="160" rx="18" fill="#C3D4DD"/>
+            <rect x="93" y="48" width="114" height="144" rx="13" fill="none" stroke="#172638" stroke-opacity=".3" stroke-dasharray="4 4"/>
+            <g id="stitches"></g>
+            <rect x="105" y="105" width="90" height="46" rx="8" fill="#EEF4F7"/>
+            <text id="plabel" x="150" y="133" text-anchor="middle" font-size="13" font-weight="700" fill="#172638" font-family="system-ui,sans-serif"></text>
+          </g>
+        </g>
+        <g id="front">
+          <path d="M30 232 Q150 218 270 232 L270 400 L30 400 Z" fill="#203A56"/>
+          <path d="M30 232 Q150 218 270 232" fill="none" class="pstitch" stroke-width="3" stroke-dasharray="9 6"/>
+          <path d="M30 262 L270 262 M30 300 L270 300 M30 338 L270 338 M80 240 L80 400 M150 240 L150 400 M220 240 L220 400" class="pstitch" stroke-width="1.5" fill="none" stroke-dasharray="5 5"/>
+          <rect id="glow" x="30" y="215" width="240" height="185" fill="url(#g)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div id="prog" role="progressbar" aria-valuemin="0" aria-valuemax="8"></div>
+  <button id="primary" type="button"></button>
+  <div id="live" role="status" aria-live="polite"></div>
+</div>
+<script>
+(function(){
+var T={
+ko:{appTitle:'핫팩 흔들기',startHint:'핫팩을 톡톡 누르면 따뜻해져요.',shake:'핫팩 흔들기',progressLabel:'핫팩 흔들기 진행률',
+progressVisible:'{count}/8',progressSpoken:'8번 중 {count}번 흔들었어요.',firstShake:'첫 바늘땀에 불이 켜졌어요.',
+warm:'다 데웠어요. 이제 주머니에 쏙!',tuck:'주머니에 넣기',tucking:'주머니에 넣는 중…',result:'주머니 속이 포근해졌어요.',
+again:'새 핫팩 데우기',soundLabel:'소리',soundOff:'소리 꺼짐',soundOn:'소리 켜짐',soundUnavailable:'이 브라우저에서는 소리를 재생할 수 없어요.'},
+en:{appTitle:'Pocket Hand Warmer',startHint:'Tap the pouch to warm it up.',shake:'Shake the pouch',progressLabel:'Shake progress',
+progressVisible:'{count}/8',progressSpoken:'{count} of 8 shakes.',firstShake:'The first stitch lit up.',
+warm:'It’s warm. Tuck it into the pocket!',tuck:'Tuck into pocket',tucking:'Tucking it in…',result:'The pocket is nice and warm.',
+again:'Warm another',soundLabel:'Sound',soundOff:'Sound off',soundOn:'Sound on',soundUnavailable:'Sound is unavailable in this browser.'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var D=T[lang];
+function t(k,c){return D[k].replace('{count}',c);}
+document.documentElement.lang=lang;
+document.title=D.appTitle;
+
+var $=function(id){return document.getElementById(id);};
+var elTitle=$('title'),elSound=$('sound'),elMsg=$('msg'),elScene=$('scene'),elStage=$('stage'),
+    elProg=$('prog'),elPrimary=$('primary'),elLive=$('live'),elBody=$('body'),elSlide=$('slide'),elShake=$('shakeG'),
+    elLabel=$('plabel'),elStitches=$('stitches'),app=$('app');
+
+var stitches=[];
+for(var i=0;i<8;i++){
+  elStitches.innerHTML+='<rect class="stitch" x="'+(98+i*13)+'" y="60" width="9" height="5" rx="2"/>';
+}
+stitches=Array.prototype.slice.call(elStitches.children);
+
+var REST=0,TUCK_Y=160,DUR=320,GUARD=250;
+var state='READY',count=0,guardUntil=0,tuckT=0,last=0,raf=0,shakeAnim=null;
+var soundOn=false,ctx=null,noise=null,lastCrinkle=0,unavailableShown=false,active=[];
+var rmq=window.matchMedia('(prefers-reduced-motion: reduce)');
+function reduced(){return rmq.matches;}
+
+try{soundOn=localStorage.getItem('pocket-hand-warmer:sound')==='1';}catch(e){}
+
+function announce(s){elLive.textContent='';setTimeout(function(){elLive.textContent=s;},30);}
+
+function mix(a,b,f){return Math.round(a+(b-a)*f);}
+function pouchColor(f){
+  return 'rgb('+mix(0xC3,0xFF,f)+','+mix(0xD4,0xC4,f)+','+mix(0xDD,0x77,f)+')';
+}
+
+function setSlide(p){
+  var e=p<1?p*p*(3-2*p):1;
+  elSlide.setAttribute('transform','translate(0,'+(REST+(TUCK_Y-REST)*e).toFixed(2)+')');
+}
+
+function render(){
+  var res=state==='RESULT',tk=state==='TUCKING';
+  app.classList.toggle('result',res);
+  elTitle.textContent=t('appTitle');
+  elSound.textContent=t('soundLabel')+': '+(soundOn?t('soundOn'):t('soundOff'));
+  elSound.setAttribute('aria-label',t('soundLabel'));
+  elSound.setAttribute('aria-pressed',soundOn?'true':'false');
+  elBody.setAttribute('fill',pouchColor(count/8));
+  stitches.forEach(function(s,i){s.classList.toggle('on',i<count);});
+  var warm=state==='WARM';
+  elLabel.textContent=warm?t('tuck'):t('shake');
+  elProg.setAttribute('aria-label',t('progressLabel'));
+  elProg.setAttribute('aria-valuenow',count);
+  elProg.setAttribute('aria-valuetext',t('progressSpoken',count));
+  elProg.textContent=t('progressVisible',count);
+  elMsg.textContent=state==='WARM'?t('warm'):tk?t('tucking'):res?t('result'):t('startHint');
+  elPrimary.textContent=warm?t('tuck'):tk?t('tucking'):res?t('again'):t('shake');
+  elPrimary.setAttribute('aria-disabled',tk?'true':'false');
+  if(state==='TUCKING')setSlide(tuckT/DUR);
+  else setSlide(res?1:0);
+}
+
+function layout(){
+  var w=elStage.clientWidth,h=elStage.clientHeight;
+  var sw=Math.max(0,Math.min(w,h*0.75));
+  elScene.style.width=sw+'px';elScene.style.height=(sw/0.75)+'px';
+}
+
+// ---- sound
+function ensureCtx(){
+  if(!soundOn)return;
+  try{
+    if(!ctx){
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)throw new Error('no audio');
+      ctx=new AC();
+      var n=ctx.sampleRate*0.4,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);
+      for(var i=0;i<n;i++)d[i]=Math.random()*2-1;
+      noise=b;
+    }
+    if(ctx.state==='suspended'){var p=ctx.resume();if(p&&p.catch)p.catch(audioFail);}
+  }catch(e){audioFail();}
+}
+function audioFail(){
+  ctx=null;noise=null;soundOn=false;stopAll();
+  try{localStorage.setItem('pocket-hand-warmer:sound','0');}catch(e){}
+  if(!unavailableShown){unavailableShown=true;announce(t('soundUnavailable'));}
+  render();
+}
+function stopAll(){active.forEach(function(s){try{s.stop();}catch(e){}});active=[];}
+function play(kind){
+  if(!soundOn||!ctx||!noise||document.hidden)return;
+  var now=performance.now();
+  if(kind==='crinkle'){if(now-lastCrinkle<90)return;lastCrinkle=now;}
+  try{
+    var s=ctx.createBufferSource();s.buffer=noise;
+    var f=ctx.createBiquadFilter();f.type='bandpass';
+    f.frequency.value=kind==='crinkle'?3000+Math.random()*2000:1200;f.Q.value=1.2;
+    var g=ctx.createGain(),tt=ctx.currentTime,len=kind==='crinkle'?0.09:0.3,pk=kind==='crinkle'?0.14:0.05;
+    g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(pk,tt+0.015);g.gain.linearRampToValueAtTime(0,tt+len);
+    s.connect(f);f.connect(g);g.connect(ctx.destination);
+    s.onended=function(){var i=active.indexOf(s);if(i>=0)active.splice(i,1);};
+    active.push(s);s.start(tt);s.stop(tt+len+0.02);
+  }catch(e){}
+}
+
+// ---- actions
+function nudge(){
+  if(reduced())return;
+  if(shakeAnim)shakeAnim.cancel();
+  if(!elShake.animate)return;
+  var dx=(Math.random()<.5?-1:1)*(1+Math.random()*2);
+  shakeAnim=elShake.animate([
+    {transform:'translateX(0) scale(1,1)'},
+    {transform:'translateX('+dx.toFixed(2)+'px) scale(1.03,.94)',offset:.4},
+    {transform:'translateX(0) scale(1,1)'}],{duration:160,easing:'ease-out'});
+}
+
+function shake(){
+  count++;
+  nudge();play('crinkle');
+  if(count===8){
+    state='WARM';guardUntil=performance.now()+GUARD;
+    render();announce(t('warm'));
+  }else{
+    state='WARMING';render();
+    if(count===1)announce(t('firstShake'));
+  }
+}
+
+function startTuck(){
+  state='TUCKING';tuckT=0;play('rustle');
+  if(reduced()){finishTuck();return;}
+  last=0;render();
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
+}
+function finishTuck(){
+  cancelAnimationFrame(raf);
+  state='RESULT';guardUntil=performance.now()+GUARD;tuckT=DUR;
+  render();announce(t('result'));
+}
+function frame(ts){
+  if(state!=='TUCKING')return;
+  if(document.hidden){last=0;raf=requestAnimationFrame(frame);return;}
+  var dt=last?Math.min(ts-last,50):0;last=ts;
+  tuckT+=dt;
+  if(tuckT>=DUR){finishTuck();return;}
+  setSlide(tuckT/DUR);
+  raf=requestAnimationFrame(frame);
+}
+
+function reset(){
+  cancelAnimationFrame(raf);
+  if(shakeAnim){shakeAnim.cancel();shakeAnim=null;}
+  state='READY';count=0;tuckT=0;guardUntil=0;
+  elLive.textContent='';
+  render();
+}
+
+function activate(){
+  ensureCtx();
+  var now=performance.now();
+  if(state==='READY'||state==='WARMING')shake();
+  else if(state==='WARM'){if(now>=guardUntil)startTuck();}
+  else if(state==='RESULT'){if(now>=guardUntil)reset();}
+}
+// pouch tap (pointer only, not focusable) shakes/tucks; primary button does everything
+elScene.addEventListener('click',function(){if(state==='READY'||state==='WARMING'||state==='WARM')activate();});
+elPrimary.addEventListener('click',activate);
+
+elSound.addEventListener('click',function(){
+  if(soundOn){soundOn=false;stopAll();}
+  else{soundOn=true;ensureCtx();}
+  try{localStorage.setItem('pocket-hand-warmer:sound',soundOn?'1':'0');}catch(e){}
+  render();
+});
+
+document.addEventListener('keydown',function(e){
+  if(e.repeat&&(e.key==='Enter'||e.key===' '||e.key==='Spacebar')&&e.target&&e.target.tagName==='BUTTON')e.preventDefault();
+});
+document.addEventListener('visibilitychange',function(){last=0;if(document.hidden)stopAll();});
+function onRM(){
+  if(!reduced())return;
+  if(shakeAnim){shakeAnim.cancel();shakeAnim=null;}
+  if(state==='TUCKING')finishTuck();
+}
+if(rmq.addEventListener)rmq.addEventListener('change',onRM);else if(rmq.addListener)rmq.addListener(onRM);
+window.addEventListener('resize',function(){layout();render();});
+
+layout();
+if(location.hash==='#demo'||new URLSearchParams(location.search).get('thumb')==='1'){state='RESULT';count=8;tuckT=DUR;}
+render();
+layout();
+})();
+</script>
+</body>
+</html>
