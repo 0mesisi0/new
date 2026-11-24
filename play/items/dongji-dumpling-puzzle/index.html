@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>동지 팥죽 새알심 퍼즐</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFF4DF;color:#301C25;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+#app{width:100vw;height:100vh;height:100dvh;display:flex;justify-content:center;overflow:hidden}
+.screen{width:100%;max-width:440px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,2vh,18px);padding:clamp(6px,2vh,16px) 12px}
+[hidden]{display:none!important}
+#s-game{touch-action:none}
+h1{margin:0;font-size:clamp(20px,5.5vw,28px);text-align:center;line-height:1.2}
+p{margin:0;text-align:center;font-size:clamp(13px,3.6vw,16px)}
+.art{width:min(100%,260px);height:auto;max-height:22vh}
+.key{list-style:none;margin:0;padding:0;display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.key li{display:flex;align-items:center;gap:6px;font-size:14px}
+.key svg{width:22px;height:22px}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid #14665D;outline-offset:2px}
+.big{width:100%;min-height:52px;border:0;border-radius:14px;background:#671E35;color:#FFF8E8;font-size:20px;font-weight:700;box-shadow:0 4px 0 #301C25;transition:transform .08s}
+.big.down,.bowl.down,#undo.down{transform:translateY(2px) scale(.98)}
+.counts{width:100%;display:flex;justify-content:space-between;font-size:clamp(13px,3.6vw,15px);font-weight:600}
+.qwrap{width:100%;padding-bottom:16px}
+#queue{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(9,1fr);gap:3px;width:100%}
+.qs{position:relative;aspect-ratio:1;border-radius:50%;border:2px dashed #8a7862;display:flex;align-items:center;justify-content:center}
+.qs.has{border:2px solid #301C25;background:#FFF8E8}
+.qs.has.first{border:4px solid #301C25;box-shadow:0 0 0 2px #14665D}
+.qs.first::after{content:attr(data-label);position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;white-space:nowrap}
+.qs svg{width:62%;height:62%}
+#rbox{text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+#rbox h2{margin:0;font-size:clamp(20px,5.5vw,26px);outline:none}
+#rbox .sc{font-size:clamp(26px,8vw,40px);font-weight:800;color:#671E35}
+.bowls{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bowl{min-height:44px;border:2px solid #301C25;border-radius:14px;background:#FFF8E8;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bowl[disabled]{opacity:1}
+.bowl .bs{width:100%;max-height:13vh}
+.bowl b{font-size:14px}
+.rec{display:flex;gap:3px}
+.sl{width:clamp(22px,7.5vw,32px);aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px dashed #8a7862;color:#8a7862}
+.sl svg{width:62%;height:62%}
+.sl.done{border:2px solid #301C25;background:#671E35;color:#FFF8E8}
+.sl.nx{border:3px solid #14665D;color:#14665D;background:#fff}
+.shake{animation:sh .25s}
+@keyframes sh{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+#status{min-height:2.6em;text-align:center;font-size:clamp(13px,3.6vw,15px);font-weight:600;display:flex;align-items:center}
+#undo{min-height:46px;min-width:140px;padding:0 20px;border:2px solid #301C25;border-radius:12px;background:#FFF8E8;font-size:16px;font-weight:700}
+#undo[aria-disabled=true]{opacity:.45}
+#undo.stuck{border:4px solid #14665D;background:#fff;opacity:1}
+#fx{position:fixed;inset:0;pointer-events:none}
+#fx div{position:absolute;border-radius:50%}
+.fly{width:26px;height:26px;background:#FFF8E8;border:2px solid #301C25}
+.rip{border:3px solid #14665D}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.big{transition:none}.big.down,.bowl.down,#undo.down{transform:none}}
+@media (max-height:520px){.art{max-height:11vh}.bowl .bs{max-height:9vh}}
+.sr{display:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="screen" id="s-start">
+    <h1 data-t="title"></h1>
+    <p data-t="startHelp"></p>
+    <svg class="art" viewBox="0 0 260 110" aria-hidden="true">
+      <path d="M20 14 Q130 -2 214 26" fill="none" stroke="#301C25" stroke-width="5" stroke-linecap="round"/>
+      <ellipse cx="226" cy="30" rx="22" ry="12" fill="#FFF8E8" stroke="#301C25" stroke-width="3"/>
+      <circle cx="226" cy="28" r="5" fill="#FFF8E8" stroke="#301C25" stroke-width="2"/>
+      <g id="art-b"></g>
+    </svg>
+    <ul class="key" id="key"></ul>
+    <button class="big" id="start" data-t="start"></button>
+  </section>
+
+  <section class="screen" id="s-game" hidden>
+    <h1 data-t="title" style="font-size:clamp(16px,4.5vw,20px)"></h1>
+    <div class="counts" id="counts"><span id="c-placed"></span><span id="c-undo"></span></div>
+    <div class="qwrap" id="qwrap"><ul id="queue"></ul></div>
+    <div id="rbox" hidden>
+      <h2 id="rhead" tabindex="-1"></h2>
+      <div class="sc" id="rscore"></div>
+      <div id="rbest"></div>
+      <div id="rundo"></div>
+    </div>
+    <div class="bowls" id="bowls"></div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <button id="undo" aria-disabled="true"></button>
+    <button class="big" id="retry" data-t="retry" hidden></button>
+  </section>
+</div>
+<div id="fx" aria-hidden="true"></div>
+<div id="rcp"></div>
+<script>
+(function(){
+'use strict';
+var L=new URLSearchParams(location.search).get('lang');
+if(L!=='ko'&&L!=='en')L=(navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en';
+document.documentElement.lang=L;
+var S={
+ko:{title:'동지 팥죽 새알심 퍼즐',startHelp:'맨 앞 새알심을 알맞은 그릇에 담아 세 그릇을 채우세요.',start:'시작하기',circle:'동그라미',triangle:'세모',square:'네모',queue:'새알심 순서',next:'다음',nextShape:'다음 새알심은 {shape}입니다.',bowl:'{n}번 그릇',bowlOpenLabel:'{name}. {filled}/3알. 다음 칸은 {shape}.',bowlFullLabel:'{name}. 모두 채움.',recipe:'전체 순서: {shapes}.',placedCount:'담은 새알심 {n}/9',undoCount:'되돌리기 {n}회',undo:'되돌리기',playHelp:'맨 앞 새알심과 그릇의 다음 칸을 맞추세요.',placed:'{name}에 담았어요.',mismatch:'{name}의 다음 칸은 {shape}예요.',full:'{name}은 이미 다 찼어요.',undone:'마지막에 담은 새알심을 되돌렸어요.',stuck:'놓을 그릇이 없어요. 되돌려서 다른 순서로 담아 보세요.',finished:'팥죽 세 그릇 완성!',perfect:'되돌리기 없이 세 그릇 완성!',score:'점수 {n}/9',best:'최고 점수 {n}/9',retry:'다시 하기'},
+en:{title:'Winter Solstice Dumpling Puzzle',startHelp:'Match the first dumpling to a bowl and fill all three bowls.',start:'Start',circle:'Circle',triangle:'Triangle',square:'Square',queue:'Dumpling queue',next:'Next',nextShape:'Next dumpling is {shape}.',bowl:'Bowl {n}',bowlOpenLabel:'{name}. {filled}/3 filled. Next slot is {shape}.',bowlFullLabel:'{name}. Full.',recipe:'Full recipe: {shapes}.',placedCount:'Dumplings placed {n}/9',undoCount:'Undos {n}',undo:'Undo',playHelp:'Match the first dumpling to a bowl’s next slot.',placed:'Placed in {name}.',mismatch:'{name} needs {shape} next.',full:'{name} is already full.',undone:'Returned the last dumpling to the queue.',stuck:'No bowl can take this dumpling. Undo and try a different order.',finished:'Three bowls ready!',perfect:'Three bowls, zero undos!',score:'Score {n}/9',best:'Best {n}/9',retry:'Play again'}
+}[L];
+function t(k,v){var s=S[k];if(v)for(var x in v)s=s.split('{'+x+'}').join(v[x]);return s}
+var SH=['circle','triangle','square'];
+function shapeName(k){return t(SH[k])}
+function shp(k){var p=k===0?'<circle cx="10" cy="10" r="6.5"/>':k===1?'<polygon points="10,3 17.5,16.5 2.5,16.5"/>':'<rect x="3.5" y="3.5" width="13" height="13" rx="1"/>';return '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">'+p+'</svg>'}
+// 0 circle 1 triangle 2 square
+var R=[[0,1,2],[0,2,1],[1,0,2]];
+var Q=[0,1,2,0,2,0,1,2,1];
+var SOL=[1,2,1,2,2,0,0,0,1];
+var KEY='dongji-dumpling-puzzle:best:v1';
+var qs=new URLSearchParams(location.search);
+var best=null,demo=location.hash==='#demo'||qs.get('thumb')==='1',phase='start',hist=[],undos=0,stuckMsg=false;
+if(!demo){try{var sv=localStorage.getItem(KEY);if(/^[0-9]$/.test(sv))best=+sv}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+document.title=t('title');
+[].forEach.call(document.querySelectorAll('[data-t]'),function(e){e.textContent=t(e.getAttribute('data-t'))});
+$('undo').textContent=t('undo');
+$('queue').setAttribute('aria-label',t('queue'));
+$('key').innerHTML=[0,1,2].map(function(k){return '<li>'+shp(k)+shapeName(k)+'</li>'}).join('');
+var ab='';for(var i=0;i<3;i++){var x=24+i*74;ab+='<path d="M'+(x)+' 66 Q'+(x)+' 100 '+(x+36)+' 100 Q'+(x+72)+' 100 '+(x+72)+' 66Z" fill="#4a1325" stroke="#301C25" stroke-width="3"/><ellipse cx="'+(x+36)+'" cy="66" rx="36" ry="9" fill="#671E35" stroke="#301C25" stroke-width="3"/><circle cx="'+(x+24)+'" cy="64" r="6" fill="#FFF8E8"/><circle cx="'+(x+44)+'" cy="66" r="6" fill="#FFF8E8"/>'}
+$('art-b').innerHTML=ab;
+$('rcp').innerHTML=R.map(function(r,i){return '<span class="sr" id="rcp'+i+'">'+t('recipe',{shapes:r.map(shapeName).join(', ')})+'</span>'}).join('');
+// bowl buttons
+var bowlBtns=[];
+for(var b=0;b<3;b++){var bt=document.createElement('button');bt.className='bowl';bt.type='button';bt.dataset.b=b;$('bowls').appendChild(bt);bowlBtns.push(bt)}
+
+function fills(){var f=[0,0,0];hist.forEach(function(b){f[b]++});return f}
+function canPlace(b,f,h){return f[b]<3&&R[b][f[b]]===Q[h]}
+function isStuck(){var h=hist.length;if(h>=9)return false;var f=fills();return !(canPlace(0,f,h)||canPlace(1,f,h)||canPlace(2,f,h))}
+function nextMsg(){return t('nextShape',{shape:shapeName(Q[hist.length])})}
+function setStatus(m){$('status').textContent=m}
+
+function render(){
+  var h=hist.length,f=fills(),done=h>=9;
+  $('c-placed').textContent=t('placedCount',{n:h});
+  $('c-undo').textContent=t('undoCount',{n:undos});
+  $('counts').hidden=done;
+  $('qwrap').hidden=done;
+  $('rbox').hidden=!done;
+  $('status').hidden=done;
+  $('undo').hidden=done;
+  $('retry').hidden=!done;
+  var q='';
+  for(var i=0;i<9;i++){
+    if(i>=h){q+='<li class="qs has'+(i===h?' first':'')+'"'+(i===h?' data-label="'+t('next')+'"':'')+' aria-label="'+shapeName(Q[i])+'">'+shp(Q[i])+'</li>'}
+    else q+='<li class="qs" aria-hidden="true"></li>';
+  }
+  $('queue').innerHTML=q;
+  for(var b=0;b<3;b++){
+    var nm=t('bowl',{n:b+1}),full=f[b]>=3,s='';
+    for(var k=0;k<3;k++)s+='<span class="sl'+(k<f[b]?' done':k===f[b]?' nx':'')+'">'+shp(R[b][k])+'</span>';
+    var dm='';for(var d=0;d<f[b];d++)dm+='<circle cx="'+(18+d*12)+'" cy="'+(d===1?12:11)+'" r="5.5" fill="#FFF8E8" stroke="#301C25" stroke-width="1"/>';
+    var svg='<svg class="bs" viewBox="0 0 60 36" aria-hidden="true"><path d="M4 13 Q4 33 30 33 Q56 33 56 13Z" fill="#4a1325" stroke="#301C25" stroke-width="2"/><ellipse cx="30" cy="13" rx="26" ry="6.5" fill="#671E35" stroke="#301C25" stroke-width="2"/>'+dm+'</svg>';
+    bowlBtns[b].innerHTML=svg+'<b>'+nm+'</b><span class="rec" aria-hidden="true">'+s+'</span>';
+    bowlBtns[b].setAttribute('aria-describedby','rcp'+b);
+    bowlBtns[b].setAttribute('aria-label',full?t('bowlFullLabel',{name:nm}):t('bowlOpenLabel',{name:nm,filled:f[b],shape:shapeName(R[b][f[b]])}));
+  }
+  var st=isStuck();
+  $('undo').classList.toggle('stuck',st);
+  $('undo').setAttribute('aria-disabled',h?'false':'true');
+  if(done){
+    var sc=Math.max(0,9-undos);
+    $('rhead').textContent=t(undos===0?'perfect':'finished');
+    $('rscore').textContent=t('score',{n:sc});
+    $('rbest').textContent=t('best',{n:best});
+    $('rundo').textContent=t('undoCount',{n:undos});
+  }
+}
+
+function place(b){
+  if(phase!=='play')return;
+  var h=hist.length,f=fills();
+  if(h>=9)return;
+  if(f[b]>=3){fail(b,t('full',{name:t('bowl',{n:b+1})}));return}
+  if(R[b][f[b]]!==Q[h]){fail(b,t('mismatch',{name:t('bowl',{n:b+1}),shape:shapeName(R[b][f[b]])}));return}
+  var from=slotRect(h);
+  hist.push(b);
+  if(hist.length>=9){finish();render();fly(from,b,f[b]);$('rhead').focus();return}
+  render();
+  setStatus(isStuck()?t('stuck'):t('placed',{name:t('bowl',{n:b+1})})+' '+nextMsg());
+  fly(from,b,f[b]);
+}
+function fail(b,m){
+  setStatus(isStuck()?t('stuck'):m);
+  var e=bowlBtns[b];e.classList.remove('shake');void e.offsetWidth;e.classList.add('shake');
+}
+function undo(){
+  if(phase!=='play'||!hist.length)return;
+  hist.pop();undos++;render();
+  setStatus(isStuck()?t('stuck'):t('undone')+' '+nextMsg());
+}
+function finish(){
+  phase='result';
+  var sc=Math.max(0,9-undos);
+  if(!demo&&(best===null||sc>best)){best=sc;try{localStorage.setItem(KEY,String(sc))}catch(e){}}
+}
+function begin(){
+  if(demo){best=null;try{var v=localStorage.getItem(KEY);if(/^[0-9]$/.test(v))best=+v}catch(e){}}
+  hist=[];undos=0;demo=false;phase='play';
+  $('s-start').hidden=true;$('s-game').hidden=false;
+  render();setStatus(t('playHelp')+' '+nextMsg());
+  bowlBtns[0].focus();
+}
+function openDemo(){
+  hist=SOL.slice();undos=0;demo=true;phase='result';best=9;
+  $('s-start').hidden=true;$('s-game').hidden=false;render();
+}
+// effects
+var fx=[],run=false,last=0,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function slotRect(h){var e=$('queue').children[h];return e?e.getBoundingClientRect():null}
+function fly(from,b,k){
+  if(reduce||!from||document.hidden)return;
+  var to=bowlBtns[b].querySelector('.rec').children[k].getBoundingClientRect();
+  var a=document.createElement('div'),r=document.createElement('div');
+  a.className='fly';r.className='rip';r.style.opacity=0;
+  $('fx').appendChild(a);$('fx').appendChild(r);
+  fx.push({a:a,r:r,x0:from.left+from.width/2,y0:from.top+from.height/2,x1:to.left+to.width/2,y1:to.top+to.height/2,t:0});
+  if(!run){run=true;last=0;requestAnimationFrame(loop)}
+}
+function loop(ts){
+  if(!run)return;
+  var dt=last?Math.min(50,ts-last):16;last=ts;
+  fx=fx.filter(function(e){
+    e.t+=dt;
+    if(e.t<160){var p=e.t/160,x=e.x0+(e.x1-e.x0)*p,y=e.y0+(e.y1-e.y0)*p-Math.sin(p*Math.PI)*40;
+      e.a.style.left=(x-13)+'px';e.a.style.top=(y-13)+'px'}
+    else{e.a.style.display='none';var p2=(e.t-160)/240;
+      if(p2>=1){e.a.remove();e.r.remove();return false}
+      var s=12+p2*28;e.r.style.cssText='left:'+(e.x1-s/2)+'px;top:'+(e.y1-s/2)+'px;width:'+s+'px;height:'+s+'px;opacity:'+(1-p2)}
+    return true});
+  if(fx.length)requestAnimationFrame(loop);else run=false;
+}
+function clearFx(){fx.forEach(function(e){e.a.remove();e.r.remove()});fx=[];run=false}
+document.addEventListener('visibilitychange',function(){if(document.hidden)clearFx()});
+window.addEventListener('resize',clearFx);
+// input
+function press(el){
+  el.addEventListener('pointerdown',function(){el.classList.add('down')});
+  ['pointerup','pointercancel','pointerleave'].forEach(function(n){el.addEventListener(n,function(){el.classList.remove('down')})});
+}
+[$('start'),$('retry'),$('undo')].concat(bowlBtns).forEach(press);
+$('start').addEventListener('click',begin);
+$('retry').addEventListener('click',begin);
+// pointer double-click guard: same control within 250 ms is one activation
+var lastC=null,lastT=0;
+function once(id,ev,fn){var n=ev.timeStamp;if(ev.detail>0&&lastC===id&&n-lastT<250)return;lastC=id;lastT=n;fn()}
+$('undo').addEventListener('click',function(ev){once('u',ev,undo)});
+bowlBtns.forEach(function(e,i){e.addEventListener('click',function(ev){once(i,ev,function(){place(i)})})});
+document.addEventListener('keydown',function(e){
+  if(phase!=='play'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+  if(!$('app').contains(document.activeElement))return;
+  var k=e.key;
+  if(k==='1'||k==='2'||k==='3'){e.preventDefault();place(+k-1)}
+  else if(k==='z'||k==='Z'){e.preventDefault();undo()}
+});
+if(demo)openDemo();
+else $('start').focus();
+})();
+</script>
+</body>
+</html>
