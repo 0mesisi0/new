@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>수능 끝 뭐 하지?</title>
+<link rel="icon" href="data:,">
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#F5EFDF;color:#18283D;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
-.app{height:100vh;height:100dvh;max-width:440px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
-.app>header{flex:none}
-#startv,#resv,#manv{flex:none;position:sticky;bottom:0;background:#F5EFDF;z-index:1}
+.app{height:100vh;height:100dvh;max-width:440px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:clip}
+.app>header,.actions{flex:none}
 h1{margin:0;font-size:1.5rem;line-height:1.2}
 .intro{margin:2px 0 0;font-size:.95rem}
-.table{flex:1 0 96px;overflow:auto;border:2px solid #18283D;border-radius:10px;background:#FBF7EC;display:flex;flex-direction:column;touch-action:pan-y}
+.table{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;border:2px solid #18283D;border-radius:10px;background:#FBF7EC;display:flex;flex-direction:column;touch-action:pan-y}
 .row{flex:0 0 14px;border-bottom:2px solid #18283D33;position:relative}
 .row:last-child{border-bottom:0}
 .slot{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;padding:10px;border-top:2px dashed #254BB5;border-bottom:2px dashed #254BB5;background:repeating-linear-gradient(#0000 0 27px,#18283D14 27px 29px)}
@@ -25,14 +25,15 @@ h1{margin:0;font-size:1.5rem;line-height:1.2}
 .meta{margin:0 0 6px;font-size:.85rem;font-weight:600}
 .card h3{margin:0 0 6px;font-size:1.3rem;line-height:1.3}
 .card p.ins{margin:0;font-size:1rem;line-height:1.5}
-fieldset{border:0;margin:0;padding:0}
+fieldset{min-width:0;border:0;margin:0;padding:0}
 legend{font-size:.85rem;font-weight:600;padding:0 0 4px}
 .moods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .moods input{position:absolute;opacity:0;width:1px;height:1px}
 .moods label{display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 10px;border:2px solid #18283D55;border-radius:10px;background:#fff;cursor:pointer;font-size:.95rem;min-width:0;overflow-wrap:anywhere}
-.moods label::before{content:"";flex:none;width:18px;height:18px;border-radius:50%;border:2px solid #18283D;background:#fff}
+.moods label::before{content:"";box-sizing:border-box;flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #18283D;background:#fff}
 .moods input:checked+label{border-color:#254BB5;background:#E3EAFB;font-weight:700}
 .moods input:checked+label::before{background:radial-gradient(#254BB5 0 4px,#fff 5px)}
+@media (forced-colors:active){.moods input:checked+label::before{border:6px solid Highlight}}
 .moods input:focus-visible+label,button:focus-visible,textarea:focus-visible{outline:3px solid #18283D;outline-offset:2px}
 .actions{display:flex;flex-direction:column;gap:8px}
 button{min-height:48px;padding:8px 14px;font:inherit;font-weight:700;border-radius:10px;border:2px solid #254BB5;background:#254BB5;color:#fff;cursor:pointer;touch-action:manipulation}
@@ -40,25 +41,27 @@ button.sec{background:#fff;color:#254BB5}
 .two{display:flex;gap:8px}.two button{flex:1}
 button:active{transform:scale(.98)}
 .status{flex:none;height:1.4em;font-size:.9rem;font-weight:600;color:#1B6B3A;text-align:center}
+.status:has(#vis:empty){position:absolute}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 textarea{width:100%;min-height:110px;font:inherit;padding:8px;border:2px solid #18283D;border-radius:8px;background:#fff;color:#18283D;resize:none}
 .manual h2{margin:0 0 4px;font-size:1.1rem}.manual p{margin:0 0 8px;font-size:.9rem}.manual label{display:block;font-weight:600;font-size:.85rem;margin-bottom:4px}
 [hidden]{display:none!important}
-@media (max-height:520px){.app{gap:6px;padding-top:8px;padding-bottom:8px}h1{font-size:1.2rem}.intro{font-size:.85rem;margin:0}.row{flex-basis:8px}.free{padding:8px 0}.moods label{min-height:44px}button{min-height:44px}.card{padding:8px}.card h3{font-size:1.1rem}}
+@media (max-height:520px){.app{gap:6px;padding-top:8px;padding-bottom:8px}h1{font-size:1.2rem}.intro{font-size:.85rem;margin:0}.row{flex-basis:8px}.free{padding:8px 0}.moods label{min-height:44px}button{min-height:44px;padding:6px 8px;line-height:1.2}.slot,.card{padding:8px}.card h2,.card h3{line-height:1.2}.card h3{font-size:1.1rem}}
 @media (prefers-reduced-motion:reduce){.card.in{animation:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <header><h1 id="t"></h1><p class="intro" id="intro"></p></header>
-  <main class="table" id="table">
+  <main class="table" id="table" tabindex="0">
     <div class="row"></div>
     <div class="slot">
       <p class="free" id="free"></p>
+      <fieldset id="moods"><legend id="ml"></legend><div class="moods" id="moodbox"></div></fieldset>
       <section class="card" id="card" hidden>
         <h2 id="rh" tabindex="-1"></h2>
-        <p class="meta" id="rmeta"></p>
         <h3 id="rtitle"></h3>
+        <p class="meta" id="rmeta"></p>
         <p class="ins" id="rins"></p>
       </section>
       <section class="manual card" id="manual" hidden>
@@ -70,10 +73,7 @@ textarea{width:100%;min-height:110px;font:inherit;padding:8px;border:2px solid #
     <div class="row"></div><div class="row"></div>
   </main>
   <div class="status" id="live" aria-live="polite"><span class="sr" id="ann"></span><span id="vis" aria-hidden="true"></span></div>
-  <div id="startv">
-    <fieldset id="moods"><legend id="ml"></legend><div class="moods" id="moodbox"></div></fieldset>
-    <div class="actions" style="margin-top:10px"><button type="button" id="draw"></button></div>
-  </div>
+  <div class="actions" id="startv"><button type="button" id="draw"></button></div>
   <div class="actions" id="manv" hidden><button type="button" class="sec" id="mclose"></button></div>
   <div class="actions" id="resv" hidden>
     <button type="button" id="again"></button>
@@ -146,11 +146,13 @@ function show(c,animate){
 function view(s){
   screen=s;
   $("startv").hidden=s!=="start";$("resv").hidden=s!=="result";$("manv").hidden=s!=="manual";
+  $("intro").hidden=s!=="start";$("moods").hidden=s!=="start";
   $("free").hidden=s!=="start";$("card").hidden=s!=="result";$("manual").hidden=s!=="manual";
+  $("table").scrollTop=0;
 }
 function doDraw(first){
   var c=pick();setStatus("","");show(c,true);view("result");
-  if(first)$("rh").focus();
+  if(first)$("rh").focus({preventScroll:true});
   else setStatus(fmt(T.ann,{title:c.t[L],minutes:c.min}),"");
 }
 $("draw").onclick=function(){doDraw(true)};
