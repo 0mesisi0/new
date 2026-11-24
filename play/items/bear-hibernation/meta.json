@@ -1,0 +1,21 @@
+{
+  "slug": "bear-hibernation",
+  "date": "2026-11-25",
+  "category": "weird",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "곰 겨울잠 지키기",
+    "desc": "곰이 겨울잠에 들었어요. 마우스도, 화면도, 키보드도 건드리지 말고 봄까지 버티세요. 자꾸 뭔가 눌러 보라고 유혹하는 게 함정이에요.",
+    "howto": "'재우기'를 누르고 손을 떼세요. 그다음엔 아무것도 하지 마세요. 마우스를 움직이거나, 화면을 누르거나, 키를 누르면 곰이 깨요. 5초가 겨울잠 하루예요. D+120까지 버티면 봄이 와요.",
+    "about": "화면에 뜨는 '눈 치우기', '꿀 주기' 같은 버튼은 전부 친절한 함정이에요. 다른 탭에 다녀오면 그동안은 시간이 멈춰서, 몰래 나가서 시간을 벌 수는 없어요.",
+    "tags": ["멍때리기", "겨울잠"]
+  },
+  "en": {
+    "title": "Let the Bear Sleep",
+    "desc": "A bear just fell asleep for the winter. Don't move, tap or type until spring arrives. Everything on screen will try to tempt you.",
+    "howto": "Tap \"Tuck in\" and let go. Then do nothing. Moving the mouse, touching the screen or pressing any key wakes the bear. Every 5 seconds is one day of hibernation. Reach day 120 and spring arrives.",
+    "about": "The \"Clear the snow\" and \"Give honey\" buttons are all kind-hearted traps. Time stops while you are in another tab, so leaving the tab does not earn you any days.",
+    "tags": ["do-nothing", "hibernation"]
+  }
+}
