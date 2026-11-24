@@ -3,14 +3,15 @@
   "site": "play",
   "slug": "mini-curling",
   "status": "queued",
-  "stage": "design",
+  "stage": "build",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
   "pr": null,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -22,6 +23,30 @@
     {
       "at": "2026-11-24T19:31:17.453Z",
       "stage": "idea",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T20:41:32.961Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T20:43:18.704Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T20:44:24.145Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T20:47:08.545Z",
+      "stage": "review",
       "status": "approved",
       "by": "codex"
     }
