@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-regex-playground",
+  "site": "play",
+  "slug": "regex-playground",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T22:57:04.113Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-24T23:00:26.579Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a humor or parody generator, receipt, certificate or meme maker (kind tool)"
+}
