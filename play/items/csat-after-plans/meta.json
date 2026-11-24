@@ -1,0 +1,21 @@
+{
+  "slug": "csat-after-plans",
+  "date": "2026-11-23",
+  "category": "random",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "수능 끝 뭐 하지?",
+    "tags": ["수능 끝", "수능 끝나고 뭐 하지", "오늘 뭐 하지"],
+    "desc": "수능 끝난 오늘, 집에서 쉴지 잠깐 나갈지 고민된다면 기분에 맞는 할 일을 한 장 뽑아 보세요. 마음에 들면 친구에게 보내요.",
+    "howto": "지금 기분을 고르고 ‘오늘 할 일 뽑기’를 누르세요. 바로 뽑아도 돼요. 마음에 드는 카드가 나오면 ‘텍스트 복사’를 눌러요.",
+    "about": "수능이 끝난 뒤 쉬고, 걷고, 친구를 만나는 데 작은 핑계가 되어 주는 할 일 카드예요."
+  },
+  "en": {
+    "title": "What Now After the CSAT?",
+    "tags": ["CSAT", "post-exam plans", "activity picker"],
+    "desc": "Pick a mood and draw a small plan for your first free afternoon after the CSAT. Copy a favorite to share with friends.",
+    "howto": "Choose a mood or tap “Draw a plan” right away. When a card feels right, tap “Copy text” to share it.",
+    "about": "A deck of small excuses to rest, take a walk, or catch up with friends after Korea’s college entrance exam."
+  }
+}

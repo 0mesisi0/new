@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>수능 끝 뭐 하지?</title>
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#F5EFDF;color:#18283D;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+.app{height:100vh;height:100dvh;max-width:440px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:clip}
+.app>header,.actions{flex:none}
+h1{margin:0;font-size:1.5rem;line-height:1.2}
+.intro{margin:2px 0 0;font-size:.95rem}
+.table{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;border:2px solid #18283D;border-radius:10px;background:#FBF7EC;display:flex;flex-direction:column;touch-action:pan-y}
+.row{flex:0 0 14px;border-bottom:2px solid #18283D33;position:relative}
+.row:last-child{border-bottom:0}
+.slot{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;padding:10px;border-top:2px dashed #254BB5;border-bottom:2px dashed #254BB5;background:repeating-linear-gradient(#0000 0 27px,#18283D14 27px 29px)}
+.free{margin:0;text-align:center;font-size:1.3rem;font-weight:700;color:#254BB5;padding:18px 0}
+.card{background:#FFE59A;border:2px solid #18283D;border-radius:8px;padding:12px;background-image:repeating-linear-gradient(#0000 0 29px,#18283D22 29px 31px)}
+.card.in{animation:in .15s ease-out}
+@keyframes in{from{transform:translateY(-14px)}to{transform:none}}
+.card h2{margin:0 0 4px;font-size:.9rem;color:#254BB5}
+.card h2:focus{outline:0}.card h2:focus-visible{outline:3px solid #18283D;outline-offset:2px}
+.meta{margin:0 0 6px;font-size:.85rem;font-weight:600}
+.card h3{margin:0 0 6px;font-size:1.3rem;line-height:1.3}
+.card p.ins{margin:0;font-size:1rem;line-height:1.5}
+fieldset{min-width:0;border:0;margin:0;padding:0}
+legend{font-size:.85rem;font-weight:600;padding:0 0 4px}
+.moods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.moods input{position:absolute;opacity:0;width:1px;height:1px}
+.moods label{display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 10px;border:2px solid #18283D55;border-radius:10px;background:#fff;cursor:pointer;font-size:.95rem;min-width:0;overflow-wrap:anywhere}
+.moods label::before{content:"";box-sizing:border-box;flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #18283D;background:#fff}
+.moods input:checked+label{border-color:#254BB5;background:#E3EAFB;font-weight:700}
+.moods input:checked+label::before{background:radial-gradient(#254BB5 0 4px,#fff 5px)}
+@media (forced-colors:active){.moods input:checked+label::before{border:6px solid Highlight}}
+.moods input:focus-visible+label,button:focus-visible,textarea:focus-visible{outline:3px solid #18283D;outline-offset:2px}
+.actions{display:flex;flex-direction:column;gap:8px}
+button{min-height:48px;padding:8px 14px;font:inherit;font-weight:700;border-radius:10px;border:2px solid #254BB5;background:#254BB5;color:#fff;cursor:pointer;touch-action:manipulation}
+button.sec{background:#fff;color:#254BB5}
+.two{display:flex;gap:8px}.two button{flex:1}
+button:active{transform:scale(.98)}
+.status{flex:none;height:1.4em;font-size:.9rem;font-weight:600;color:#1B6B3A;text-align:center}
+.status:has(#vis:empty){position:absolute}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+textarea{width:100%;min-height:110px;font:inherit;padding:8px;border:2px solid #18283D;border-radius:8px;background:#fff;color:#18283D;resize:none}
+.manual h2{margin:0 0 4px;font-size:1.1rem}.manual p{margin:0 0 8px;font-size:.9rem}.manual label{display:block;font-weight:600;font-size:.85rem;margin-bottom:4px}
+[hidden]{display:none!important}
+@media (max-height:520px){.app{gap:6px;padding-top:8px;padding-bottom:8px}h1{font-size:1.2rem}.intro{font-size:.85rem;margin:0}.row{flex-basis:8px}.free{padding:8px 0}.moods label{min-height:44px}button{min-height:44px;padding:6px 8px;line-height:1.2}.slot,.card{padding:8px}.card h2,.card h3{line-height:1.2}.card h3{font-size:1.1rem}}
+@media (prefers-reduced-motion:reduce){.card.in{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><h1 id="t"></h1><p class="intro" id="intro"></p></header>
+  <main class="table" id="table" tabindex="0">
+    <div class="row"></div>
+    <div class="slot">
+      <p class="free" id="free"></p>
+      <fieldset id="moods"><legend id="ml"></legend><div class="moods" id="moodbox"></div></fieldset>
+      <section class="card" id="card" hidden>
+        <h2 id="rh" tabindex="-1"></h2>
+        <h3 id="rtitle"></h3>
+        <p class="meta" id="rmeta"></p>
+        <p class="ins" id="rins"></p>
+      </section>
+      <section class="manual card" id="manual" hidden>
+        <h2 id="mh"></h2><p id="mhint"></p>
+        <label for="mtext" id="mlabel"></label>
+        <textarea id="mtext" readonly></textarea>
+      </section>
+    </div>
+    <div class="row"></div><div class="row"></div>
+  </main>
+  <div class="status" id="live" aria-live="polite"><span class="sr" id="ann"></span><span id="vis" aria-hidden="true"></span></div>
+  <div class="actions" id="startv"><button type="button" id="draw"></button></div>
+  <div class="actions" id="manv" hidden><button type="button" class="sec" id="mclose"></button></div>
+  <div class="actions" id="resv" hidden>
+    <button type="button" id="again"></button>
+    <div class="two"><button type="button" class="sec" id="copy"></button><button type="button" class="sec" id="change"></button></div>
+  </div>
+</div>
+<script>
+(function(){
+var DECK=[
+["ceiling","rest",10,"천장 구경 10분","Ten minutes with the ceiling","알림을 잠깐 끄고 누워요. 일어나면 물 한 잔 마셔요.","Silence your notifications for a bit and lie down. Have a glass of water when you get up."],
+["playlist","rest",15,"밀어 둔 노래 세 곡","Three songs you saved for later","듣고 싶었던 노래 세 곡을 골라 처음부터 끝까지 들어요.","Pick three songs you’ve been meaning to hear and play them from start to finish."],
+["slow-breakfast","rest",25,"늦은 아침 한 접시","A late breakfast","집에 있는 걸로 한 접시 차려서, 영상 하나 틀지 않고 천천히 먹어요.","Make a plate with what you have at home and take your time eating it with the screen off."],
+["three-photos","out",20,"지나치던 것 세 장","Three things you usually pass","익숙한 길을 걸으며 평소 지나치던 것 세 가지를 사진으로 남겨요.","Walk a familiar route and photograph three things you usually pass without looking."],
+["long-way","out",15,"집까지 한 블록 돌아가기","Take the long way home","집 근처에서 익숙한 길 한 블록을 돌아와요. 눈에 띄는 색 하나를 기억해요.","Take an extra block on a familiar route near home. Remember one color that catches your eye."],
+["bench","out",20,"벤치에 앉아 한 곡","One song on a bench","가까운 벤치에 앉아 좋아하는 노래 한 곡을 듣고 돌아와요.","Sit on a nearby bench, listen to one favorite song, then head back."],
+["voice-note","friends",5,"해방 소식 10초","A ten-second voice note","친구에게 시험이 끝나고 가장 먼저 하고 싶었던 일을 음성 메시지로 보내요.","Send a friend a voice note about the first thing you wanted to do after the exam."],
+["one-song-each","friends",15,"각자 한 곡씩","One song each","친구와 요즘 듣는 노래를 한 곡씩 바꿔 듣고, 제일 좋았던 부분을 알려 줘요.","Swap one song each with a friend, listen, and tell each other your favorite part."],
+["walk-invite","friends",30,"동네 한 바퀴 같이","A lap around the neighborhood","가까이 사는 친구에게 동네 한 바퀴 같이 걸을지 물어봐요.","Ask a friend who lives nearby if they’re up for a walk around the neighborhood."]
+].map(function(c){return{id:c[0],mood:c[1],min:c[2],t:{ko:c[3],en:c[4]},i:{ko:c[5],en:c[6]}}});
+var S={
+ko:{appTitle:"수능 끝 뭐 하지?",intro:"시험 끝! 지금 기분에 맞는 할 일을 한 장 뽑아 봐요.",freeSlot:"자유 시간",moodLabel:"지금 기분",any:"아무거나",rest:"집에서 쉬기",out:"잠깐 나가기",friends:"친구와 함께",draw:"오늘 할 일 뽑기",resultHeading:"오늘의 할 일",duration:"약 {minutes}분",ann:"새 카드, {title}. 약 {minutes}분.",again:"한 장 더",copy:"텍스트 복사",copied:"복사했어요.",change:"기분 바꾸기",mh:"직접 복사하기",mhint:"아래 문구를 길게 누르거나 키보드로 선택해 복사하세요.",mlabel:"공유할 문구",close:"닫기",share:"수능 끝, 오늘 할 일\n{title} · 약 {minutes}분\n{instruction}"},
+en:{appTitle:"What Now After the CSAT?",intro:"Exam over! Draw a small plan that fits your mood.",freeSlot:"Free time",moodLabel:"What are you up for?",any:"Anything",rest:"Stay in",out:"Step outside",friends:"With a friend",draw:"Draw a plan",resultHeading:"Today’s plan",duration:"About {minutes} min",ann:"New card, {title}. About {minutes} min.",again:"Draw again",copy:"Copy text",copied:"Copied.",change:"Change mood",mh:"Copy manually",mhint:"Touch and hold the text below, or select it with the keyboard and copy.",mlabel:"Text to share",close:"Close",share:"After the CSAT, today's plan\n{title} · About {minutes} min\n{instruction}"}
+};
+var q=new URLSearchParams(location.search).get("lang");
+var L=(q==="ko"||q==="en")?q:((navigator.language||"").toLowerCase().indexOf("ko")===0?"ko":"en");
+var T=S[L];
+function $(id){return document.getElementById(id)}
+function fmt(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+document.documentElement.lang=L;document.title=T.appTitle;
+$("t").textContent=T.appTitle;$("intro").textContent=T.intro;$("free").textContent=T.freeSlot;
+$("ml").textContent=T.moodLabel;$("draw").textContent=T.draw;$("again").textContent=T.again;
+$("copy").textContent=T.copy;$("change").textContent=T.change;$("rh").textContent=T.resultHeading;
+$("mh").textContent=T.mh;$("mhint").textContent=T.mhint;$("mlabel").textContent=T.mlabel;$("mclose").textContent=T.close;
+
+var KEY="csat-after-plans:mood",MOODS=["any","rest","out","friends"];
+var demo=location.hash==="#demo"||new URLSearchParams(location.search).get("thumb")==="1";
+var mood="any";
+try{var m=localStorage.getItem(KEY);if(MOODS.indexOf(m)>=0)mood=m}catch(e){}
+if(demo)mood="out";
+var seen={any:{},rest:{},out:{},friends:{}},last=null,screen="start",cur=null,pending=null;
+
+MOODS.forEach(function(id){
+  var i=document.createElement("input");i.type="radio";i.name="mood";i.id="m-"+id;i.value=id;i.checked=id===mood;
+  var l=document.createElement("label");l.htmlFor=i.id;l.textContent=T[id];
+  i.addEventListener("change",function(){mood=id;save()});
+  $("moodbox").appendChild(i);$("moodbox").appendChild(l);
+});
+function save(){if(demo)return;try{localStorage.setItem(KEY,mood)}catch(e){}}
+function setStatus(a,v){$("ann").textContent=a||"";$("vis").textContent=v||""}
+
+function pick(){
+  var pool=DECK.filter(function(c){return mood==="any"||c.mood===mood});
+  var s=seen[mood];
+  var un=pool.filter(function(c){return !s[c.id]});
+  if(!un.length){seen[mood]=s={};un=pool}
+  var cand=un.filter(function(c){return c!==last});
+  // sole unseen card is the one just shown: take another card, keep cycle
+  if(!cand.length)cand=pool.filter(function(c){return c!==last});
+  var c=cand[Math.floor(Math.random()*cand.length)];
+  s[c.id]=1;last=c;return c;
+}
+function shareText(c){return fmt(T.share,{title:c.t[L],minutes:c.min,instruction:c.i[L]})}
+function show(c,animate){
+  cur=c;pending=null;
+  $("rmeta").textContent=T[c.mood==="rest"?"rest":c.mood]+" · "+fmt(T.duration,{minutes:c.min});
+  $("rtitle").textContent=c.t[L];$("rins").textContent=c.i[L];
+  var el=$("card");el.classList.remove("in");
+  if(animate&&!document.hidden){void el.offsetWidth;el.classList.add("in")}
+}
+function view(s){
+  screen=s;
+  $("startv").hidden=s!=="start";$("resv").hidden=s!=="result";$("manv").hidden=s!=="manual";
+  $("intro").hidden=s!=="start";$("moods").hidden=s!=="start";
+  $("free").hidden=s!=="start";$("card").hidden=s!=="result";$("manual").hidden=s!=="manual";
+  $("table").scrollTop=0;
+}
+function doDraw(first){
+  var c=pick();setStatus("","");show(c,true);view("result");
+  if(first)$("rh").focus({preventScroll:true});
+  else setStatus(fmt(T.ann,{title:c.t[L],minutes:c.min}),"");
+}
+$("draw").onclick=function(){doDraw(true)};
+$("again").onclick=function(){doDraw(false)};
+$("change").onclick=function(){setStatus("","");view("start");document.getElementById("m-"+mood).focus()};
+$("copy").onclick=function(){
+  if(pending)return;
+  var txt=shareText(cur);
+  if(!navigator.clipboard||!navigator.clipboard.writeText){return manual(txt)}
+  var tok={},p;try{p=navigator.clipboard.writeText(txt)}catch(e){return manual(txt)}
+  pending=tok; // each write owns a token; show() clears it so stale results are ignored
+  p.then(function(){
+    if(pending!==tok||screen!=="result")return;
+    pending=null;setStatus(T.copied,T.copied);
+  },function(){
+    if(pending!==tok||screen!=="result")return;
+    pending=null;manual(txt);
+  });
+};
+function manual(txt){
+  setStatus("","");view("manual");
+  var t=$("mtext");t.value=txt;t.focus();try{t.select()}catch(e){}
+}
+function closeManual(){if(screen!=="manual")return;view("result");$("copy").focus()}
+$("mclose").onclick=closeManual;
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeManual()});
+
+if(demo){seen.out["three-photos"]=1;last=DECK[3];show(last,false);view("result")}
+else view("start");
+})();
+</script>
+</body>
+</html>
