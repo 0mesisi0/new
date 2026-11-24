@@ -1,0 +1,21 @@
+{
+  "slug": "odd-bus-arrivals",
+  "date": "2026-11-25",
+  "category": "weird",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "엉뚱한 버스 도착 전광판",
+    "desc": "겨울 정류장 전광판을 눌러 엉뚱한 버스 도착 안내를 읽어 보세요. 마음에 드는 안내는 저장하거나 복사해서 친구에게 보낼 수 있어요.",
+    "howto": "‘도착 안내 보기’를 누르고, 다른 안내가 궁금하면 ‘다음 안내’를 누르세요. 마음에 드는 안내는 ‘찜하기’로 하나 저장할 수 있어요.",
+    "tags": ["버스정류장", "겨울", "심심풀이"],
+    "about": "겨울 정류장에서 버스를 기다리다 떠올린 장난이에요. 모든 버스 이름과 도착 안내는 지어냈어요."
+  },
+  "en": {
+    "title": "Odd Bus Arrivals",
+    "desc": "Tap a winter bus board for an absurd arrival notice. Save your favorite or copy it to send to a friend.",
+    "howto": "Select “Check arrivals” to reveal a notice. Choose “Next notice” for another, or select “Save favorite” to keep one on this device.",
+    "tags": ["bus stop", "winter", "novelty"],
+    "about": "A little joke about waiting for the bus in winter. All buses and arrival notices are fictional."
+  }
+}
