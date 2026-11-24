@@ -1,0 +1,51 @@
+{
+  "id": "2026-11-25-pending-24",
+  "site": "play",
+  "slug": null,
+  "status": "failed",
+  "stage": "idea",
+  "attempts": 3,
+  "maxAttempts": 3,
+  "owner": "codex",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T21:59:50.431Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-24T21:59:58.532Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "codex exited with 1: 4Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: \"Bearer resource_metadata=\\\"https://mcp.context7.com/.well-known/oauth-protected-resource/mcp\\\"\" })\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM.\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM."
+    },
+    {
+      "at": "2026-11-24T22:00:06.956Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "codex exited with 1: 1Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: \"Bearer resource_metadata=\\\"https://mcp.context7.com/.well-known/oauth-protected-resource/mcp\\\"\" })\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM.\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM."
+    },
+    {
+      "at": "2026-11-24T22:00:14.874Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "codex",
+      "error": "codex exited with 1: 2Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: \"Bearer resource_metadata=\\\"https://mcp.context7.com/.well-known/oauth-protected-resource/mcp\\\"\" })\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM.\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 8:03 AM."
+    },
+    {
+      "at": "2026-11-24T22:00:14.875Z",
+      "stage": "idea",
+      "status": "failed",
+      "by": "codex",
+      "error": "gave up after 3 attempts"
+    }
+  ],
+  "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
+}
