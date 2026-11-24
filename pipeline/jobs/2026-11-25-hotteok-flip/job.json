@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-hotteok-flip",
+  "site": "play",
+  "slug": "hotteok-flip",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-24T23:04:56.999Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-24T23:07:35.893Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a one-thumb arcade or reaction mini game (kind game)"
+}
