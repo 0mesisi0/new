@@ -1,0 +1,21 @@
+{
+  "slug": "bubble-wrap-popper",
+  "date": "2026-11-25",
+  "category": "cool",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "뽁뽁이 터뜨리기",
+    "desc": "겨울 창문에 붙인 뽁뽁이를 마음껏 터뜨려 보세요. 톡 누르면 뽁, 쭉 문지르면 뽁뽁뽁! 가끔 나오는 황금 뽁뽁이도 찾아보세요.",
+    "howto": "뽁뽁이를 누르면 터져요. 손가락이나 마우스로 쭉 문지르면 여러 개가 한 번에 터져요. 한 장을 다 터뜨리면 새 뽁뽁이가 붙어요. 키보드는 방향키로 이동하고 Space로 터뜨려요. N은 새 장, M은 소리 끄기예요.",
+    "about": "모든 소리는 브라우저가 그 자리에서 만들어요. 진짜 창문 뽁뽁이는 터뜨리지 마세요. 단열 효과가 줄어요! 기록은 이 기기에만 저장돼요.",
+    "tags": ["뽁뽁이", "스트레스 해소"]
+  },
+  "en": {
+    "title": "Bubble Wrap Popper",
+    "desc": "Pop the bubble wrap taped to a frosty winter window. Tap for one pop, swipe for a whole row, and hunt for the rare golden bubble.",
+    "howto": "Tap a bubble to pop it, or drag across the sheet to pop a whole row. Finish a sheet and a fresh one gets taped up. Keyboard: arrow keys move, Space pops, N gives a new sheet, M mutes.",
+    "about": "Every pop sound is synthesized live in your browser. Please don't pop the bubble wrap on your real windows, because it stops keeping the cold out. Your counts stay on this device.",
+    "tags": ["bubble wrap", "fidget"]
+  }
+}
