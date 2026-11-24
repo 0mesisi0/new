@@ -1,0 +1,21 @@
+{
+  "slug": "overseas-shopping-cost-calculator",
+  "date": "2026-11-23",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "tags": ["해외직구", "직구 총비용", "블랙프라이데이", "가격 비교"],
+    "title": "해외직구 총비용 계산기",
+    "desc": "해외 상품가에 배송비와 환율, 추가 비용을 더해 원화 총액을 계산해요. 같은 상품의 국내 구매가와 얼마나 차이 나는지 바로 비교해 보세요.",
+    "howto": "예시로 결과를 먼저 보거나 직접 입력하세요. 해외 상품가와 배송비, 외화 1단위당 환율, 국내 결제 총액을 넣고 비교하세요. 알고 있는 추가 비용도 더할 수 있어요.",
+    "about": "입력한 금액만 합산하며 입력 내용은 이 화면에서만 사용해요. 관세나 카드 수수료 등을 알고 있다면 원화로 환산해 추가 비용에 넣으세요."
+  },
+  "en": {
+    "tags": ["overseas shopping", "total cost", "Black Friday", "price comparison"],
+    "title": "Overseas Shopping Cost Calculator",
+    "desc": "Convert an overseas price and shipping to won, add any extra charges, and compare the total with the Korean price.",
+    "howto": "Try the example or enter your own prices. Add the overseas item price, shipping, won per currency unit, the Korean checkout total, and any known extra charges.",
+    "about": "The calculator adds the amounts you enter and keeps them in this session. Enter any known duties or card fees as extra charges in won."
+  }
+}

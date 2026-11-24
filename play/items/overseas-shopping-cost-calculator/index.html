@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>해외직구 총비용 계산기</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100vh;height:100dvh;overflow:hidden;background:#F3EEE4;color:#182829;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-variant-numeric:tabular-nums}
+#app{height:100vh;height:100dvh;max-width:520px;margin:0 auto;padding:12px;position:relative}
+.screen{position:absolute;inset:12px;display:none;flex-direction:column;min-height:0}
+.screen.on{display:flex;animation:fade 140ms linear}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.screen.on{animation:none}}
+.panel{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:6px 6px 12px}
+.bar{padding-top:10px;display:flex;gap:8px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{min-height:48px;padding:0 16px;border-radius:12px;border:2px solid #146B60;background:#fff;color:#146B60;font-weight:700;cursor:pointer;flex:1}
+button.main{background:#146B60;color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,h2:focus-visible{outline:3px solid #182829;outline-offset:2px}
+h1{font-size:clamp(22px,6vw,28px);margin:8px 0 6px;line-height:1.25}
+h2{font-size:clamp(20px,5.5vw,26px);margin:6px 0 10px;line-height:1.3}
+p{margin:0}
+.intro{font-size:17px;line-height:1.45;margin-bottom:14px}
+.hero{display:flex;flex-direction:column;justify-content:center}
+.hero svg{width:100%;max-width:300px;height:auto;margin:6px auto 14px;display:block}
+.field{display:flex;flex-direction:column;min-width:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.row.one{grid-template-columns:1fr}
+label{font-size:14px;font-weight:600;margin-bottom:4px;line-height:1.3}
+input,select{min-height:48px;width:100%;padding:0 10px;border:2px solid #857d6c;border-radius:10px;background:#fff;font-size:16px}
+input[aria-invalid=true]{border-color:#B3261E}
+.hint{font-size:12.5px;opacity:.75;margin-top:4px;line-height:1.35}
+.err{font-size:13px;color:#B3261E;font-weight:600;margin-top:4px}
+.err:empty{display:none}
+.tag{display:inline-block;background:#E0A526;color:#182829;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;margin-bottom:6px}
+.tag[hidden]{display:none}
+.tagslot{min-height:24px}
+.slips{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slip{background:#fff;border:2px solid #d8d0bf;border-radius:10px;padding:12px 10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.slip.low{border:4px solid #146B60;padding:10px 8px}
+.slip h3{font-size:14px;margin:0;line-height:1.3}
+.slip .l{font-size:12.5px;line-height:1.3;opacity:.85}
+.slip .a{font-weight:600;font-size:15px;word-break:break-all}
+.slip .t{margin-top:auto;border-top:2px dashed #d8d0bf;padding-top:8px;font-weight:800;font-size:17px;word-break:break-all}
+.slip.low .t{color:#146B60}
+.note{font-size:13px;margin-top:10px;opacity:.8}
+.status{min-height:20px;font-size:13px;font-weight:600;color:#146B60;margin-top:6px}
+textarea{width:100%;min-height:120px;padding:8px;border:2px solid #857d6c;border-radius:10px;background:#fff;font-size:14px;resize:none;margin-top:6px}
+#fb{margin-top:10px}
+#fb[hidden]{display:none}
+#fb button{margin-top:6px;width:100%;flex:none}
+</style>
+</head>
+<body>
+<div id="app">
+ <section class="screen" id="s-start">
+  <div class="panel hero">
+   <h1 data-t="appTitle"></h1>
+   <p class="intro" data-t="intro"></p>
+   <svg viewBox="0 0 300 150" aria-hidden="true">
+    <g transform="rotate(-5 80 75)"><rect x="20" y="12" width="120" height="126" rx="6" fill="#fff" stroke="#d8d0bf" stroke-width="3"/><rect x="36" y="30" width="60" height="8" rx="4" fill="#182829"/><rect x="36" y="50" width="88" height="6" rx="3" fill="#d8d0bf"/><rect x="36" y="64" width="72" height="6" rx="3" fill="#d8d0bf"/><rect x="36" y="78" width="80" height="6" rx="3" fill="#d8d0bf"/><line x1="36" x2="124" y1="100" y2="100" stroke="#d8d0bf" stroke-width="3" stroke-dasharray="6 5"/><rect x="36" y="112" width="52" height="10" rx="5" fill="#182829"/></g>
+    <g transform="rotate(4 220 75)"><rect x="160" y="12" width="120" height="126" rx="6" fill="#fff" stroke="#146B60" stroke-width="5"/><rect x="176" y="30" width="60" height="8" rx="4" fill="#182829"/><rect x="176" y="50" width="88" height="6" rx="3" fill="#d8d0bf"/><rect x="176" y="64" width="72" height="6" rx="3" fill="#d8d0bf"/><line x1="176" x2="264" y1="100" y2="100" stroke="#d8d0bf" stroke-width="3" stroke-dasharray="6 5"/><rect x="176" y="112" width="68" height="10" rx="5" fill="#146B60"/></g>
+   </svg>
+  </div>
+  <div class="bar"><button class="main" id="b-ex" data-t="example"></button><button id="b-en" data-t="enter"></button></div>
+ </section>
+
+ <section class="screen" id="s-edit">
+  <form class="panel" id="form" novalidate>
+   <h2 data-t="editTitle"></h2>
+   <div class="row one"><div class="field"><label for="cur" data-t="currency"></label>
+    <select id="cur"><option>USD</option><option>JPY</option><option>EUR</option></select></div></div>
+   <div class="row">
+    <div class="field"><label for="item" data-t="item"></label><input id="item" inputmode="decimal" autocomplete="off" aria-describedby="e-item"><div class="err" id="e-item" role="alert"></div></div>
+    <div class="field"><label for="shipping" data-t="shipping"></label><input id="shipping" inputmode="decimal" autocomplete="off" aria-describedby="e-shipping"><div class="err" id="e-shipping" role="alert"></div></div>
+   </div>
+   <div class="row one"><div class="field"><label for="rate" id="l-rate"></label><input id="rate" inputmode="decimal" autocomplete="off" aria-describedby="h-rate e-rate"><div class="hint" id="h-rate" data-t="rateHint"></div><div class="err" id="e-rate" role="alert"></div></div></div>
+   <div class="row">
+    <div class="field"><label for="extras" data-t="extras"></label><input id="extras" inputmode="numeric" autocomplete="off" aria-describedby="h-extras e-extras"><div class="hint" id="h-extras" data-t="extrasHint"></div><div class="err" id="e-extras" role="alert"></div></div>
+    <div class="field"><label for="domestic" data-t="domestic"></label><input id="domestic" inputmode="numeric" autocomplete="off" aria-describedby="h-domestic e-domestic"><div class="hint" id="h-domestic" data-t="domesticHint"></div><div class="err" id="e-domestic" role="alert"></div></div>
+   </div>
+  </form>
+  <div class="bar"><button class="main" type="submit" form="form" id="b-cmp" data-t="compare"></button></div>
+ </section>
+
+ <section class="screen" id="s-result">
+  <div class="panel">
+   <div class="tagslot"><span class="tag" id="ex-tag" data-t="exampleLabel" hidden></span></div>
+   <h2 id="head" tabindex="-1"></h2>
+   <div class="slips">
+    <div class="slip" id="sl-o"><h3 data-t="overseasTotal"></h3><div class="l" data-t="converted"></div><div class="a" id="r-conv"></div><div class="l" data-t="extrasLine"></div><div class="a" id="r-ext"></div><div class="t" id="r-ot"></div></div>
+    <div class="slip" id="sl-d"><h3 data-t="domesticTotal"></h3><div class="t" id="r-dt"></div></div>
+   </div>
+   <p class="note" data-t="resultNote"></p>
+   <div class="status" id="status" role="status" aria-live="polite"></div>
+   <div id="fb" hidden><p class="note" data-t="copyManual"></p><label for="ta" data-t="copyTextLabel" style="margin-top:6px;display:block"></label><textarea id="ta" readonly></textarea><button id="b-close" data-t="close"></button></div>
+  </div>
+  <div class="bar"><button id="b-edit" data-t="edit"></button><button class="main" id="b-copy" data-t="copy"></button></div>
+ </section>
+</div>
+<script>
+(function(){
+var D={
+ko:{appTitle:'해외직구 총비용 계산기',intro:'배송비까지 더하면 직구가 얼마나 쌀까요?',example:'예시로 보기',enter:'직접 입력',editTitle:'구매 비용 입력',currency:'해외 결제 통화',item:'해외 상품가',shipping:'해외 배송비 · 선택',rate:'{currency} 1단위당 환율 (원)',rateHint:'엔화도 100엔이 아닌 1엔 기준으로 입력하세요.',extras:'추가 비용 (원) · 선택',extrasHint:'알고 있는 관세나 카드 수수료 등을 원화로 넣으세요.',domestic:'국내 결제 총액 (원)',domesticHint:'국내 배송비도 포함하세요.',compare:'총액 비교',exampleLabel:'예시 결과',overseasLower:'해외직구가 {amount} 저렴해요',domesticLower:'국내 구매가 {amount} 저렴해요',tie:'두 구매 총액이 같아요',converted:'상품가와 배송비 환산액',extrasLine:'추가 비용',overseasTotal:'해외직구 총액',domesticTotal:'국내 구매 총액',resultNote:'입력한 금액 기준이에요.',edit:'입력 수정',copy:'결과 복사',copied:'비교 결과를 복사했어요.',copyManual:'아래 내용을 직접 복사해 주세요.',copyTextLabel:'복사할 비교 결과',close:'닫기',required:'금액을 입력해 주세요.',requiredRate:'환율을 입력해 주세요.',invalidNumber:'숫자를 확인해 주세요.',precisionWhole:'소수점 없이 입력해 주세요.',precisionDecimal:'소수점 아래 {digits}자리까지 입력해 주세요.',outOfRange:'{min}~{max} 범위로 입력해 주세요.',won:'{n}원'},
+en:{appTitle:'Overseas Shopping Cost Calculator',intro:'How much does an overseas order cost once shipping is included?',example:'Try an example',enter:'Enter prices',editTitle:'Enter checkout costs',currency:'Overseas currency',item:'Overseas item price',shipping:'Overseas shipping · optional',rate:'Won per 1 {currency}',rateHint:'For JPY, enter won per 1 yen.',extras:'Extra charges in won · optional',extrasHint:'Enter any known duties or card fees in won.',domestic:'Korean checkout total in won',domesticHint:'Include domestic shipping.',compare:'Compare totals',exampleLabel:'Example result',overseasLower:'The overseas total is {amount} lower',domesticLower:'The Korean total is {amount} lower',tie:'Both totals are the same',converted:'Converted item price and shipping',extrasLine:'Extra charges',overseasTotal:'Overseas total',domesticTotal:'Korean total',resultNote:'Based on the amounts entered.',edit:'Edit prices',copy:'Copy result',copied:'Comparison copied.',copyManual:'Copy the text below manually.',copyTextLabel:'Comparison text to copy',close:'Close',required:'Enter an amount.',requiredRate:'Enter an exchange rate.',invalidNumber:'Check the number format.',precisionWhole:'Enter a whole number.',precisionDecimal:'Use at most {digits} decimal places.',outOfRange:'Enter a value from {min} to {max}.',won:'₩{n}'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=D[lang];
+function $(id){return document.getElementById(id)}
+function fmt(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+function group(b){return b.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function won(b){return fmt(T.won,{n:group(b)})}
+document.documentElement.lang=lang;document.title=T.appTitle;
+document.querySelectorAll('[data-t]').forEach(function(e){e.textContent=T[e.getAttribute('data-t')]});
+
+var ids=['item','shipping','rate','extras','domestic'];
+var S={screen:'start',example:false,res:null};
+var screens={start:$('s-start'),edit:$('s-edit'),result:$('s-result')};
+function show(n){S.screen=n;for(var k in screens)screens[k].classList.toggle('on',k===n)}
+function setRateLabel(){$('l-rate').textContent=fmt(T.rate,{currency:$('cur').value})}
+
+// field spec: [scaleDigits, maxBigInt scaled, required, requiredKey]
+function spec(id){
+ var jpy=$('cur').value==='JPY';
+ if(id==='item'||id==='shipping'){var d=jpy?0:2;return{d:d,max:BigInt(jpy?'9999999':'999999999'),maxTxt:jpy?'9,999,999':'9,999,999.99',req:id==='item',rk:'required'}}
+ if(id==='rate')return{d:4,max:9999999999n,maxTxt:'999,999.9999',minTxt:'0.0001',min:1n,req:true,rk:'requiredRate'};
+ return{d:0,max:999999999n,maxTxt:'999,999,999',req:id==='domestic',rk:'required'};
+}
+// returns {v:BigInt scaled} | {err:string}
+function parse(id){
+ var sp=spec(id),s=$(id).value.trim();
+ if(s==='')return sp.req?{err:T[sp.rk]}:{v:0n};
+ var m=/^(\d+|\d{1,3}(?:,\d{3})+)(?:\.(\d+))?$/.exec(s);
+ if(!m)return{err:T.invalidNumber};
+ var frac=m[2]||'';
+ if(frac.length>sp.d)return{err:sp.d===0?T.precisionWhole:fmt(T.precisionDecimal,{digits:sp.d})};
+ var v=BigInt(m[1].replace(/,/g,'')+(frac+'0000').slice(0,sp.d));
+ if(v>sp.max||(sp.min&&v<sp.min))return{err:fmt(T.outOfRange,{min:sp.minTxt||'0',max:sp.maxTxt})};
+ return{v:v};
+}
+function clearErr(id){$('e-'+id).textContent='';$(id).removeAttribute('aria-invalid')}
+function submit(e){
+ e.preventDefault();
+ var vals={},bad=null;
+ ids.forEach(function(id){clearErr(id);var r=parse(id);if(r.err){if(!bad)bad={id:id,err:r.err}}else vals[id]=r.v});
+ if(bad){$('e-'+bad.id).textContent=bad.err;$(bad.id).setAttribute('aria-invalid','true');$(bad.id).focus();return}
+ S.example=false;compute(vals);
+}
+function compute(v){
+ var jpy=$('cur').value==='JPY',sc=jpy?1n:100n;
+ var num=(v.item+v.shipping)*v.rate,den=sc*10000n;
+ var conv=(2n*num+den)/(2n*den); // round half up, single rounding
+ var ot=conv+v.extras,diff=v.domestic-ot;
+ S.res={conv:conv,ext:v.extras,ot:ot,dt:v.domestic,diff:diff};
+ render();show('result');$('head').focus();
+}
+function headline(r){
+ if(r.diff===0n)return T.tie;
+ return fmt(r.diff>0n?T.overseasLower:T.domesticLower,{amount:won(r.diff<0n?-r.diff:r.diff)});
+}
+function render(){
+ var r=S.res;
+ $('head').textContent=headline(r);
+ $('ex-tag').hidden=!S.example;
+ $('r-conv').textContent=won(r.conv);$('r-ext').textContent=won(r.ext);
+ $('r-ot').textContent=won(r.ot);$('r-dt').textContent=won(r.dt);
+ $('sl-o').classList.toggle('low',r.diff>0n);$('sl-d').classList.toggle('low',r.diff<0n);
+ $('status').textContent='';$('fb').hidden=true;
+}
+function payload(){
+ var r=S.res,a=[T.appTitle];
+ if(S.example)a.push(T.exampleLabel);
+ a.push(headline(r),T.overseasTotal+' '+won(r.ot),T.domesticTotal+' '+won(r.dt),T.resultNote);
+ return a.join('\n');
+}
+function fallback(){
+ var ta=$('ta');ta.value=payload();$('fb').hidden=false;$('status').textContent='';
+ ta.focus();ta.select();
+}
+$('b-copy').onclick=function(){
+ var t=payload(),res=S.res; // ignore late callbacks once result is replaced or left
+ function cur(){return S.screen==='result'&&S.res===res}
+ function fb(){if(cur())fallback()}
+ try{
+  if(!navigator.clipboard||!navigator.clipboard.writeText)throw 0;
+  navigator.clipboard.writeText(t).then(function(){if(cur())$('status').textContent=T.copied},fb);
+ }catch(x){fb()}
+};
+$('b-close').onclick=function(){$('fb').hidden=true;$('b-copy').focus()};
+$('b-edit').onclick=function(){show('edit');$('cur').focus()};
+$('b-en').onclick=function(){show('edit');$('cur').focus()};
+$('b-ex').onclick=loadExample;
+function loadExample(){
+ $('cur').value='USD';setRateLabel();
+ var ex={item:'80',shipping:'10',rate:'1400',extras:'9000',domestic:'149000'};
+ var vals={};
+ ids.forEach(function(id){$(id).value=ex[id];clearErr(id)});
+ ids.forEach(function(id){vals[id]=parse(id).v});
+ S.example=true;compute(vals);
+}
+$('form').addEventListener('submit',submit);
+ids.forEach(function(id){$(id).addEventListener('input',function(){clearErr(id)})});
+$('cur').addEventListener('change',function(){
+ $('rate').value='';clearErr('rate');setRateLabel();
+ ['item','shipping'].forEach(clearErr);
+});
+setRateLabel();
+if(location.hash==='#demo'||new URLSearchParams(location.search).get('thumb')==='1')loadExample();else show('start');
+})();
+</script>
+</body>
+</html>
