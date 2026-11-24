@@ -155,7 +155,7 @@ Do not invent sources. Mark anything uncertain as low confidence.`;
     },
   },
   idea: {
-    agent: 'codex', file: '02-idea.md', next: 'design',
+    agent: 'claude-opus', file: '02-idea.md', next: 'design',
     async brief(job) {
       return `# Idea brief (${job.id})
 
