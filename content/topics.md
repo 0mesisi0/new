@@ -8,7 +8,7 @@ Add new ideas at the bottom. Prefer questions people search for, tied to a calcu
 - [x] 퇴사 전에 꼭 확인할 것 (퇴직금·연차·실업급여) / Checklist before quitting a job in Korea
 - [x] 연차휴가 일수 계산과 연차수당 / Annual leave entitlement in Korea
 - [x] 퇴직소득세 계산 방법 / How severance pay is taxed in Korea
-- [ ] 주 52시간제와 연장·야간·휴일근로수당 / Overtime, night and holiday pay in Korea
+- [x] 주 52시간제와 연장·야간·휴일근로수당 / Overtime, night and holiday pay in Korea
 - [ ] 근로계약서 필수 항목 / What a Korean employment contract must include
 - [ ] 임금체불 신고 방법 / What to do about unpaid wages in Korea
 - [ ] 수습기간 급여와 해고 / Probation periods in Korea
