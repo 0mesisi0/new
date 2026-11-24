@@ -101,6 +101,8 @@ function card(lang, it, big = false) {
 function renderHome(lang, items) {
   const u = ui[lang];
   const [first, ...rest] = items;
+  const cutoff = new Date(Date.parse(first ? first.date : '1970-01-01') - 3 * 864e5).toISOString().slice(0, 10);
+  const fresh = rest.slice(2).filter((i) => i.date >= cutoff).slice(0, 30);
   const sections = categories.map((c) => {
     const list = items.filter((i) => i.category === c.id);
     if (!list.length) return '';
@@ -109,6 +111,7 @@ function renderHome(lang, items) {
   const content = `<h1 class="visually-hidden">${esc(site.name[lang])}</h1>
 <p class="lead">${esc(site.desc[lang])}</p>
 ${first ? `<h2>${esc(u.newest)}</h2><ul class="grid hero">${card(lang, first, true)}${rest.slice(0, 2).map((i) => card(lang, i)).join('')}</ul>` : ''}
+${fresh.length ? `<section><h2>${esc(u.fresh)}</h2><ul class="grid">${fresh.map((i) => card(lang, i)).join('')}</ul></section>` : ''}
 <section id="popular" hidden data-lang="${lang}" data-base="${BASE}"><h2>${esc(u.popular)}</h2><ul class="grid"></ul></section>
 ${adSlot()}
 ${sections}`;

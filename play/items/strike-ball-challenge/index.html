@@ -19,20 +19,26 @@
   .brand svg { width:15px; height:15px; }
   h1 { font-size:25px; font-size:clamp(20px,5.7vw,34px); line-height:1.08; letter-spacing:-.06em; font-weight:950; }
   .game { display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:7px; min-height:0; padding:8px 11px 11px; }
-  .scoreboard { display:grid; grid-template-columns:1fr 1fr 1fr; background:#163c40; color:#fff0cd; border:2px solid #0d292c; border-radius:9px; text-align:center; overflow:hidden; }
+  .scoreboard { display:grid; grid-template-columns:repeat(4,1fr); background:#163c40; color:#fff0cd; border:2px solid #0d292c; border-radius:9px; text-align:center; overflow:hidden; }
   .scoreboard div { padding:4px 2px 5px; }
   .scoreboard div + div { border-left:1px solid #4d7776; }
   dt { font-size:11px; font-weight:800; }
   .scoreboard dt { color:#b1dacb; }
   .scoreboard dd { font:900 22px/1.03 ui-monospace,monospace; }
-  #lives { color:#ffb591; font-size:19px; letter-spacing:2px; white-space:nowrap; }
+  #lives,#count { color:#ffb591; font-size:19px; letter-spacing:2px; white-space:nowrap; }
+  #count { color:#a7e4c9; }
   .arena { position:relative; min-height:0; overflow:hidden; background:#174d50; border:2px solid #122f31; border-radius:14px 14px 6px 6px; }
-  .arena svg { display:block; width:100%; height:100%; overflow:visible; }
+  .arena > svg { display:block; width:100%; height:100%; overflow:visible; }
   .pitch-chip,.replay-chip { position:absolute; z-index:1; top:8px; padding:4px 8px; border:1px solid #99d7c1; border-radius:4px; background:#102d30; color:#e1ffed; font-size:11px; font-weight:850; pointer-events:none; }
   .pitch-chip { left:8px; }
   .replay-chip { right:8px; background:#acecd1; color:#102d30; }
+  #call-banner { position:absolute; z-index:1; left:50%; top:13%; transform:translateX(-50%) skew(-7deg); min-width:138px; padding:5px 15px 7px; text-align:center; white-space:nowrap; background:#15383b; color:#fff2d7; border:2px solid #8fc6b6; box-shadow:4px 4px #102d30; }
+  #call-banner span,#call-banner strong { display:block; transform:skew(7deg); }
+  #call-banner span { font-size:10px; letter-spacing:.08em; }
+  #call-banner strong { font-size:27px; line-height:1; font-weight:950; }
+  #call-banner[data-call="ball"] { border-color:#ffc19a; }
   .deck { display:grid; gap:7px; min-width:0; }
-  #remark { display:flex; align-items:center; min-height:42px; padding:4px 8px; border-left:3px solid #3c8271; background:#f3e3bf; font-size:13px; }
+  #remark { display:flex; align-items:center; min-height:38px; padding:4px 8px; border-left:3px solid #3c8271; background:#f3e3bf; font-size:13px; }
   #remark[data-tone="bad"] { border-color:#a93829; background:#ffdcc7; }
   #remark[data-tone="good"] { background:#d2efdb; }
   .actions,.result-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
@@ -45,18 +51,15 @@
   #sound:focus { outline-color:#feca82; }
   #sound svg { width:22px; height:22px; vertical-align:middle; }
   #sound[aria-pressed="false"] .off,#sound[aria-pressed="true"] .on { display:none; }
-  .primary,.call { min-height:51px; border-bottom-width:4px; font-size:19px; font-weight:950; }
+  .primary,#challenge,#pass { min-height:51px; border-bottom-width:4px; font-size:19px; font-weight:950; }
   .primary { background:#ffd480; }
-  .call { display:flex; align-items:center; justify-content:center; gap:7px; }
-  #strike { background:#a7e4c9; }
-  #ball { background:#ffc19a; }
-  .call:disabled { opacity:.65; }
+  .actions { grid-template-columns:2fr 1fr; }
   kbd { font:800 11px/1 ui-monospace,monospace; border:1px solid currentColor; padding:3px 4px; border-radius:3px; }
-  #challenge { width:100%; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:space-between; gap:5px; color:#3a514d; background:#f0e4c8; }
-  #challenge:not(:disabled) { color:#fff5da; background:#234f50; border-color:#153638; }
-  #challenge > span { position:relative; pointer-events:none; }
-  #progress { position:absolute; left:0; bottom:0; width:100%; height:4px; background:#ffce75; transform:scaleX(0); transform-origin:left; }
-  #count { font-family:ui-monospace,monospace; }
+  #challenge { background:#ffd480; }
+  #challenge:disabled,#pass:disabled { background:#f0e4c8; color:#52615a; }
+  #pass { font-size:15px; display:flex; align-items:center; justify-content:center; gap:4px; padding:2px 4px; }
+  .ring { width:28px; height:28px; flex-shrink:0; }
+  #progress { stroke-dasharray:69.1; stroke-dashoffset:69.1; }
   .intro,.result { display:grid; gap:6px; }
   .intro p { font-size:13px; padding:2px 1px; }
   .result { padding:7px; background:#fffaeb; border:2px solid #163638; border-radius:9px; }
@@ -69,12 +72,13 @@
   #copy-note { font-size:12px; }
   .shake { animation:shake .32s ease-out; }
   .pop { transform-origin:305px 312px; animation:pop .28s ease-out; }
-  #ump-arm { transform-origin:73px 284px; transition:transform .15s ease-out; }
-  #ump-arm[data-call="strike"] { transform:rotate(-109deg); }
-  #ump-arm[data-call="ball"] { transform:rotate(39deg); }
+  #throw-arm { transform-origin:207px 148px; transform:rotate(-54deg); }
+  #pitcher.released #throw-arm { transform:rotate(0); transition:transform .15s ease-out; }
+  #ump-arm path { visibility:hidden; }
+  #ump-arm:not([data-call]) .rest-arm,#ump-arm[data-call="strike"] .strike-arm,#ump-arm[data-call="ball"] .ball-arm { visibility:visible; }
   @keyframes shake { 20%,60% { transform:translateX(-4px); } 40%,80% { transform:translateX(4px); } }
   @keyframes pop { 35% { transform:scale(1.24); } }
-  @media (min-width:540px) and (orientation:landscape) {
+  @media (min-width:480px) and (orientation:landscape) {
     main { max-width:1040px; }
     .game { grid-template-columns:minmax(0,1.45fr) minmax(215px,1fr); grid-template-rows:auto minmax(0,1fr); gap:9px; }
     .arena { grid-column:1; grid-row:1/3; }
@@ -85,7 +89,11 @@
     header { padding:5px 10px; }
     .game { padding:5px 8px 8px; gap:5px; }
     .deck { gap:5px; }
-    .primary,.call { min-height:46px; }
+    .primary,#challenge,#pass { min-height:46px; }
+  }
+  @media (max-height:420px) and (orientation:landscape) {
+    #call-banner { top:12%; }
+    #call-banner strong { font-size:21px; }
   }
   @media (prefers-reduced-motion:reduce) {
     *,*::before,*::after { animation:none !important; transition:none !important; }
@@ -109,10 +117,12 @@
       <div><dt data-text="score"></dt><dd id="score">0</dd></div>
       <div><dt data-text="streak"></dt><dd id="streak">0</dd></div>
       <div><dt data-text="lives"></dt><dd id="lives"></dd></div>
+      <div><dt data-text="charges"></dt><dd id="count"></dd></div>
     </dl>
     <div class="arena" id="arena">
       <span class="pitch-chip" id="pitch-label"></span>
       <span class="replay-chip" id="replay-label" hidden></span>
+      <div id="call-banner" role="status" hidden><span data-text="umpire"></span><strong id="call-text"></strong></div>
       <svg viewBox="0 0 400 400" aria-hidden="true">
         <defs>
           <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#174d50"/><stop offset="1" stop-color="#ca9171"/></linearGradient>
@@ -148,25 +158,39 @@
           <path d="m197 159-3 14-7 6m15-20 7 15 7 3" stroke="#f9e9ce" stroke-width="5"/>
           <path d="m194 171-7 8-5 1m25-8 5 6h5"/>
           <path d="m195 144 13 1 1 15-14 4-5-11z" fill="#f8e6bf"/>
-          <path d="m195 146-9 4-4 13m25-15 8 5 2-7" fill="none"/>
-          <path d="M213 143q6-3 9 2l-3 6-6-1z" fill="#b97543"/>
+          <path d="m195 146-9 4-4 13" fill="none"/>
+          <path id="throw-arm" d="M207 148l9-2" fill="none" stroke="#f8e6bf" stroke-width="4"/>
           <circle cx="201" cy="139" r="6" fill="#dba37d"/>
           <path d="M195 139q-2-10 7-9 5 1 6 7l4 1-8 2z" fill="#ce644b"/>
         </g>
         <path d="M124 331h48v45h-56zm104 0h48l8 45h-56z" fill="none" stroke="#f8d5aa" stroke-width="2" opacity=".8"/>
-        <path d="M182 341h36v11l-18 10-18-10z" fill="#fff0ce" stroke="#643e37" stroke-width="2"/>
+        <path d="M155 341h90v11l-45 13-45-13z" fill="#fff0ce" fill-opacity=".82" stroke="#643e37" stroke-width="2"/>
         <ellipse cx="72" cy="365" rx="53" ry="15" fill="#602f31" opacity=".36"/>
         <ellipse cx="334" cy="365" rx="53" ry="15" fill="#602f31" opacity=".36"/>
-        <g stroke="#112a34" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <g transform="translate(-13 13) scale(.85)" stroke="#112a34" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
           <path d="m51 324-8 38H29v9h29l15-37m11-9 11 36h12v10H84l-18-35" fill="#223a48"/>
-          <path id="ump-arm" d="M73 284q19-2 26 22l10 10-7 9-17-10-10-14" fill="#426274"/>
           <path d="M47 282q19-15 43 0l6 52q-26 13-57 0l2-31-14 11-9-7 12-18z" fill="#426274"/>
           <path d="M47 285q19 11 41-1l-6 41H53Z" fill="#263d4c"/>
           <path d="M46 257q2-23 25-20 20 0 23 20l-6 23-18 9-19-10z" fill="#e1a284"/>
           <path d="M44 257q-3-27 23-28 25-2 28 21l-2 9-28-5z" fill="#233e4e"/>
           <path d="m48 257 17-5 26 7-4 19-18 8-16-8z" fill="#273f4b"/>
           <path d="m55 263 29 2m-27 7 24 1m-16-13 1 16m10-15-1 17" fill="none" stroke="#a3bbb3" stroke-width="2"/>
+          <g id="ump-arm" fill="#426274">
+            <path class="rest-arm" d="M76 290q12-8 19 4l9 19-11 6-12-14"/>
+            <path class="strike-arm" d="M82 285l18-13 3-18-5-7 6-11 14 3 4 12-6 7-4 23-20 18z"/>
+            <path class="ball-arm" d="m82 286 30 3 12-7 12 5-3 9-20 7-27-2z"/>
+          </g>
         </g>
+        <g id="batter" fill="#142b39" stroke="#a5c5a8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M111 267l-17 44-12 38H68v6h27l16-35 12-22 8 12 14 39-10 1v5h24l-8-48-13-40z"/>
+          <path d="M109 206q11-9 26 1l7 56q-14 19-34 6l-8-34z"/>
+          <path d="M108 196q-11-26 11-32 20-3 23 21l9 4-14 4-7 13-15-1z"/>
+          <path d="M105 229l-12-20-8-8m46 21-16 16-19-24-10-8" fill="none" stroke="#142b39" stroke-width="12"/>
+          <path d="M110 237q-5-3-13-19l-9-11" fill="none"/>
+          <path d="M90 212l-29-56" stroke="#142b39" stroke-width="8"/>
+          <path d="M85 201l-25-46" stroke="#e8c79c" stroke-width="4"/>
+        </g>
+        <path id="height-marks" fill="none" stroke="#ffe6a7" stroke-width="2" stroke-linecap="round" opacity=".9"/>
         <g stroke="#253b3e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
           <path d="m321 327-20 14-12 20 14 9 16-17 20-7m9-18 17 13 7 20-14 9-14-17-12-7" fill="#e6a15e"/>
           <path d="M319 283q17-12 38 2l8 44q-19 18-50 5l-6-19z" fill="#ebad6e"/>
@@ -179,10 +203,9 @@
           <path d="M322 295q-11 0-22 17" fill="none" stroke="#b9604a" stroke-width="11"/>
           <g id="mitt"><path d="M311 322q-17 6-27-6-5-7 2-10-5-7 2-11 6-4 11 4 7-7 13 1 8 8-1 22Z" fill="#ca8547"/><path d="M292 310q6 7 15 5m-12-10 4 5" fill="none" stroke="#89543a" stroke-width="2"/></g>
         </g>
-        <g id="zone" fill="none" stroke="#d4ffe6">
-          <path d="M146 204h108v102H146z" fill="#102d30" fill-opacity=".22" stroke-width="1.5"/>
-          <path d="M182 204v102m36-102v102m-72-68h108m-108 34h108" opacity=".55" stroke-width="1"/>
-          <path d="M146 218v-14h14m80 0h14v14m0 74v14h-14m-80 0h-14v-14" stroke-width="3"/>
+        <g id="zone" visibility="hidden" fill="none" stroke="#d4ffe6">
+          <rect x="155" y="204" width="90" height="102" fill="#102d30" fill-opacity=".52" stroke-width="2"/>
+          <path d="M185 204v102m30-102v102m-60-68h90m-90 34h90" opacity=".55"/>
         </g>
         <path id="trail" fill="none" stroke="#fff4d3" stroke-linecap="round" stroke-width="2" opacity=".65"/>
         <g id="baseball">
@@ -190,8 +213,7 @@
           <path d="M-.52-.75q.63.75 0 1.5M.52-.75q-.63.75 0 1.5" fill="none" stroke="#b64e41" stroke-width=".12"/>
         </g>
         <g id="marker" visibility="hidden" fill="none" stroke-width="2">
-          <circle r="10.9" fill="#112d30" fill-opacity=".75"/><circle r="3" fill="currentColor"/>
-          <path d="M-14 0h4m20 0h4M0-14v4m0 20v4"/>
+          <circle r="8" fill="#112d30" fill-opacity=".75"/><circle r="3" fill="currentColor"/>
         </g>
         <g id="confetti"></g>
       </svg>
@@ -204,10 +226,9 @@
       <section id="controls" class="deck" hidden>
         <p id="remark" role="status"></p>
         <div class="actions">
-          <button class="call" id="strike" type="button"><span data-text="strike"></span><kbd aria-hidden="true">S</kbd></button>
-          <button class="call" id="ball" type="button"><span data-text="ball"></span><kbd aria-hidden="true">B</kbd></button>
+          <button id="challenge" type="button" disabled><span data-text="challenge"></span> <kbd aria-hidden="true">C</kbd></button>
+          <button id="pass" type="button" disabled><span data-text="pass"></span><svg class="ring" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="11" fill="none" stroke="#c8bca0" stroke-width="3"/><circle id="progress" cx="14" cy="14" r="11" fill="none" stroke="#287b63" stroke-width="3" transform="rotate(-90 14 14)"/></svg></button>
         </div>
-        <button id="challenge" type="button" disabled><i id="progress" aria-hidden="true"></i><span><span data-text="challenge"></span> <kbd aria-hidden="true">C</kbd></span><span id="count"></span></button>
       </section>
       <section class="result" id="result" hidden>
         <h2 id="grade"></h2>
@@ -232,29 +253,29 @@
   'use strict';
   var strings = {
     ko: {
-      brand:'ABS 판정실', title:'스트라이크 볼 챌린지', score:'점수', streak:'연속', lives:'기회',
-      ready:'경기 시작 전', prepare:'투구 준비', replay:'ABS 리플레이', how:'공이 홈에 닿기 전에 스트라이크나 볼을 선언하세요. 판정 뒤 2초 안에 챌린지!',
-      start:'탭해서 경기 시작', strike:'스트라이크', ball:'볼', challenge:'챌린지', retry:'다시 도전', copy:'결과 복사',
-      best:'최고점', accuracy:'정확도', longest:'최장 연속', muted:'소리 끄기', sound:'소리 켜기',
+      brand:'ABS 판정실', title:'스트라이크 볼 챌린지', score:'점수', streak:'연속 성공', lives:'생명', charges:'챌린지',
+      ready:'경기 시작 전', prepare:'투구 준비', replay:'ABS 리플레이', umpire:'주심 판정',
+      how:'공 궤적만 보고 판정이 이상하면 챌린지! 주심 판정 후 약 2초 안에 결정하세요.',
+      start:'경기 시작', strike:'스트라이크', ball:'볼', challenge:'챌린지', pass:'패스', retry:'다시 도전', copy:'결과 복사',
+      best:'최고점', accuracy:'성공률', longest:'최장 연속', muted:'소리 끄기', sound:'소리 켜기',
       types:['직구','커브','슬라이더','체인지업'],
-      good:['칼 같은 판정!', '포수도 고개를 끄덕입니다.', '오늘 주심 눈이 매섭네요.'],
-      bad:['우우! 관중석이 들썩입니다.', '관중석 팝콘이 덜컹!', '저 멀리 외야에서도 야유가!'],
-      late:'늦었어요! 공이 미트에 들어갔어요.', flip:'판정 번복! 기회와 연속 정답이 돌아옵니다.', upheld:'원심 유지! 기회 하나를 잃었어요.',
-      tenth:'10연속! 관중석이 환호합니다!', next:'투수가 사인을 받습니다.',
-      grades:['초보 심판','동네 리그 심판','프로 리그 심판','월드클래스 심판'],
+      watch:'타자의 가슴과 무릎을 기준으로 공을 보세요.', decide:'판정에 이의를 제기할까요?', empty:'챌린지를 모두 썼어요.',
+      flip:'판정 번복! 챌린지 기회 유지', upheld:'원심 유지 · 챌린지 −1',
+      missed:'오심을 놓쳤어요 · 생명 −1', safe:'올바른 판정 · +2점',
+      grades:['구경꾼','ABS 분석가','챌린지 마스터'],
       copied:'결과를 복사했어요.', manual:'선택된 결과를 직접 복사하세요.', share:'공유할 경기 결과'
     },
     en: {
-      brand:'ABS Review Booth', title:'Strike or Ball Challenge', score:'Score', streak:'Streak', lives:'Lives',
-      ready:'Pregame', prepare:'On the mound', replay:'ABS replay', how:'Call strike or ball before the pitch reaches home. You have two seconds to challenge a call.',
-      start:'Tap to start', strike:'STRIKE', ball:'BALL', challenge:'CHALLENGE', retry:'Play again', copy:'Copy result',
-      best:'Best', accuracy:'Accuracy', longest:'Best streak', muted:'Mute sound', sound:'Enable sound',
+      brand:'ABS Review Booth', title:'Strike or Ball Challenge', score:'Score', streak:'Streak', lives:'Lives', charges:'Challenges',
+      ready:'Pregame', prepare:'On the mound', replay:'ABS replay', umpire:'Umpire call',
+      how:'Watch the pitch path. If the call looks wrong, challenge it within about two seconds!',
+      start:'Play ball', strike:'STRIKE', ball:'BALL', challenge:'CHALLENGE', pass:'Pass', retry:'Play again', copy:'Copy result',
+      best:'Best', accuracy:'Success rate', longest:'Best streak', muted:'Mute sound', sound:'Enable sound',
       types:['Fastball','Curveball','Slider','Changeup'],
-      good:['Sharp call!', 'The catcher gives a nod.', 'Nothing gets past blue today.'],
-      bad:['Boooo! The bleachers are shaking.', 'That call rattled the popcorn!', 'They’re booing from the outfield!'],
-      late:'Too late! The pitch hit the glove.', flip:'Call voided. You get your life and streak back.', upheld:'Call stands! You lose a life.',
-      tenth:'Ten straight! The crowd goes wild!', next:'The pitcher checks the sign.',
-      grades:['Rookie Umpire','Sandlot Umpire','Big League Umpire','World-Class Umpire'],
+      watch:'Track the pitch against the batter’s chest and knees.', decide:'Challenge the umpire’s call?', empty:'You’re out of challenges.',
+      flip:'Call overturned! Challenge kept', upheld:'Call upheld · −1 challenge',
+      missed:'Missed bad call · −1 life', safe:'Correct call · +2 points',
+      grades:['Spectator','ABS Analyst','Challenge Master'],
       copied:'Result copied.', manual:'Copy the selected result.', share:'Result to share'
     }
   };
@@ -273,9 +294,11 @@
   var labels = document.querySelectorAll('[data-text]');
   for (var i = 0; i < labels.length; i++) labels[i].textContent = t[labels[i].getAttribute('data-text')];
   var intro = el('intro'), controls = el('controls'), result = el('result'), remark = el('remark');
-  var strike = el('strike'), ball = el('ball'), challenge = el('challenge'), progress = el('progress');
+  var passButton = el('pass'), challenge = el('challenge'), progress = el('progress');
   var arena = el('arena'), mitt = el('mitt'), arm = el('ump-arm'), baseball = el('baseball'), trail = el('trail');
   var marker = el('marker'), pitchLabel = el('pitch-label'), replayLabel = el('replay-label'), sound = el('sound');
+  var zone = el('zone'), batter = el('batter'), heightMarks = el('height-marks'), banner = el('call-banner');
+  var thumb = /[?&]thumb=1(?:&|$)/.test(location.search);
   el('copy-text').setAttribute('aria-label', t.share);
   var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var storageKey = 'strike-ball-challenge:';
@@ -287,17 +310,17 @@
   }
   var best = Math.max(0, parseInt(load('best'), 10) || 0), muted = load('mute') === '1', audio;
   var phase = 'intro', elapsed = 0, lastFrame = null, frame = 0;
-  var score = 0, streak = 0, longest = 0, lives = 3, charges = 3, attempts = 0, correct = 0;
-  var pitch, ruling, shareText, particles = [], commentaryIndex = { good:0, bad:0 };
-  var reviewTime = 2000;
+  var score = 0, streak = 0, longest = 0, lives = 3, charges = 2, attempts = 0, correct = 0;
+  var pitch, shareText, particles = [], decisionTime, feedbackTime, revealDot, gameOver;
+  var batterScales = [.90, 1, 1.11], batterIndex = 1, batterScale = 1;
   var pitchTypes = [
-    { time:1500, bendX:0, bendY:-3 },
-    { time:1850, bendX:-24, bendY:-42 },
-    { time:1670, bendX:-40, bendY:-9 },
-    { time:2050, bendX:10, bendY:-24 }
+    { time:810, bendX:3, bendY:-4 },
+    { time:1120, bendX:19, bendY:-49 },
+    { time:940, bendX:45, bendY:-13 },
+    { time:1240, bendX:12, bendY:-25 }
   ];
-  var zone = { x:146, y:204, w:108, h:102 };
-  var plateRadius = 10.9;
+  var plateRadius = 8;
+  var flightEnd = .965;
 
   function syncSound() {
     sound.setAttribute('aria-pressed', String(muted));
@@ -339,9 +362,11 @@
       tone(148, 92, .47, .14, 'triangle', .14);
       tone(270, 136, .35, .08, 'sine', .18);
     }
-    if (kind === 'good' || kind === 'flip') {
+    if (kind === 'cheer') {
       tone(440, 505, .12, .10, 'triangle', .04);
       tone(660, 790, .18, .11, 'triangle', .13);
+      tone(255, 330, .35, .08, 'sawtooth', 0);
+      tone(310, 405, .38, .07, 'triangle', .07);
     }
   }
   function updateStats() {
@@ -349,15 +374,12 @@
     el('streak').textContent = streak;
     el('lives').textContent = '◆◆◆'.slice(0, lives) + '◇◇◇'.slice(lives);
     el('lives').setAttribute('aria-label', String(lives));
-    el('count').textContent = charges + ' / 3';
+    el('count').textContent = '●●'.slice(0, charges) + '○○'.slice(charges);
+    el('count').setAttribute('aria-label', charges + ' / 2');
   }
   function say(message, mood) {
     remark.textContent = message;
     remark.setAttribute('data-tone', mood || '');
-  }
-  function oneLiner(mood) {
-    var lines = t[mood];
-    return lines[commentaryIndex[mood]++ % lines.length];
   }
   function animate(node, name) {
     node.classList.remove(name);
@@ -367,59 +389,92 @@
   function showBall(x, y, radius) {
     baseball.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + radius + ')');
   }
+  function pitchPoint(fraction) {
+    var depth = Math.pow(fraction, 1.42);
+    var bend = 5 * depth * Math.pow(1 - depth, 1.35);
+    return {
+      x:216 + (pitch.x - 216) * depth + pitch.bendX * bend,
+      y:146 + (pitch.y - 146) * depth + pitch.bendY * bend
+    };
+  }
   function drawPitch(fraction) {
-    var depth = 1 - Math.pow(1 - fraction, 2.15);
-    var bend = 4 * fraction * Math.pow(1 - fraction, 1.8);
-    var x = 216 + (pitch.x - 216) * depth + pitch.bendX * bend;
-    var y = 146 + (pitch.y - 146) * depth + pitch.bendY * bend;
-    showBall(x, y, 2.4 + (plateRadius - 2.4) * fraction * fraction);
-    trail.setAttribute('d', 'M' + x + ' ' + y + 'L' + (x + (216 - x) * .14) + ' ' + (y + (146 - y) * .14));
+    var line = '';
+    for (var step = 0; step <= 16; step++) {
+      var point = pitchPoint(fraction * step / 16);
+      line += (step ? 'L' : 'M') + point.x.toFixed(2) + ' ' + point.y.toFixed(2);
+    }
+    showBall(point.x, point.y, 2.4 + (plateRadius - 2.4) * fraction * fraction);
+    trail.setAttribute('d', line);
+  }
+  function setBatter(scale) {
+    var shift = 355 * (1 - scale);
+    batter.setAttribute('transform', 'translate(0 ' + shift + ') scale(1 ' + scale + ')');
+    zone.setAttribute('transform', 'translate(0 ' + shift + ') scale(1 ' + scale + ')');
+    heightMarks.setAttribute('d', 'M133 ' + (204 * scale + shift) + 'h13 M129 ' + (306 * scale + shift) + 'h17');
+  }
+  function drawTimer(remaining) {
+    progress.style.strokeDashoffset = 69.1 * (1 - remaining);
   }
   function showHero() {
-    showBall(213, 233, 11);
-    trail.setAttribute('d', 'M213 233 Q196 206 208 184');
-    pitchLabel.textContent = t.ready;
-  }
-  function clearReplay() {
-    marker.setAttribute('visibility', 'hidden');
-    replayLabel.hidden = true;
-    arm.removeAttribute('data-call');
-    progress.style.transform = 'scaleX(0)';
+    setBatter(1);
+    pitch = { x:263, y:287, bendX:34, bendY:-44, call:'strike' };
+    drawPitch(flightEnd);
+    if (thumb) {
+      intro.hidden = true;
+      controls.hidden = false;
+      pitchLabel.textContent = t.types[2];
+      showCall();
+      drawTimer(.74);
+    } else pitchLabel.textContent = t.ready;
   }
   function prepare() {
     phase = 'ready';
     elapsed = 0;
-    clearReplay();
-    challenge.disabled = strike.disabled = ball.disabled = true;
+    batterIndex = (batterIndex + (Math.random() < .5 ? 1 : 2)) % batterScales.length;
+    batterScale = batterScales[batterIndex];
+    setBatter(batterScale);
+    zone.setAttribute('visibility', 'hidden');
+    marker.setAttribute('visibility', 'hidden');
+    baseball.setAttribute('visibility', 'hidden');
+    replayLabel.hidden = true;
+    banner.hidden = true;
+    arm.removeAttribute('data-call');
+    el('pitcher').classList.remove('released');
+    drawTimer(0);
+    challenge.disabled = passButton.disabled = true;
     pitchLabel.textContent = t.prepare;
-    say(t.next);
-    showBall(216, 146, 2.4);
+    say(t.watch);
     trail.setAttribute('d', '');
   }
   function deliver() {
     var type = Math.floor(Math.random() * pitchTypes.length);
     var profile = pitchTypes[type];
-    var inside = Math.random() < .52, horizontal = Math.random() < .55;
-    var edge = Math.random() < Math.min(.83, .3 + score / 350);
+    var inside = Math.random() < .52, horizontal = Math.random() < .56;
+    var difficulty = Math.min(1, score / 165);
+    var edge = Math.random() < .49 + .25 * difficulty;
     var sign = Math.random() < .5 ? -1 : 1;
-    var half = (horizontal ? zone.w : zone.h) / 2 + plateRadius;
-    var margin = edge ? 2 + Math.random() * 9 : 13 + Math.random() * 17;
+    var top = 355 - 151 * batterScale, bottom = 355 - 49 * batterScale;
+    var centerY = (top + bottom) / 2;
+    var half = (horizontal ? 45 : (bottom - top) / 2) + plateRadius;
+    var margin = edge ? 4 - 2 * difficulty + Math.random() * 10 : 18 + Math.random() * 15;
     var offset = sign * (half + (inside ? -margin : margin));
     var other = (Math.random() * 2 - 1) * 40;
-    var x = zone.x + zone.w / 2 + (horizontal ? offset : other);
-    var y = zone.y + zone.h / 2 + (horizontal ? other : offset);
-    var dx = Math.max(zone.x - x, 0, x - zone.x - zone.w);
-    var dy = Math.max(zone.y - y, 0, y - zone.y - zone.h);
-    var speedup = Math.min(edge ? 670 : 420, score * (edge ? 1.8 : .95));
+    var x = 200 + (horizontal ? offset : other);
+    var y = centerY + (horizontal ? other : offset);
+    var dx = Math.max(155 - x, 0, x - 245);
+    var dy = Math.max(top - y, 0, y - bottom);
+    var actual = dx * dx + dy * dy <= plateRadius * plateRadius;
+    var wrong = edge && Math.random() < .31 + .22 * difficulty;
     pitch = {
-      x:x, y:y, time:profile.time - speedup, bendX:profile.bendX * sign, bendY:profile.bendY,
-      strike:dx * dx + dy * dy <= plateRadius * plateRadius
+      x:x, y:y, time:profile.time * (1 - .28 * difficulty), bendX:profile.bendX * sign, bendY:profile.bendY,
+      strike:actual, wrong:wrong, call:actual !== wrong ? 'strike' : 'ball'
     };
     elapsed = 0;
     phase = 'flight';
     pitchLabel.textContent = t.types[type];
-    strike.disabled = ball.disabled = false;
-    drawPitch(0);
+    el('pitcher').classList.add('released');
+    baseball.setAttribute('visibility', 'visible');
+    drawPitch(reducedMotion ? flightEnd : 0);
   }
   function celebrate() {
     if (reducedMotion) return;
@@ -449,71 +504,82 @@
       }
     }
   }
-  function award() {
-    correct++;
-    streak++;
-    longest = Math.max(streak, longest);
-    score += 10 + Math.min(streak - 1, 10) * 2;
-    if (streak === 10) celebrate();
+  function award(points) {
+    score += points;
     if (score > best) {
       best = score;
       save('best', best);
     }
   }
-  function resolve(call) {
-    if (phase !== 'flight' || document.hidden) return;
-    var actual = pitch.strike ? 'strike' : 'ball';
-    ruling = { call:call, right:call === actual, priorStreak:streak, canChallenge:!!call && charges > 0 };
-    phase = 'review';
+  function showCall() {
+    phase = 'choice';
     elapsed = 0;
-    strike.disabled = ball.disabled = true;
-    challenge.disabled = !ruling.canChallenge;
-    progress.style.transform = ruling.canChallenge ? 'scaleX(1)' : 'scaleX(0)';
-    arm.setAttribute('data-call', call || '');
-    animate(mitt, 'pop');
-    playSound('mitt');
+    decisionTime = 2000 - Math.min(850, score * 5);
+    challenge.disabled = charges === 0;
+    passButton.disabled = false;
+    drawTimer(1);
+    arm.setAttribute('data-call', pitch.call);
+    banner.setAttribute('data-call', pitch.call);
+    el('call-text').textContent = t[pitch.call];
+    banner.hidden = false;
+    say(charges ? t.decide : t.empty);
+    if (!thumb) {
+      baseball.setAttribute('visibility', 'hidden');
+      animate(mitt, 'pop');
+      playSound('mitt');
+    }
+  }
+  function showReplay() {
     var color = pitch.strike ? '#b1fbd6' : '#ffd099';
-    marker.setAttribute('transform', 'translate(' + pitch.x + ' ' + pitch.y + ')');
+    revealDot = true;
+    zone.setAttribute('visibility', 'visible');
+    baseball.setAttribute('visibility', 'hidden');
     marker.setAttribute('stroke', color);
     marker.style.color = color;
+    moveReplayDot();
     marker.setAttribute('visibility', 'visible');
-    replayLabel.textContent = t.replay + ' · ' + t[actual];
+    replayLabel.textContent = t.replay + ' · ' + t[pitch.strike ? 'strike' : 'ball'];
     replayLabel.hidden = false;
-    attempts++;
-    if (ruling.right) {
-      award();
-      say(streak === 10 ? t.tenth : oneLiner('good'), 'good');
-      playSound('good');
-    } else {
-      lives--;
-      streak = 0;
-      say(call ? oneLiner('bad') : t.late, 'bad');
-      animate(arena, 'shake');
-      playSound('boo');
-    }
-    updateStats();
   }
-  function review() {
-    if (phase !== 'review' || !ruling.canChallenge || elapsed >= reviewTime || document.hidden) return;
-    unlockAudio();
-    charges--;
-    ruling.canChallenge = false;
-    phase = 'decision';
+  function moveReplayDot() {
+    var fraction = reducedMotion ? 1 : .78 + .22 * Math.min(1, elapsed / 280);
+    var point = pitchPoint(fraction);
+    marker.setAttribute('transform', 'translate(' + point.x + ' ' + point.y + ')');
+  }
+  function decide(challenged) {
+    if (phase !== 'choice' || thumb || document.hidden || (challenged && !charges)) return;
+    phase = 'feedback';
     elapsed = 0;
-    challenge.disabled = true;
-    progress.style.transform = 'scaleX(0)';
-    if (ruling.right) {
-      lives--;
+    feedbackTime = challenged ? 1250 : (pitch.wrong ? 1000 : 440);
+    revealDot = false;
+    challenge.disabled = passButton.disabled = true;
+    drawTimer(0);
+    if (challenged || pitch.wrong) showReplay();
+    if (challenged) attempts++;
+    if (challenged && pitch.wrong) {
+      correct++;
+      streak++;
+      longest = Math.max(streak, longest);
+      var points = 20 + Math.min(streak - 1, 10) * 5;
+      award(points);
+      say(t.flip + ' · +' + points, 'good');
+      playSound('cheer');
+      if (streak % 3 === 0) celebrate();
+    } else if (challenged) {
+      charges--;
+      streak = 0;
       say(t.upheld, 'bad');
       animate(arena, 'shake');
       playSound('boo');
+    } else if (pitch.wrong) {
+      lives--;
+      streak = 0;
+      say(t.missed, 'bad');
+      animate(arena, 'shake');
+      gameOver = lives === 0 || charges === 0;
     } else {
-      lives++;
-      streak = ruling.priorStreak;
-      attempts--;
-      arm.setAttribute('data-call', pitch.strike ? 'strike' : 'ball');
-      say(t.flip, 'good');
-      playSound('flip');
+      award(2);
+      say(t.safe, 'good');
     }
     updateStats();
   }
@@ -521,8 +587,9 @@
     phase = 'over';
     controls.hidden = true;
     result.hidden = false;
+    banner.hidden = true;
     var accuracy = (attempts ? Math.round(100 * correct / attempts) : 0);
-    var title = t.grades[score >= 300 ? 3 : score >= 135 ? 2 : score >= 45 ? 1 : 0];
+    var title = t.grades[score >= 165 ? 2 : score >= 65 ? 1 : 0];
     el('grade').textContent = title;
     el('final-score').textContent = score;
     el('final-best').textContent = best;
@@ -541,15 +608,19 @@
     moveConfetti(delta);
     if (phase === 'ready' && elapsed >= 560) deliver();
     else if (phase === 'flight') {
-      drawPitch(Math.min(1, elapsed / pitch.time));
-      if (elapsed >= pitch.time) resolve(null);
-    } else if (phase === 'review') {
-      if (ruling.canChallenge) progress.style.transform = 'scaleX(' + Math.max(0, 1 - elapsed / reviewTime) + ')';
-      if (elapsed >= (ruling.canChallenge ? reviewTime : 1150)) {
-        if (lives > 0) prepare(); else finish();
+      if (!reducedMotion) drawPitch(Math.min(flightEnd, flightEnd * elapsed / pitch.time));
+      if (elapsed >= pitch.time) showCall();
+    } else if (phase === 'choice') {
+      drawTimer(Math.max(0, 1 - elapsed / decisionTime));
+      if (elapsed >= decisionTime) decide(false);
+    } else if (phase === 'feedback') {
+      if (revealDot) {
+        moveReplayDot();
+        if (elapsed >= 280) revealDot = false;
       }
-    } else if (phase === 'decision' && elapsed >= 1250) {
-      if (lives > 0) prepare(); else finish();
+      if (elapsed >= feedbackTime) {
+        if (gameOver) finish(); else prepare();
+      }
     }
     schedule();
   }
@@ -559,11 +630,15 @@
     }
   }
   function start() {
-    if ((phase !== 'intro' && phase !== 'over') || document.hidden) return;
+    if ((phase !== 'intro' && phase !== 'over') || document.hidden || thumb) return;
     unlockAudio();
     score = streak = longest = attempts = correct = 0;
-    lives = charges = 3;
-    commentaryIndex.good = commentaryIndex.bad = 0;
+    lives = 3;
+    charges = 2;
+    gameOver = false;
+    batterIndex = 1;
+    arena.classList.remove('shake');
+    mitt.classList.remove('pop');
     particles = [];
     el('confetti').textContent = '';
     el('copy-note').hidden = el('copy-text').hidden = true;
@@ -573,15 +648,6 @@
     prepare();
     lastFrame = null;
     schedule();
-  }
-  function resize() {
-    if (phase === 'intro') showHero();
-    else if (phase === 'flight') drawPitch(Math.min(1, elapsed / pitch.time));
-  }
-  function callPitch(call) {
-    if (phase !== 'flight') return;
-    unlockAudio();
-    resolve(call);
   }
   function bindButton(button, action) {
     if (window.PointerEvent) {
@@ -602,9 +668,8 @@
   }
   bindButton(el('start'), start);
   bindButton(el('retry'), start);
-  bindButton(strike, function () { callPitch('strike'); });
-  bindButton(ball, function () { callPitch('ball'); });
-  bindButton(challenge, review);
+  bindButton(challenge, function () { decide(true); });
+  bindButton(passButton, function () { decide(false); });
   bindButton(sound, function () {
     muted = !muted;
     save('mute', muted ? '1' : '0');
@@ -638,19 +703,17 @@
     if (event.ctrlKey || event.metaKey || event.altKey || event.target.tagName === 'TEXTAREA') return;
     var key = (event.key || '').toLowerCase();
     if (!key) {
-      var oldKeys = { 13:'enter', 32:' ', 37:'arrowleft', 38:'arrowup', 39:'arrowright', 40:'arrowdown', 66:'b', 67:'c', 83:'s' };
+      var oldKeys = { 13:'enter', 32:' ', 67:'c' };
       key = oldKeys[event.keyCode];
     }
-    if (key === 's' || key === 'arrowup' || key === 'arrowleft' || key === 'up' || key === 'left') {
+    var space = key === ' ' || key === 'spacebar';
+    if (key === 'c' && phase === 'choice') {
       event.preventDefault();
-      if (!event.repeat) callPitch('strike');
-    } else if (key === 'b' || key === 'arrowdown' || key === 'arrowright' || key === 'down' || key === 'right') {
+      if (!event.repeat) decide(true);
+    } else if (space && !controls.hidden && event.target !== sound) {
       event.preventDefault();
-      if (!event.repeat) callPitch('ball');
-    } else if (key === 'c' && (phase === 'review' || phase === 'decision')) {
-      event.preventDefault();
-      if (!event.repeat) review();
-    } else if ((key === ' ' || key === 'spacebar' || key === 'enter') && event.target.tagName !== 'BUTTON' &&
+      if (!event.repeat) decide(false);
+    } else if ((space || key === 'enter') && event.target.tagName !== 'BUTTON' &&
       (phase === 'intro' || phase === 'over')) {
       event.preventDefault();
       if (!event.repeat) start();
@@ -663,7 +726,6 @@
       frame = 0;
     } else schedule();
   });
-  window.addEventListener('resize', resize);
   syncSound();
   updateStats();
   showHero();
