@@ -1,0 +1,21 @@
+{
+  "slug": "crank-carol-music-box",
+  "date": "2026-11-25",
+  "category": "radio",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["오르골", "캐럴", "크리스마스"],
+    "title": "캐럴 오르골 돌리기",
+    "desc": "손잡이를 빙글빙글 돌리면 오르골에서 캐럴이 흘러나와요. 빨리 돌리면 신나게, 천천히 돌리면 잔잔하게. 종이 띠에 구멍을 뚫어 나만의 멜로디도 만들어 보세요.",
+    "howto": "오른쪽 손잡이를 시계 방향으로 돌리세요(스페이스·→ 꾹 누르기도 돼요). 위쪽 칩으로 곡을 고르고(숫자키 1~5), '내 곡 만들기'에서 칸을 눌러 구멍을 뚫으면 그 멜로디가 연주돼요. '코드 복사'로 친구에게 보내고, 받은 코드는 붙여 넣어 불러오세요.",
+    "about": "수록곡은 모두 저작권이 끝난 전래·고전 캐럴이에요. 소리는 녹음 없이 브라우저가 즉석에서 합성해요. 진짜 오르골처럼 거꾸로 돌리면 소리가 나지 않아요."
+  },
+  "en": {
+    "tags": ["music box", "carol", "christmas"],
+    "title": "Crank-a-Carol Music Box",
+    "desc": "Turn the crank and a tiny music box plays a carol. Turn it fast for a jolly tune or slowly for a sleepy one, then punch your own melody into a paper strip.",
+    "howto": "Turn the crank on the right clockwise (or hold Space / →). Pick a song with the chips at the top (keys 1-5). In \"Make my tune\", tap cells to punch holes and the box plays them. Use \"Copy code\" to send it to a friend, and paste a friend's code to load theirs.",
+    "about": "Every built-in song is a public-domain traditional carol. Nothing is recorded: the browser synthesizes each note live. Like a real music box, turning it backwards makes no sound."
+  }
+}
