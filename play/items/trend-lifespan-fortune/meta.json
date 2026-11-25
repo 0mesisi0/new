@@ -1,0 +1,21 @@
+{
+  "slug": "trend-lifespan-fortune",
+  "date": "2026-11-25",
+  "category": "fortune",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "유행 수명 점괘",
+    "desc": "요즘 뜨는 간식이나 유행어를 넣으면 그 유행이 며칠 갈지 점쳐 줘요. 떠오르고 꺼지는 곡선, 편의점 상륙일, '아직도 그거 해?' 날짜까지 진단서로 보여 드려요.",
+    "howto": "유행 이름을 쓰거나 예시 버튼을 누르고, 언제 처음 봤는지 고른 뒤 '점괘 보기'를 누르세요(Enter도 돼요). 같은 이름이면 언제나 같은 점괘가 나와요. 결과는 '이미지 저장'이나 '텍스트 복사'로 공유하세요.",
+    "about": "모든 숫자는 재미로 지어낸 점괘예요. 진짜 예측이 아니에요. 탕후루는 두어 달, 두쫀쿠는 2주쯤 반짝했다는 기사(2026년 2월)에서 착안했어요. 입력한 글자는 이 기기 밖으로 나가지 않아요.",
+    "tags": ["유행", "점괘", "유행예측"]
+  },
+  "en": {
+    "title": "Trend Lifespan Fortune",
+    "desc": "Type any trend, a snack, a word or a hobby, and get a playful forecast of how many days it will last, with a rise-and-fall curve and the date it becomes \"so last season.\"",
+    "howto": "Type a trend or tap an example, choose when you first saw it, then press \"Read the fortune\" (Enter works too). The same name always gets the same fortune. Share the result with \"Save image\" or \"Copy text.\"",
+    "about": "Every number is a made-up fortune, not a real prediction. It was inspired by a February 2026 article noting how some Korean snack fads lasted only weeks. What you type never leaves this device.",
+    "tags": ["trend", "fortune", "fad"]
+  }
+}
