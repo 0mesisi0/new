@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-world-time-planner",
+  "site": "play",
+  "slug": "world-time-planner",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-25T04:19:32.464Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-25T04:21:41.513Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a timer, counter or tracker people would open daily (kind tool)"
+}
