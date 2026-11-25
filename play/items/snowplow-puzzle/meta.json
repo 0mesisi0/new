@@ -1,0 +1,19 @@
+{
+  "slug": "snowplow-puzzle",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "제설차 한 바퀴",
+    "desc": "제설차를 몰아 눈 덮인 골목 12칸을 치우고 차고에 주차하세요. 지나온 길로 되돌아갈 수 없으니 마지막 한 칸까지 갈 길을 미리 살펴보세요.",
+    "howto": "옆 칸을 누르거나 방향키로 한 칸씩 움직이세요. 지나온 칸은 다시 밟을 수 없어요. 막히기 전에 마지막 이동을 취소할 수 있어요.",
+    "about": "눈 쌓인 골목을 한 줄로 잇는 짧은 겨울 길 찾기 퍼즐이에요."
+  },
+  "en": {
+    "title": "Snowplow Puzzle",
+    "desc": "Clear 12 snowy tiles and park the plow in its garage. Each tile can be crossed once, so plan a route that leaves no snow behind.",
+    "howto": "Tap a neighboring tile or use the arrow keys to move. Each tile can be crossed once. Undo your last move while the round is still active.",
+    "about": "A short winter path puzzle about clearing a whole block in one drive."
+  }
+}

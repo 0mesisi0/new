@@ -1,0 +1,19 @@
+{
+  "slug": "stacked-discount-calculator",
+  "date": "2026-11-25",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "중복 할인 계산기",
+    "desc": "정가와 할인율 두 개, 정액 쿠폰 금액을 넣어 보세요. 쿠폰을 먼저 쓸 때와 나중에 쓸 때 최종가가 얼마나 달라지는지 바로 비교할 수 있어요.",
+    "howto": "예시 숫자를 바꾸면 두 가지 적용 순서의 최종가가 바로 바뀌어요. 쓰지 않는 할인이나 쿠폰에는 0을 넣으세요.",
+    "about": "할인 단계마다 할인액의 원 미만을 버리는 방식으로 계산해요. 매장마다 쿠폰 적용 조건과 끝수 처리 방식이 다를 수 있어요."
+  },
+  "en": {
+    "title": "Stacked Discount Calculator",
+    "desc": "Enter a price, two percentage discounts, and a fixed coupon. Compare what you pay when the coupon goes first or last.",
+    "howto": "Edit the example to update both totals. Enter 0 for any discount or coupon you want to leave out.",
+    "about": "The calculator rounds each discount amount down to the nearest won. Store eligibility and rounding rules may differ."
+  }
+}

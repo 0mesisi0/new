@@ -1,0 +1,21 @@
+{
+  "slug": "winter-laundry-puzzle",
+  "date": "2026-11-23",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "겨울 빨래 널기 퍼즐",
+    "desc": "이불부터 양말까지, 겨울 빨래를 건조대 세 칸에 딱 맞게 널어 보세요. 옷의 폭과 길이를 살피며 세 판의 빨래 바구니를 비워요.",
+    "howto": "빨래를 고른 뒤 건조대 줄을 누르세요. 줄에 남은 폭과 아래 공간이 모두 충분해야 해요. 막히면 방금 넌 빨래를 되돌릴 수 있어요.",
+    "about": "겨울 실내 건조대에서 모양을 맞추는 퍼즐이에요. 처음 하는 사람도 같은 세 판을 풀 수 있어요.",
+    "tags": ["빨래 널기 게임", "건조대 퍼즐", "겨울 빨래"]
+  },
+  "en": {
+    "title": "Winter Laundry Puzzle",
+    "desc": "Fit sheets, towels and socks onto a winter drying rack. Watch the width and drop of each piece as you empty three baskets.",
+    "howto": "Choose a piece of laundry, then choose a rail. It needs enough room across and below. Use Undo to take back the last piece you hung.",
+    "about": "A packing puzzle inspired by a winter indoor drying rack. Everyone gets the same three boards.",
+    "tags": ["laundry puzzle", "drying rack", "winter"]
+  }
+}

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>제설차 한 바퀴</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#17263C;color:#F1F8FF;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+#app{height:100vh;height:100dvh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:8px 12px;text-align:center}
+#head{min-height:64px;display:flex;flex-direction:column;justify-content:center;gap:4px;max-width:340px}
+h1{margin:0;font-size:24px;line-height:1.2}
+#help{margin:0;font-size:14px;line-height:1.35;color:#C6D8EE}
+#count{font-size:22px;font-weight:800;margin:0}
+#boardwrap{position:relative;flex:none}
+#board{position:relative;display:grid;grid-template-columns:repeat(4,var(--t));grid-template-rows:repeat(4,var(--t));border-radius:12px;overflow:hidden;background:#0f1a2b;box-shadow:0 6px 0 #0c1626,0 10px 24px #0008;touch-action:none;outline:none;user-select:none}
+#board:focus-visible{box-shadow:0 0 0 4px #FF9B4A,0 6px 0 #0c1626}
+.tile{position:relative;width:var(--t);height:var(--t);min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;background:#F1F8FF;border:1px solid #cfe0f1;transition:background .15s}
+.tile.road{background:#43546C;border-color:#38475c}
+.tile.road::before{content:"";position:absolute;inset:18% 0;background:linear-gradient(90deg,transparent 0 0)}
+.trk{position:absolute;inset:0;opacity:.9}
+.tile.legal::after{content:"";position:absolute;inset:4px;border:3px solid #FF9B4A;border-radius:8px;pointer-events:none}
+.tile svg{width:86%;height:86%;position:relative;z-index:1;pointer-events:none}
+#fx{position:absolute;left:0;top:0;pointer-events:none;z-index:3}
+#panel{width:100%;max-width:340px;min-height:96px;display:flex;flex-direction:column;align-items:center;gap:8px}
+#status{margin:0;font-size:14px;color:#C6D8EE;min-height:20px}
+button{font:inherit;font-weight:800;border:0;border-radius:14px;min-height:48px;min-width:44px;padding:0 22px;cursor:pointer;background:#FF9B4A;color:#2a1704;box-shadow:0 4px 0 #b8631f}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #b8631f}
+button:focus-visible{outline:3px solid #F1F8FF;outline-offset:3px}
+button.sec{background:#2d4160;color:#F1F8FF;box-shadow:0 4px 0 #1b2b43}
+button:disabled{opacity:.4;cursor:default}
+button.big{font-size:20px;min-height:56px;padding:0 36px}
+#res h2{margin:0;font-size:24px;outline:none}
+#res p{margin:2px 0;font-size:15px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body[data-s=start] .play,body[data-s=start] .res,body[data-s=play] .st,body[data-s=play] .res,body[data-s=result] .st,body[data-s=result] .play,body[data-s=result] #count,body[data-s=result] #titlebox,body[data-s=play] #titlebox,body[data-s=start] #count{display:none}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}}
+</style>
+</head>
+<body data-s="start">
+<main id="app">
+  <div id="head">
+    <div id="titlebox"><h1 id="title"></h1><p id="help"></p></div>
+    <p id="count"></p>
+  </div>
+  <div id="boardwrap"><div id="board" tabindex="0" role="group"></div><canvas id="fx"></canvas></div>
+  <div id="panel">
+    <div class="st"><p id="bestst" style="margin:0 0 8px;font-size:14px;color:#C6D8EE"></p><button id="start" class="big"></button></div>
+    <div class="play" style="display:flex;flex-direction:column;align-items:center;gap:8px"><p id="status"></p><button id="undo" class="sec"></button></div>
+    <div class="res" id="res" style="display:flex;flex-direction:column;align-items:center;gap:4px"><h2 id="outcome" tabindex="-1"></h2><p id="rc"></p><p id="rb"></p><button id="retry" class="big"></button></div>
+  </div>
+  <div id="live" class="sr" aria-live="polite"></div>
+</main>
+<script>
+const T={
+ko:{appTitle:'제설차 한 바퀴',startHelp:'지나온 칸은 다시 밟을 수 없어요. 눈 12칸을 치우고 차고에 주차하세요.',start:'제설 시작',board:'제설차 퍼즐판',cleared:'치운 눈 {n}/12칸',best:'최고 기록 {n}/12칸',ready:'옆 칸을 누르거나 방향키로 이동하세요.',blocked:'그 칸으로는 갈 수 없어요.',undo:'한 칸 되돌리기',undone:'마지막 이동을 취소했어요.',perfect:'골목 제설 완료!',parked:'차고에 도착했어요',stuck:'더 갈 길이 없어요',retry:'다시 하기',tile:'{row}행 {col}열, {state}',startTile:'출발 칸',snowTile:'눈 덮인 길',clearedTile:'눈 치운 길',bankTile:'눈더미',garageTile:'차고',plowTile:'제설차 위치',legalMoves:'갈 수 있는 방향: {directions}',up:'위',right:'오른쪽',down:'아래',left:'왼쪽'},
+en:{appTitle:'Snowplow Puzzle',startHelp:'Cross each tile once. Clear all 12 snowy tiles, then park in the garage.',start:'Start plowing',board:'Snowplow puzzle board',cleared:'Tiles cleared {n}/12',best:'Best {n}/12',ready:'Tap a neighboring tile or use the arrow keys.',blocked:'You can’t move there.',undo:'Undo move',undone:'Last move undone.',perfect:'Block cleared!',parked:'Back in the garage',stuck:'No moves left',retry:'Try again',tile:'Row {row}, column {col}, {state}',startTile:'Start tile',snowTile:'Snow-covered road',clearedTile:'Cleared road',bankTile:'Snowbank',garageTile:'Garage',plowTile:'Plow position',legalMoves:'Available directions: {directions}',up:'up',right:'right',down:'down',left:'left'}
+};
+const q=new URLSearchParams(location.search).get('lang');
+const L=q==='ko'||q==='en'?q:((navigator.language||'').toLowerCase().startsWith('ko')?'ko':'en');
+const t=(k,v)=>T[L][k].replace(/\{(\w+)\}/g,(_,x)=>v[x]);
+document.documentElement.lang=L;document.title=T[L].appTitle;
+
+const MAP=['S***','****','****','##G*'];
+const DIRS=[['up',-1,0],['right',0,1],['down',1,0],['left',0,-1]];
+const $=id=>document.getElementById(id);
+const board=$('board'),fx=$('fx'),ctx=fx.getContext('2d');
+const reduce=matchMedia('(prefers-reduced-motion:reduce)');
+let route,screen='start',rot=1,best=0,status='',outcome='';
+try{const b=localStorage.getItem('snowplow-puzzle:best');if(/^\d+$/.test(b)&&+b<=12)best=+b}catch(e){}
+
+const ch=i=>MAP[i>>2][i&3];
+const score=()=>route.filter(i=>ch(i)==='*').length;
+function legal(){
+  const c=route[route.length-1],r=c>>2,k=c&3,out=[];
+  DIRS.forEach(([n,dr,dc],d)=>{const R=r+dr,C=k+dc;if(R<0||R>3||C<0||C>3)return;const i=R*4+C;
+    if((ch(i)==='*'||ch(i)==='G')&&!route.includes(i))out.push({d,n,i})});
+  return out;
+}
+const TRACKS='<svg class="trk" viewBox="0 0 100 100" preserveAspectRatio="none"><g stroke="#2b394d" stroke-width="7" stroke-dasharray="8 5"><line x1="32" y1="0" x2="32" y2="100"/><line x1="68" y1="0" x2="68" y2="100"/></g></svg>';
+const PLOW='<svg viewBox="0 0 100 100" style="transform:rotate(%ADEG)"><rect x="22" y="6" width="56" height="14" rx="4" fill="#d9e6f5" stroke="#8aa0bb" stroke-width="3"/><rect x="28" y="22" width="44" height="66" rx="10" fill="#FF9B4A" stroke="#b8631f" stroke-width="3"/><rect x="34" y="30" width="32" height="18" rx="4" fill="#bfe3ff"/><rect x="40" y="58" width="20" height="20" rx="4" fill="#ffc592"/><circle cx="50" cy="14" r="0"/><rect x="42" y="2" width="16" height="5" rx="2" fill="#ffe14a"/></svg>';
+const BANK='<svg viewBox="0 0 100 100"><path d="M10 80 Q18 36 38 44 Q52 14 68 40 Q88 38 90 80Z" fill="#dfeaf7" stroke="#7f98b6" stroke-width="4"/><path d="M30 70 Q40 58 52 66" fill="none" stroke="#aac0da" stroke-width="4" stroke-linecap="round"/></svg>';
+const GARAGE='<svg viewBox="0 0 100 100"><path d="M8 44 L50 12 L92 44Z" fill="#c4463f" stroke="#7a2520" stroke-width="3"/><rect x="14" y="44" width="72" height="46" fill="#e8d9c4" stroke="#8a7658" stroke-width="3"/><rect x="26" y="56" width="48" height="34" fill="#6d7f99" stroke="#43546C" stroke-width="2"/><path d="M26 66H74M26 76H74" stroke="#43546C" stroke-width="3"/></svg>';
+
+function render(){
+  const cur=route[route.length-1],lg=screen==='play'?legal():[],act=screen==='play'?lg.map(x=>x.i):[];
+  let h='';
+  for(let i=0;i<16;i++){
+    const c=ch(i),inr=route.includes(i),r=i>>2,k=i&3;
+    let st,cls='tile',inner='';
+    if(c==='#'){st='bankTile';inner=BANK}
+    else if(c==='G'){st='garageTile';inner=GARAGE}
+    else if(inr){st=c==='S'?'startTile':'clearedTile';cls+=' road';inner=TRACKS}
+    else if(c==='S'){st='startTile';cls+=' road'}
+    else{st='snowTile'}
+    if(c==='G'&&inr)cls+=' road';
+    if(i===cur)inner+=PLOW.replace('%A',rot*90);
+    if(act.includes(i))cls+=' legal';
+    let lab=t('tile',{row:r+1,col:k+1,state:t(st)});if(i===cur)lab+=', '+t('plowTile');
+    h+=`<div class="${cls}" data-i="${i}" role="img" aria-label="${lab}">${inner}</div>`;
+  }
+  board.innerHTML=h;
+}
+function setText(){
+  $('title').textContent=t('appTitle');$('help').textContent=t('startHelp');$('start').textContent=t('start');
+  $('undo').textContent=t('undo');$('retry').textContent=t('retry');board.setAttribute('aria-label',t('board'));
+  $('count').textContent=t('cleared',{n:score()});$('status').textContent=status||t('ready');
+  $('bestst').textContent=best?t('best',{n:best}):'';
+  $('undo').disabled=route.length<2;
+  if(screen==='result'){$('outcome').textContent=outcome;$('rc').textContent=t('cleared',{n:score()});$('rb').textContent=t('best',{n:best})}
+}
+const say=m=>{$('live').textContent='';setTimeout(()=>$('live').textContent=m,30)};
+const dirText=()=>{const l=legal();return t('legalMoves',{directions:l.map(x=>t(x.n)).join(', ')})};
+function refresh(){document.body.dataset.s=screen;setText();render()}
+
+function reset(){route=[0];rot=1;status='';outcome='';parts=[];refresh()}
+function begin(){reset();screen='play';refresh();board.focus()}
+function finish(){
+  const s=score(),last=route[route.length-1];
+  outcome=t(ch(last)==='G'?(s===12?'perfect':'parked'):'stuck');
+  if(s>best){best=s;try{localStorage.setItem('snowplow-puzzle:best',String(s))}catch(e){}}
+  screen='result';refresh();$('outcome').focus();
+  if(s===12&&!reduce.matches)puff(last,0,true);
+}
+function move(i){
+  if(screen!=='play')return;
+  const m=legal().find(x=>x.i===i);
+  if(!m){status=t('blocked');$('status').textContent=status;say(status);return}
+  status='';rot=m.d;route.push(i);
+  const snow=ch(i)==='*';
+  if(ch(i)==='G'){finish();return}
+  if(snow&&!legal().length){finish();return}
+  refresh();
+  if(snow&&!reduce.matches)puff(i,m.d);
+  say(t('cleared',{n:score()})+'. '+dirText());
+}
+function undo(){
+  if(screen!=='play'||route.length<2)return;
+  route.pop();rot=route.length>1?dirOf(route[route.length-2],route[route.length-1]):1;
+  status=t('undone');refresh();say(status+' '+t('cleared',{n:score()})+'. '+dirText());
+}
+const dirOf=(a,b)=>{const d=b-a;return d===-4?0:d===1?1:d===4?2:3};
+
+// input
+let down=null;
+board.addEventListener('pointerdown',e=>{const el=e.target.closest('[data-i]');down=el?el.dataset.i:null});
+board.addEventListener('pointerup',e=>{const el=e.target.closest('[data-i]');if(el&&down===el.dataset.i)move(+down);down=null});
+board.addEventListener('pointercancel',()=>down=null);
+board.addEventListener('keydown',e=>{
+  if(e.key==='Backspace'){e.preventDefault();if(!e.repeat)undo();return}
+  const d={ArrowUp:0,ArrowRight:1,ArrowDown:2,ArrowLeft:3}[e.key];
+  if(d===undefined)return;
+  e.preventDefault();if(e.repeat||screen!=='play')return;
+  const c=route[route.length-1],r=(c>>2)+DIRS[d][1],k=(c&3)+DIRS[d][2];
+  if(r<0||r>3||k<0||k>3){status=t('blocked');$('status').textContent=status;say(status);return}
+  move(r*4+k);
+});
+$('start').onclick=begin;$('retry').onclick=begin;$('undo').onclick=()=>{undo();board.focus()};
+
+// puffs
+let parts=[],raf=0,lastT=0;
+function puff(i,d,big){
+  const t0=parseFloat(getComputedStyle(board).getPropertyValue('--t'))||52;
+  const cx=((i&3)+.5)*t0,cy=((i>>2)+.5)*t0,v=DIRS[d];
+  const n=big?18:8;
+  for(let k=0;k<n;k++){
+    let a,sp=40+Math.random()*50,x=cx,y=cy;
+    if(big){a=Math.random()*6.28}
+    else{const side=k%2?1:-1;// perpendicular to heading
+      a=Math.atan2(v[1],v[2])+side*(Math.PI/2)+(Math.random()-.5);
+      x+=v[2]*t0*.3;y+=v[1]*t0*.3}
+    parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:0,max:.35+Math.random()*.2,r:3+Math.random()*3});
+  }
+  if(!raf){lastT=0;raf=requestAnimationFrame(tick)}
+}
+function tick(ts){
+  raf=0;if(document.hidden){lastT=0;if(parts.length)raf=requestAnimationFrame(tick);return}
+  const dt=Math.min(.05,lastT?(ts-lastT)/1000:.016);lastT=ts;
+  const dpr=Math.min(2,devicePixelRatio||1);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,fx.width,fx.height);
+  parts=parts.filter(p=>(p.life+=dt)<p.max);
+  for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;ctx.globalAlpha=1-p.life/p.max;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fill()}
+  ctx.globalAlpha=1;
+  if(parts.length)raf=requestAnimationFrame(tick);
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&parts.length&&!raf){lastT=0;raf=requestAnimationFrame(tick)}});
+
+// layout
+function layout(){
+  const t=Math.max(44,Math.floor(Math.min(320,innerWidth-24,innerHeight-272)/4));
+  board.style.setProperty('--t',t+'px');
+  const s=t*4,dpr=Math.min(2,devicePixelRatio||1);
+  fx.style.width=fx.style.height=s+'px';fx.width=fx.height=Math.round(s*dpr);
+}
+addEventListener('resize',layout);
+layout();reset();$('start').focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "slug": "knit-sweater-depiller",
+  "date": "2026-11-25",
+  "category": "cool",
+  "kind": "tool",
+  "aspect": "9/16",
+  "tags": {
+    "ko": ["니트", "보풀 제거", "겨울"],
+    "en": ["knitwear", "fabric shaver", "winter"]
+  },
+  "ko": {
+    "title": "니트 보풀 제거",
+    "desc": "니트 위를 쓱 문질러 보풀을 떼고 가지런한 코를 드러내세요. 세 가지 니트를 손질하고 전후 모습을 이미지로 남길 수 있어요.",
+    "howto": "보풀 위를 문지르거나 눌러 보세요. 키보드로는 니트에 초점을 두고 방향키로 이동한 뒤 스페이스를 누르세요. ‘한 곳씩 밀기’ 버튼으로도 손질할 수 있어요.",
+    "about": "시간 제한 없이 니트 한 조각을 손질하는 겨울 장난감이에요. 입력과 이미지는 기기에서 처리해요."
+  },
+  "en": {
+    "title": "Knit Sweater De-Piller",
+    "desc": "Sweep away fuzzy pills to reveal neat stitches. Clean three knit swatches and save a before-and-after image.",
+    "howto": "Drag or tap on the knit. With the knit focused, move with the arrow keys and press Space to shave. You can also use Shave next spot.",
+    "about": "A winter desk toy for tending a little patch of knitwear at your own pace. The page creates images on your device."
+  }
+}

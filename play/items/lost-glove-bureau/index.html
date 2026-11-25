@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>장갑 한 짝 분실물 센터</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#182332;color:#FAEED8;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR","Malgun Gothic",sans-serif}
+#app{height:100vh;height:100dvh;width:100%;max-width:460px;margin:0 auto;padding:12px;display:flex;flex-direction:column;justify-content:center;gap:10px;overflow:hidden}
+h1{font-size:clamp(20px,5.5vw,26px);margin:0;text-align:center;line-height:1.25}
+h1:focus{outline:none}
+p{margin:0;text-align:center;line-height:1.4}
+button{font:inherit;touch-action:manipulation;min-height:44px;min-width:44px;cursor:pointer}
+:focus-visible{outline:3px solid #FFD166;outline-offset:2px}
+.tile:focus-visible{outline:3px solid #182332;outline-offset:1px;box-shadow:0 0 0 5px #FFD166,0 0 0 7px #182332}
+.drawer{background:#FAEED8;color:#222D39;border-radius:14px;padding:10px;box-shadow:inset 0 6px 0 rgba(0,0,0,.12),0 4px 0 #0c141d;display:grid;gap:8px}
+.drawer.three{grid-template-columns:repeat(3,1fr)}
+.drawer.two{grid-template-columns:repeat(2,1fr)}
+.tile{background:#fff;color:#222D39;border:2px solid #222D39;border-radius:10px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:clamp(12px,3.6vw,15px);font-weight:600;animation:settle .14s ease-out}
+.tile svg{width:min(100%,84px);height:clamp(56px,16dvh,100px)}
+.tile:hover{background:#fff6e0}
+.slot{display:flex;align-items:center;gap:8px;justify-content:center;background:#e9d9b6;color:#222D39;border-radius:10px;padding:4px 8px;font-weight:600;font-size:14px}
+.slot svg{width:34px;height:38px;flex:none}
+.btn{background:#1E635A;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+.btn.alt{background:transparent;border:2px solid #FAEED8;color:#FAEED8}
+.card{background:#FAEED8;color:#222D39;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;min-height:0;box-shadow:0 4px 0 #0c141d}
+.card h1{font-size:clamp(18px,5vw,24px)}
+.scene{width:100%;flex:1 1 auto;min-height:90px;max-height:46dvh;border-radius:10px;display:block}
+@media (min-height:700px){.scene{max-height:50dvh}}
+.card p{font-size:clamp(13px,3.8vw,16px)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.acts .btn{flex:1 1 120px}
+.prog{font-size:14px;color:#FAEED8}
+.props{animation:fade .18s ease-out}
+@keyframes settle{from{transform:translateY(8px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.noanim .tile,.noanim .props{animation:none}
+@media (prefers-reduced-motion:reduce){.tile,.props{animation:none}}
+@media (max-height:520px){.scene{min-height:60px}#app{gap:6px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="live" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap"></div>
+<script>
+(function(){
+var T={
+ko:{appTitle:'장갑 한 짝 분실물 센터',leftPrompt:'왼손 장갑을 하나 골라 주세요.',rightTitle:'오른손 장갑 고르기',chosenLeft:'고른 왼손 장갑: {glove}',
+stripe:'줄무늬 장갑',knit:'털장갑',leather:'가죽장갑',rubber:'고무장갑',work:'작업 장갑',choice:'{n}. {glove}',back:'뒤로',
+progress:'찾은 이야기 {count}/6',complete:'이야기 여섯 편을 모두 찾았어요!',swapRight:'오른손 바꾸기',startOver:'처음부터',
+P:{
+'stripe:rubber':['웅덩이 나룻배','줄무늬 장갑은 승객을 태우고, 고무장갑은 노를 저어요. 승객은 단추 하나예요.'],
+'stripe:work':['달 긁개','작업 장갑이 달을 닦으면 줄무늬 장갑이 떨어진 달가루를 받아요.'],
+'knit:rubber':['비눗방울 수선실','고무장갑이 방울을 잡고, 털장갑이 실 한 올로 구멍을 꿰매요.'],
+'knit:work':['콩 한 알 이삿짐센터','작업 장갑이 콩을 들고, 털장갑이 콩이 구르지 않게 꼭 안아요.'],
+'leather:rubber':['빗방울 검표원','가죽장갑이 표를 받고, 고무장갑이 빗방울을 한 방울씩 들여보내요.'],
+'leather:work':['그림자 이발소','가죽장갑이 손님을 앉히고, 작업 장갑이 의자 밖으로 삐친 그림자를 다듬어요.']}},
+en:{appTitle:'Lost Glove Bureau',leftPrompt:'Pick a left glove.',rightTitle:'Pick a right glove',chosenLeft:'Left glove: {glove}',
+stripe:'Striped mitten',knit:'Knitted mitten',leather:'Leather glove',rubber:'Rubber glove',work:'Work glove',choice:'{n}. {glove}',back:'Back',
+progress:'Endings found: {count}/6',complete:'You found all six endings!',swapRight:'Swap right glove',startOver:'Start over',
+P:{
+'stripe:rubber':['Puddle Ferry','The striped mitten takes a passenger and the rubber glove rows. The passenger is a button.'],
+'stripe:work':['Moon Scrapers','The work glove polishes the moon. The striped mitten catches the moon dust.'],
+'knit:rubber':['Bubble Repair Shop','The rubber glove holds a bubble while the knitted mitten stitches it with a strand of yarn.'],
+'knit:work':['One-Bean Movers','The work glove lifts a bean. The knitted mitten hugs it so it won’t roll away.'],
+'leather:rubber':['Raindrop Ticket Inspectors','The leather glove checks tickets. The rubber glove lets in one raindrop at a time.'],
+'leather:work':['Shadow Barbers','The leather glove seats the customer. The work glove trims the shadow sticking out past the chair.']}}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var S=T[lang];
+document.documentElement.lang=lang;document.title=S.appTitle;
+function f(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+
+var LEFT=['stripe','knit','leather'],RIGHT=['rubber','work'],KEY='lost-glove-bureau:seen:v1';
+var seen=new Set();
+function valid(id){return typeof id==='string'&&Object.prototype.hasOwnProperty.call(S.P,id)}
+try{var a=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(a))a.forEach(function(i){if(valid(i))seen.add(i)})}catch(e){}
+function save(){try{var a=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(a))a.forEach(function(i){if(valid(i))seen.add(i)})}catch(e){}
+ try{localStorage.setItem(KEY,JSON.stringify(Array.from(seen)))}catch(e){}}
+
+/* ---- glove art (thumb on right = left glove; right glove mirrored) ---- */
+var COL={stripe:'#D9534F',knit:'#4F86B5',leather:'#8A5A3C',rubber:'#F2C230',work:'#7A8FA3'};
+var INK='#222D39';
+function body(id){
+ var c=COL[id],s='stroke="'+INK+'" stroke-width="3" stroke-linejoin="round"',o='';
+ if(id==='stripe'||id==='knit'){
+  o+='<path d="M72 70 Q96 62 98 46 Q96 36 86 44 L70 56Z" fill="'+c+'" '+s+'/>';
+  o+='<path d="M28 100 V52 Q28 16 52 16 Q76 16 76 52 V100Z" fill="'+c+'" '+s+'/>';
+  if(id==='stripe'){for(var y=34;y<=82;y+=16)o+='<path d="M30 '+y+'H74" stroke="#FAEED8" stroke-width="7"/>';
+   o+='<rect x="24" y="100" width="56" height="14" rx="3" fill="#FAEED8" '+s+'/>';}
+  else{for(var x=36;x<=68;x+=8)o+='<path d="M'+x+' 24V90" stroke="#9CC3E4" stroke-width="2" stroke-dasharray="4 4"/>';
+   o+='<rect x="24" y="100" width="56" height="14" rx="3" fill="#35648D" '+s+'/>';
+   for(x=30;x<78;x+=6)o+='<path d="M'+x+' 102V112" stroke="#9CC3E4" stroke-width="1.5"/>';}
+  return o;}
+ var fx=[[26,26,12,50],[40,14,12,62],[54,20,12,56],[68,34,12,42]];
+ fx.forEach(function(r){o+='<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" rx="6" fill="'+c+'" '+s+'/>'});
+ o+='<path d="M72 78 Q96 72 100 54 Q96 42 86 52 L70 66Z" fill="'+c+'" '+s+'/>';
+ o+='<rect x="26" y="58" width="54" height="42" rx="8" fill="'+c+'"/><path d="M26 66V92M80 70V92" stroke="'+INK+'" stroke-width="3"/>';
+ if(id==='leather'){o+='<path d="M32 70H74M32 78H74" stroke="#E7C9A5" stroke-width="2" stroke-dasharray="4 3"/><rect x="24" y="100" width="58" height="14" rx="3" fill="#5E3A24" '+s+'/>';}
+ if(id==='rubber'){o+='<path d="M24 100H82L90 116H16Z" fill="#E0A800" '+s+'/><path d="M30 106H76" stroke="#FFF3B0" stroke-width="2"/>';
+  o+='<path d="M33 30V60M47 20V60M61 26V60M74 40V60" stroke="#FFF3B0" stroke-width="2" opacity=".7"/>';}
+ if(id==='work'){for(var i=0;i<3;i++)for(var j=0;j<3;j++)o+='<circle cx="'+(36+i*14)+'" cy="'+(66+j*11)+'" r="3" fill="#F2994A"/>';
+  o+='<rect x="24" y="100" width="58" height="14" rx="3" fill="#4D6074" '+s+'/>';}
+ return o;}
+function glove(id,side,w,h){ // standalone svg
+ return '<svg viewBox="0 0 110 120" width="'+w+'" height="'+h+'" aria-hidden="true" focusable="false">'+gl(id,side)+'</svg>';}
+function gl(id,side){return side==='R'?'<g transform="translate(110 0) scale(-1 1)">'+body(id)+'</g>':'<g>'+body(id)+'</g>';}
+function at(id,side,x,y,sc,rot){return '<g transform="translate('+x+' '+y+') rotate('+(rot||0)+') scale('+sc+') translate(-55 -60)">'+gl(id,side)+'</g>';}
+
+/* ---- scenes (300x200) ---- */
+function scene(id){
+ var l=id.split(':')[0],r=id.split(':')[1],o='<svg class="scene" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">',p='<g class="props">';
+ if(id==='stripe:rubber'){
+  o+='<rect width="300" height="200" fill="#CFE6EE"/><ellipse cx="150" cy="130" rx="140" ry="52" fill="#7FB6C9"/>';
+  p+='<ellipse cx="150" cy="140" rx="110" ry="30" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/><ellipse cx="150" cy="140" rx="130" ry="40" fill="none" stroke="#fff" stroke-width="2" opacity=".45"/>';
+  p+='<path d="M60 128 Q150 176 240 120 Q150 138 60 128Z" fill="#5E9B4B" stroke="'+INK+'" stroke-width="3"/><path d="M70 130 Q150 142 236 122" stroke="#3D6E30" stroke-width="2" fill="none"/>';
+  p+='<circle cx="140" cy="86" r="14" fill="#F4E3C1" stroke="'+INK+'" stroke-width="3"/><circle cx="136" cy="83" r="2" fill="'+INK+'"/><circle cx="144" cy="83" r="2" fill="'+INK+'"/><circle cx="136" cy="90" r="2" fill="'+INK+'"/><circle cx="144" cy="90" r="2" fill="'+INK+'"/>';
+  p+=at(l,'L',108,100,.7,-8)+'<path d="M230 60 L190 130" stroke="'+INK+'" stroke-width="5" stroke-linecap="round"/><ellipse cx="236" cy="54" rx="12" ry="7" fill="#8A5A3C" stroke="'+INK+'" stroke-width="3" transform="rotate(-60 236 54)"/>'+at(r,'R',200,105,.7,10);}
+ else if(id==='stripe:work'){
+  o+='<rect width="300" height="200" fill="#1F2D4A"/>';
+  for(var i=0;i<14;i++)o+='<circle cx="'+((i*47)%290+6)+'" cy="'+((i*29)%90+8)+'" r="1.6" fill="#FFF3B0"/>';
+  p+='<path d="M90 140 A80 80 0 1 1 210 140 A62 62 0 1 0 90 140Z" fill="#FFE8A3" stroke="#F2C230" stroke-width="3" transform="translate(0 -40)"/>';
+  p+=at(r,'R',216,70,.7,-25)+'<path d="M196 56 l-8 -8 M204 46 l-8 -8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>';
+  p+='<path d="M200 190 Q150 178 100 190Z" fill="#FFE8A3"/><circle cx="130" cy="176" r="2.5" fill="#FFF3B0"/><circle cx="165" cy="172" r="2" fill="#FFF3B0"/><circle cx="120" cy="124" r="2" fill="#FFF3B0"/><circle cx="150" cy="150" r="2" fill="#FFF3B0"/>'+at(l,'L',150,150,.75,-10)+'<path d="M128 178 Q150 184 172 178" stroke="#FFE8A3" stroke-width="6" stroke-linecap="round" fill="none"/>';}
+ else if(id==='knit:rubber'){
+  o+='<rect width="300" height="200" fill="#E6F1F4"/>';
+  p+='<circle cx="150" cy="86" r="62" fill="#BFE6F5" fill-opacity=".55" stroke="#4A93B5" stroke-width="3"/><path d="M112 66 Q124 48 146 44" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>';
+  p+='<path d="M120 100 Q135 78 150 96 T182 82" stroke="#E8506A" stroke-width="3" fill="none" stroke-dasharray="9 5"/><path d="M182 82 Q214 90 230 118" stroke="#E8506A" stroke-width="2" fill="none"/>';
+  p+=at(r,'R',92,152,.95,-12)+at(l,'L',226,140,.8,12);}
+ else if(id==='knit:work'){
+  o+='<rect width="300" height="200" fill="#F1E3C8"/><rect y="150" width="300" height="50" fill="#D9C39A"/>';
+  p+='<path d="M70 120 H230 L216 180 H84Z" fill="#C79A5E" stroke="'+INK+'" stroke-width="3"/><path d="M70 120 L50 108 M230 120 L252 108" stroke="'+INK+'" stroke-width="3"/><path d="M140 120 V180 M160 120 V180" stroke="#9E7742" stroke-width="2" opacity=".6"/>';
+  p+='<ellipse cx="150" cy="110" rx="16" ry="11" fill="#8A5A3C" stroke="'+INK+'" stroke-width="3"/><path d="M142 106 Q150 112 158 106" stroke="#B88356" stroke-width="2" fill="none"/>'+at(r,'R',186,60,.75,25)+at(l,'L',104,112,.6,-35);}
+ else if(id==='leather:rubber'){
+  o+='<rect width="300" height="200" fill="#8EA3B5"/><path d="M0 170 H300 V200 H0Z" fill="#5C6E7E"/>';
+  for(var k=0;k<10;k++)o+='<path d="M'+(k*32+8)+' 10 l-5 14 M'+(k*32+22)+' 40 l-5 14" stroke="#DCEBF5" stroke-width="2" opacity=".5"/>';
+  p+='<path d="M90 36 H220 L240 62 H70Z" fill="#E8506A" stroke="'+INK+'" stroke-width="3"/><path d="M110 36 L100 62 M140 36 L136 62 M170 36 L172 62 M200 36 L208 62" stroke="#FAEED8" stroke-width="4"/>';
+  p+='<path d="M150 66 V170" stroke="'+INK+'" stroke-width="4"/><rect x="146" y="100" width="8" height="70" fill="#C9D3DC" stroke="'+INK+'" stroke-width="2"/>';
+  p+='<rect x="110" y="96" width="30" height="20" rx="3" fill="#FFF3B0" stroke="'+INK+'" stroke-width="2"/>';
+  for(var d=0;d<3;d++)p+='<path d="M'+(188+d*22)+' '+(140-d*8)+' q-8 12 0 16 q8 -4 0 -16Z" fill="#6EC3EE" stroke="#2E7FA8" stroke-width="2"/>';
+  p+=at(l,'L',84,128,.75,-6)+at(r,'R',214,100,.6,8);}
+ else{
+  o+='<rect width="300" height="200" fill="#D9C7B0"/><rect y="160" width="300" height="40" fill="#B79E80"/>';
+  p+='<path d="M150 168 L270 188 L250 196 L130 176Z" fill="#222D39" opacity=".35"/><path d="M118 158 L150 168 L146 180 L112 168Z" fill="#222D39" opacity=".3"/>';
+  p+='<rect x="108" y="46" width="48" height="60" rx="10" fill="#B03A48" stroke="'+INK+'" stroke-width="3"/><rect x="100" y="100" width="64" height="26" rx="8" fill="#B03A48" stroke="'+INK+'" stroke-width="3"/><path d="M132 126 V158 M112 126 L102 158 M152 126 L162 158" stroke="'+INK+'" stroke-width="5" stroke-linecap="round"/>';
+  p+='<path d="M196 130 q8-6 16 0 M196 138 h16" stroke="'+INK+'" stroke-width="3" fill="none"/><rect x="226" y="150" width="34" height="8" rx="3" fill="#F2C230" stroke="'+INK+'" stroke-width="2"/><path d="M230 158 v6 M238 158 v6 M246 158 v6 M254 158 v6" stroke="'+INK+'" stroke-width="2"/>';
+  p+=at(l,'L',70,90,.7,-10)+at(r,'R',226,128,.7,20);}
+ return o+p+'</g></svg>';}
+
+/* ---- state & render ---- */
+var st={screen:'left',left:null,right:null,lastL:null,lastR:null,tok:0};
+var app=document.getElementById('app'),live=document.getElementById('live'),lastC=null;
+function pid(){return st.left+':'+st.right}
+function tile(g,n,act){return '<button type="button" class="tile" data-a="'+act+'" data-g="'+g+'" data-t="'+st.tok+'" aria-label="'+f(S.choice,{n:n,glove:S[g]})+'">'+glove(g,act==='L'?'L':'R',84,96)+'<span>'+f(S.choice,{n:n,glove:S[g]})+'</span></button>'}
+function render(focusSel){
+ st.tok++;var h='';
+ if(st.screen==='left'){
+  h='<h1 tabindex="-1" id="hd">'+S.appTitle+'</h1><p>'+S.leftPrompt+'</p><div class="drawer three">'+LEFT.map(function(g,i){return tile(g,i+1,'L')}).join('')+'</div>';
+ }else if(st.screen==='right'){
+  h='<h1 tabindex="-1" id="hd">'+S.rightTitle+'</h1><div class="drawer"><div class="slot">'+glove(st.left,'L',34,38)+'<span>'+f(S.chosenLeft,{glove:S[st.left]})+'</span></div><div class="drawer two" style="padding:0;box-shadow:none;background:none">'+RIGHT.map(function(g,i){return tile(g,i+1,'R')}).join('')+'</div></div><button type="button" class="btn alt" data-a="back" data-t="'+st.tok+'" id="back">'+S.back+'</button>';
+ }else{
+  var id=pid(),c=S.P[id],n=seen.size;
+  h='<div class="card"><h1 tabindex="-1" id="hd">'+c[0]+'</h1>'+scene(id)+'<p>'+c[1]+'</p></div><p class="prog">'+(n>=6?S.complete:f(S.progress,{count:n}))+'</p><div class="acts"><button type="button" class="btn" data-a="swap" data-t="'+st.tok+'" id="swap">'+S.swapRight+'</button><button type="button" class="btn alt" data-a="over" data-t="'+st.tok+'">'+S.startOver+'</button></div>';
+ }
+ app.className='';app.innerHTML=h;
+ document.body.classList.toggle('noanim',document.hidden);
+ var pg=app.querySelector('.prog');
+ setTimeout(function(){live.textContent=pg?pg.textContent:''},50);
+ var el=focusSel&&app.querySelector(focusSel);(el||app.querySelector('#hd')).focus();
+}
+function pickL(g){st.left=g;st.lastL=g;st.right=null;st.screen='right';render(st.lastR&&'[data-g="'+st.lastR+'"]'||null)}
+function pickR(g){st.right=g;st.lastR=g;if(!window.__demo){seen.add(pid());save()}window.__demo=false;st.screen='result';render()}
+function back(){st.screen='left';st.right=null;render(st.lastL&&'[data-g="'+st.lastL+'"]')}
+function swap(){st.screen='right';st.right=null;render(st.lastR&&'[data-g="'+st.lastR+'"]')}
+function over(){st.screen='left';st.left=st.right=st.lastR=null;render(st.lastL&&'[data-g="'+st.lastL+'"]')}
+function act(a,g){
+ if(a==='L'&&st.screen==='left')pickL(g);
+ else if(a==='R'&&st.screen==='right')pickR(g);
+ else if(a==='back'&&st.screen==='right')back();
+ else if(a==='swap'&&st.screen==='result')swap();
+ else if(a==='over'&&st.screen==='result')over();}
+app.addEventListener('click',function(e){
+ var b=e.target.closest('button');if(!b||+b.dataset.t!==st.tok)return;
+ // same pointer spot twice in a row = repeat tap on the old choice; ignore it on the new screen
+ var now=Date.now(),rep=e.detail>0&&lastC&&lastC.x===e.clientX&&lastC.y===e.clientY&&now-lastC.t<700&&lastC.tok!==st.tok;
+ if(e.detail>0)lastC={x:e.clientX,y:e.clientY,t:now,tok:st.tok};
+ if(rep)return;
+ act(b.dataset.a,b.dataset.g)});
+document.addEventListener('keydown',function(e){
+ if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+ var n=parseInt(e.key,10);
+ if(st.screen==='left'&&n>=1&&n<=3){e.preventDefault();pickL(LEFT[n-1])}
+ else if(st.screen==='right'&&n>=1&&n<=2){e.preventDefault();pickR(RIGHT[n-1])}
+ else if(st.screen==='right'&&e.key==='Escape'){e.preventDefault();back()}});
+if(location.hash==='#demo'){st.left='stripe';st.right='rubber';st.screen='result';window.__demo=false;render()}
+else render();
+})();
+</script>
+</body>
+</html>

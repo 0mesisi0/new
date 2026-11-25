@@ -1,0 +1,21 @@
+{
+  "slug": "ondol-pipe-puzzle",
+  "date": "2026-11-23",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["온돌", "파이프 연결", "겨울 퍼즐"],
+    "title": "온돌 배관 잇기",
+    "desc": "차가운 방 세 칸에 온기를 채워요. 타일을 돌려 입구와 출구를 잇고, 적은 회전으로 최고 점수에 도전하세요.",
+    "howto": "배관을 누르면 시계 방향으로 돌아가요. 키보드는 방향키로 이동하고 Enter나 스페이스바로 돌려요. 모든 배관을 이어 방 세 칸을 데우세요.",
+    "about": "바닥이 차가운 겨울 아침에서 출발한 배관 퍼즐이에요. 실제 온돌 배관은 퍼즐 속 배관과 다르게 설치돼요."
+  },
+  "en": {
+    "tags": ["ondol", "pipe puzzle", "winter"],
+    "title": "Ondol Pipe Puzzle",
+    "desc": "Warm three chilly rooms. Turn the pipe tiles to join the inlet and outlet, and use fewer turns to beat your best score.",
+    "howto": "Tap a pipe to turn it clockwise. Use the arrow keys to move and Enter or Space to turn. Connect every pipe to warm all three rooms.",
+    "about": "A pipe puzzle inspired by cold winter mornings and Korean heated floors. The boards use fictional pipe layouts."
+  }
+}

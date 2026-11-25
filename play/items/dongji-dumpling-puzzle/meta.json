@@ -1,0 +1,21 @@
+{
+  "slug": "dongji-dumpling-puzzle",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "동지 팥죽 새알심 퍼즐",
+    "desc": "국자에 놓인 새알심 아홉 알을 순서대로 옮겨 팥죽 세 그릇을 완성하세요. 다음 모양까지 살펴보고 한 번도 되돌리지 않으면 만점이에요.",
+    "howto": "맨 앞 새알심의 모양과 그릇의 다음 칸을 맞추세요. 그릇을 누르거나 숫자키 1~3을 쓰세요. 막히면 되돌리기 또는 Z 키를 누르세요.",
+    "about": "동지 팥죽에 들어가는 새알심을 소재로 만든 순서 퍼즐이에요. 동그라미, 세모, 네모는 게임에서 순서를 구분하는 표시예요.",
+    "tags": ["동지", "팥죽", "새알심", "순서 퍼즐"]
+  },
+  "en": {
+    "title": "Winter Solstice Dumpling Puzzle",
+    "desc": "Fill three bowls of red bean porridge with nine rice dumplings. Read the queue and match each bowl’s pattern to earn a perfect score.",
+    "howto": "Match the first dumpling to a bowl’s next slot. Tap a bowl or press 1–3. If you get stuck, use Undo or press Z.",
+    "about": "A sequence puzzle inspired by the rice dumplings in Korean winter solstice porridge. Circles, triangles, and squares mark the puzzle pieces.",
+    "tags": ["winter solstice", "red bean porridge", "rice dumplings", "sequence puzzle"]
+  }
+}

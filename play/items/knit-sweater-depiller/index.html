@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>니트 보풀 제거</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100vh;height:100dvh;overflow:hidden;background:#F4EEE3;color:#29251F;font-family:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+#app{height:100vh;height:100dvh;width:100%;max-width:440px;margin:0 auto;padding:8px 12px;display:flex;flex-direction:column;align-items:stretch;gap:6px}
+h1{margin:0;font-size:20px;line-height:24px;text-align:center}
+#picker{display:flex;gap:8px;justify-content:center}
+#picker button{min-width:44px;min-height:44px;flex:1;max-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(0,0,0,.25)}
+#hint{margin:0;text-align:center;font-size:14px;line-height:18px;max-height:36px;overflow:hidden}
+#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+#frame{position:relative;padding:5px;background:#fffaf0;border-radius:10px;box-shadow:0 2px 8px rgba(41,37,31,.25);line-height:0}
+#knit{display:block;touch-action:none;border-radius:6px;cursor:crosshair;outline:none}
+#knit:focus-visible{outline:3px solid #354A38;outline-offset:3px}
+#badge{position:absolute;left:12px;top:12px;padding:3px 10px;border-radius:12px;background:#29251F;color:#fff;font-size:13px;line-height:18px;display:none}
+#status{flex:none;height:36px;text-align:center;font-size:14px;line-height:18px;overflow:hidden}
+#live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.row{display:flex;gap:8px}
+.row button{flex:1}
+button{min-height:44px;padding:0 10px;border:2px solid #354A38;border-radius:10px;background:#fffaf0;color:#29251F;font:inherit;font-size:15px;cursor:pointer;touch-action:manipulation}
+button.primary{background:#354A38;color:#fff}
+button[aria-pressed=true]{background:#354A38;color:#fff}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible{outline:3px solid #29251F;outline-offset:2px}
+@media (min-width:440px) and (min-height:560px){h1{font-size:24px;line-height:30px}#hint{font-size:15px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1 id="title"></h1>
+  <div id="picker" role="group"></div>
+  <p id="hint"></p>
+  <div id="stage">
+    <div id="frame">
+      <canvas id="knit" tabindex="0"></canvas>
+      <span id="badge"></span>
+    </div>
+  </div>
+  <div id="status"></div>
+  <div id="live" aria-live="polite"></div>
+  <div class="row"><button id="next" class="primary"></button><button id="reset"></button></div>
+  <div class="row"><button id="view"></button><button id="save"></button></div>
+  <span id="keys" hidden></span>
+</div>
+<script>
+(function(){
+'use strict';
+var S=240,N=36;
+var I18N={
+ko:{title:'니트 보풀 제거',hint:'니트 위를 쓱 문질러 보세요.',swatchGroup:'니트 고르기',cream:'크림',moss:'이끼',plum:'자두',surface:'{swatch} 니트 손질 영역',surfaceKeys:'방향키로 이동하고 스페이스를 눌러 보풀을 밀어요.',progress:'보풀 제거 {removed} / {total}',next:'한 곳씩 밀기',reset:'이 니트 초기화',complete:'보풀을 모두 밀었어요!',before:'손질 전',after:'손질 후',viewBefore:'손질 전 보기',viewAfter:'손질 후 보기',save:'이미지 저장',saving:'이미지 만드는 중',downloadStarted:'이미지 다운로드를 시작했어요.',saveFailed:'이미지를 저장하지 못했어요. 전후 화면을 각각 캡처해 주세요.'},
+en:{title:'Knit Sweater De-Piller',hint:'Sweep across the knit.',swatchGroup:'Choose a knit',cream:'Cream',moss:'Moss',plum:'Plum',surface:'{swatch} knit shaving area',surfaceKeys:'Move with the arrow keys and press Space to shave.',progress:'Pills removed {removed} / {total}',next:'Shave next spot',reset:'Reset swatch',complete:'Every pill is gone!',before:'Before',after:'After',viewBefore:'View before',viewAfter:'View after',save:'Save image',saving:'Making image',downloadStarted:'Image download started.',saveFailed:'Could not save the image. Capture the before and after views separately.'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var lang=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=I18N[lang];
+function tr(k,o){var s=T[k]||k;if(o)for(var p in o)s=s.replace('{'+p+'}',o[p]);return s;}
+document.documentElement.lang=lang;
+
+var SW=[
+{id:'cream',base:'#E8D8B8',hi:'#FFF1D6',sh:'#AD8D62',fuzz:'#FFF9EC'},
+{id:'moss',base:'#506249',hi:'#819374',sh:'#30402D',fuzz:'#A9B99C'},
+{id:'plum',base:'#75495F',hi:'#A8788F',sh:'#4E2D40',fuzz:'#CDA3B7'}
+];
+function pillsFor(s){var a=[];for(var r=0;r<6;r++)for(var c=0;c<6;c++){a.push({id:r*6+c,x:25+38*c+((17*c+13*r+7*s)%15-7),y:25+38*r+((11*c+19*r+5*s)%15-7),r:3+(c+2*r+s)%4});}return a;}
+var PILLS=[pillsFor(0),pillsFor(1),pillsFor(2)];
+
+var demo=location.hash==='#demo';
+var KEY='knit-sweater-depiller:swatch';
+function loadSwatch(){if(demo)return 0;try{var v=localStorage.getItem(KEY);for(var i=0;i<3;i++)if(SW[i].id===v)return i;}catch(e){}return 0;}
+function saveSwatch(i){if(demo)return;try{localStorage.setItem(KEY,SW[i].id);}catch(e){}}
+
+var removed=[new Set(),new Set(),new Set()];
+if(demo)PILLS[0].forEach(function(p){removed[0].add(p.id);});
+var cur=loadSwatch(),view='after',shaver={x:120,y:120};
+var stroke=null,strokeHits=0,parts=[],raf=0,lastT=0,focused=false,exporting=false,epoch=0,msg='';
+
+var $=function(i){return document.getElementById(i);};
+var cv=$('knit'),ctx=cv.getContext('2d');
+var btnNext=$('next'),btnReset=$('reset'),btnView=$('view'),btnSave=$('save'),picker=$('picker');
+var swBtns=SW.map(function(s,i){var b=document.createElement('button');b.type='button';b.innerHTML='<span class="dot" style="background:'+s.base+'"></span><span></span>';b.addEventListener('click',function(){selectSwatch(i);});picker.appendChild(b);return b;});
+
+function reduced(){return window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;}
+function finished(i){return removed[i===undefined?cur:i].size>=N;}
+
+/* ---------- drawing ---------- */
+function stitches(c,s){
+  c.fillStyle=s.base;c.fillRect(0,0,S,S);
+  c.lineCap='round';c.lineJoin='round';
+  var i,j,x,y;
+  if(s.id==='cream'){
+    for(j=0;j<26;j++){for(i=-1;i<26;i++){x=i*10+(j%2)*5;y=j*9.5;
+      c.lineWidth=2.6;c.strokeStyle=s.sh;c.beginPath();c.moveTo(x-4,y+1);c.lineTo(x,y+8);c.lineTo(x+4,y+1);c.stroke();
+      c.lineWidth=2;c.strokeStyle=s.hi;c.beginPath();c.moveTo(x-4,y);c.lineTo(x,y+7);c.lineTo(x+4,y);c.stroke();}}
+  }else if(s.id==='moss'){
+    for(i=0;i<18;i++){x=i*14;
+      if(i%2===0){c.fillStyle=s.hi;c.globalAlpha=.4;c.fillRect(x,0,14,S);c.globalAlpha=1;
+        c.strokeStyle=s.sh;c.lineWidth=1.5;c.beginPath();c.moveTo(x+.5,0);c.lineTo(x+.5,S);c.moveTo(x+13.5,0);c.lineTo(x+13.5,S);c.stroke();
+        for(y=0;y<S+8;y+=8){c.lineWidth=2;c.strokeStyle=s.sh;c.beginPath();c.moveTo(x+3,y+5);c.lineTo(x+7,y);c.lineTo(x+11,y+5);c.stroke();
+          c.strokeStyle=s.hi;c.beginPath();c.moveTo(x+3,y+4);c.lineTo(x+7,y-1);c.lineTo(x+11,y+4);c.stroke();}
+      }else{c.fillStyle=s.sh;c.globalAlpha=.55;c.fillRect(x,0,14,S);c.globalAlpha=1;
+        for(y=0;y<S;y+=8){c.fillStyle=s.sh;c.fillRect(x+4,y+6,6,1.5);}}}
+  }else{
+    for(j=0;j<21;j++)for(i=0;i<21;i++){x=i*12+6;y=j*12+6;
+      if((i+j)%2===0){c.lineWidth=2.4;c.strokeStyle=s.sh;c.beginPath();c.ellipse(x,y+1.2,4.5,3,0,0,Math.PI*2);c.stroke();
+        c.lineWidth=2;c.strokeStyle=s.hi;c.beginPath();c.ellipse(x,y,4.5,3,0,Math.PI,Math.PI*2.4);c.stroke();}
+      else{c.lineWidth=2.4;c.strokeStyle=s.sh;c.beginPath();c.moveTo(x-3,y);c.lineTo(x+3,y);c.stroke();
+        c.lineWidth=1;c.strokeStyle=s.hi;c.beginPath();c.moveTo(x-3,y-1.5);c.lineTo(x+3,y-1.5);c.stroke();}}
+  }
+  // seam
+  c.setLineDash([4,3]);c.lineWidth=1.2;c.strokeStyle=s.sh;c.strokeRect(4,4,S-8,S-8);c.setLineDash([]);
+}
+function pill(c,s,p){
+  var k,a,l;
+  c.fillStyle=s.sh;c.globalAlpha=.35;c.beginPath();c.ellipse(p.x+1,p.y+2,p.r*1.3,p.r*.9,0,0,7);c.fill();c.globalAlpha=1;
+  c.strokeStyle=s.fuzz;c.lineWidth=1;c.lineCap='round';
+  for(k=0;k<6;k++){a=p.id*2.4+k*1.05;l=p.r*1.7+2+(k%3);
+    c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo(p.x+Math.cos(a)*l*.5+2,p.y+Math.sin(a)*l*.5-2,p.x+Math.cos(a)*l,p.y+Math.sin(a)*l);c.stroke();}
+  var g=c.createRadialGradient(p.x-p.r*.3,p.y-p.r*.4,.5,p.x,p.y,p.r);
+  g.addColorStop(0,'#fff');g.addColorStop(.35,s.fuzz);g.addColorStop(1,s.hi);
+  c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,p.r,0,7);c.fill();
+  c.strokeStyle=s.sh;c.globalAlpha=.35;c.lineWidth=.8;c.stroke();c.globalAlpha=1;
+}
+function drawKnit(c,si,rem){
+  var s=SW[si];c.save();
+  c.beginPath();c.rect(0,0,S,S);c.clip();
+  stitches(c,s);
+  PILLS[si].forEach(function(p){if(!rem.has(p.id))pill(c,s,p);});
+  c.restore();
+}
+function shaverIcon(c){
+  var x=shaver.x,y=shaver.y;
+  c.save();
+  c.setLineDash([5,4]);c.lineWidth=2;c.strokeStyle='rgba(41,37,31,.75)';c.beginPath();c.arc(x,y,24,0,7);c.stroke();c.setLineDash([]);
+  c.translate(x,y);c.rotate(-.5);
+  c.fillStyle='#354A38';c.strokeStyle='#fff';c.lineWidth=1.5;
+  c.beginPath();c.roundRect?c.roundRect(-4,-6,20,12,4):c.rect(-4,-6,20,12);c.fill();c.stroke();
+  c.fillStyle='#d9d9d4';c.strokeStyle='#29251F';c.lineWidth=1;
+  c.beginPath();c.roundRect?c.roundRect(-12,-7,9,14,3):c.rect(-12,-7,9,14);c.fill();c.stroke();
+  c.strokeStyle='#8a8a84';for(var i=-4;i<=4;i+=4){c.beginPath();c.moveTo(-10,i);c.lineTo(-5,i);c.stroke();}
+  c.fillStyle='#fff';c.beginPath();c.arc(10,0,2,0,7);c.fill();
+  c.restore();
+}
+var size=232,dpr=1;
+function render(){
+  var k=size*dpr/S;
+  ctx.setTransform(k,0,0,k,0,0);
+  ctx.clearRect(0,0,S,S);
+  drawKnit(ctx,cur,view==='before'?new Set():removed[cur]);
+  var s=SW[cur];
+  parts.forEach(function(p){var u=p.t/160;ctx.globalAlpha=1-u;ctx.strokeStyle=s.fuzz;ctx.lineWidth=1.2;ctx.beginPath();
+    var x=p.x+p.vx*u*10,y=p.y+p.vy*u*10;ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(p.a)*5,y+Math.sin(p.a)*5);ctx.stroke();});
+  ctx.globalAlpha=1;
+  if(view!=='before'&&(focused||stroke||!finished()))shaverIcon(ctx);
+}
+function loop(t){
+  raf=0;
+  if(document.hidden){return;}
+  var dt=Math.min(50,t-lastT);lastT=t;
+  parts.forEach(function(p){p.t+=dt;});
+  parts=parts.filter(function(p){return p.t<160;});
+  render();
+  if(parts.length)raf=requestAnimationFrame(loop);
+}
+function kick(){render();if(!raf&&parts.length&&!document.hidden){lastT=performance.now();raf=requestAnimationFrame(loop);}}
+
+/* ---------- layout ---------- */
+function layout(){
+  endStroke(false);
+  var st=$('stage'),cap=window.innerWidth>=440?320:232;
+  var avail=Math.min(st.clientWidth-10,st.clientHeight-10);
+  size=Math.max(120,Math.floor(Math.min(avail,cap)));
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.style.width=cv.style.height=size+'px';
+  cv.width=cv.height=Math.round(size*dpr);
+  render();
+}
+
+/* ---------- shaving ---------- */
+function clipSeg(x0,y0,x1,y1){
+  var t0=0,t1=1,dx=x1-x0,dy=y1-y0,P=[-dx,dx,-dy,dy],Q=[x0,S-x0,y0,S-y0];
+  for(var i=0;i<4;i++){
+    if(P[i]===0){if(Q[i]<0)return null;}
+    else{var r=Q[i]/P[i];if(P[i]<0){if(r>t1)return null;if(r>t0)t0=r;}else{if(r<t0)return null;if(r<t1)t1=r;}}
+  }
+  return [x0+t0*dx,y0+t0*dy,x0+t1*dx,y0+t1*dy];
+}
+function distSeg(px,py,g){
+  var dx=g[2]-g[0],dy=g[3]-g[1],l=dx*dx+dy*dy,t=l?((px-g[0])*dx+(py-g[1])*dy)/l:0;
+  t=Math.max(0,Math.min(1,t));var x=g[0]+t*dx-px,y=g[1]+t*dy-py;return Math.sqrt(x*x+y*y);
+}
+function pass(x0,y0,x1,y1){
+  var g=clipSeg(x0,y0,x1,y1);if(!g)return 0;
+  var set=removed[cur],n=0,rm=reduced();
+  PILLS[cur].forEach(function(p){
+    if(set.has(p.id)||distSeg(p.x,p.y,g)>24)return;
+    set.add(p.id);n++;
+    if(!rm)for(var k=0;k<4;k++)parts.push({x:p.x,y:p.y,a:p.id+k*1.6,vx:Math.cos(p.id+k*1.6),vy:-1-k*.3,t:0});
+  });
+  if(n){strokeHits+=n;updateUI();kick();}
+  return n;
+}
+function announce(){
+  var t=tr('progress',{removed:removed[cur].size,total:N});
+  if(finished())t+=' '+tr('complete');
+  setMsg(t,finished()?t:'');
+}
+// live = screen reader text, vis = visible status override (default same as live)
+function setMsg(t,vis){msg=vis===undefined?t:vis;$('live').textContent=t;showStatus();}
+function showStatus(){$('status').textContent=msg||tr('progress',{removed:removed[cur].size,total:N});}
+function pt(e){var r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*S/r.width,y:(e.clientY-r.top)*S/r.height};}
+function endStroke(ann){
+  if(!stroke)return;
+  var id=stroke.id;stroke=null;
+  try{if(cv.hasPointerCapture&&cv.hasPointerCapture(id))cv.releasePointerCapture(id);}catch(e){}
+  if(strokeHits)announce(); // stroke always belongs to cur swatch; announce on every end incl. interruptions
+  strokeHits=0;render();
+}
+cv.addEventListener('pointerdown',function(e){
+  if(!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0)||view==='before'||stroke)return;
+  e.preventDefault();
+  var p=pt(e);stroke={id:e.pointerId,x:p.x,y:p.y};strokeHits=0;
+  try{cv.setPointerCapture(e.pointerId);}catch(err){}
+  shaver={x:p.x,y:p.y};
+  pass(p.x,p.y,p.x,p.y);render();
+});
+cv.addEventListener('pointermove',function(e){
+  if(!stroke||e.pointerId!==stroke.id)return;
+  e.preventDefault();
+  var p=pt(e);pass(stroke.x,stroke.y,p.x,p.y);
+  stroke.x=p.x;stroke.y=p.y;shaver={x:p.x,y:p.y};render();
+});
+cv.addEventListener('pointerup',function(e){
+  if(!stroke||e.pointerId!==stroke.id)return;
+  var p=pt(e);pass(stroke.x,stroke.y,p.x,p.y);shaver={x:Math.max(0,Math.min(S,p.x)),y:Math.max(0,Math.min(S,p.y))};
+  endStroke(true);
+});
+cv.addEventListener('pointercancel',function(e){if(stroke&&e.pointerId===stroke.id)endStroke(false);});
+cv.addEventListener('lostpointercapture',function(e){if(stroke&&e.pointerId===stroke.id)endStroke(false);});
+cv.addEventListener('focus',function(){focused=true;render();});
+cv.addEventListener('blur',function(){focused=false;render();});
+cv.addEventListener('keydown',function(e){
+  if(view==='before')return;
+  var d={ArrowLeft:[-20,0],ArrowRight:[20,0],ArrowUp:[0,-20],ArrowDown:[0,20]}[e.key];
+  if(d){e.preventDefault();shaver.x=Math.max(0,Math.min(S,shaver.x+d[0]));shaver.y=Math.max(0,Math.min(S,shaver.y+d[1]));render();}
+  else if(e.key===' '||e.key==='Spacebar'){e.preventDefault();strokeHits=0;pass(shaver.x,shaver.y,shaver.x,shaver.y);announce();strokeHits=0;render();}
+});
+btnNext.addEventListener('click',function(){
+  if(view==='before')return;
+  var p=PILLS[cur].filter(function(q){return !removed[cur].has(q.id);})[0];
+  if(!p)return;
+  shaver={x:p.x,y:p.y};strokeHits=0;pass(p.x,p.y,p.x,p.y);announce();strokeHits=0;
+  if(finished())btnView.focus();
+  render();
+});
+btnReset.addEventListener('click',function(){
+  endStroke(false);epoch++;
+  removed[cur]=new Set();view='after';parts=[];shaver={x:120,y:120};
+  setMsg('');updateUI();render();
+});
+btnView.addEventListener('click',function(){
+  if(!finished())return;
+  endStroke(false);epoch++; // invalidate pending export announcement
+  view=view==='after'?'before':'after';
+  updateUI();render();
+  setMsg(tr(view));
+});
+function selectSwatch(i){
+  endStroke(false);
+  if(i!==cur)epoch++;
+  cur=i;view='after';parts=[];saveSwatch(i);setMsg('');updateUI();render();
+}
+
+/* ---------- UI ---------- */
+function updateUI(){
+  document.title=tr('title');
+  $('title').textContent=tr('title');
+  $('hint').textContent=tr('hint');
+  picker.setAttribute('aria-label',tr('swatchGroup'));
+  swBtns.forEach(function(b,i){b.lastChild.textContent=tr(SW[i].id);b.setAttribute('aria-pressed',i===cur?'true':'false');});
+  var sn=tr(SW[cur].id);
+  cv.setAttribute('aria-label',tr('surface',{swatch:sn}));
+  $('keys').textContent=tr('surfaceKeys');$('keys').id='keys';
+  cv.setAttribute('aria-describedby','keys');
+  showStatus();
+  var f=finished();
+  btnNext.textContent=tr('next');btnReset.textContent=tr('reset');
+  btnNext.disabled=f;
+  btnView.textContent=view==='before'?tr('viewAfter'):tr('viewBefore');
+  btnView.disabled=!f;
+  btnSave.textContent=exporting?tr('saving'):tr('save');
+  btnSave.disabled=!f||exporting;
+  var bd=$('badge');bd.style.display=f?'block':'none';bd.textContent=tr(view);
+}
+
+/* ---------- export ---------- */
+btnSave.addEventListener('click',function(){
+  if(!finished()||exporting)return;
+  var si=cur,L=I18N[lang],myEpoch=epoch;
+  function t(k){return L[k];}
+  function active(){return epoch===myEpoch&&cur===si;}
+  function fail(){exporting=false;updateUI();if(active())setMsg(t('saveFailed'));}
+  exporting=true;setMsg(t('saving'));updateUI();
+  try{
+    var c=document.createElement('canvas');c.width=960;c.height=540;var x=c.getContext('2d');
+    x.fillStyle='#F4EEE3';x.fillRect(0,0,960,540);
+    x.fillStyle='#29251F';x.textAlign='center';x.textBaseline='middle';
+    x.font='bold 34px system-ui,"Malgun Gothic",sans-serif';x.fillText(t('title')+' · '+t(SW[si].id),480,40);
+    var panels=[[50,'before',new Set()],[510,'after',new Set(PILLS[si].map(function(p){return p.id;}))]];
+    panels.forEach(function(pn){
+      x.save();x.translate(pn[0],100);x.scale(400/S,400/S);drawKnit(x,si,pn[2]);x.restore();
+      x.strokeStyle='#fffaf0';x.lineWidth=4;x.strokeRect(pn[0]-2,98,404,404);
+      x.fillStyle='#29251F';x.font='bold 26px system-ui,"Malgun Gothic",sans-serif';x.fillText(t(pn[1]),pn[0]+200,520);
+    });
+    c.toBlob(function(b){
+      try{
+        if(!b){fail();return;}
+        var u=URL.createObjectURL(b),a=document.createElement('a');
+        a.href=u;a.download='knit-sweater-depiller-'+SW[si].id+'.png';
+        document.body.appendChild(a);a.click();a.remove();
+        setTimeout(function(){URL.revokeObjectURL(u);},1000);
+        exporting=false;updateUI();if(active())setMsg(t('downloadStarted'));
+      }catch(e){fail();}
+    },'image/png');
+  }catch(e){fail();}
+});
+
+/* ---------- lifecycle ---------- */
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){endStroke(false);if(raf){cancelAnimationFrame(raf);raf=0;}}
+  else kick();
+});
+window.addEventListener('pagehide',function(){endStroke(false);});
+window.addEventListener('resize',layout);
+updateUI();layout();
+if(demo)setMsg(tr('progress',{removed:N,total:N})+' '+tr('complete'));
+})();
+</script>
+</body>
+</html>
