@@ -1,0 +1,21 @@
+{
+  "slug": "hotteok-flip",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "호떡 뒤집기",
+    "desc": "철판 위 호떡을 노릇한 순간에 뒤집고 꾹 눌러 팔아 보세요. 60초 동안 태우지 않고 오늘 매출을 얼마나 올릴 수 있을까요?",
+    "howto": "빈 자리를 누르면 반죽을 올려요. 테두리가 노릇해지면(금색 구간) 눌러서 뒤집고 꾹 눌러요. 한 번 더 노릇해지면 눌러서 팔아요. 3개 태우면 가게 문을 닫아요. 키보드 1~6은 각 자리, 스페이스는 가장 잘 익은 호떡이에요.",
+    "about": "호떡은 뒤집은 뒤 누르개로 납작하게 눌러야 속의 흑설탕이 골고루 녹아요. 매출은 재미로 만든 가짜 숫자예요.",
+    "tags": ["호떡", "겨울간식"]
+  },
+  "en": {
+    "title": "Hotteok Flip",
+    "desc": "Flip each hotteok the moment it turns golden, press it flat and sell it. How much can you earn in 60 seconds without burning any?",
+    "howto": "Tap an empty spot to drop dough. When the rim turns golden (gold zone), tap to flip and press it. When it is golden again, tap to sell. Burn 3 and the stall closes. Keys 1-6 pick a spot; Space picks the most cooked one.",
+    "about": "Hotteok is a Korean winter street pancake filled with brown sugar. You press it flat after flipping so the filling melts evenly. All earnings are made up for fun.",
+    "tags": ["hotteok", "cooking"]
+  }
+}
