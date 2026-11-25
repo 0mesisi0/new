@@ -1,0 +1,21 @@
+{
+  "slug": "roast-sweet-potato",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "군고구마 굽기",
+    "desc": "드럼통 화덕 위 고구마는 아랫면만 익어요. 제때 뒤집어 양면을 노릇하게 굽고 봉투에 담아 꿀고구마를 만드세요. 숯덩이 3개면 영업 끝!",
+    "howto": "고구마를 탭하면 뒤집혀요. 양면 게이지가 모두 금색 구간에 들면 아래 봉투로 끌어다 놓으세요. 키보드는 1~6 또는 ←/→/↑로 칸을 고르고, Space로 뒤집고, Enter나 ↓로 담아요. 탄 고구마가 3개 나오면 게임이 끝나요.",
+    "about": "가운데 칸이 더 뜨거워요. 왕고구마는 늦게 익는 대신 점수가 커요. 꿀고구마를 연달아 만들면 콤보 배수가 올라가요.",
+    "tags": ["군고구마", "겨울간식", "타이밍게임"]
+  },
+  "en": {
+    "title": "Roast Sweet Potato Stand",
+    "desc": "Only the bottom cooks on the drum stove. Flip each sweet potato in time, bag it when both sides are golden, and don't let three turn to charcoal.",
+    "howto": "Tap a potato to flip it. When both side gauges sit in the gold zone, drag it down into the paper bag. On a keyboard, pick a slot with 1-6 or the Left, Right and Up arrows, press Space to flip, and Enter or Down Arrow to bag. Three burnt potatoes and the stand closes.",
+    "about": "The middle slots run hotter. Big potatoes cook slowly but score more. Make perfect potatoes in a row to raise your combo multiplier.",
+    "tags": ["sweet-potato", "winter-snack", "timing"]
+  }
+}
