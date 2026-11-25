@@ -1,0 +1,21 @@
+{
+  "slug": "snow-duck-maker",
+  "date": "2026-11-25",
+  "category": "cool",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "눈오리 만들기",
+    "desc": "화면을 꾹 눌러 눈을 집고, 알맞을 때 손을 떼면 눈오리가 톡 나와요. 곰·하트·별 틀과 목도리·털모자로 꾸며 나만의 눈오리 행렬을 저장하세요.",
+    "howto": "눈밭을 꾹 누르고 있으면 집게가 오므라들어요. 게이지가 초록일 때 떼면 예쁜 오리, 금색이면 완벽한 오리, 너무 오래 누르면 납작오리가 돼요. 오리를 끌면 옮겨지고, 톡 누르면 옷이 바뀌어요. 키보드: 방향키로 이동, 스페이스 꾹 누르기, 1~4 틀 고르기, A 꾸미기, S 저장.",
+    "about": "대설(12월 7일) 즈음 첫눈이 오면 집게 하나로 골목에 오리 떼가 생기죠. 진짜 눈이 안 와도 여기서는 매일 눈이 와요. 만든 오리는 이 기기에만 저장돼요.",
+    "tags": ["눈오리", "겨울놀이"]
+  },
+  "en": {
+    "title": "Snow Duck Maker",
+    "desc": "Press and hold to squeeze snow in a duck mold, let go at the right moment, and line up a parade of snow ducks. Dress them up and save the picture.",
+    "howto": "Press and hold the snow to close the mold. Let go in the green zone for a nice duck or the gold zone for a perfect one; hold too long and it comes out flat. Drag a duck to move it, tap it to change its outfit. Keys: arrows move, hold Space to squeeze, 1-4 pick a mold, A dresses, S saves.",
+    "about": "When the first real snow falls in Korea, little rows of snow ducks appear on walls and benches, made with a plastic mold. Here it snows every day. Your ducks are saved only on this device.",
+    "tags": ["snow-duck", "winter"]
+  }
+}

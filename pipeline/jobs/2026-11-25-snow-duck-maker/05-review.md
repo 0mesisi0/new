@@ -1,0 +1,20 @@
+# Review 2026-11-25-snow-duck-maker
+
+## Blocking
+
+1. **Figures jump away from the press point.** Placement maps the snow field into a smaller band and adds horizontal margins. At 320 × 480, a squeeze at `(5, 460)` draws the new figure around `(55, 429)` at normal size. The pressure ring still follows the raw press point, so its timing marks are clipped near the edges. Use the same playable bounds for the mold, gauge, and figure placement. [index.html](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:149)
+2. **Taps on visible parts of a figure can start a new squeeze.** The hit ellipse ignores the rendered silhouette, tilt, and accessories. A duck’s beak can extend beyond the ellipse, and tall hats can sit above it. Derive the hit bounds from the drawn figure and keep the topmost-first selection order. [index.html](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:395)
+3. **Toolbar focus can keep Space from squeezing after a canvas press.** The canvas cancels the pointer’s default focus behavior and never takes focus explicitly. If a mold button already has focus, Space still activates that button after the player presses the snow. Focus the scene when play begins and preserve native Space activation while a toolbar button is focused. [Canvas pointer handler](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:447) · [Space handler](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:488)
+4. **The timing gauge and locked-button focus need stronger contrast.** On the snow-backed track, the filled green, gold, and blue arcs are roughly 1.1–1.3:1 against the track. The locked buttons also dim their focus outlines, to roughly 2.7:1 against the button fill. Use a higher-contrast gauge, add distinct timing markers, and keep focus indicators at full opacity. [Button styles](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:12) · [Gauge drawing](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:258)
+5. **The scene has the wrong accessibility role.** The brief requires `role="img"` with the localized HUD label. The canvas exposes `role="application"` with a count and no control instructions. Use the specified image semantics and provide localized keyboard instructions on the focusable play surface. [index.html](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:34)
+
+## Improvements
+
+1. **Give the snow layers separate drawing bounds.** Both layers currently draw across the full canvas, so snow intended to pass in front of the figures also crosses the sky. Clip the rear layer to the sky and the front layer to the snow field. [index.html](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:253)
+2. **Reduce motion during melt, too.** Reduced-motion mode already slows snowfall, replaces the figure pop with a fade, and suppresses shake and sparkles. The rising sun, shrinking figures, and rising result labels still animate. Use fades for those effects in reduced-motion mode. [Figure animation](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:218) · [Scene animation](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:290)
+3. **Align the demo count with its preset molds.** `#demo` shows a heart figure alongside a locked heart button because its lifetime total is set to 9 and the heart unlocks at 15. Set the demo total to a value consistent with the preset parade. [index.html](C:/work/haruhanpan/play/items/snow-duck-maker/index.html:89)
+4. **Add browser coverage for the interaction paths.** All 55 repository tests passed, and Chromium confirmed that all seven toolbar buttons fit at 320 and 390 px with 44 × 44 px targets. Source review found paired Korean and English strings and no network calls, dialogs, `eval`, or `innerHTML`. Browser interaction was blocked by session permissions, so touch gestures, keyboard play, persistence, and PNG download were checked in source only.
+
+## Verdict
+
+CHANGES
