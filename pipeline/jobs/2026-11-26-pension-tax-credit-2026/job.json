@@ -1,0 +1,41 @@
+{
+  "id": "2026-11-26-pension-tax-credit-2026",
+  "site": "play",
+  "slug": "pension-tax-credit-2026",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-25T19:10:05.459Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-25T19:11:02.200Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-25T19:11:02.934Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-25T19:13:02.586Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ]
+}
