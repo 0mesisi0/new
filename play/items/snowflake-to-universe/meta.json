@@ -1,0 +1,21 @@
+{
+  "slug": "snowflake-to-universe",
+  "date": "2026-11-25",
+  "category": "learn",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["우주크기비교", "크기비교", "눈송이"],
+    "title": "크기 비교 여행: 눈송이에서 우주까지",
+    "desc": "눈송이 하나에서 출발해 원자 속과 관측 가능한 우주 끝까지 확대·축소해 보세요. 머리카락, 한라산, 태양, 은하까지 32가지의 크기를 한 화면에서 비교해요.",
+    "howto": "위아래로 드래그하거나 휠·핀치로 확대·축소하세요. 오른쪽 막대를 끌어도 되고, +/− 키나 방향키도 돼요. '자동 여행'을 누르면 알아서 우주 끝까지 날아가요. 지나간 것은 도감에 모여요.",
+    "about": "크기는 모두 대략적인 값이에요. 은하 지름처럼 연구마다 다른 값은 흔히 쓰는 추정치로 적었어요. 화면의 그림은 모양을 단순하게 표현한 것이에요."
+  },
+  "en": {
+    "tags": ["scale", "size-comparison", "universe"],
+    "title": "Size Trip: Snowflake to Universe",
+    "desc": "Start from a single snowflake and zoom down into atoms or out to the edge of the observable universe. Compare 32 things, from a hair to the Sun to a galaxy.",
+    "howto": "Drag up or down, scroll the wheel or pinch to zoom. You can also drag the bar on the right or use the +/− or arrow keys. Tap \"Auto trip\" to fly to the edge of the universe on its own. Everything you pass is added to your collection.",
+    "about": "All sizes are approximate. Where estimates vary (for example, the size of the galaxy), we use a commonly cited value. Drawings are simplified shapes."
+  }
+}
