@@ -3,14 +3,15 @@
   "site": "play",
   "slug": "hoppang-fortune",
   "status": "queued",
-  "stage": "design",
+  "stage": "build",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
   "pr": null,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -24,6 +25,30 @@
       "stage": "idea",
       "status": "approved",
       "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-25T13:22:06.134Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T13:23:23.937Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T13:30:34.257Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T13:33:14.420Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
     }
   ],
   "focus": "an information cheat sheet, checklist or guide for everyday Korean life (kind tool)"

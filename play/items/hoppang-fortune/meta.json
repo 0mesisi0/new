@@ -1,0 +1,27 @@
+{
+  "slug": "hoppang-fortune",
+  "date": "2026-11-25",
+  "category": "fortune",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "호빵 속 오늘의 운세",
+    "desc": "김이 모락모락 나는 찜기에서 호빵 하나를 골라 반으로 쭉 갈라 보세요. 속재료에 따라 오늘의 한 줄 운세와 행운의 온도가 나와요.",
+    "howto": "찜기 뚜껑을 눌러 열고 호빵 세 개 중 하나를 고르세요. 호빵을 양옆으로 끌어당기거나 세 번 톡톡 누르면 반으로 갈라져요(스페이스·엔터도 돼요). 같은 이름이면 오늘 하루 동안 같은 운세가 나오고, 자정이 지나면 새 호빵이 쪄져요.",
+    "about": "운세는 재미로 만든 거예요. 입력한 이름은 이 기기 밖으로 나가지 않아요. 뜨거운 호빵은 호호 불어서 드세요.",
+    "tags": [
+      "오늘의운세",
+      "호빵"
+    ]
+  },
+  "en": {
+    "title": "Steamed Bun Fortune",
+    "desc": "Pick a bun from a steaming basket and pull it apart. The filling inside sets today's one-line fortune and your lucky temperature.",
+    "howto": "Tap the lid to open the steamer and choose one of three buns. Drag it apart sideways, or tap it three times (Space or Enter works too). The same name gets the same fortune all day, and fresh buns steam up after midnight.",
+    "about": "Fortunes are just for fun. Your name never leaves this device. Blow on a hot bun before you bite.",
+    "tags": [
+      "daily-fortune",
+      "steamed-bun"
+    ]
+  }
+}
