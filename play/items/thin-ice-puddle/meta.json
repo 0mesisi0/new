@@ -1,0 +1,21 @@
+{
+  "slug": "thin-ice-puddle",
+  "date": "2026-11-25",
+  "category": "cool",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "title": "살얼음 웅덩이 깨기",
+    "desc": "출근길 웅덩이에 낀 살얼음을 톡톡 눌러 쩍쩍 깨 보세요. 금이 번지고 조각이 가라앉는 손맛 장난감이에요. 맑은 얼음, 서리 얼음, 낙엽 얼음 세 가지 웅덩이가 있어요.",
+    "howto": "얼음을 톡 누르면 금이 가고, 꾹 누르고 있으면 더 크게 깨져요. 문지르면 금이 길게 이어져요. 키보드로는 방향키로 발을 옮기고 스페이스를 누르세요(꾹 누르면 세게). R은 다시 얼리기, N은 다음 웅덩이, M은 소리예요.",
+    "about": "어릴 적 등굣길에 일부러 밟던 살얼음을 화면 속에 옮겼어요. 시간 제한도 점수도 없어요. 모든 그림과 소리는 기기에서 직접 만들어요.",
+    "tags": ["살얼음", "얼음 깨기", "겨울"]
+  },
+  "en": {
+    "title": "Thin Ice Puddle",
+    "desc": "Tap the thin ice on a frozen morning puddle and watch the cracks spread and the shards sink. Three puddles to break: clear, frosty and leaf-filled.",
+    "howto": "Tap the ice to crack it, or press and hold for a bigger break. Drag to leave a trail of cracks. With a keyboard, move the boot with the arrow keys and press Space (hold for a heavy stomp). R refreezes the puddle, N picks the next one and M toggles sound.",
+    "about": "It is the thin ice you used to stomp on the way to school, now on a screen. There is no timer and no score. All visuals and sounds are made on your device.",
+    "tags": ["thin ice", "ice cracking", "winter"]
+  }
+}

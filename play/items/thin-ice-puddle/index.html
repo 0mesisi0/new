@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>살얼음 웅덩이 깨기</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#3a3f47;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;color:#fff}
+#cv{position:fixed;left:0;top:0;width:100%;height:100%;display:block;touch-action:none}
+#cv:focus-visible{outline:3px solid #fff;outline-offset:-6px}
+#top,#bot{position:fixed;left:0;right:0;display:flex;align-items:center;gap:8px;padding:0 10px;box-sizing:border-box;pointer-events:none}
+#top{top:0;height:48px;justify-content:space-between;font-size:15px}
+#bot{bottom:0;height:64px;padding:0 12px}
+.chip{background:rgba(29,36,51,.8);color:#fff;border-radius:999px;padding:6px 12px;line-height:1.2;white-space:nowrap}
+.r{display:flex;align-items:center;gap:6px}
+button{font:inherit;color:#fff;border:0;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+#mute{width:44px;height:44px;border-radius:50%;background:rgba(29,36,51,.8);font-size:20px;padding:0}
+#bot button{flex:1;min-height:48px;border-radius:24px;font-size:16px;font-weight:700;line-height:1.15;padding:6px 10px}
+#re{background:#7cc4f0;color:#10202e}
+#nx{background:rgba(29,36,51,.8);border:1.5px solid rgba(255,255,255,.55)}
+button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#re.pulse{animation:pl 1.2s ease-out infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 rgba(124,196,240,.9)}100%{box-shadow:0 0 0 18px rgba(124,196,240,0)}}
+#hint,#toast,#st{position:fixed;left:50%;transform:translateX(-50%);pointer-events:none;text-align:center;max-width:90%;box-sizing:border-box}
+#hint{background:rgba(29,36,51,.8);border-radius:999px;padding:8px 16px;font-size:16px;transition:opacity .4s;animation:bob 1.6s ease-in-out infinite}
+#hint.off{opacity:0}
+@keyframes bob{50%{margin-top:-6px}}
+#toast{top:30%;background:rgba(29,36,51,.88);border-radius:18px;padding:14px 22px;font-size:22px;font-weight:800;opacity:0;transition:opacity .25s}
+#toast small{display:block;font-size:13px;font-weight:500;opacity:.8;margin-top:4px}
+#toast.on,#st.on{opacity:1}
+#st{top:30%;background:rgba(29,36,51,.88);border-radius:18px;padding:12px 20px;font-size:20px;font-weight:700;opacity:0;transition:opacity .15s}
+#sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(max-width:360px){#top{font-size:14px}#bot button{font-size:14px}.chip{padding:6px 9px}}
+@media(prefers-reduced-motion:reduce){#hint{animation:none}#re.pulse{animation:none;box-shadow:0 0 0 6px rgba(124,196,240,.6)}}
+</style>
+</head>
+<body>
+<canvas id="cv" tabindex="0" role="img"></canvas>
+<div id="top"><span class="chip" id="name"></span><span class="r"><span class="chip" id="prog"></span><button id="mute" type="button"></button></span></div>
+<div id="hint"></div>
+<div id="toast"></div>
+<div id="st" role="status"></div>
+<div id="bot"><button id="re" type="button"></button><button id="nx" type="button"></button></div>
+<div id="sr" aria-live="polite"></div>
+<script>
+(()=>{
+'use strict';
+const Q=new URLSearchParams(location.search);
+let L=Q.get('lang');
+if(L!=='ko'&&L!=='en')L=(navigator.language||'en').toLowerCase().startsWith('ko')?'ko':'en';
+document.documentElement.lang=L;
+const D={
+ko:{appTitle:'살얼음 웅덩이 깨기',hint:'톡 눌러 깨 보세요 👆',hintKey:'스페이스로 밟기 · 꾹 누르면 세게',progress:'조각 {n}/{N}',type:['맑은 살얼음','하얀 서리 얼음','낙엽 갇힌 얼음'],refreeze:'다시 얼리기',next:'다음 웅덩이',cleared:'웅덩이 완파! 🧊',clearedSub:'지금까지 깬 조각 {total}개',freezing:'얼리는 중...',soundOn:'소리 켜기',soundOff:'소리 끄기',canvasLabel:'살얼음 웅덩이. 눌러서 얼음을 깨요',srBroken:'조각 {n}개 깨짐, 남은 조각 {left}개',srCleared:'웅덩이의 얼음을 모두 깼어요'},
+en:{appTitle:'Thin Ice Puddle',hint:'Tap to crack it 👆',hintKey:'Space to stomp · hold for a big one',progress:'Shards {n}/{N}',type:['Clear Thin Ice','Frosty Ice','Leaf-Trapped Ice'],refreeze:'Refreeze',next:'Next puddle',cleared:'Puddle smashed! 🧊',clearedSub:'{total} shards broken so far',freezing:'Freezing...',soundOn:'Sound on',soundOff:'Sound off',canvasLabel:'Thin ice puddle. Press to break the ice',srBroken:'{n} shards broken, {left} left',srCleared:'All the ice in the puddle is broken'}
+}[L];
+const fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>o[k]);
+document.title=D.appTitle;
+const $=id=>document.getElementById(id);
+const stEl=$('st'),cv=$('cv'),ctx=cv.getContext('2d');
+const tmp=document.createElement('canvas'),tctx=tmp.getContext('2d');
+const snap=document.createElement('canvas'),sctx=snap.getContext('2d');
+const bg=document.createElement('canvas');
+cv.setAttribute('aria-label',D.canvasLabel);
+$('re').textContent=D.refreeze;$('nx').textContent=D.next;$('hint').textContent=D.hint;$('st').textContent=D.freezing;
+const mqRM=matchMedia('(prefers-reduced-motion: reduce)');
+const RM=()=>mqRM.matches;
+const DEMO=location.hash==='#demo';
+const TAU=Math.PI*2,R0=.11,BAR_T=48,BAR_B=64;
+
+// ---- storage
+const lsGet=k=>{try{return localStorage.getItem('tip:'+k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem('tip:'+k,String(v))}catch(e){}};
+
+// ---- rng
+function mb(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fnv(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return h>>>0}
+
+// ---- state
+const TY=[{key:'clear',hp:2,G:9,N:56},{key:'frost',hp:3,G:10,N:64},{key:'leaf',hp:2,G:9,N:56}];
+const ICE_RGB=[[190,215,235,.55],[232,239,245,1],[190,215,235,.55]];
+const SINK_RGB=[14,26,36];
+const LEAFC=['#d9772b','#b5541f','#9c6b2f','#c9902f'];
+let type=0,fc=[0,0,0],shown=[0,0,0];
+let ph=[0,0,0],outline=[],outP=null,shards=[],cracks=[],crackP=null,crackDirty=true;
+let bubbles=[],leaves=[],tex=null,crystals=[];
+let ripples=[],parts=[],flashes=[],shake=0,impN=0;
+let total=0,cleared=false,hintDone=false,frz=null,fade=null,clrT=0;
+let muted=lsGet('sound')==='0';
+let w=0,h=0,dpr=1,P={x:0,y:0},s=100;
+let kx=.5,ky=.5,kbShow=false;
+const ptrs=new Map();
+total=parseInt(lsGet('total'),10)||0;
+
+const rad=th=>.42+.05*Math.sin(2*th+ph[0])+.03*Math.sin(3*th+ph[1])+.02*Math.sin(5*th+ph[2]);
+const inPuddle=(x,y)=>Math.hypot(x-.5,y-.5)<=rad(Math.atan2(y-.5,x-.5));
+const dur=()=>RM()?.15:.55;
+const busy=()=>!!(frz||fade);
+
+function polyPath(poly){const p=new Path2D();poly.forEach((q,i)=>i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]));p.closePath();return p}
+function inPoly(poly,x,y){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
+function clipHP(poly,px,py,qx,qy){
+  const nx=qx-px,ny=qy-py,m=(qx*qx+qy*qy-px*px-py*py)/2,out=[];
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i],b=poly[(i+1)%poly.length],da=nx*a[0]+ny*a[1]-m,db=nx*b[0]+ny*b[1]-m;
+    if(da<=0)out.push(a);
+    if((da<0&&db>0)||(da>0&&db<0)){const t=da/(da-db);out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}
+  }
+  return out;
+}
+
+// ---- build a fresh frozen puddle (seeded)
+function build(){
+  const ty=TY[type],r=mb(fnv(ty.key+'|'+fc[type]));
+  ph=[r()*TAU,r()*TAU,r()*TAU];
+  outline=[];for(let i=0;i<96;i++){const th=i/96*TAU,q=rad(th);outline.push([.5+q*Math.cos(th),.5+q*Math.sin(th)])}
+  outP=polyPath(outline);
+  const G=ty.G,all=[];
+  for(let j=0;j<G;j++)for(let i=0;i<G;i++)all.push([(i+.5+(r()-.5)*.7)/G,(j+.5+(r()-.5)*.7)/G]);
+  // keep exactly N sites nearest the centre (relative to the outline); their Voronoi cells tile the whole square, so no gaps
+  const sites=all.map(p=>[Math.hypot(p[0]-.5,p[1]-.5)/rad(Math.atan2(p[1]-.5,p[0]-.5)),p])
+    .sort((a,b)=>a[0]-b[0]).slice(0,ty.N).map(e=>e[1]);
+  // ponytail: O(n^2) half-plane Voronoi, fine for n<=80; Fortune's algorithm only if shard counts grow past ~300
+  shards=[];
+  sites.forEach(p=>{
+    let poly=[[0,0],[1,0],[1,1],[0,1]];
+    for(const q of sites){if(q===p)continue;poly=clipHP(poly,p[0],p[1],q[0],q[1]);if(poly.length<3)break}
+    if(poly.length<3)return;
+    let cx=0,cy=0;poly.forEach(v=>{cx+=v[0];cy+=v[1]});
+    shards.push({poly,path:polyPath(poly),cx:cx/poly.length,cy:cy/poly.length,hp:ty.hp,maxHp:ty.hp,sinkT:-1,rot:shards.length%2?.105:-.105,dx:0,dy:0});
+  });
+  bubbles=[];leaves=[];tex=null;
+  if(type===0){const n=8+Math.floor(r()*7);for(let i=0;i<n;i++){const a=r()*TAU,d=Math.sqrt(r())*.33;bubbles.push({x:.5+Math.cos(a)*d,y:.5+Math.sin(a)*d,rx:.006+r()*.01,ry:.004+r()*.008})}}
+  if(type===2){const n=3+Math.floor(r()*2);for(let i=0;i<n;i++){const a=r()*TAU,d=.08+r()*.2;leaves.push({x:.5+Math.cos(a)*d,y:.5+Math.sin(a)*d,s:.07+r()*.03,rot:r()*TAU,col:LEAFC[Math.floor(r()*4)],free:false,ft:0,vx:(r()-.5)*.016,vy:(r()-.5)*.016})}}
+  if(type===1)tex=frostTex(r);
+  crystals=[];const nc=6+Math.floor(r()*5);for(let i=0;i<nc;i++)crystals.push([r()*TAU,.008+r()*.008]);
+  cracks=[];crackDirty=true;ripples=[];parts=[];flashes=[];shake=0;
+  cleared=false;
+  updUI();
+}
+function frostTex(r){
+  const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');
+  g.lineCap='round';
+  function fern(x,y,a,len,depth,col){
+    const x2=x+Math.cos(a)*len,y2=y+Math.sin(a)*len;
+    g.strokeStyle=col;g.lineWidth=depth>1?1.2:.8;g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke();
+    if(depth<=0)return;
+    for(let k=1;k<=4;k++){const t=k/5,bx=x+(x2-x)*t,by=y+(y2-y)*t,bl=len*.38*(1-t*.5);fern(bx,by,a+1.0,bl,depth-1,col);fern(bx,by,a-1.0,bl,depth-1,col)}
+  }
+  for(let i=0;i<34;i++){fern(r()*512,r()*512,r()*TAU,40+r()*50,2,i%3?'rgba(255,255,255,.6)':'rgba(150,180,205,.4)')}
+  return c;
+}
+
+// ---- audio
+let ac=null,nbuf=null,gestured=false,hiss=null,plips=[];
+function A(){
+  if(muted||!gestured)return null;
+  if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}
+  if(ac.state==='suspended')ac.resume().catch(()=>{});
+  return ac;
+}
+const nb=c=>nbuf||(nbuf=(()=>{const b=c.createBuffer(1,c.sampleRate,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b})());
+function noise(t0,d,type,f,q,g){
+  const c=A();if(!c)return;const t=c.currentTime+t0,src=c.createBufferSource(),fl=c.createBiquadFilter(),gn=c.createGain();
+  src.buffer=nb(c);fl.type=type;fl.frequency.value=f;fl.Q.value=q;
+  gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.0001,t+d);
+  src.connect(fl);fl.connect(gn);gn.connect(c.destination);src.start(t,Math.random()*.5);src.stop(t+d+.02);
+}
+function tone(t0,d,f0,f1,g){
+  const c=A();if(!c)return;const t=c.currentTime+t0,o=c.createOscillator(),gn=c.createGain();
+  o.type='sine';o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+d);
+  gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(gn);gn.connect(c.destination);o.start(t);o.stop(t+d+.02);
+}
+function sCrackL(k){
+  noise(0,.04,'highpass',2500*(1+(Math.random()-.5)*.3),.7,.10*k);
+  const n=2+Math.floor(Math.random()*2);for(let i=0;i<n;i++)noise(Math.random()*.06,.003,'highpass',3500,.7,.05*k);
+}
+function sCrackH(){noise(0,.09,'bandpass',1200,.8,.14);tone(0,.06,110,110,.14)}
+function sPlip(){
+  const n=performance.now();plips=plips.filter(t=>n-t<100);if(plips.length>=4)return;plips.push(n);
+  tone(0,.09,900,300,.05);
+}
+const sTock=()=>tone(0,.03,200,200,.04);
+function sShimmer(){for(let i=0;i<6;i++)tone(i*.17,.05,1400+i*240,1400+i*240,.03)}
+function hissStart(){
+  const c=A();if(!c||hiss)return;const t=c.currentTime,src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+  src.buffer=nb(c);src.loop=true;f.type='bandpass';f.frequency.setValueAtTime(1500,t);f.frequency.linearRampToValueAtTime(4500,t+1.5);
+  g.gain.setValueAtTime(.004,t);g.gain.linearRampToValueAtTime(.02,t+1.5);
+  src.connect(f);f.connect(g);g.connect(c.destination);src.start();hiss={src,g};
+}
+function hissStop(){if(!hiss)return;try{hiss.src.stop()}catch(e){}hiss=null}
+
+// ---- effects
+function ripple(x,y,hold){if(ripples.length>=40)ripples.shift();ripples.push({x,y,t:0,hold:!!hold})}
+function burst(x,y,n,cols,sp){
+  if(RM())return;
+  for(let i=0;i<n&&parts.length<250;i++){
+    const a=Math.random()*TAU,v=sp*(.3+Math.random()*.7);
+    parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-sp*.3,t:0,life:.4+Math.random()*.4,sz:2+Math.random()*2,col:cols[i%cols.length]});
+  }
+}
+const toPx=(x,y)=>[P.x+x*s,P.y+y*s];
+
+function hideHint(){if(hintDone)return;hintDone=true;$('hint').classList.add('off')}
+function shardAt(x,y){for(const q of shards)if(inPoly(q.poly,x,y))return q;return null}
+
+function sinkShard(q,x,y){
+  q.sinkT=0;
+  let dx=q.cx-x,dy=q.cy-y;const l=Math.hypot(dx,dy);
+  if(l<1e-6){const a=Math.random()*TAU;dx=Math.cos(a);dy=Math.sin(a)}else{dx/=l;dy/=l}
+  q.dx=dx;q.dy=dy;
+  total++;if(!DEMO)lsSet('total',total);
+  ripple(q.cx,q.cy);sPlip();
+  updUI();
+}
+
+function impact(x,y,r,dmg,kind,quiet){
+  hideHint();
+  impN++;
+  const [px,py]=toPx(x,y);
+  if(!inPuddle(x,y)){
+    if(kind!=='scratch'){sTock();burst(px,py,4,['#6b717b','#8a9099'],90)}
+    return;
+  }
+  const hit=shardAt(x,y),sunkHit=!hit||hit.sinkT>=0;
+  if(sunkHit&&kind==='tap'){ripple(x,y);sPlip();return}
+  if(sunkHit&&kind==='heavy')ripple(x,y);
+  const frost=type===1;let sunk=0;
+  for(const q of shards){
+    if(q.sinkT>=0)continue;
+    const isHit=q===hit;
+    if(!isHit&&Math.hypot(q.cx-x,q.cy-y)>r)continue;
+    const first=q.hp===q.maxHp;
+    q.hp-=dmg;
+    if(frost&&first){const [qx,qy]=toPx(q.cx,q.cy);burst(qx,qy,isHit?12:4,['#ffffff','#e8eff5'],70)}
+    if(q.hp<=0){sinkShard(q,x,y);sunk++}
+  }
+  if(sunk)srBroken();
+  if(kind!=='scratch'){
+    const cr=mb(Math.imul(impN,2654435761)>>>0),n=kind==='heavy'?10+Math.floor(cr()*5):5+Math.floor(cr()*4);
+    for(let i=0;i<n;i++){
+      let a=cr()*TAU,segs=4+Math.floor(cr()*4),len=(.6+cr())*r,sl=len/segs,cx=x,cy=y;const pl=[[x,y]];
+      for(let k=0;k<segs;k++){a+=(cr()-.5)*2*.436;cx+=Math.cos(a)*sl;cy+=Math.sin(a)*sl;if(!inPuddle(cx,cy))break;pl.push([cx,cy])}
+      if(pl.length>1){if(cracks.length>=600)cracks.shift();cracks.push(pl)}
+    }
+    crackDirty=true;
+  }
+  if(quiet)return;
+  flashes.push({x:px,y:py,t:0});
+  burst(px,py,6+Math.floor(Math.random()*5),['#ffffff','#d6ebf8','#b9d8ee'],220);
+  if(kind==='heavy'){if(!RM())shake=.14;sCrackH()}else sCrackL(kind==='scratch'?.6:1);
+}
+
+// ---- pointers
+function toU(e){const b=cv.getBoundingClientRect();return[(e.clientX-b.left-P.x)/s,(e.clientY-b.top-P.y)/s]}
+const ringR=p=>R0*(1+1.2*Math.min(1,Math.max(0,(performance.now()-p.t0-250)/1200)));
+function finish(p){
+  // classify by elapsed time at release, not by the frame loop
+  const held=performance.now()-p.t0>=250;
+  if(p.mode==='c'||(p.mode==='p'&&held))impact(p.ux,p.uy,ringR(p),2,'heavy');
+  else if(p.mode==='p')impact(p.ux,p.uy,R0,1,'tap');
+}
+function scratchAt(p,x,y){
+  if(!inPuddle(x,y)){p.poly=null;p.acc=0;return}
+  const j=()=>(Math.random()-.5)*.012;
+  if(!p.poly){p.poly=[[x,y]];if(cracks.length>=600)cracks.shift();cracks.push(p.poly)}
+  else{const last=p.poly[p.poly.length-1];p.poly.push([(last[0]+x)/2+j(),(last[1]+y)/2+j()],[x,y])}
+  crackDirty=true;
+  const n=performance.now(),quiet=n-p.lt<1000/14;if(!quiet)p.lt=n;
+  impact(x,y,R0*.55,1,'scratch',quiet); // damage always applies; only sound/particles are rate-limited to 14/s
+}
+function scratchTo(p,u){
+  const ax=p.lx,ay=p.ly,L=Math.hypot((u[0]-ax)*s,(u[1]-ay)*s);let pos=0;
+  while(L-pos+p.acc>=22){
+    pos+=22-p.acc;p.acc=0;
+    const t=pos/L;scratchAt(p,ax+(u[0]-ax)*t,ay+(u[1]-ay)*t);
+  }
+  p.acc+=L-pos;p.lx=u[0];p.ly=u[1];
+}
+cv.addEventListener('pointerdown',e=>{
+  if(e.button!==0)return;e.preventDefault();
+  if(busy()||ptrs.size>=3)return;
+  kbShow=false;
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  const u=toU(e);
+  ptrs.set(e.pointerId,{ux:u[0],uy:u[1],sx:u[0],sy:u[1],t0:performance.now(),mode:'p',acc:0,lt:0,poly:null,lx:u[0],ly:u[1]});
+});
+cv.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);if(!p||busy())return;e.preventDefault();
+  const u=toU(e);p.ux=u[0];p.uy=u[1];
+  if(p.mode==='p'&&performance.now()-p.t0<250&&Math.hypot((u[0]-p.sx)*s,(u[1]-p.sy)*s)>12){p.mode='d';p.lx=p.sx;p.ly=p.sy;p.acc=0}
+  if(p.mode!=='d')return;
+  scratchTo(p,u);
+});
+function up(e){const p=ptrs.get(e.pointerId);if(!p)return;ptrs.delete(e.pointerId);if(!busy())finish(p)}
+cv.addEventListener('pointerup',up);
+cv.addEventListener('pointercancel',e=>ptrs.delete(e.pointerId));
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('pointerdown',()=>{gestured=true},true);
+addEventListener('keydown',()=>{gestured=true},true);
+const cancelAll=()=>{ptrs.clear()};
+
+// ---- keyboard
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const k=e.key,step=e.shiftKey?.1:.04;
+  const mv=(dx,dy)=>{e.preventDefault();kbShow=true;kx=Math.min(1,Math.max(0,kx+dx));ky=Math.min(1,Math.max(0,ky+dy));const p=ptrs.get('k');if(p){p.ux=kx;p.uy=ky}if(!hintDone)$('hint').textContent=D.hintKey};
+  if(k==='ArrowLeft')mv(-step,0);else if(k==='ArrowRight')mv(step,0);else if(k==='ArrowUp')mv(0,-step);else if(k==='ArrowDown')mv(0,step);
+  else if(k===' '||k==='Enter'){
+    if(e.target&&e.target.tagName==='BUTTON')return;
+    e.preventDefault();if(e.repeat||busy()||ptrs.has('k'))return;
+    kbShow=true;if(!hintDone)$('hint').textContent=D.hintKey;
+    ptrs.set('k',{key:k,ux:kx,uy:ky,sx:kx,sy:ky,t0:performance.now(),mode:'p',acc:0,lt:0,poly:null,lx:kx,ly:ky});
+  }
+  else if(k==='r'||k==='R'){e.preventDefault();refreeze()}
+  else if(k==='n'||k==='N'){e.preventDefault();nextPuddle()}
+  else if(k==='m'||k==='M'){e.preventDefault();toggleMute()}
+});
+addEventListener('keyup',e=>{
+  if(e.key!==' '&&e.key!=='Enter')return;
+  const p=ptrs.get('k');if(!p||p.key!==e.key)return;e.preventDefault();ptrs.delete('k');if(!busy())finish(p);
+});
+addEventListener('blur',cancelAll);
+cv.addEventListener('focus',()=>{if(cv.matches(':focus-visible'))kbShow=true});
+document.addEventListener('visibilitychange',()=>{
+  cancelAll();
+  if(document.hidden){if(ac&&ac.state==='running')ac.suspend().catch(()=>{});hissStop()}
+  else{if(ac)ac.resume().catch(()=>{});last=performance.now();raf=requestAnimationFrame(loop)}
+});
+
+// ---- UI actions
+function takeSnap(){snap.width=cv.width;snap.height=cv.height;sctx.setTransform(1,0,0,1,0,0);sctx.drawImage(cv,0,0)}
+function refreeze(){
+  if(busy())return;
+  hissStop();cancelAll();
+  fc[type]++;
+  srP=false;
+  if(RM()){takeSnap();fade={t:0,d:.3,re:true}}
+  build();
+  if(!RM())frz={t:0,d:1.2};
+  sShimmer();
+}
+function nextPuddle(){
+  if(busy())return;
+  hissStop();cancelAll();takeSnap();srP=false;
+  type=(type+1)%3;
+  if(shown[type])fc[type]++;else{fc[type]=0;shown[type]=1}
+  lsSet('type',type);
+  build();fade={t:0,d:.35};
+}
+function updMute(){const b=$('mute');b.textContent=muted?'🔇':'🔊';b.setAttribute('aria-label',muted?D.soundOn:D.soundOff);b.title=muted?D.soundOn:D.soundOff;b.setAttribute('aria-pressed',String(!muted))}
+function toggleMute(){muted=!muted;lsSet('sound',muted?'0':'1');if(muted)hissStop();updMute()}
+$('re').addEventListener('click',refreeze);
+$('nx').addEventListener('click',nextPuddle);
+$('mute').addEventListener('click',toggleMute);
+function updUI(){
+  $('name').textContent=D.type[type];
+  const n=shards.filter(q=>q.sinkT>=0).length;
+  $('prog').textContent=fmt(D.progress,{n,N:shards.length});
+  if(!cleared){$('re').classList.remove('pulse');$('toast').classList.remove('on')}
+}
+let srT=0,srP=false;
+function srBroken(){
+  if(srT){srP=true;return} // throttled: announce the latest count when the window ends
+  const n=shards.filter(q=>q.sinkT>=0).length;
+  $('sr').textContent=fmt(D.srBroken,{n,left:shards.length-n});
+  srT=setTimeout(()=>{srT=0;if(srP){srP=false;if(!cleared&&!busy())srBroken()}},1500);
+}
+function onCleared(){
+  cleared=true;
+  $('re').classList.add('pulse');
+  const t=$('toast');t.innerHTML='';t.append(D.cleared);
+  const sm=document.createElement('small');sm.textContent=fmt(D.clearedSub,{total});t.append(sm);
+  t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1600);
+  $('sr').textContent=D.srCleared;
+}
+
+// ---- layout
+function resize(){
+  w=Math.max(1,innerWidth);h=Math.max(1,innerHeight);dpr=Math.min(2,devicePixelRatio||1);
+  for(const c of [cv,tmp,snap]){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+  s=Math.max(60,Math.min(w*.92,(h-BAR_T-BAR_B)*.9));
+  P={x:(w-s)/2,y:BAR_T+(h-BAR_T-BAR_B-s)/2};
+  const ht=$('hint');ht.style.top=Math.round(P.y+s*.5-14)+'px';
+  for(const [k,p] of ptrs)if(p.mode==='c')ptrs.delete(k);
+  hissStop();
+  buildBg();
+}
+function buildBg(){
+  bg.width=cv.width;bg.height=cv.height;const g=bg.getContext('2d');
+  g.setTransform(dpr,0,0,dpr,0,0);
+  g.fillStyle='#3a3f47';g.fillRect(0,0,w,h);
+  const r=mb(4242);
+  // tiles + frost in the seams
+  const ts=Math.max(90,s*.45);
+  g.lineWidth=2;g.strokeStyle='#2f343b';g.beginPath();
+  for(let x=(w/2)%ts;x<w;x+=ts){g.moveTo(x,0);g.lineTo(x,h)}
+  for(let y=h*.12+ts*.6;y<h;y+=ts){g.moveTo(0,y);g.lineTo(w,y)}
+  g.stroke();
+  g.lineWidth=1;g.strokeStyle='rgba(235,245,255,.2)';g.stroke();
+  for(let i=0;i<300;i++){g.fillStyle=i%2?'#4a505a':'#2f343b';const z=.8+r()*1.4;g.fillRect(r()*w,r()*h,z,z)}
+  const ch=h*.12;
+  g.fillStyle='#8d939c';g.fillRect(0,0,w,ch);
+  g.fillStyle='rgba(0,0,0,.25)';g.fillRect(0,ch,w,4);
+  g.fillStyle='#eef6fc';g.fillRect(0,ch-3,w,3);
+  const gl=g.createRadialGradient(w,0,0,w,0,Math.max(w,h)*.9);
+  gl.addColorStop(0,'rgba(246,201,160,.12)');gl.addColorStop(1,'rgba(246,201,160,0)');
+  g.fillStyle=gl;g.fillRect(0,0,w,h);
+}
+addEventListener('resize',resize);
+
+// ---- drawing (unit space transform: 1 unit = puddle size)
+function water(c){
+  const g=c.createRadialGradient(.5,.5,0,.5,.5,.5);g.addColorStop(0,'#0e1a24');g.addColorStop(1,'#1b2c3a');
+  c.fillStyle=g;c.fillRect(-.1,-.1,1.2,1.2);
+  for(const l of leaves)drawLeaf(c,l);
+  const rm=RM();
+  for(const rp of ripples){
+    const d=rm?.3:.9,p=Math.min(1,rp.t/d),rr=rm?.04:.08*p;
+    c.strokeStyle=`rgba(200,225,245,${.5*(1-p)})`;c.lineWidth=1.5/s;c.beginPath();c.arc(rp.x,rp.y,Math.max(.001,rr),0,TAU);c.stroke();
+  }
+}
+function drawLeaf(c,l){
+  c.save();
+  let rock=0,sc=1;
+  if(l.free){rock=Math.sin(l.ft*6)*.25*Math.max(0,1-l.ft/2);sc=1+Math.min(.12,l.ft*.2)}
+  c.translate(l.x,l.y);c.rotate(l.rot+rock);c.scale(sc,sc);
+  c.fillStyle=l.col;c.beginPath();c.ellipse(0,0,l.s,l.s*.55,0,0,TAU);c.fill();
+  c.strokeStyle='rgba(60,30,10,.7)';c.lineWidth=1.2/s;c.beginPath();c.moveTo(-l.s,0);c.lineTo(l.s,0);
+  for(let i=-2;i<=2;i++){if(!i)continue;const x=i*l.s*.3;c.moveTo(x,0);c.lineTo(x+l.s*.15,-l.s*.35*(1-Math.abs(i)*.15));c.moveTo(x,0);c.lineTo(x+l.s*.15,l.s*.35*(1-Math.abs(i)*.15))}
+  c.stroke();c.restore();
+}
+function ice(c){
+  const ty=TY[type],px=1/s,ir=ICE_RGB[type];
+  const ip=new Path2D();let any=false;
+  for(const q of shards){
+    if(q.sinkT>=0)continue;
+    any=true;ip.addPath(q.path);
+    c.fillStyle=type===1?(q.hp===q.maxHp?'#e8eff5':'#c4d2de'):(q.hp===q.maxHp?'rgba(190,215,235,.55)':'rgba(222,234,244,.72)');
+    c.fill(q.path);
+  }
+  const dd=dur();
+  for(const q of shards){
+    if(q.sinkT<0)continue;
+    const p=Math.min(1,q.sinkT/dd);if(p>=1)continue;
+    c.save();
+    if(!RM()){c.translate(q.cx+q.dx*.02*p,q.cy+q.dy*.02*p);c.rotate(q.rot*p);c.scale(1-.1*p,1-.1*p);c.translate(-q.cx,-q.cy)}
+    const m=(i)=>Math.round(ir[i]+(SINK_RGB[i]-ir[i])*p);
+    c.fillStyle=`rgba(${m(0)},${m(1)},${m(2)},${(1-p)*ir[3]})`;c.fill(q.path);
+    c.restore();
+  }
+  if(!any)return;
+  c.save();c.clip(ip);
+  if(type===0){
+    for(const b of bubbles){c.beginPath();c.ellipse(b.x,b.y,b.rx,b.ry,0,0,TAU);c.fillStyle='rgba(255,255,255,.16)';c.fill();c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=px;c.stroke()}
+  }
+  if(type===1&&tex){c.globalAlpha=.75;c.drawImage(tex,0,0,1,1);c.globalAlpha=1}
+  const hg=c.createLinearGradient(.15,.1,.7,.8);hg.addColorStop(0,'rgba(255,255,255,.3)');hg.addColorStop(.5,'rgba(255,255,255,.05)');hg.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=hg;c.fillRect(0,0,1,1);
+  if(crackDirty||!crackP){
+    crackP=new Path2D();
+    for(const pl of cracks){crackP.moveTo(pl[0][0],pl[0][1]);for(let i=1;i<pl.length;i++)crackP.lineTo(pl[i][0],pl[i][1])}
+    crackDirty=false;
+  }
+  c.lineJoin='round';c.lineCap='round';
+  if(type===1){c.strokeStyle='rgba(70,100,130,.55)';c.lineWidth=3*px;c.stroke(crackP)}
+  else{c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=3.5*px;c.stroke(crackP)}
+  c.strokeStyle='#fff';c.lineWidth=(type===0?1:1.4)*px;c.stroke(crackP);
+  c.restore();
+  c.lineWidth=px;
+  for(const q of shards){
+    if(q.sinkT>=0)continue;
+    if(q.hp<q.maxHp){c.strokeStyle=`rgba(255,255,255,${q.hp===1?.8:.35})`;c.lineWidth=1.3*px}
+    else{c.strokeStyle='rgba(255,255,255,.1)';c.lineWidth=px}
+    c.stroke(q.path);
+  }
+}
+function drawPuddle(c,mode){ // 0 all, 1 water only, 2 ice only
+  c.save();
+  if(mode!==2){c.strokeStyle='rgba(18,22,28,.6)';c.lineWidth=6/s;c.stroke(outP)}
+  c.save();c.clip(outP);
+  if(mode!==2)water(c);
+  if(mode!==1)ice(c);
+  c.restore();
+  if(mode!==2){
+    c.strokeStyle='rgba(240,248,255,.85)';c.lineWidth=1/s;c.lineCap='round';c.beginPath();
+    for(const [a,l] of crystals){
+      const rr=rad(a)+.012,x=.5+Math.cos(a)*rr,y=.5+Math.sin(a)*rr;
+      for(let k=0;k<3;k++){const b=a+k*TAU/6;c.moveTo(x-Math.cos(b)*l,y-Math.sin(b)*l);c.lineTo(x+Math.cos(b)*l,y+Math.sin(b)*l)}
+    }
+    c.stroke();
+  }
+  c.restore();
+}
+function setT(c,ox,oy){c.setTransform(dpr*s,0,0,dpr*s,dpr*(P.x+ox),dpr*(P.y+oy))}
+function render(){
+  const c=ctx;
+  c.setTransform(1,0,0,1,0,0);c.globalAlpha=1;c.drawImage(bg,0,0);
+  const sh=shake>0?6:0,ox=(Math.random()*2-1)*sh,oy=(Math.random()*2-1)*sh;
+  setT(c,ox,oy);
+  if(frz){
+    drawPuddle(c,1);
+    tctx.setTransform(1,0,0,1,0,0);tctx.clearRect(0,0,tmp.width,tmp.height);
+    setT(tctx,ox,oy);drawPuddle(tctx,2);
+    const f=Math.min(1,frz.t/frz.d),e=f*f*(3-2*f),Rh=.62*(1-e)-.1,Ro=Rh+.1;
+    // ponytail: radial feathered mask, no noise; add angular noise if the edge looks too round
+    if(Ro>0){
+      const g=tctx.createRadialGradient(.5,.5,0,.5,.5,Ro);
+      g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(Math.max(0,Math.min(1,Rh/Ro)),'rgba(0,0,0,1)');g.addColorStop(1,'rgba(0,0,0,0)');
+      tctx.globalCompositeOperation='destination-out';tctx.fillStyle=g;tctx.fillRect(-2,-2,5,5);tctx.globalCompositeOperation='source-over';
+    }
+    c.setTransform(1,0,0,1,0,0);c.drawImage(tmp,0,0);
+  }else drawPuddle(c,0);
+  // screen-space overlays
+  c.setTransform(dpr,0,0,dpr,0,0);
+  for(const f of flashes){const p=Math.min(1,f.t/.12);c.fillStyle=`rgba(255,255,255,${1-p})`;c.beginPath();c.arc(f.x,f.y,Math.max(.1,p*14),0,TAU);c.fill()}
+  for(const q of parts){c.globalAlpha=Math.max(0,1-q.t/q.life);c.fillStyle=q.col;c.fillRect(q.x-q.sz/2,q.y-q.sz/2,q.sz,q.sz)}
+  c.globalAlpha=1;
+  for(const p of ptrs.values()){
+    if(p.mode!=='c')continue;
+    const [x,y]=toPx(p.ux,p.uy),r=ringR(p)*s;
+    c.fillStyle='rgba(200,230,250,.14)';c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
+    c.strokeStyle='rgba(215,240,255,.95)';c.lineWidth=2;c.setLineDash([7,5]);c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();c.setLineDash([]);
+    c.strokeStyle='rgba(215,240,255,.5)';c.beginPath();c.arc(x,y,R0*s,0,TAU);c.stroke();
+  }
+  if(kbShow){
+    const [x,y]=toPx(kx,ky);
+    c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=2;c.beginPath();c.arc(x,y,9,0,TAU);c.stroke();
+    c.font=`${Math.max(26,s*.08)}px system-ui,"Segoe UI Emoji","Apple Color Emoji",sans-serif`;c.textAlign='center';c.textBaseline='middle';
+    c.fillStyle='#fff';c.fillText('🥾',x,y-14);
+  }
+  if(fade){
+    c.globalAlpha=Math.max(0,1-fade.t/fade.d);c.setTransform(1,0,0,1,0,0);c.drawImage(snap,0,0);c.globalAlpha=1;
+  }
+}
+
+// ---- update
+// leaf is covered while any still-visible shard overlaps its ellipse footprint (centre + 2 rings of samples)
+function leafCovered(l,dd){
+  const ca=Math.cos(l.rot),sa=Math.sin(l.rot),pts=[[0,0]];
+  for(let i=0;i<8;i++){const a=i/8*TAU;for(const f of [.5,1])pts.push([Math.cos(a)*l.s*f,Math.sin(a)*l.s*.55*f])}
+  for(const q of shards){
+    if(q.sinkT>=dd)continue;
+    for(const p of pts)if(inPoly(q.poly,l.x+p[0]*ca-p[1]*sa,l.y+p[0]*sa+p[1]*ca))return true;
+  }
+  return false;
+}
+let last=performance.now(),raf=0,rainT=0;
+function update(dt){
+  const now=performance.now(),dd=dur();
+  let allDone=shards.length>0;
+  for(const q of shards){
+    if(q.sinkT>=0&&q.sinkT<dd)q.sinkT=Math.min(dd,q.sinkT+dt);
+    if(q.sinkT<dd)allDone=false;
+  }
+  if(!cleared&&!busy()&&allDone)onCleared();
+  for(const l of leaves){
+    if(!l.free&&!leafCovered(l,dd))l.free=true;
+    if(l.free){l.ft+=dt;const nx=l.x+l.vx*dt,ny=l.y+l.vy*dt;if(Math.hypot(nx-.5,ny-.5)<.38){l.x=nx;l.y=ny}}
+  }
+  for(const r of ripples)if(!r.hold)r.t+=dt;
+  ripples=ripples.filter(r=>r.hold||r.t<(RM()?.3:.9));
+  for(const f of flashes)f.t+=dt;flashes=flashes.filter(f=>f.t<.12);
+  for(const q of parts){q.t+=dt;q.vy+=900*dt;q.x+=q.vx*dt;q.y+=q.vy*dt}
+  parts=parts.filter(q=>q.t<q.life);
+  if(shake>0)shake=Math.max(0,shake-dt);
+  if(frz){frz.t+=dt;if(frz.t>=frz.d)frz=null}
+  if(fade){fade.t+=dt;if(fade.t>=fade.d)fade=null}
+  stEl.classList.toggle('on',!!(frz||(fade&&fade.re)));
+  let charging=false;
+  for(const p of ptrs.values()){
+    if(p.mode==='p'&&now-p.t0>=250)p.mode='c';
+    if(p.mode==='c')charging=true;
+  }
+  if(charging)hissStart();else hissStop();
+  if(cleared&&!busy()&&!RM()){rainT-=dt;if(rainT<=0){rainT=1+Math.random()*.8;const a=Math.random()*TAU,d=Math.sqrt(Math.random())*.35;ripple(.5+Math.cos(a)*d,.5+Math.sin(a)*d)}}
+}
+function loop(now){
+  if(document.hidden)return;
+  const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;
+  update(dt);render();
+  raf=requestAnimationFrame(loop);
+}
+
+// ---- init
+try{const t=parseInt(lsGet('type'),10);if(t>=0&&t<3)type=t}catch(e){}
+if(DEMO)type=0;
+shown[type]=1;
+updMute();
+resize();
+build();
+if(DEMO){
+  // tap each spot twice (hp 2) so the light hits sink shards too; target is ~40% sunk
+  for(let k=0;k<2;k++){impact(.38,.42,R0,1,'tap');impact(.6,.55,R0,1,'tap');impact(.45,.62,R0,1,'tap')}
+  impact(.62,.36,R0*2.2,2,'heavy');
+  for(const q of shards)if(q.sinkT>=0)q.sinkT=dur();
+  flashes=[];parts=[];shake=0;
+  ripples=ripples.slice(-2);ripples.forEach(r=>{r.t=.45;r.hold=true});
+  hideHint();$('hint').style.display='none';
+  updUI();
+}
+raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
