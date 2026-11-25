@@ -1,0 +1,21 @@
+{
+  "slug": "space-out-challenge",
+  "date": "2026-11-25",
+  "category": "weird",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "멍때리기 챌린지",
+    "desc": "마우스도, 화면도, 키보드도 건드리지 마세요. 가만히 있을수록 창밖에 눈이 오고 고양이가 잠들고 달이 떠요. 유혹 알림에 손이 가면 끝!",
+    "howto": "'시작'을 누르고 3초 안에 손을 떼세요. 그다음엔 아무것도 하지 않으면 됩니다. 마우스 이동, 터치, 키 입력, 스크롤, 다른 탭으로 이동 중 하나라도 하면 끝나요. 중간에 뜨는 알림과 버튼은 전부 함정이에요. 휴대폰은 화면 자동 꺼짐 시간을 늘려 두면 좋아요.",
+    "about": "바쁜 연말, 1분만이라도 아무것도 안 해 보자는 장난감이에요. 기록은 이 기기에만 저장돼요.",
+    "tags": ["멍때리기", "아무것도안하기"]
+  },
+  "en": {
+    "title": "Do Nothing Challenge",
+    "desc": "Don't touch the mouse, screen or keys. The longer you stay still, the more snow falls, the cat dozes and the moon rises. Tap a fake alert and it's over.",
+    "howto": "Tap Start and take your hands off within 3 seconds. Then do nothing. Moving the mouse, touching, pressing a key, scrolling or switching tabs ends the run. Every alert and button that pops up is a trap. On phones, set a longer screen timeout first.",
+    "about": "A toy for a busy December: try doing nothing for just a minute. Your record stays on this device.",
+    "tags": ["do-nothing", "space-out"]
+  }
+}
