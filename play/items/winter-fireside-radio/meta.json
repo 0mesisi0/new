@@ -1,0 +1,21 @@
+{
+  "slug": "winter-fireside-radio",
+  "date": "2026-11-25",
+  "category": "radio",
+  "kind": "tool",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["백색소음", "장작소리"],
+    "title": "겨울밤 장작 백색소음",
+    "desc": "장작 타는 소리, 창밖 바람, 주전자 보글보글, 벽시계 째깍, 고양이 골골송을 섞어 나만의 겨울밤 백색소음을 만들어요. 공부할 때나 잠들기 전에 틀어 두세요.",
+    "howto": "'난로 켜기'를 누르면 소리가 나와요. 슬라이더로 소리마다 크기를 조절하고, 아이콘이나 방 안의 물건(난로, 창문, 주전자, 시계, 고양이)을 누르면 켜고 꺼요. 프리셋으로 바로 시작할 수도 있고, 수면 타이머를 맞추면 소리가 천천히 꺼져요. 키보드: Space 재생/정지, 1~6 소리 켜고 끄기, P 프리셋 바꾸기, T 타이머.",
+    "about": "모든 소리는 녹음 파일 없이 브라우저가 실시간으로 합성해요. 그래서 같은 장작 소리가 두 번 반복되지 않아요. 믹스 설정은 이 기기에만 저장돼요. 너무 크게 오래 듣지 마세요."
+  },
+  "en": {
+    "tags": ["white-noise", "fireplace"],
+    "title": "Winter Fireside Noise Mixer",
+    "desc": "Mix crackling logs, wind, a simmering kettle, a ticking clock, sleet and a purring cat into your own winter-night background noise for study or sleep.",
+    "howto": "Tap \"Light the stove\" to start the sound. Use the sliders to set each sound's level. Tap an icon, or the object in the room (stove, window, kettle, clock, cat), to turn its sound on or off. Presets get you started fast, and the sleep timer fades everything out gently. Keys: Space play/pause, 1–6 toggle sounds, P next preset, T timer.",
+    "about": "Every sound is synthesized live in your browser with no recordings, so the fire never loops the same crackle twice. Your mix is saved on this device only. Keep the volume moderate."
+  }
+}
