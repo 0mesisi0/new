@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-25-winter-star-connect",
+  "site": "play",
+  "slug": "winter-star-connect",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-25T04:25:45.922Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-25T04:28:13.868Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
