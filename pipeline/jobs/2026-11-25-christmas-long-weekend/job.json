@@ -3,14 +3,15 @@
   "site": "play",
   "slug": "christmas-long-weekend",
   "status": "queued",
-  "stage": "design",
+  "stage": "build",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
   "pr": null,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -24,6 +25,18 @@
       "stage": "idea",
       "status": "approved",
       "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-25T04:55:24.883Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T04:59:41.653Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
     }
   ],
   "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"

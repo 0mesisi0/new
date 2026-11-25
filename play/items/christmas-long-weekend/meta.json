@@ -1,0 +1,21 @@
+{
+  "slug": "christmas-long-weekend",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "크리스마스 연휴 3일 채우기",
+    "desc": "올해 성탄절은 금요일, 금·토·일 3일 연휴예요. 늦잠, 낮잠, 영화 정주행 같은 일정 블록을 빈칸 없이 끼워 넣어 시간표를 완성하세요. 제한 시간 안에 몇 개나 채울까요?",
+    "howto": "아래 블록을 끌어서 시간표에 놓으세요. 블록을 톡 누르면 돌아가요. 칸을 모두 채우면 다음 연휴로 넘어가고 시간이 10초 늘어나요. 키보드: 1~9 블록 고르기, 방향키 이동, R 회전, Enter 놓기, Backspace 되돌리기.",
+    "about": "2026년 12월 25일은 금요일이라 26일(토), 27일(일)까지 사흘을 쉬어요. 대체공휴일은 없어요. 모든 판은 풀 수 있게 만들어져 있어요.",
+    "tags": ["크리스마스연휴", "퍼즐"]
+  },
+  "en": {
+    "title": "Fill the Christmas Long Weekend",
+    "desc": "Christmas 2026 falls on a Friday, so you get three days off. Fit sleep-ins, naps and movie marathons into the schedule with no gaps. How many weekends can you plan before time runs out?",
+    "howto": "Drag blocks from the tray onto the schedule. Tap a block to rotate it. Fill every cell to move on to the next weekend and earn 10 more seconds. Keys: 1-9 pick, arrows move, R rotates, Enter places, Backspace undoes.",
+    "about": "December 25, 2026 is a Friday, so the weekend runs Friday to Sunday. There is no substitute holiday. Every board is guaranteed solvable.",
+    "tags": ["christmas-weekend", "puzzle"]
+  }
+}
