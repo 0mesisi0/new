@@ -1,0 +1,21 @@
+{
+  "slug": "midnight-snack-mission",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "title": "이불 속 야식 작전",
+    "desc": "겨울밤 이불 속에서 몰래 과자를 먹어요. 방문 밑에 불빛이 새면 얼른 손을 떼고 자는 척! 딱 걸리기 전까지 몇 입이나 먹을 수 있을까요?",
+    "howto": "화면을 누르고 있으면 냠냠 먹어요(스페이스바도 돼요). 문 밑에 불빛이 보이거나 발소리가 나면 바로 손을 떼세요. 문이 열렸을 때 먹고 있으면 게임 끝! 가짜 발소리도 있어요.",
+    "about": "겨울밤 몰래 먹는 야식은 왜 더 맛있을까요? 밤마다 한 판씩 도전해 보세요. 실제 야식은 적당히!",
+    "tags": ["야식", "눈치게임"]
+  },
+  "en": {
+    "title": "Midnight Snack Mission",
+    "desc": "Sneak a midnight snack under the blanket. When light shows under the door, let go and fake sleep. How many bites before you get caught?",
+    "howto": "Hold the screen (or Space) to munch. When light shows under the door or you hear footsteps, let go right away. If you are munching when the door opens, it's game over. Some footsteps are fake.",
+    "about": "Why does a secret midnight snack taste better? Try one round a night. In real life, snack in moderation!",
+    "tags": ["midnight-snack", "reaction"]
+  }
+}

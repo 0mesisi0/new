@@ -3,14 +3,15 @@
   "site": "play",
   "slug": "midnight-snack-mission",
   "status": "queued",
-  "stage": "design",
+  "stage": "build",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
   "pr": null,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -24,6 +25,30 @@
       "stage": "idea",
       "status": "approved",
       "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-25T00:15:02.916Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T00:17:16.913Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T00:19:36.447Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-25T00:22:51.128Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
     }
   ],
   "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
