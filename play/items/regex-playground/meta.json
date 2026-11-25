@@ -1,0 +1,21 @@
+{
+  "slug": "regex-playground",
+  "date": "2026-11-25",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "정규식 테스트 놀이터",
+    "desc": "정규식을 입력하면 일치하는 부분이 바로 색칠되고, 기호 하나하나를 한국어로 풀어 설명해 줘요. 휴대폰 번호·이메일·날짜·한글·금액 콤마 예시가 들어 있어요.",
+    "howto": "위 칸에 패턴을, 아래 칸에 테스트할 문장을 넣으세요. 플래그(g·i·m·s·u)를 눌러 켜고 끌 수 있어요. 아래 탭에서 일치 목록, 설명, 바꾸기, 치트시트를 볼 수 있고, 치트시트 기호를 누르면 패턴에 바로 들어가요.",
+    "about": "JavaScript(ECMAScript) 정규식 기준이에요. 다른 언어(Python, Java 등)와 조금 다를 수 있어요. 입력한 패턴과 문장은 이 기기에만 저장되고 어디로도 보내지 않아요. '느린 정규식 체험' 예시로 백트래킹 폭발도 안전하게 구경해 보세요.",
+    "tags": ["정규식", "정규표현식", "개발도구"]
+  },
+  "en": {
+    "title": "Regex Playground",
+    "desc": "Type a regex and watch matches light up live, with every token explained in plain words. Presets include phone numbers, emails, dates and Korean text.",
+    "howto": "Put a pattern in the top box and some test text below it. Tap the flags (g, i, m, s, u) to toggle them. The tabs at the bottom show the match list, an explanation, a replace preview and a cheat sheet. Tap any cheat-sheet token to insert it into the pattern.",
+    "about": "This uses JavaScript (ECMAScript) regex, which can differ slightly from Python, Java and others. Your pattern and text stay on this device and are never sent anywhere. Try the \"slow regex\" preset to watch catastrophic backtracking safely.",
+    "tags": ["regex", "regular expression", "developer tool"]
+  }
+}
