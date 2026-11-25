@@ -1,0 +1,21 @@
+{
+  "slug": "briquette-relay",
+  "date": "2026-11-25",
+  "category": "games",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["연탄", "타이밍게임"],
+    "title": "연탄 릴레이",
+    "desc": "눈 쌓인 언덕길, 이웃들이 줄지어 연탄을 손에서 손으로 건네요. 연탄이 손에 닿는 순간 탭! 깨뜨리지 말고 골목 끝 집까지 따뜻하게 채워 주세요.",
+    "howto": "연탄이 다음 사람 손에 닿는 순간 화면을 탭하세요(스페이스·엔터도 돼요). 박자가 정확하면 '딱!'이 떠요. 점수는 끝까지 전달한 연탄 장수로 정해져요. 가끔 건네는 사람이 머뭇거리니 박자만 믿지 마세요. 연탄이 3장 깨지면 끝나요.",
+    "about": "겨울마다 이웃끼리 줄을 서서 연탄을 나르던 풍경에서 떠올린 게임이에요. 등장인물과 집은 모두 지어낸 것이에요. 연탄 한 장은 약 3.6kg이라 실제로는 두 손으로 조심히 건네요."
+  },
+  "en": {
+    "tags": ["briquette", "timing"],
+    "title": "Briquette Relay",
+    "desc": "Neighbours line a snowy hillside alley, passing coal briquettes hand to hand. Tap the moment each one lands, don't crack it, and warm every house up the hill.",
+    "howto": "Tap the screen (or press Space or Enter) the moment a briquette lands in the next pair of hands. Tighter timing earns PERFECT, and your score is the number of briquettes delivered. Sometimes a passer hesitates, so don't tap on rhythm alone. Three cracked briquettes and the run is over.",
+    "about": "Inspired by the winter custom of neighbours forming a line to carry briquettes up to homes. All characters and houses are made up. A real briquette weighs about 3.6 kg, so people pass them carefully with both hands."
+  }
+}
