@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-26-wind-chill-calculator",
+  "site": "play",
+  "slug": "wind-chill-calculator",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-26T14:10:00.185Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-26T14:11:22.014Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a quick quiz or trivia with funny wrong answers (kind tool)"
+}
