@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>연금저축 IRP 세액공제 계산기 2026</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;color:#1c2230;background:linear-gradient(160deg,#14213d,#1f3a5f);position:relative}
+.star{position:fixed;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.2;animation:tw 4s ease-in-out infinite;pointer-events:none}
+@keyframes tw{50%{opacity:.85}}
+.wrap{position:relative;max-width:480px;height:100vh;height:100dvh;margin:0 auto;padding:14px;overflow:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+@media(min-width:400px){.wrap{padding:18px}}
+header{color:#fff;margin-bottom:12px}
+h1{font-size:clamp(18px,5vw,22px);margin:0 0 4px;line-height:1.25}
+.sub{margin:0 0 8px;font-size:14px;color:#c9d6ea}
+.chip{display:inline-block;background:#f59e0b;color:#3a2600;font-weight:700;font-size:14px;padding:5px 12px;border-radius:99px}
+.chip.soon{background:#b91c1c;color:#fff;animation:pulse 1.6s ease-in-out infinite}
+.chip.past{background:#4b5563;color:#fff}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.card{background:#fdfcf8;border-radius:18px;padding:16px;box-shadow:0 10px 30px #0006}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{min-height:48px;border:2px solid #d6dae2;background:#fff;border-radius:12px;font:600 14px/1.25 inherit;font-family:inherit;color:#1c2230;padding:6px 8px;cursor:pointer}
+.seg button[aria-pressed=true]{border-color:#3b82f6;background:#e8f0fe;color:#1d4ed8}
+.hint{font-size:12px;color:#5a6577;margin:6px 0 0}
+label{display:block;font-size:14px;font-weight:600;margin-top:14px}
+.in{display:flex;align-items:center;gap:8px;margin-top:6px}
+.in input{flex:1;min-width:0;min-height:48px;font:600 18px inherit;font-family:inherit;font-variant-numeric:tabular-nums;text-align:right;border:2px solid #d6dae2;border-radius:12px;padding:0 12px;background:#fff;color:#1c2230}
+.in input:focus{outline:none;border-color:#3b82f6}
+.in span{font-size:14px;color:#5a6577;min-width:42px}
+.warn{color:#b91c1c;font-size:13px;margin:6px 0 0;font-weight:600}
+details{margin-top:12px}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:600;color:#3b5a8a}
+.gauge{margin-top:18px}
+.bar{position:relative;height:28px;border-radius:14px;background:#e5e7eb;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;width:0;transition:width .2s}
+.sp{background:#3b82f6}.si{background:#10b981}
+.se{background:repeating-linear-gradient(45deg,#f59e0b 0 6px,#fbbf24 6px 12px)}
+.bar i.so{position:absolute;left:0;bottom:0;height:8px;background:#1d4ed8;opacity:.6}
+.tick{position:absolute;top:0;bottom:0;left:66.667%;width:2px;background:#1c2230aa}
+.labels{position:relative;height:18px;font-size:12px;color:#5a6577;margin-top:4px}
+.labels .l600{position:absolute;right:33.333%;padding-right:4px;white-space:nowrap}
+.labels .lcap{position:absolute;right:0;white-space:nowrap}
+.labels.stack{height:36px}
+.labels.stack .lcap{top:18px}
+.over{font-size:12px;color:#1d4ed8;margin-top:2px;min-height:0}
+.slidel{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;font-size:14px;font-weight:600}
+.slidel b{font-variant-numeric:tabular-nums;color:#b45309}
+input[type=range]{width:100%;height:44px;margin:4px 0 0;background:none;touch-action:none;-webkit-appearance:none;appearance:none;accent-color:#f59e0b}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:#e5e7eb}
+input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:#e5e7eb}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;box-sizing:border-box;width:44px;height:44px;margin-top:-18px;border-radius:50%;background:#f59e0b;border:4px solid #fff;box-shadow:0 2px 8px #0004}
+input[type=range]::-moz-range-thumb{box-sizing:border-box;width:44px;height:44px;border-radius:50%;background:#f59e0b;border:4px solid #fff;box-shadow:0 2px 8px #0004}
+input[type=range]:disabled{opacity:.4}
+.chips{display:flex;gap:8px;margin-top:4px}
+.chips button,.foot button{min-height:44px;padding:0 14px;border-radius:99px;border:2px solid #f59e0b;background:#fff7e6;color:#7a4a00;font:600 14px inherit;font-family:inherit;cursor:pointer}
+.res{margin-top:16px;background:#f2f6fc;border-radius:14px;padding:14px}
+.head{font-size:clamp(22px,6vw,26px);font-weight:800;line-height:1.3;margin:0 0 10px;word-break:keep-all}
+.head em{font-style:normal;color:#0a7a52}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:6px 0;border-top:1px solid #dde4ee}
+.row b{font-variant-numeric:tabular-nums}
+.foot{display:flex;gap:8px;margin-top:14px}
+.foot button{border-color:#c5cddb;background:#fff;color:#1c2230;flex:1}
+.disc{font-size:12px;color:#5a6577;margin:12px 0 0;line-height:1.5}
+.small{font-size:11.5px;color:#5a6577;margin:6px 0 0;line-height:1.5}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1c2230;color:#fff;padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+.toast.on{opacity:1}
+.cf{position:fixed;top:40%;left:50%;width:9px;height:9px;pointer-events:none;border-radius:2px;animation:cf 1s ease-out forwards;z-index:8}
+@keyframes cf{to{transform:translate(var(--x),var(--y)) rotate(540deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.chip.soon{animation:none}.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+<header>
+  <h1 id="tTitle"></h1>
+  <p class="sub" id="tSub"></p>
+  <span class="chip" id="dday"></span>
+</header>
+<main class="card">
+  <div class="seg" id="seg">
+    <button type="button" id="bLow" aria-pressed="true"></button>
+    <button type="button" id="bHigh" aria-pressed="false"></button>
+  </div>
+  <p class="hint" id="tBrHint"></p>
+
+  <label for="fP" id="tP"></label>
+  <div class="in"><input id="fP" inputmode="numeric" autocomplete="off" aria-describedby="uP hP"><span class="u" id="uP"></span></div>
+  <p class="warn" id="hP" hidden></p>
+  <label for="fI" id="tI"></label>
+  <div class="in"><input id="fI" inputmode="numeric" autocomplete="off" aria-describedby="uI tIHint hI"><span class="u" id="uI"></span></div>
+  <p class="hint" id="tIHint"></p>
+  <p class="warn" id="hI" hidden></p>
+  <details id="more">
+    <summary id="tMore"></summary>
+    <label for="fT" id="tT" style="margin-top:0"></label>
+    <div class="in"><input id="fT" inputmode="numeric" autocomplete="off" aria-describedby="uT tTHint"><span id="uT"></span></div>
+    <p class="hint" id="tTHint"></p>
+  </details>
+
+  <div class="gauge">
+    <div class="bar"><i class="sp" id="gP"></i><i class="si" id="gI"></i><i class="se" id="gE"></i><i class="so" id="gO"></i><div class="tick"></div></div>
+    <div class="labels"><span class="l600" id="l600"></span><span class="lcap" id="lcap"></span></div>
+    <div class="over" id="over"></div>
+  </div>
+
+  <div class="slidel"><span id="tSlider"></span><b id="vSlider"></b></div>
+  <input type="range" id="sl" min="0" max="90" step="1" value="0">
+  <div class="chips"><button type="button" id="cFill"></button><button type="button" id="cZero"></button></div>
+  <p class="warn" id="hPay" hidden></p>
+
+  <p class="sr" id="sr" role="status" aria-live="polite"></p>
+  <div class="res">
+    <p class="head" id="head"></p>
+    <div class="row"><span id="rNowL"></span><b id="rNow"></b></div>
+    <div class="row"><span id="rAftL"></span><b id="rAft"></b></div>
+    <div class="row"><span id="rRoomL"></span><b id="rRoom"></b></div>
+    <p class="warn" id="hCap" hidden></p>
+  </div>
+  <p class="disc" id="disc"></p>
+  <div class="foot"><button type="button" id="bCopy"></button><button type="button" id="bReset"></button></div>
+  <p class="small" id="tLock"></p>
+  <p class="small" id="tFoot"></p>
+  <p class="small" id="tEn" hidden></p>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+var S={
+ko:{appTitle:'연금저축 IRP 세액공제 계산기 2026',sub:'12월 31일까지 얼마 더 넣으면 얼마 돌려받을까?',dday:'12/31까지 D-{n}',ddayToday:'오늘이 납입 마감일이에요',pastDeadline:'2026년 납입 마감이 지났어요',bracketLow:'총급여 5,500만 원 이하 · 16.5%',bracketHigh:'총급여 5,500만 원 초과 · 13.2%',bracketHint:'근로소득 외 종합소득만 있다면 종합소득금액 4,500만 원 기준이에요',pension:'올해 연금저축 납입액',irp:'올해 IRP 납입액',irpHint:'퇴직연금 DC 개인 추가 납입도 여기에 넣으세요',unit:'만 원',unitHint:'만 원 단위예요 (300 = 300만 원)',more:'더 정확하게',taxDue:'예상 결정세액 (원, 선택)',taxDueHint:'홈택스 연말정산 미리보기에서 확인할 수 있어요',capLabel:'공제 한도 900만 원',pensionTick:'연금저축 한도 600',overPension:'공제 안 되는 600 초과분',slider:'12월 추가 납입 (IRP)',fillChip:'한도 꽉 채우기',zeroChip:'0원',head:'12월 31일까지 {x} 더 넣으면 환급 +{y}',headZero:'추가 납입을 정하면 늘어나는 환급이 보여요',pastHead:'참고: {x} 더 넣었다면 +{y}',fullHead:'공제 한도를 꽉 채웠어요 🎉',emptyHead:'최대 {y}까지 돌려받을 수 있어요',rowNow:'지금 예상 공제',rowAfter:'추가 후 공제',rowRoom:'남은 공제 한도',capHit:'결정세액보다 많이 공제받을 수는 없어요. {t}에서 멈췄어요',payCapHit:'연간 납입 한도 1,800만 원에 닿았어요',copy:'결과 복사',reset:'초기화',copied:'복사했어요',copyFail:'복사하지 못했어요',disclaimer:'2026년 귀속 기준 참고용 추정치예요. 실제 환급은 홈택스에서 확인하세요.',footnote:'ISA 만기 전환 추가 한도, 중도 해지 시 기타소득세는 계산에 넣지 않았어요',lockNote:'IRP는 55세 전에 꺼내기 어렵고, 연금저축도 중도 인출 시 세금이 붙어요',
+sliderVal:'{n}만 원',taxUnit:'원',
+copyTxt:'💰 2026 연금저축·IRP 세액공제 / 지금 {a} → {x} 더 넣으면 {b} (+{g}) / 남은 한도 {r} / {d} / play.mesisi.net'},
+en:{appTitle:'Pension Savings Tax Credit Calculator 2026',sub:'Top up before Dec 31: how much comes back?',dday:'{n} days left until Dec 31',ddayToday:'Today is the last day to pay in',pastDeadline:'The 2026 payment deadline has passed',bracketLow:'Salary ≤ ₩55M · 16.5%',bracketHigh:'Salary > ₩55M · 13.2%',bracketHint:'Without a salary, the line is ₩45M of total income',pension:'Pension savings paid this year',irp:'IRP paid this year',irpHint:'Include personal top-ups to a DC plan here',unit:'× ₩10,000',unitHint:'Units of ₩10,000 (300 = ₩3M)',more:'More accurate',taxDue:'Expected final tax (₩, optional)',taxDueHint:'Find it in the Hometax year-end tax preview',capLabel:'Credit limit ₩9M',pensionTick:'Pension savings cap 600',overPension:'Above 600: not credited',slider:'December top-up (IRP)',fillChip:'Fill the limit',zeroChip:'₩0',head:'Add {x} by Dec 31 for +{y} back',headZero:'Set a top-up to see the extra refund',pastHead:'For reference: {x} more would have meant +{y}',fullHead:"You've filled the limit 🎉",emptyHead:'You could get up to {y} back',rowNow:'Credit so far',rowAfter:'Credit after top-up',rowRoom:'Limit left',capHit:"The credit can't exceed your tax. Capped at {t}.",payCapHit:"You've hit the ₩18M yearly payment limit",copy:'Copy result',reset:'Reset',copied:'Copied',copyFail:'Could not copy',disclaimer:'An estimate for the 2026 tax year. Confirm your refund on Hometax.',footnote:'Not included: the extra limit for ISA transfers, or tax on early withdrawal',lockNote:'IRP is hard to withdraw before 55, and early pension withdrawals are taxed',
+sliderVal:'{n} × ₩10,000',taxUnit:'₩',
+enNote:"For Korea's tax system. Amounts are in Korean won; inputs are in units of ₩10,000.",
+copyTxt:'💰 2026 pension tax credit / now {a} → top up {x} for {b} (+{g}) / limit left {r} / {d} / play.mesisi.net'}
+};
+var q=new URLSearchParams(location.search).get('lang');
+var L=(q==='ko'||q==='en')?q:((navigator.language||'').toLowerCase().indexOf('ko')===0?'ko':'en');
+var T=S[L];document.documentElement.lang=L;document.title=T.appTitle;
+function t(k,v){var s=T[k]||'';if(v)for(var n in v)s=s.split('{'+n+'}').join(v[n]);return s}
+function $(i){return document.getElementById(i)}
+
+var PENSION_CAP=600,TOTAL_CAP=900,PAY_CAP=1800,RATE_LOW=.165,RATE_HIGH=.132;
+var END=new Date(2026,11,31,23,59,59);
+var demo=location.hash==='#demo';
+var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var bracket='low',extra=0,userSet=false,confettiDone=false;
+var D={cn:0,ca:0,room:0,gain:0},TG=D,raf=0;
+
+// formatting
+function fmt(w,round){
+  w=Math.round(w);
+  if(L==='en')return '₩'+w.toLocaleString('en-US');
+  if(w<10000)return w.toLocaleString('en-US')+'원';
+  if(round)w=Math.round(w/1000)*1000;
+  var man=Math.floor(w/10000),ch=Math.floor((w%10000)/1000),s='';
+  if(man)s+=man.toLocaleString('en-US')+'만';
+  if(ch)s+=(s?' ':'')+ch+'천';
+  return s+' 원';
+}
+function fmtRow(w){w=Math.round(w);return L==='en'?'₩'+w.toLocaleString('en-US'):w.toLocaleString('en-US')+'원'}
+function digits(s){return String(s).replace(/\D/g,'')}
+function num(id,max){var d=digits($(id).value);return d?Math.min(max,parseInt(d,10)):0}
+
+// static text
+$('tTitle').textContent=t('appTitle');$('tSub').textContent=t('sub');
+$('bLow').textContent=t('bracketLow');$('bHigh').textContent=t('bracketHigh');$('tBrHint').textContent=t('bracketHint');
+$('tP').textContent=t('pension');$('tI').textContent=t('irp');$('tIHint').textContent=t('irpHint');
+[].forEach.call(document.querySelectorAll('.u'),function(e){e.textContent=t('unit')});
+$('uT').textContent=t('taxUnit');$('tMore').textContent=t('more');$('tT').textContent=t('taxDue');$('tTHint').textContent=t('taxDueHint');
+$('l600').textContent=t('pensionTick');$('lcap').textContent=t('capLabel');
+$('tSlider').textContent=t('slider');$('cFill').textContent=t('fillChip');$('cZero').textContent=t('zeroChip');
+$('rNowL').textContent=t('rowNow');$('rAftL').textContent=t('rowAfter');$('rRoomL').textContent=t('rowRoom');
+$('disc').textContent=t('disclaimer');$('tFoot').textContent=t('footnote');$('tLock').textContent=t('lockNote');
+$('bCopy').textContent=t('copy');$('bReset').textContent=t('reset');
+$('hP').textContent=$('hI').textContent=t('unitHint');$('hPay').textContent=t('payCapHit');
+if(L==='en'){$('tEn').textContent=t('enNote');$('tEn').hidden=false}
+$('sl').setAttribute('aria-label',t('slider'));
+
+// stars
+for(var s=0;s<20;s++){var e=document.createElement('div');e.className='star';
+  e.style.left=((s*37+11)%100)+'vw';e.style.top=((s*53+7)%100)+'vh';e.style.animationDelay=(s%7)*.6+'s';
+  document.body.insertBefore(e,document.body.firstChild)}
+
+// storage (ptc: keys only)
+function save(){if(demo)return;try{
+  localStorage.setItem('ptc:bracket',bracket);
+  localStorage.setItem('ptc:inputs',JSON.stringify({p:digits($('fP').value),i:digits($('fI').value),tax:digits($('fT').value)}));
+}catch(e){}}
+function load(){try{
+  var b=localStorage.getItem('ptc:bracket');if(b==='low'||b==='high')bracket=b;
+  var o=JSON.parse(localStorage.getItem('ptc:inputs')||'null');
+  if(o){$('fP').value=digits(o.p||'');$('fI').value=digits(o.i||'');$('fT').value=digits(o.tax||'');
+    if(o.tax)$('fT').closest('details').open=true}
+}catch(e){}}
+
+function calc(){
+  var rate=bracket==='low'?RATE_LOW:RATE_HIGH;
+  var p=num('fP',99999),i=num('fI',99999);
+  var eligNow=Math.min(Math.min(p,PENSION_CAP)+i,TOTAL_CAP);
+  var room=TOTAL_CAP-eligNow,payRoom=Math.max(0,PAY_CAP-p-i),sMax=Math.min(room,payRoom);
+  if(!userSet)extra=sMax;else extra=Math.max(0,Math.min(extra,sMax));
+  var eligAfter=Math.min(eligNow+extra,TOTAL_CAP);
+  var cn=Math.round(eligNow*1e4*rate),ca=Math.round(eligAfter*1e4*rate);
+  var td=digits($('fT').value),hasTax=td!=='',tax=hasTax?Math.min(1e13,parseInt(td,10)):0,capped=false;
+  if(hasTax){capped=cn>tax||ca>tax;cn=Math.min(cn,tax);ca=Math.min(ca,tax)}
+  return {p:p,i:i,eligNow:eligNow,room:room,payRoom:payRoom,sMax:sMax,cn:cn,ca:ca,gain:ca-cn,capped:capped,tax:tax}
+}
+
+var C;
+function update(){
+  C=calc();
+  var p=C.p,i=C.i;
+  $('hP').hidden=!(p>=10000);$('hI').hidden=!(i>=10000);
+  // gauge
+  var bp=Math.min(p,PENSION_CAP),bi=Math.min(i,TOTAL_CAP-bp),be=Math.min(extra,TOTAL_CAP-bp-bi);
+  // stub: pension above cap, shown over the free room (even under the amber block)
+  var ov=p>PENSION_CAP?Math.min(p-PENSION_CAP,C.room):0;
+  function w(id,v){$(id).style.width=(v/TOTAL_CAP*100)+'%'}
+  w('gP',bp);w('gI',bi);w('gE',be);
+  var so=$('gO');so.style.left=((bp+bi)/TOTAL_CAP*100)+'%';so.style.width=ov>0?'max(3px,'+(ov/TOTAL_CAP*100)+'%)':'0';
+  $('over').textContent=ov>0?t('overPension'):'';
+  // slider: thumb index in steps of 10, last index = exact cap
+  var sl=$('sl');sl.max=Math.ceil(C.sMax/10);sl.disabled=C.sMax===0;sl.value=Math.ceil(extra/10);
+  sl.setAttribute('aria-valuetext',t('sliderVal',{n:extra}));
+  $('vSlider').textContent=t('sliderVal',{n:extra});
+  $('cFill').disabled=$('cZero').disabled=C.sMax===0;
+  $('hPay').hidden=!(C.payRoom===0||(C.room>0&&C.payRoom<C.room&&extra>=C.sMax));
+  $('hCap').hidden=!C.capped;
+  if(C.capped)$('hCap').textContent=t('capHit',{t:fmtRow(C.tax)});
+  // dday
+  dday();fit();
+  // tween
+  var tg={cn:C.cn,ca:C.ca,room:C.room*1e4,gain:C.gain};
+  if(reduce){D=tg;draw()}else{
+    var from={cn:D.cn,ca:D.ca,room:D.room,gain:D.gain},t0=performance.now();
+    cancelAnimationFrame(raf);
+    (function step(now){var k=Math.min(1,(now-t0)/300);
+      D={cn:from.cn+(tg.cn-from.cn)*k,ca:from.ca+(tg.ca-from.ca)*k,room:from.room+(tg.room-from.room)*k,gain:from.gain+(tg.gain-from.gain)*k};
+      draw();if(k<1)raf=requestAnimationFrame(step)})(t0);
+  }
+  if(C.room===0&&!confettiDone){confettiDone=true;if(!reduce&&(p+i>0))burst()}
+  if(C.room>0)confettiDone=false;
+  clearTimeout(srt);srt=setTimeout(announce,800);
+}
+var srt=0;
+function announce(){var s=$('head').textContent;if($('sr').textContent!==s)$('sr').textContent=s}
+// stack gauge labels when they collide (narrow screens, long Korean text)
+function fit(){
+  var b=document.querySelector('.labels');b.classList.remove('stack');
+  var a=$('l600').getBoundingClientRect(),c=$('lcap').getBoundingClientRect();
+  if(a.right+4>c.left)b.classList.add('stack');
+}
+// deadline state: chip and headline refresh together
+function tick(){dday();draw();announce()}
+function pastNow(){return new Date()>END}
+function draw(){
+  $('rNow').textContent=fmtRow(D.cn);$('rAft').textContent=fmtRow(D.ca);$('rRoom').textContent=fmtRow(D.room);
+  var h,x=fmt(extra*1e4),y=fmt(D.gain,true);
+  if(C.room===0)h=t('fullHead');
+  else if(pastNow())h=(C.gain>0&&extra>0)?t('pastHead',{x:x,y:y}):t('headZero');
+  else if(C.p+C.i===0&&!userSet)h=t('emptyHead',{y:fmt(D.ca,true)});
+  else if(C.gain>0&&extra>0)h=t('head',{x:x,y:y});
+  else h=t('headZero');
+  $('head').textContent=h;
+}
+function dday(){
+  var el=$('dday'),now=new Date();el.className='chip';
+  if(now>END){el.textContent=t('pastDeadline');el.className='chip past';return}
+  if(now.getFullYear()===2026&&now.getMonth()===11&&now.getDate()===31){el.textContent=t('ddayToday');el.className='chip soon';return}
+  var n=Math.ceil((END-now)/864e5);
+  el.textContent=t('dday',{n:n});if(n<=7)el.className='chip soon';
+}
+function burst(){
+  var cols=['#3b82f6','#10b981','#f59e0b','#e0453d'];
+  for(var k=0;k<24;k++){var d=document.createElement('div');d.className='cf';
+    d.style.background=cols[k%4];d.style.setProperty('--x',(Math.random()*320-160)+'px');d.style.setProperty('--y',(Math.random()*-220+60)+'px');
+    document.body.appendChild(d);setTimeout(function(n){return function(){n.remove()}}(d),1100)}
+}
+var tt=0;
+function toast(m){var e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('on')},1600)}
+
+// events
+function setBracket(b){bracket=b;$('bLow').setAttribute('aria-pressed',b==='low');$('bHigh').setAttribute('aria-pressed',b==='high')}
+$('bLow').onclick=function(){setBracket('low');save();update()};
+$('bHigh').onclick=function(){setBracket('high');save();update()};
+var fields=['fP','fI','fT'];
+fields.forEach(function(id,ix){
+  var f=$(id);
+  f.addEventListener('input',function(){var d=digits(f.value);if(d!==f.value)f.value=d;save();update()});
+  f.addEventListener('focus',function(){f.value=digits(f.value)});
+  f.addEventListener('blur',function(){var d=digits(f.value).replace(/^0+(?=\d)/,'');f.value=d.replace(/\B(?=(\d{3})+(?!\d))/g,',')});
+  f.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var n=fields[ix+1];if(n){if(n==='fT')$('more').open=true;$(n).focus()}else f.blur()}});
+});
+function fromIdx(v){return Math.min(C.sMax,v*10)}
+$('sl').addEventListener('input',function(){userSet=true;extra=fromIdx(+this.value);update()});
+$('sl').addEventListener('keydown',function(e){
+  if(e.key==='PageUp'||e.key==='PageDown'){e.preventDefault();userSet=true;
+    extra=fromIdx(Math.max(0,Math.ceil(extra/10)+(e.key==='PageUp'?10:-10)));update()}
+});
+$('cFill').onclick=function(){userSet=true;extra=C.sMax;update()};
+$('cZero').onclick=function(){userSet=true;extra=0;update()};
+function copyText(){
+  dday();
+  return t('copyTxt',{a:fmtRow(C.cn),x:fmt(extra*1e4),b:fmtRow(C.ca),g:fmtRow(C.gain),r:fmt(C.room*1e4),d:$('dday').textContent});
+}
+function copy(){
+  var s=copyText();
+  function fb(){try{var a=document.createElement('textarea');a.value=s;a.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(a);a.select();var ok=document.execCommand('copy');a.remove();toast(t(ok?'copied':'copyFail'))}catch(e){toast(t('copyFail'))}}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(s).then(function(){toast(t('copied'))},fb);else fb();
+}
+$('bCopy').onclick=copy;
+document.addEventListener('keydown',function(e){if(e.altKey&&(e.key==='c'||e.key==='C')){e.preventDefault();copy()}});
+$('bReset').onclick=function(){
+  if(!demo)try{localStorage.removeItem('ptc:bracket');localStorage.removeItem('ptc:inputs')}catch(e){}
+  $('fP').value=$('fI').value=$('fT').value='';$('more').open=false;setBracket('low');userSet=false;confettiDone=false;update();
+};
+document.addEventListener('visibilitychange',function(){if(!document.hidden)tick()});
+setInterval(tick,60000);
+window.addEventListener('resize',fit);
+
+// init
+if(demo){$('fP').value='300';$('fI').value='100';userSet=true;extra=500}else load();
+setBracket(bracket);
+update();
+})();
+</script>
+</body>
+</html>

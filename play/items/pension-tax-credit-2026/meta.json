@@ -1,0 +1,21 @@
+{
+  "slug": "pension-tax-credit-2026",
+  "date": "2026-11-26",
+  "category": "tools",
+  "kind": "tool",
+  "aspect": "3/4",
+  "ko": {
+    "title": "연금저축 IRP 세액공제 계산기 2026",
+    "desc": "올해 연금저축·IRP에 넣은 돈을 입력하면 지금 받을 세액공제와 남은 한도를 보여 줘요. 12월 31일까지 얼마를 더 넣으면 환급이 얼마나 늘어나는지 바로 계산합니다.",
+    "howto": "총급여 구간을 고르고 올해 연금저축과 IRP 납입액을 만 원 단위로 넣으세요. 아래 슬라이더로 12월 추가 납입액을 정하면 늘어나는 환급액이 바로 보여요. 홈택스 미리보기의 예상 결정세액을 넣으면 더 정확해져요.",
+    "about": "2026년 귀속 연말정산 기준(연금저축 600만 원, IRP 합산 900만 원, 공제율 16.5%/13.2%, 지방소득세 포함)으로 계산한 참고용 추정치예요. 실제 환급액은 다른 공제와 결정세액에 따라 달라지니 홈택스에서 꼭 확인하세요. 입력한 금액은 이 기기 밖으로 나가지 않아요.",
+    "tags": ["연말정산", "연금저축", "IRP", "세액공제"]
+  },
+  "en": {
+    "title": "Pension Savings Tax Credit Calculator 2026",
+    "desc": "Enter your Korean pension savings and IRP payments to see your tax credit, remaining limit, and the extra refund a top-up before Dec 31 would bring.",
+    "howto": "Pick your salary bracket and enter this year's pension savings and IRP payments in units of 10,000 won. Drag the slider to set a December top-up and see the extra refund. Adding your expected tax from the Hometax preview makes the result more accurate.",
+    "about": "This is an estimate based on Korea's 2026 tax-year rules: 6M won for pension savings, 9M won combined with IRP, and a 16.5% or 13.2% credit rate including local income tax. Your actual refund depends on your other deductions and your final tax, so check Hometax. Your numbers never leave this device.",
+    "tags": ["tax-credit", "pension", "year-end-tax"]
+  }
+}
