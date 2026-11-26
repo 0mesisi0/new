@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>겨울 별자리 잇기</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b1026;color:#f4f6ff;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR","Malgun Gothic",sans-serif}
+canvas{position:fixed;inset:0;width:100vw;width:100%;height:100vh;height:100dvh;touch-action:none;display:block;outline:none}
+#pick{position:fixed;z-index:5;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 12px);padding:6px;border-radius:18px;border:1px solid #ffffff44;background:rgba(14,20,50,.96)}
+#pick .btn{padding:0 14px;font-size:15px}
+canvas:focus-visible{outline:3px solid #8fe3ff;outline-offset:-3px}
+.sr{position:fixed;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+#hud{position:fixed;left:0;top:0;right:60px;padding:14px 12px;font-size:15px;font-weight:600;text-shadow:0 1px 3px #000a;pointer-events:none;line-height:1.2}
+#mute{position:fixed;right:6px;top:6px;width:48px;height:48px;border:0;border-radius:50%;background:#ffffff1a;color:#fff;font-size:22px;cursor:pointer}
+#hint{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);height:56px;min-width:150px}
+#hint:disabled{opacity:.4}
+#hint.pulse{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px #ffd56a44;transform:translateX(-50%) scale(1.06)}}
+.btn{min-height:48px;padding:0 24px;border:0;border-radius:16px;background:#ffd56a;color:#1b1f3a;font:700 17px system-ui,"Noto Sans KR","Malgun Gothic",sans-serif;cursor:pointer}
+.btn.alt{background:#ffffff1f;color:#fff;border:1px solid #ffffff44}
+.btn:focus-visible,#mute:focus-visible,#pick .btn:focus-visible{outline:3px solid #8fe3ff;outline-offset:2px}
+.card{position:fixed;left:50%;width:min(420px,calc(100% - 24px));max-height:78%;overflow:auto;padding:18px 18px 16px;border-radius:20px;border:1px solid #ffffff22;background:rgba(14,20,50,.88);text-align:center}
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){.card{background:rgba(255,255,255,.10);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}}
+#start{top:50%;transform:translate(-50%,-50%)}
+.bot{bottom:12px;transform:translate(-50%,130%);transition:transform .45s cubic-bezier(.2,.9,.3,1)}
+.bot.show{transform:translate(-50%,0)}
+h1{margin:0 0 6px;font-size:30px;letter-spacing:-.5px;color:#ffe9a8}
+h2{margin:0 0 6px;font-size:22px;color:#ffe9a8}
+p{margin:6px 0;font-size:15px;line-height:1.45}
+.sub{font-size:16px;opacity:.95}.dim{opacity:.7;font-size:13px}
+.stars{font-size:28px;color:#ffd56a;letter-spacing:4px}
+.tn{margin-top:8px;padding:8px 10px;border-radius:12px;background:#ffffff14;text-align:left;font-size:14px}
+.tn b{color:#8fe3ff}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-block;padding:3px 12px;border-radius:99px;background:#ff6b6b;color:#1b1f3a;font-weight:800;font-size:14px;margin:4px 0}
+#banner{position:fixed;left:50%;top:22%;transform:translateX(-50%);text-align:center;pointer-events:none;text-shadow:0 2px 8px #000;animation:ban .8s ease both}
+#banner b{display:block;font-size:30px;color:#ffe9a8}#banner span{font-size:16px}
+@keyframes ban{0%{opacity:0;transform:translate(-50%,10px)}20%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+#toast{position:fixed;left:50%;top:64px;transform:translateX(-50%);padding:8px 16px;border-radius:99px;background:#000b;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.bot{transition:none}#hint.pulse{animation:none;outline:3px solid #fff}#banner{animation:none}}
+@media (max-width:340px){h1{font-size:25px}.card{padding:14px 12px}}
+@media (max-height:600px){#fin{padding:10px 14px}#fin h2{font-size:18px;margin-bottom:2px}#fin p{margin:2px 0;font-size:13px;line-height:1.3}#fin .stars{display:none}#fin .row{margin-top:6px}#fin .btn{min-height:44px;padding:0 16px;font-size:15px}#fin .badge{margin:0 0 0 6px;padding:1px 10px;font-size:13px}}
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0" role="application"></canvas>
+<div id="pick" role="group" hidden></div>
+<div id="stars" class="sr" role="group" hidden></div>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+<div id="hud" hidden></div>
+<button id="mute" type="button"></button>
+<button id="hint" class="btn" type="button" hidden></button>
+<div id="banner" hidden><b></b><span></span></div>
+<div id="start" class="card"></div>
+<div id="clear" class="card bot" hidden></div>
+<div id="fin" class="card bot" hidden></div>
+<div id="toast" role="status"></div>
+<script>
+(()=>{
+'use strict';
+const qs=new URLSearchParams(location.search).get('lang');
+const L=(qs==='ko'||qs==='en')?qs:((navigator.language||'').toLowerCase().startsWith('ko')?'ko':'en');
+document.documentElement.lang=L;
+const TX={
+ko:{appTitle:'겨울 별자리 잇기',startSub:'1년 중 가장 긴 밤, 별을 이어 볼까요?',startHow:'별에서 별로 드래그해 선을 이으세요',startBtn:'시작하기',bestLine:'최고 기록 ★{s}/24 · {t}',noBest:'아직 기록이 없어요',goal:'선 {n}개를 이어 보세요',linesLeft:'남은 선 {n}',mistakes:'실수 {n}',hint:'힌트',stageClear:'완성!',tonight:'오늘 밤 찾는 법',next:'다음',pleiades:'좀생이별 발견!',finaleTitle:'동지 밤하늘 완성',finaleSub:'2026년 동지는 12월 22일, 1년 중 밤이 가장 긴 날이에요',totalStars:'별 ★{s}/24',totalTime:'걸린 시간 {t}',newBest:'새 기록!',again:'다시 하기',copy:'텍스트 복사',copied:'복사했어요',copyFail:'복사하지 못했어요',soundOn:'소리 켜기',soundOff:'소리 끄기',note:'별 위치는 단순화했고 거리는 대략적인 값이에요',asterism:'별자리가 아닌 길잡이 별 모양이에요',
+canvasLabel:'별자리 판. 방향키로 별을 고르고 Enter로 선택해요. 두 별을 차례로 고르면 선이 이어져요. H는 힌트',starsLabel:'별 목록',selected:'선택됨',unselected:'선택 안 됨',lineOk:'선이 이어졌어요',lineBad:'이어지지 않는 별이에요',pick:'가까운 별 고르기',
+copyText:'✨ 겨울 별자리 6개와 길잡이 별 모양 2개 완성! ★{s}/24 · {t} · 동지 밤하늘에서 오리온 찾아보기 · play.mesisi.net'},
+en:{appTitle:'Connect the Winter Stars',startSub:'The longest night of the year. Shall we connect the stars?',startHow:'Drag from star to star to draw lines',startBtn:'Start',bestLine:'Best ★{s}/24 · {t}',noBest:'No record yet',goal:'Draw {n} lines',linesLeft:'Lines left {n}',mistakes:'Mistakes {n}',hint:'Hint',stageClear:'Complete!',tonight:'Find it tonight',next:'Next',pleiades:'Found the Pleiades!',finaleTitle:'Solstice Sky Complete',finaleSub:'The 2026 solstice is December 22, the longest night of the year',totalStars:'Stars ★{s}/24',totalTime:'Time {t}',newBest:'New best!',again:'Play again',copy:'Copy text',copied:'Copied',copyFail:'Could not copy',soundOn:'Sound on',soundOff:'Sound off',note:'Positions are simplified and distances are approximate',asterism:'A signpost shape, not an official constellation',
+canvasLabel:'Star board. Use arrow keys to pick a star and Enter to select it. Select two stars in turn to draw a line. H for a hint',starsLabel:'Stars',selected:'selected',unselected:'not selected',lineOk:'Line drawn',lineBad:'Those stars are not connected',pick:'Choose a star',
+copyText:'✨ I drew 6 winter constellations and 2 asterisms! ★{s}/24 · {t} · Look for Orion on the solstice night · play.mesisi.net'}
+};
+const T=TX[L];
+const fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]);
+document.title=T.appTitle;
+document.getElementById('c').setAttribute('aria-label',T.canvasLabel);
+document.getElementById('stars').setAttribute('aria-label',T.starsLabel);
+
+// ---- sky data: id,ko,en,RA(h),Dec,mag
+const SD=[
+['bet','베텔게우스','Betelgeuse',5.919,7.41,0.5],['rig','리겔','Rigel',5.242,-8.20,0.13],['bel','벨라트릭스','Bellatrix',5.419,6.35,1.64],['sai','사이프','Saiph',5.796,-9.67,2.06],
+['alnk','알니탁','Alnitak',5.679,-1.94,1.77],['alnm','알닐람','Alnilam',5.604,-1.20,1.69],['mint','민타카','Mintaka',5.533,-0.30,2.23],['meis','메이사','Meissa',5.585,9.93,3.39],
+['sir','시리우스','Sirius',6.752,-16.72,-1.46],['mirz','미르잠','Mirzam',6.378,-17.96,1.98],['adh','아다라','Adhara',6.977,-28.97,1.50],['wez','웨젠','Wezen',7.140,-26.39,1.83],['alud','알루드라','Aludra',7.402,-29.30,2.45],
+['pro','프로키온','Procyon',7.655,5.22,0.34],['gom','고메이사','Gomeisa',7.453,8.29,2.89],['cas','카스토르','Castor',7.577,31.89,1.58],['pol','폴룩스','Pollux',7.755,28.03,1.14],
+['alh','알헤나','Alhena',6.629,16.40,1.92],['meb','메부타','Mebsuta',6.732,25.13,3.06],['tej','테자트','Tejat',6.383,22.51,2.87],['was','와사트','Wasat',7.335,21.98,3.53],
+['ald','알데바란','Aldebaran',4.599,16.51,0.86],['eln','엘나트','Elnath',5.438,28.61,1.65],['zta','황소자리 제타','Zeta Tauri',5.627,21.14,3.0],['eta','아인','Ain',4.477,19.18,3.53],
+['gta','황소자리 감마','Gamma Tauri',4.330,15.63,3.65],['dta','황소자리 델타','Delta Tauri',4.382,17.54,3.76],['ple','플레이아데스(좀생이별)','Pleiades',3.790,24.11,2.87],
+['cap','카펠라','Capella',5.278,46.00,0.08],['menk','멘칼리난','Menkalinan',5.992,44.95,1.90],['tau','마차부자리 세타','Theta Aurigae',5.995,37.21,2.60],['iau','하살레','Hassaleh',4.950,33.17,2.69]];
+const C10=Math.cos(10*Math.PI/180);
+const P={};
+for(const [id,ko,en,ra,dec,mag] of SD){const x=-(ra*15-90)*C10,y=-dec;P[id]={id,name:L==='ko'?ko:en,x,y,bx:x,by:y,mag}}
+const TINT={bet:'#ffb38a',rig:'#bcd4ff',ald:'#ffc79a',cap:'#fff1b8'};
+const pl=s=>s.split(',').map(p=>p.split('-'));
+const ST=[
+{ko:'오리온자리',en:'Orion',lines:pl('bet-meis,meis-bel,bet-alnk,bel-mint,alnk-alnm,alnm-mint,alnk-sai,mint-rig'),dis:[],
+ fk:'왼쪽 위 붉은 별 베텔게우스는 늙은 초거성, 오른쪽 아래 푸른 별 리겔은 젊고 뜨거운 별이에요. 색이 다른 건 표면 온도가 달라서예요.',fe:'The red star Betelgeuse is an old supergiant, and the blue-white Rigel is a hotter one. Their colors show their surface temperatures.',
+ tk:'12월 밤 9시쯤 동남쪽에 나란히 선 세 별(허리띠)을 먼저 찾으세요.',te:'Around 9 p.m. in December, look southeast for three stars in a row: the belt.'},
+{ko:'큰개자리',en:'Canis Major',lines:pl('sir-mirz,sir-wez,wez-adh,wez-alud'),dis:['rig','sai'],
+ fk:'시리우스는 밤하늘에서 가장 밝은 별이에요. 지구에서 약 8.6광년 떨어져 있어요.',fe:'Sirius is the brightest star in the night sky, about 8.6 light-years away.',
+ tk:'오리온의 허리띠를 왼쪽 아래로 쭉 이으면 시리우스가 나와요.',te:"Follow Orion's belt down to the left and you reach Sirius."},
+{ko:'작은개자리',en:'Canis Minor',lines:pl('pro-gom'),dis:['alh','was'],
+ fk:'별 두 개뿐인 작은 별자리지만 프로키온은 약 11광년으로 아주 가까운 별이에요.',fe:'Only two bright stars, but Procyon is a close neighbor at about 11 light-years.',
+ tk:'시리우스와 베텔게우스의 왼쪽, 같은 높이쯤에서 밝은 별을 찾으세요.',te:'Look left of Betelgeuse and Sirius for a lone bright star.'},
+{ko:'겨울철 대삼각형',en:'Winter Triangle',ast:1,lines:pl('bet-sir,sir-pro,pro-bet'),dis:['rig','alh','mirz'],
+ fk:'베텔게우스, 시리우스, 프로키온이 만드는 거의 정삼각형이에요. 별자리가 아니라 별을 찾는 길잡이예요.',fe:'Betelgeuse, Sirius and Procyon form a near-equilateral triangle. It is a signpost, not a constellation.',
+ tk:'도시에서도 보일 만큼 밝아서 겨울 별 찾기의 출발점이에요.',te:'Bright enough to see from a city, so it is the best place to start.'},
+{ko:'황소자리',en:'Taurus',lines:pl('gta-ald,gta-dta,dta-eta,eta-eln,ald-zta'),dis:['bel','meis'],pleiades:1,
+ fk:'붉은 알데바란은 황소의 눈이에요. 근처 좀생이별은 옛날부터 농사 시기를 점치던 별무리예요.',fe:"Orange Aldebaran is the bull's eye. The nearby Pleiades cluster has been watched for ages to mark the seasons.",
+ tk:'오리온의 허리띠를 오른쪽 위로 이으면 알데바란이 나와요.',te:"Follow Orion's belt up to the right to reach Aldebaran."},
+{ko:'쌍둥이자리',en:'Gemini',lines:pl('cas-pol,cas-meb,meb-tej,pol-was,was-alh'),dis:['pro','eln'],
+ fk:'쌍둥이의 두 머리 카스토르와 폴룩스. 이름은 형제지만 사실 거리도 색도 달라요.',fe:'Castor and Pollux are the twins\' heads, though they differ in distance and color.',
+ tk:'오리온의 리겔에서 베텔게우스를 지나 쭉 올라가면 두 별이 나란히 있어요.',te:'Draw a line from Rigel through Betelgeuse and keep going to find the pair.'},
+{ko:'마차부자리',en:'Auriga',lines:pl('cap-menk,menk-tau,tau-eln,eln-iau,iau-cap'),dis:['ald','cas'],
+ fk:'카펠라는 겨울 별 중 시리우스 다음으로 밝아 보이는 별 중 하나예요. 엘나트는 황소자리 별이지만 마차부 오각형의 한 꼭짓점도 돼요.',fe:"Capella is one of the brightest winter stars. Elnath belongs to Taurus but also closes Auriga's pentagon.",
+ tk:'밤 9시쯤 머리 위 가까이 높이 뜬 노란 별을 찾으세요.',te:'Around 9 p.m. look high overhead for a bright yellowish star.'},
+{ko:'겨울철 대육각형',en:'Winter Hexagon',ast:1,lines:pl('rig-ald,ald-cap,cap-pol,pol-pro,pro-sir,sir-rig'),dis:['bet','cas','eln'],
+ fk:'밝은 별 여섯 개를 이으면 하늘에 커다란 육각형이 생겨요. 이 안에 오늘 이은 별자리가 대부분 들어 있어요.',fe:"Six bright stars make a huge hexagon that holds most of tonight's constellations.",
+ tk:'2026년 동지(12/22) 밤, 자정 무렵 남쪽 하늘 높이 이 육각형이 떠 있어요.',te:'On the 2026 solstice night (Dec 22), it stands high in the south around midnight.'}];
+const key=(a,b)=>a<b?a+'|'+b:b+'|'+a;
+for(const s of ST){
+  s.keys=new Set(s.lines.map(l=>key(l[0],l[1])));
+  s.ids=[...new Set([...s.lines.flat(),...s.dis])];
+  const u=[...new Set(s.lines.flat())];
+  s.cx=u.reduce((a,i)=>a+P[i].x,0)/u.length;s.cy=u.reduce((a,i)=>a+P[i].y,0)/u.length;
+  s.name=L==='ko'?s.ko:s.en;s.fact=L==='ko'?s.fk:s.fe;s.tn=L==='ko'?s.tk:s.te;
+  s.col=s.ast?'#8fe3ff':'#ffd56a';
+  s.fitIds=s.pleiades?[...s.ids,'ple']:s.ids;
+}
+const ALL=SD.map(s=>s[0]);
+// pleiades cluster offsets (px, within 6px)
+const PLO=[[-2.5,-1],[0,-2.5],[2.5,-0.5],[1,1.8],[-1.5,2],[3,2.5]];
+
+// ---- background stars
+function mulberry32(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const BG=[];
+{
+  const r=mulberry32(20261222);
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  for(const i of ALL){x0=Math.min(x0,P[i].x);x1=Math.max(x1,P[i].x);y0=Math.min(y0,P[i].y);y1=Math.max(y1,P[i].y)}
+  const bw=x1-x0,bh=y1-y0;x0-=bw*.2;x1+=bw*.2;y0-=bh*.2;y1+=bh*.2;
+  const MIN=3.3; // world deg ~ 18 logical px at the finale zoom
+  while(BG.length<120){
+    const x=x0+r()*(x1-x0),y=y0+r()*(y1-y0),mag=3.8+r()*1.7,al=.25+r()*.35,ph=r()*6.283,per=2000+r()*3000;
+    if(ALL.some(i=>Math.hypot(P[i].x-x,P[i].y-y)<MIN))continue;
+    BG.push({x,y,mag,al,ph,per});
+  }
+}
+
+// ---- state
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const rmq=matchMedia('(prefers-reduced-motion: reduce)');let RM=rmq.matches;
+rmq.addEventListener&&rmq.addEventListener('change',e=>{RM=e.matches;if(RM){shoot=null;shootDone=true;shake=0;if(anim){cam={...anim.to};anim=null}}});
+let w=0,h=0,dpr=1,sc=1,sky=null;
+let scene='start',si=0,run=null,tm=0,introT=0,clearT=0,cardShown=false,shake=0;
+let cam={x:0,y:0,k:1,oy:0},anim=null;
+let drag=null,sel=null,ptr={x:0,y:0},activePid=null,kf=null,kbd=false;
+let flashes=[],parts=[],hintLine=null,plT=0,plPos=null,shoot=null,shootDone=false,demo=false;
+let snd=false,ac=null;
+function ls(k,v){try{if(v===undefined)return localStorage.getItem('wsc:'+k);localStorage.setItem('wsc:'+k,v)}catch(e){return null}}
+try{snd=ls('sound')==='1'}catch(e){}
+function getBest(){try{const b=JSON.parse(ls('best'));if(b&&typeof b.stars==='number'&&typeof b.ms==='number')return b}catch(e){}return null}
+const mmss=ms=>{const s=Math.round(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+
+function newRun(){run={ms:0,stars:[],pl:false,sts:ST.map(()=>({drawn:[],mist:0,hints:0,idle:0}))}}
+newRun();
+const cur=()=>run.sts[si];
+
+// ---- audio
+function unlock(){if(!snd)return;if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==='suspended')ac.resume()}
+function tone(f,d,type,g,delay){
+  if(!snd||!ac)return;const t=ac.currentTime+(delay||0),o=ac.createOscillator(),n=ac.createGain();
+  o.type=type;o.frequency.value=f;n.gain.setValueAtTime(g,t);n.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(n);n.connect(ac.destination);o.start(t);o.stop(t+d+.03);
+}
+const PENT=[523.25,587.33,659.25,783.99,880,1046.5];
+function pad(){if(!snd||!ac)return;const t=ac.currentTime;for(const f of[261.6,264.4]){const o=ac.createOscillator(),n=ac.createGain();o.type='sine';o.frequency.value=f;n.gain.setValueAtTime(.0001,t);n.gain.linearRampToValueAtTime(.05,t+.4);n.gain.exponentialRampToValueAtTime(.0001,t+1.2);o.connect(n);n.connect(ac.destination);o.start(t);o.stop(t+1.25)}}
+function muteUI(){const b=$('mute');b.textContent=snd?'🔊':'🔇';const s=snd?T.soundOff:T.soundOn;b.title=s;b.setAttribute('aria-label',s)}
+$('mute').onclick=e=>{toggleSnd();if(e.detail)$('mute').blur()};
+function toggleSnd(){snd=!snd;ls('sound',snd?'1':'0');if(snd)unlock();muteUI()}
+muteUI();
+
+// ---- layout / camera
+function areaBottom(){return Math.min(h*.88,h-80)}
+function fit(ids,top,bottom){
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  for(const i of ids){const p=P[i];x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y)}
+  const bw=Math.max(x1-x0,6),bh=Math.max(y1-y0,6);
+  return{x:(x0+x1)/2,y:(y0+y1)/2,k:Math.min(w/(bw*1.24),Math.max(40,bottom-top)/(bh*1.24)),oy:(top+bottom)/2};
+}
+function target(){
+  if(scene==='start')return fit(ALL,10,areaBottom());
+  if(scene==='clear')return fit(ST[si].fitIds,60,h*.45);
+  if(scene==='finale'){const f=$('fin'),fh=f.hidden?h*.4:f.offsetHeight;return fit(ALL,40,Math.max(110,h-fh-24))} // sky stays above the measured card
+  return fit(ST[si].fitIds,64,areaBottom());
+}
+function goCam(instant){
+  const t=target();
+  if(instant||RM){cam={...t};anim=null}else anim={from:{...cam},to:t,t:0,dur:800};
+}
+function resize(){
+  w=innerWidth;h=innerHeight;dpr=Math.min(2,devicePixelRatio||1);
+  cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);sc=Math.min(w,h)/400;
+  sky=ctx.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#0b1026');sky.addColorStop(.55,'#1b2550');sky.addColorStop(1,'#2a3566');
+  drag=null;sel=null;activePid=null;closePick();goCam(true);
+}
+addEventListener('resize',resize);
+
+const S=p=>[w/2+(p.x-cam.x)*cam.k,cam.oy+(p.y-cam.y)*cam.k];
+const rad=m=>Math.max(1.6,Math.min(6,4.5-.9*m))*sc;
+const hitR=()=>Math.max(22,.04*Math.min(w,h));
+
+// ---- HUD / cards
+function hud(){
+  const st=cur(),S_=ST[si];
+  $('hud').textContent=`${si+1}/8 · ${fmt(T.linesLeft,{n:S_.lines.length-st.drawn.length})} · ${fmt(T.mistakes,{n:st.mist})}`;
+}
+function setUI(){
+  $('hud').hidden=!(scene==='intro'||scene==='play'||scene==='clear');
+  $('hint').hidden=!(scene==='intro'||scene==='play');
+  $('hint').disabled=scene!=='play';
+  $('start').hidden=scene!=='start';
+  if(scene!=='play')closePick();
+}
+$('hint').textContent='💡 '+T.hint;
+function showCard(el){el.hidden=false;el.offsetHeight;requestAnimationFrame(()=>el.classList.add('show'))}
+function hideCard(el){el.classList.remove('show');el.hidden=true}
+function startCard(){
+  const b=getBest();
+  $('start').innerHTML=`<h1>${T.appTitle}</h1><p class="sub">${T.startSub}</p><p class="dim">${T.startHow}</p><div class="row"><button class="btn" id="go" type="button" style="min-height:56px;font-size:20px;padding:0 40px">${T.startBtn}</button></div><p class="dim">${b?fmt(T.bestLine,{s:b.stars,t:mmss(b.ms)}):T.noBest}</p>`;
+  $('go').onclick=()=>{unlock();begin()};
+}
+
+// ---- flow
+function begin(){newRun();flashes=[];parts=[];hintLine=null;shoot=null;shootDone=false;demo=false;hideCard($('clear'));hideCard($('fin'));stage(0)}
+function stage(i){
+  si=i;scene='intro';introT=0;cardShown=false;sel=null;drag=null;kf=null;hintLine=null;flashes=[];
+  hideCard($('clear'));
+  const b=$('banner');b.hidden=false;b.style.animation='none';b.offsetHeight;b.style.animation='';
+  b.firstChild.textContent=`${i+1}/8 ${ST[i].name}`;b.lastChild.textContent=fmt(T.goal,{n:ST[i].lines.length});
+  $('hint').classList.remove('pulse');
+  setUI();hud();goCam(false);
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+}
+function commit(a,b){
+  if(a===b||scene!=='play')return;
+  const st=cur(),s=ST[si],k=key(a,b);
+  if(st.drawn.some(l=>l.key===k))return;
+  if(s.keys.has(k)){
+    st.drawn.push({key:k,a,b,t:0});st.idle=0;$('hint').classList.remove('pulse');
+    if(hintLine&&key(hintLine.a,hintLine.b)===k)hintLine=null;
+    say(T.lineOk);tone(PENT[(st.drawn.length-1)%6],.22,'sine',.08);
+    const[x,y]=S(P[b]);burst(x,y);
+    if(st.drawn.length===s.lines.length)clearStage();
+  }else{
+    say(T.lineBad);st.mist++;flashes.push({a,b,t:0});if(!RM)shake=120;tone(160,.12,'triangle',.05);
+  }
+  hud();
+}
+function burst(x,y){if(RM)return;for(let i=0;i<12;i++){const an=Math.random()*6.283,sp=40+Math.random()*100;parts.push({x,y,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp,t:0,life:500+Math.random()*300})}}
+function clearStage(){
+  const st=cur();
+  const n=(st.hints===0&&st.mist<=1)?3:(st.hints<=1&&st.mist<=3)?2:1;
+  run.stars[si]=n;scene='clear';clearT=0;cardShown=false;hintLine=null;sel=null;drag=null;
+  tone(523.25,.25,'sine',.08);tone(659.25,.25,'sine',.08,.09);tone(783.99,.3,'sine',.08,.18);
+  setUI();goCam(false);
+}
+function showClearCard(){
+  cardShown=true;const s=ST[si],n=run.stars[si];
+  $('clear').innerHTML=`<h2>${s.name} ${T.stageClear}</h2><div class="stars" aria-label="${n}/3">${'★'.repeat(n)+'☆'.repeat(3-n)}</div><p>${s.fact}</p>${s.ast?`<p class="dim">${T.asterism}</p>`:''}<div class="tn"><b>${T.tonight}</b><br>${s.tn}</div><div class="row"><button class="btn" id="nx" type="button">${T.next}</button></div>`;
+  $('nx').onclick=next;showCard($('clear'));
+  setTimeout(()=>{const b=$('nx');b&&b.focus({preventScroll:true})},60);
+}
+function next(){if(scene!=='clear'||!cardShown)return;if(si<7)stage(si+1);else finale()}
+function finale(){
+  scene='finale';hideCard($('clear'));$('banner').hidden=true;sel=null;kf=null;
+  const tot=run.stars.reduce((a,b)=>a+b,0),ms=run.ms;
+  const prev=getBest();let isNew=!prev||tot>prev.stars||(tot===prev.stars&&ms<prev.ms);
+  if(!demo){
+    if(isNew)ls('best',JSON.stringify({stars:tot,ms}));
+    ls('runs',String((parseInt(ls('runs'),10)||0)+1));
+  }else isNew=false;
+  const bst=demo?prev:getBest();
+  $('fin').innerHTML=`<h2>${T.finaleTitle}</h2><p class="dim">${T.finaleSub}</p><div class="stars">★ ${tot}/24</div><p><b>${fmt(T.totalStars,{s:tot})}</b> · ${fmt(T.totalTime,{t:mmss(ms)})}${isNew?` <span class="badge">${T.newBest}</span>`:''}</p>${bst&&!isNew?`<p class="dim">${fmt(T.bestLine,{s:bst.stars,t:mmss(bst.ms)})}</p>`:''}<p class="dim">${T.note}</p><div class="row"><button class="btn" id="ag" type="button">${T.again}</button><button class="btn alt" id="cp" type="button">${T.copy}</button></div>`;
+  $('ag').onclick=()=>{unlock();begin()};
+  $('cp').onclick=()=>copy(fmt(T.copyText,{s:tot,t:mmss(ms)}));
+  setUI();showCard($('fin'));goCam(false);
+  pad();
+  shoot=null;shootDone=false;setTimeout(()=>{$('ag')&&$('ag').focus({preventScroll:true})},60);
+}
+function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1600)}
+function copy(txt){
+  const fb=()=>{try{const a=document.createElement('textarea');a.value=txt;a.style.cssText='position:fixed;left:-999px;top:0;opacity:0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();toast(ok?T.copied:T.copyFail)}catch(e){toast(T.copyFail)}};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast(T.copied),fb)}else fb()}catch(e){fb()}
+}
+function hint(){
+  if(scene!=='play')return;const st=cur(),s=ST[si];
+  const miss=s.lines.filter(l=>!st.drawn.some(d=>d.key===key(l[0],l[1])));
+  if(!miss.length)return;const l=miss[Math.floor(Math.random()*miss.length)];
+  hintLine={a:l[0],b:l[1],t:0};st.hints++;st.idle=0;$('hint').classList.remove('pulse');hud();
+}
+$('hint').onclick=e=>{unlock();hint();if(e.detail)$('hint').blur()};
+
+// ---- input
+// stars within touch range of (x,y), nearest first; ex = star to ignore
+function cands(x,y,ex){
+  if(scene!=='play')return[];const r=[];
+  for(const id of ST[si].ids){if(id===ex)continue;const[sx,sy]=S(P[id]),d=Math.hypot(sx-x,sy-y);if(d<=hitR())r.push([d,id])}
+  return r.sort((a,b)=>a[0]-b[0]);
+}
+const starAt=(x,y,ex)=>{const c=cands(x,y,ex);return c.length?c[0][1]:null};
+// crowded touch: >1 star in range and the press is not on the nearest star's dot -> let the player choose
+function crowd(x,y){const c=cands(x,y);return c.length>1&&c[0][0]>Math.max(8,rad(P[c[0][1]].mag)+4)?c.slice(0,3).map(q=>q[1]):null}
+function closePick(){$('pick').hidden=true}
+function openPick(x,y,c){
+  const p=$('pick');p.textContent='';p.setAttribute('aria-label',T.pick);
+  for(const id of c){const b=document.createElement('button');b.type='button';b.className='btn alt';b.textContent=P[id].name;
+    b.onclick=()=>{closePick();if(scene==='play')tapStar(id,sel)};p.appendChild(b)}
+  p.hidden=false;const pw=p.offsetWidth,ph=p.offsetHeight;
+  p.style.left=Math.max(6,Math.min(w-pw-6,x-pw/2))+'px';
+  p.style.top=Math.max(6,Math.min(h-ph-6,y-ph-30<6?y+30:y-ph-30))+'px';
+}
+function tapStar(id,base){
+  if(base&&base!==id){sel=null;commit(base,id)}
+  else if(base===id){sel=null;starSay(id)}
+  else{sel=id;starSay(id)}
+}
+cv.addEventListener('pointerdown',e=>{
+  unlock();e.preventDefault();kbd=false;
+  if(activePid!==null)return;
+  closePick();
+  ptr={x:e.clientX,y:e.clientY};
+  if(scene!=='play')return;
+  const id=starAt(ptr.x,ptr.y);
+  activePid=e.pointerId;try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  if(id){
+    // nothing changes on press: a tap or drag commits on release (pointerup); cancel leaves state untouched
+    drag={id,base:sel,x:ptr.x,y:ptr.y,c:crowd(ptr.x,ptr.y)};
+  }else{
+    sel=null;drag=null;
+    if(ST[si].pleiades&&!run.pl){
+      const[px,py]=S(P.ple);if(Math.hypot(px-ptr.x,py-ptr.y)<Math.max(18,hitR()*.8)){run.pl=true;plT=2500;plPos=[px,py];burst(px,py)}
+    }
+  }
+});
+cv.addEventListener('pointermove',e=>{if(e.pointerId!==activePid&&activePid!==null)return;ptr={x:e.clientX,y:e.clientY}});
+cv.addEventListener('pointerup',e=>{
+  if(e.pointerId!==activePid)return;activePid=null;ptr={x:e.clientX,y:e.clientY};
+  if(!drag)return;const d=drag;drag=null;
+  if(Math.hypot(ptr.x-d.x,ptr.y-d.y)<=12){ // tap
+    if(d.c)openPick(ptr.x,ptr.y,d.c);else tapStar(d.id,d.base);
+    return;
+  }
+  const id=starAt(ptr.x,ptr.y,d.id); // drag: end star is any star but the start
+  sel=null;if(id)commit(d.id,id);
+});
+cv.addEventListener('pointercancel',e=>{if(e.pointerId===activePid){activePid=null;drag=null}});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+
+function say(s){$('live').textContent=s}
+function starSay(id){say(`${P[id].name}, ${sel===id?T.selected:T.unselected}`)}
+function activate(id){
+  kf=id;
+  if(!sel)sel=id;else if(sel===id)sel=null;else{const a=sel;sel=null;commit(a,id);return}
+  starSay(id);
+}
+function nav(dx,dy){
+  const ids=ST[si].ids;
+  if(!kf||!ids.includes(kf)){kf=ids[0];starSay(kf);return}
+  const[x0,y0]=S(P[kf]);let best=null,bs=1e9;
+  for(const id of ids){if(id===kf)continue;const[x,y]=S(P[id]),vx=x-x0,vy=y-y0,d=Math.hypot(vx,vy),dot=(vx*dx+vy*dy)/d;if(dot<.35)continue;const s=d*(2-dot);if(s<bs){bs=s;best=id}}
+  if(best)kf=best;
+  starSay(kf);
+}
+// screen-reader mirror of the canvas stars: one button per star with pressed state
+let srStage=-1,srKey='';
+function syncSR(){
+  const box=$('stars');box.hidden=scene!=='play';
+  if(srStage!==si){
+    srStage=si;box.textContent='';
+    for(const id of ST[si].ids){const b=document.createElement('button');b.type='button';b.tabIndex=-1;b.dataset.id=id;b.textContent=P[id].name;b.onclick=()=>{kbd=true;activate(id)};box.appendChild(b)}
+  }
+  for(const b of box.children)b.setAttribute('aria-pressed',String(sel===b.dataset.id));
+}
+addEventListener('keydown',e=>{
+  unlock();const k=e.key;
+  const onBtn=document.activeElement&&document.activeElement.tagName==='BUTTON';
+  if(k==='m'||k==='M'){toggleSnd();return}
+  if(scene==='play'){
+    let used=true;
+    if(k==='h'||k==='H')hint();
+    else if(k==='Escape'){sel=null;drag=null;closePick()}
+    else if(k==='ArrowLeft'){kbd=true;nav(-1,0)}else if(k==='ArrowRight'){kbd=true;nav(1,0)}
+    else if(k==='ArrowUp'){kbd=true;nav(0,-1)}else if(k==='ArrowDown'){kbd=true;nav(0,1)}
+    else if((k==='Enter'||k===' ')&&!onBtn){
+      if(!e.repeat){kbd=true;if(!kf)kf=ST[si].ids[0];activate(kf)}
+    }else used=false;
+    if(used)e.preventDefault();
+  }else if(scene==='clear'){
+    if(k==='n'||k==='N'||((k==='Enter'||k===' ')&&!onBtn)){e.preventDefault();if(!e.repeat)next()}
+  }else if(scene==='finale'){
+    if(k==='r'||k==='R')begin();
+  }else if(scene==='start'){
+    if((k==='Enter'||k===' ')&&!onBtn){e.preventDefault();begin()}
+  }
+});
+
+// ---- update / draw
+function update(dt,rd){ // dt: capped animation step; rd: real visible time since last frame (scorekeeping)
+  tm+=dt;
+  const k=scene+si+'|'+sel;if(k!==srKey){srKey=k;syncSR()}
+  if(anim){anim.t+=dt;const e0=Math.min(1,anim.t/anim.dur),e=e0*e0*(3-2*e0),f=anim.from,t=anim.to;
+    cam={x:f.x+(t.x-f.x)*e,y:f.y+(t.y-f.y)*e,oy:f.oy+(t.oy-f.oy)*e,k:f.k*Math.pow(t.k/f.k,e)};if(e0>=1)anim=null}
+  if(scene==='intro'){introT+=dt;if(introT>=800){scene='play';$('banner').hidden=true;setUI()}}
+  if(scene==='play'){
+    run.ms+=rd;const st=cur();st.idle+=dt;
+    if(st.idle>15000&&!hintLine)$('hint').classList.add('pulse');
+  }
+  if(scene==='clear'){clearT+=dt;if(clearT>=600&&!cardShown)showClearCard()}
+  if(scene==='play'||scene==='clear')for(const l of cur().drawn)l.t+=dt;
+  for(const f of flashes)f.t+=dt;flashes=flashes.filter(f=>f.t<350);
+  for(const p of parts){p.t+=dt;p.x+=p.vx*dt/1000;p.y+=p.vy*dt/1000}parts=parts.filter(p=>p.t<p.life);
+  if(hintLine){hintLine.t+=dt;if(hintLine.t>2500)hintLine=null}
+  if(plT>0)plT-=dt;
+  if(shake>0)shake-=dt;
+  if(scene==='finale'&&!RM){
+    if(!shoot&&!shootDone&&tm>0){shoot={t:-900}}
+    if(shoot){shoot.t+=dt;if(shoot.t>3000){shoot=null;shootDone=true}}
+  }
+}
+function label(txt,x,y,size,col,align,al){
+  ctx.font=`600 ${size}px system-ui,"Noto Sans KR","Malgun Gothic",sans-serif`;ctx.textAlign=align;ctx.globalAlpha=al;
+  ctx.lineWidth=3;ctx.lineJoin='round';ctx.strokeStyle='rgba(7,10,24,.85)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);ctx.globalAlpha=1;
+}
+function seg(a,b,p){const[x1,y1]=S(P[a]),[x2,y2]=S(P[b]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1+(x2-x1)*p,y1+(y2-y1)*p);ctx.stroke()}
+function drawLines(i,al,glow,instant){
+  const s=ST[i];ctx.strokeStyle=s.col;ctx.lineWidth=2.5*sc;ctx.lineCap='round';ctx.globalAlpha=al;
+  if(glow>0){ctx.shadowColor=s.col;ctx.shadowBlur=glow}
+  for(const l of run.sts[i].drawn)seg(l.a,l.b,(RM||instant)?1:Math.min(1,l.t/150));
+  ctx.shadowBlur=0;ctx.globalAlpha=1;
+}
+function draw(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
+  ctx.save();
+  if(shake>0){ctx.translate((Math.random()-.5)*6,(Math.random()-.5)*6)}
+  const amp=RM?.17:.35;
+  let boost=0;if(scene==='clear')boost=Math.sin(Math.PI*Math.min(1,clearT/1000))*.5;
+  const sb=scene==='clear'?fitBox(ST[si].fitIds):null;
+  const SP=ALL.map(i=>S(P[i]));
+  for(const b of BG){
+    const[x,y]=S(b);if(x<-10||x>w+10||y<-10||y>h+10)continue;
+    // keep 18 px of clearance from every star in screen space (fade in over the next 6 px)
+    let m=1;for(const q of SP){const d=Math.hypot(q[0]-x,q[1]-y);if(d<24){m=Math.min(m,Math.max(0,(d-18)/6));if(!m)break}}
+    if(!m)continue;
+    let a=b.al*(1-amp+amp*Math.sin(tm/b.per*6.283+b.ph));
+    if(sb&&b.x>sb[0]-6&&b.x<sb[1]+6&&b.y>sb[2]-6&&b.y<sb[3]+6)a=Math.min(1,a+boost);
+    ctx.globalAlpha=Math.max(0,a)*m;ctx.fillStyle='#f4f6ff';ctx.beginPath();ctx.arc(x,y,rad(b.mag),0,6.283);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  // hill
+  ctx.fillStyle='#070a18';ctx.beginPath();ctx.moveTo(0,h);
+  for(let x=0;x<=w+8;x+=8)ctx.lineTo(x,h*.93-Math.sin(x/w*3+1)*h*.02-Math.sin(x/w*9)*h*.008);
+  ctx.lineTo(w,h);ctx.closePath();ctx.fill();
+  const inStage=scene==='intro'||scene==='play'||scene==='clear';
+  const cs=inStage?ST[si]:null;
+  // previous lines
+  if(scene==='finale'){for(let i=0;i<8;i++)drawLines(i,.9,RM?0:8,true)}
+  else if(inStage){for(let i=0;i<8;i++)if(i!==si&&run.sts[i].drawn.length===ST[i].lines.length)drawLines(i,.25,0,true)}
+  if(inStage){
+    let g=0;if(scene==='clear')g=14*Math.min(1,clearT/600);
+    drawLines(si,scene==='clear'?.7+.3*Math.min(1,clearT/600):1,g,false);
+  }
+  // flashes
+  for(const f of flashes){ctx.strokeStyle='#ff6b6b';ctx.lineWidth=2.5*sc;ctx.lineCap='round';ctx.globalAlpha=1-f.t/350;seg(f.a,f.b,1);ctx.globalAlpha=1}
+  // hint
+  if(hintLine){
+    ctx.strokeStyle='#ffd56a';ctx.lineWidth=2.5*sc;ctx.setLineDash([2*sc,7*sc]);ctx.lineCap='round';
+    ctx.globalAlpha=RM?.9:(.4+.6*Math.abs(Math.sin(hintLine.t/200)))*Math.min(1,(2500-hintLine.t)/500);seg(hintLine.a,hintLine.b,1);ctx.setLineDash([]);ctx.globalAlpha=1;
+  }
+  // rubber band
+  if(drag&&scene==='play'){
+    const[x,y]=S(P[drag.id]);ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2*sc;ctx.setLineDash([6*sc,5*sc]);
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(ptr.x,ptr.y);ctx.stroke();ctx.setLineDash([]);
+  }
+  // stars
+  const cur_ids=cs?new Set(cs.ids):null;
+  for(const id of ALL){
+    const p=P[id];const[x,y]=S(p);if(x<-20||x>w+20||y<-20||y>h+20)continue;
+    if(id==='ple'){
+      ctx.fillStyle='#cfe0ff';ctx.globalAlpha=(scene==='start'?.6:.9);
+      for(const o of PLO){ctx.beginPath();ctx.arc(x+o[0]*sc,y+o[1]*sc,Math.max(.9,1.1*sc),0,6.283);ctx.fill()}
+      ctx.globalAlpha=1;continue;
+    }
+    const act=cur_ids&&cur_ids.has(id),al=scene==='start'?.55:scene==='finale'?1:act?1:.4;
+    const r=rad(p.mag),col=TINT[id]||'#f4f6ff';
+    if(act){
+      const hr=r*4.5,g=ctx.createRadialGradient(x,y,0,x,y,hr);g.addColorStop(0,col+'66');g.addColorStop(1,col+'00');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,hr,0,6.283);ctx.fill();
+    }
+    ctx.globalAlpha=al;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,6.283);ctx.fill();ctx.globalAlpha=1;
+  }
+  // labels
+  const small=w<340,fs=Math.max(11,12*sc);
+  if(scene==='play'&&!small)for(const id of cs.ids){const[x,y]=S(P[id]);label(P[id].name,x>w-100?x-rad(P[id].mag)-5:x+rad(P[id].mag)+5,y+4,fs,'#dfe6ff',x>w-100?'right':'left',.9)}
+  if(scene==='clear'){
+    const f=Math.min(1,clearT/600);
+    for(const id of new Set(cs.lines.flat())){const[x,y]=S(P[id]);label(P[id].name,x>w-100?x-rad(P[id].mag)-5:x+rad(P[id].mag)+5,y+4,fs,'#dfe6ff',x>w-100?'right':'left',.85*f)}
+    const[cx,cy]=S({x:cs.cx,y:cs.cy});label(cs.name,cx,cy,Math.max(17,20*sc),cs.col,'center',f);
+    if(cs.pleiades&&run.pl){const[px,py]=S(P.ple);label(P.ple.name,px+8*sc,py+16*sc,fs,'#cfe0ff','left',f)}
+  }
+  if(scene==='finale'){
+    ST.forEach((s,i)=>{const[cx,cy]=S({x:s.cx,y:s.cy});label(s.name,cx,cy+(s.ast?(i===3?14:-6):0)*sc,Math.max(10,11.5*sc),s.col,'center',.95)});
+  }
+  if(plT>0&&plPos){label(T.pleiades,plPos[0]+10*sc,plPos[1]-10*sc,Math.max(13,14*sc),'#cfe0ff','left',Math.min(1,plT/500))}
+  // selection ring / kbd focus
+  if(scene==='play'){
+    const q=sel||drag&&drag.id;
+    if(q){const[x,y]=S(P[q]),ph=RM?0:(tm%900)/900,r=rad(P[q].mag);ctx.strokeStyle='#fff';ctx.lineWidth=2*sc;if(!RM){ctx.globalAlpha=1-ph;ctx.beginPath();ctx.arc(x,y,r+4*sc+ph*16*sc,0,6.283);ctx.stroke()}ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(x,y,r+5*sc,0,6.283);ctx.stroke();ctx.globalAlpha=1}
+    if(kbd&&kf){const[x,y]=S(P[kf]);ctx.strokeStyle='#8fe3ff';ctx.lineWidth=2*sc;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(x,y,rad(P[kf].mag)+9*sc,0,6.283);ctx.stroke();ctx.setLineDash([])}
+  }
+  // shooting star
+  if(shoot&&!RM&&shoot.t>0){
+    const p=shoot.t/3000,x=w*.05+p*w*.8,y=h*.08+p*h*.3,a=Math.sin(Math.PI*p);
+    const g=ctx.createLinearGradient(x,y,x-90*sc,y-30*sc);g.addColorStop(0,'rgba(255,255,255,'+a+')');g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.strokeStyle=g;ctx.lineWidth=2*sc;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-90*sc,y-30*sc);ctx.stroke();
+  }
+  // particles
+  for(const p of parts){ctx.globalAlpha=1-p.t/p.life;ctx.fillStyle='#ffe9a8';ctx.beginPath();ctx.arc(p.x,p.y,2*sc+1,0,6.283);ctx.fill()}
+  ctx.globalAlpha=1;ctx.restore();
+}
+function fitBox(ids){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const i of ids){const p=P[i];x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y)}return[x0,x1,y0,y1]}
+
+let last=0;
+function frame(t){
+  requestAnimationFrame(frame);
+  if(document.hidden){last=0;return}
+  const rd=last?Math.min(2000,t-last):0,dt=last?Math.min(50,rd):16;last=t;update(dt,rd);draw();
+}
+document.addEventListener('visibilitychange',()=>{last=0});
+
+// ---- boot
+startCard();resize();setUI();
+if(/demo/.test(location.hash)){
+  demo=true;newRun();
+  ST.forEach((s,i)=>{run.sts[i].drawn=s.lines.map(l=>({key:key(l[0],l[1]),a:l[0],b:l[1],t:999}))});
+  run.stars=[3,3,3,3,3,2,2,2];run.ms=168000;si=7;finale();
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "slug": "winter-star-connect",
+  "date": "2026-11-25",
+  "category": "learn",
+  "kind": "game",
+  "aspect": "9/16",
+  "ko": {
+    "tags": ["겨울별자리", "오리온자리", "겨울철대삼각형"],
+    "title": "겨울 별자리 잇기",
+    "desc": "오리온자리부터 겨울철 대육각형까지, 밤하늘의 별을 손가락으로 이어 별자리 6개와 길잡이 별 모양 2개를 완성하세요. 별마다 짧은 이야기와 오늘 밤 찾는 법이 나와요.",
+    "howto": "별에서 별로 드래그하거나 두 별을 차례로 눌러 선을 이으세요. 맞는 선은 남고(별자리는 금색, 길잡이 별 모양은 하늘색) 틀린 선은 사라져요. 막히면 '힌트'를 누르세요. 힌트 없이 실수를 1번 이하로 하면 별 3개를 받아요.",
+    "about": "별의 위치는 실제 적경·적위를 단순하게 투영해 그렸고, 거리와 밝기는 대략적인 값이에요. 2026년 동지는 12월 22일, 1년 중 밤이 가장 긴 날이에요. 그날 밤 남쪽 하늘에서 직접 찾아보세요."
+  },
+  "en": {
+    "tags": ["constellations", "winter-sky", "astronomy"],
+    "title": "Connect the Winter Stars",
+    "desc": "Connect stars to draw 6 winter constellations and 2 asterisms, from Orion to the Winter Hexagon, each with a fact and a tip to find it tonight.",
+    "howto": "Drag from one star to another, or tap two stars in turn, to draw a line. Right lines stay (gold for constellations, cyan for asterisms) and wrong ones fade away. Stuck? Tap Hint. Finish a stage with no hint and at most 1 mistake to earn 3 stars.",
+    "about": "Star positions come from real coordinates with a simple projection. Distances and brightness are approximate. The 2026 winter solstice is December 22, the longest night of the year, so it is a good night to look south."
+  }
+}
