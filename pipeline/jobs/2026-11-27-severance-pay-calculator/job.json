@@ -1,0 +1,42 @@
+{
+  "id": "2026-11-27-severance-pay-calculator",
+  "site": "play",
+  "slug": "severance-pay-calculator",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-26T19:06:14.727Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-26T19:06:56.873Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-26T19:06:57.508Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-26T19:08:56.536Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
