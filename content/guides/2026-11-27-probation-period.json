@@ -1,0 +1,87 @@
+{
+  "id": "probationPeriod",
+  "slug": "probation-period",
+  "date": "2026-11-27",
+  "sources": [
+    [
+      "비즈폼: 수습기간 급여 최저임금의 90%? 법 기준과 예외 조건",
+      "https://www.bizforms.co.kr/guide365/192"
+    ],
+    [
+      "비즈폼: 수습 기간 급여 지급 기준, 삭감 가능 범위와 사례 구분",
+      "https://www.bizforms.co.kr/guide365/259"
+    ],
+    [
+      "비즈폼: 근로계약서 수습기간에 임금을 깎을 수 있나",
+      "https://www.bizforms.co.kr/guide/list/labor/labor024.asp"
+    ],
+    [
+      "시프티: 수습기간 급여 감액, 최저임금 지급 기준과 유의사항 Q&A",
+      "https://shiftee.io/ko/blog/article/probation-period-salary-reduction-faq-2025"
+    ],
+    [
+      "뉴시스: 수습이라고 3개월 간은 최저임금도 못 준다네요 (직장인 완생)",
+      "https://www.newsis.com/view/NISX20210416_0001409756"
+    ],
+    [
+      "로톡: 수습기간 중 해고 통보, 본채용 거부 부당해고로 다툴 수 있나",
+      "https://www.lawtalk.co.kr/posts/165019"
+    ],
+    [
+      "수습기간이 끝났다며 본채용을 거부당했을 때",
+      "https://korea.legal/wiki/수습기간이-끝났다며-본채용을-거부당했을-때/"
+    ],
+    [
+      "법률신문: 명확한 사유 안 밝히면 부당해고",
+      "https://www.lawtimes.co.kr/news/206353"
+    ],
+    [
+      "고용노동부: 2027년 최저임금 시간급 10,700원 (택스넷 보도)",
+      "https://www.taxnet.co.kr/contents/taxnetpost/post-detail?id=4905"
+    ]
+  ],
+  "ko": {
+    "nav": "수습기간 급여와 해고",
+    "title": "수습기간 급여는 최저임금 90%까지만? 수습 해고와 본채용 거부 정리",
+    "desc": "수습 3개월 동안 최저임금의 90%를 줄 수 있는 조건은 정해져 있습니다. 2026년 시급 9,288원이 하한이고, 본채용 거부도 정당한 이유가 필요한 해고입니다. 확인할 점을 정리했습니다.",
+    "h1": "수습기간 급여와 해고",
+    "lead": "수습 기간에는 최저임금의 90%까지만 줄 수 있습니다. 하지만 그렇게 할 수 있는 경우는 정해져 있습니다. 근로계약 기간이 1년 이상이고, 수습을 시작한 날부터 3개월 이내이며, 단순노무직이 아니어야 합니다. 수습이라는 이유로 본채용을 거부하는 것도 법적으로는 해고라서 정당한 이유가 필요합니다.",
+    "body": "<h2>수습 중 급여를 깎을 수 있는 조건</h2><p>다음 <strong>세 가지를 모두</strong> 충족할 때만 최저임금의 90%를 줄 수 있습니다(최저임금법 제5조 제2항, 같은 법 시행령 제3조).</p><ol><li>1년 이상 기간을 정한 근로계약</li><li>수습을 시작한 날부터 3개월 이내</li><li>단순노무업무로 고시된 직종이 아닐 것</li></ol><div class=\"table-scroll\"><table><thead><tr><th>연도</th><th>최저시급</th><th>수습 감액 시급 (90%)</th></tr></thead><tbody><tr><td>2026년</td><td>10,320원</td><td>9,288원</td></tr><tr><td>2027년</td><td>10,700원</td><td>9,630원</td></tr></tbody></table></div><p>수습기간을 3개월보다 길게 잡아도 감액은 3개월까지만 허용됩니다. 4개월째부터는 최저임금 전액을 줘야 합니다. 이 조건을 하나라도 채우지 못하면 수습이라는 이유로 임금을 깎을 수 없습니다. 내 시급이 최저임금 이상인지는 <a href=\"{{weekly}}\">주휴수당·시급 계산기</a>로 확인하세요. 최저임금은 <a href=\"{{minwage}}\">2027년 최저임금 정리</a>에도 있습니다.</p><h2>본채용 거부도 해고입니다</h2><p>수습 근로자를 본채용하지 않는 것도 법적으로는 해고에 해당합니다. 그래서 해고와 마찬가지로 정당한 이유가 있어야 하고, 법원은 수습 기간의 평가가 정당한 이유가 되는 폭을 일반 해고보다는 넓게 인정하는 편입니다. 다만 회사가 어떤 사유로 거부하는지 밝히지 않고 평가 결과도 알려 주지 않았다면, 부당해고로 판단한 하급심 판결이 있습니다.</p><h2>해고예고는 달라집니다</h2><p>일한 기간이 3개월 미만이면 회사는 30일 전 해고예고를 하지 않아도 됩니다(근로기준법 제26조). 하지만 이 예외가 정당한 이유까지 없애 주지는 않습니다. 3개월 이상 일했다면 30일 전에 예고하거나 30일분의 통상임금을 예고수당으로 줘야 합니다.</p><h2>알아 둘 점</h2><ul><li>상시 근로자 5인 미만 사업장에는 부당해고 구제 규정이 적용되지 않습니다.</li><li>부당해고로 다투려면 해고된 날부터 3개월 안에 지방노동위원회에 구제를 신청해야 합니다.</li><li>수습기간은 근로계약서에 적혀 있어야 합니다. 수습 기간과 그 동안의 임금은 근로계약서 필수 항목 가이드에서 확인할 수 있습니다.</li></ul>",
+    "faq": [
+      [
+        "수습 3개월 동안 월급을 90%만 줘도 되나요?",
+        "1년 이상 기간을 정한 계약이고, 단순노무직이 아니라면 최저임금의 90%까지는 가능합니다. 이때도 기준은 최저임금의 90%이지 내 계약 월급의 90%가 아닙니다. 월급이 최저임금보다 훨씬 높다면 수습이라는 이유로 깎을 근거가 없습니다."
+      ],
+      [
+        "수습 중에는 아무 때나 해고해도 되나요?",
+        "아닙니다. 일한 지 3개월이 안 되면 해고예고는 필요 없지만, 본채용 거부에도 정당한 이유가 필요합니다. 거부 사유를 구체적으로 알려 달라고 요청하세요."
+      ],
+      [
+        "부당하게 거부당했다면 언제까지 구제신청을 해야 하나요?",
+        "해고된 날, 즉 본채용을 거부한다고 통보받은 날부터 3개월 안에 관할 지방노동위원회에 신청해야 합니다. 기한을 놓치지 않도록 날짜를 기록해 두세요."
+      ]
+    ]
+  },
+  "en": {
+    "nav": "Probation period",
+    "title": "Probation Periods in Korea: Pay Cut to 90% and Dismissal Rules",
+    "desc": "In Korea, probation pay can be cut to 90% of minimum wage only under set conditions: ₩9,288 an hour in 2026. Refusing to keep you after probation is a dismissal that needs a justified reason.",
+    "h1": "Probation periods in Korea: pay and dismissal",
+    "lead": "Probation can lower your pay to 90% of the minimum wage, but only in a defined case: a contract of at least one year, within the first three months of probation, and not in a simple manual job. Refusing to keep you on after probation is legally a dismissal, so the employer needs a justified reason. These rules cover foreign workers too.",
+    "body": "<h2>When probation pay can be cut</h2><p>Your employer may pay 90% of the minimum wage only when <strong>all three</strong> of these apply (Minimum Wage Act, Article 5(2) and its Enforcement Decree, Article 3):</p><ol><li>Your contract has a fixed term of one year or more.</li><li>You are within the first three months from the start of probation.</li><li>Your job is not on the list of simple manual jobs set by the Ministry.</li></ol><div class=\"table-scroll\"><table><thead><tr><th>Year</th><th>Minimum wage</th><th>Probation rate (90%)</th></tr></thead><tbody><tr><td>2026</td><td>₩10,320</td><td>₩9,288</td></tr><tr><td>2027</td><td>₩10,700</td><td>₩9,630</td></tr></tbody></table></div><p>Even if probation is set for longer than three months, the reduction is allowed for three months only. From month four you must receive the full minimum wage. If any one condition is not met, your employer cannot cut your pay because you are on probation. Check your hourly rate with the <a href=\"{{weekly}}\">hourly and weekly holiday pay calculator</a>, and see the <a href=\"{{minwage}}\">2027 minimum wage guide</a>.</p><h2>Not being kept on is a dismissal</h2><p>Legally, refusing to convert a probationary worker to a regular one counts as a dismissal. It needs a justified reason, although courts give employers more room to judge a probationer than an established employee. A lower court has held it an unfair dismissal where the company never stated why it was refusing and never shared the evaluation results.</p><h2>Notice rules differ</h2><p>If you have worked less than three months, your employer does not have to give 30 days' dismissal notice (Labor Standards Act, Article 26). That exception does not remove the need for a justified reason. After three months, your employer must give 30 days' notice or pay 30 days of ordinary wages instead.</p><h2>Worth knowing</h2><ul><li>Unfair dismissal protections do not apply at workplaces with fewer than 5 regular employees.</li><li>To challenge an unfair dismissal, apply to the local Labor Relations Commission within three months of the dismissal date.</li><li>The probation period should be written in your contract. See our guide to what a Korean employment contract must include.</li></ul>",
+    "faq": [
+      [
+        "Can my employer pay me 90% of my salary during a three-month probation?",
+        "Only if you are on a contract of a year or more and not in a simple manual job, and only down to 90% of the minimum wage, not 90% of your agreed pay. If your salary is well above the minimum wage, probation alone does not justify cutting it."
+      ],
+      [
+        "Can I be let go at any time during probation?",
+        "No. Employers need no 30-day notice in the first three months, but they still need a justified reason. Ask them to give the specific reason."
+      ],
+      [
+        "How long do I have to challenge an unfair refusal?",
+        "Three months from the date you were told, at the local Labor Relations Commission. Write the date down."
+      ]
+    ]
+  }
+}
