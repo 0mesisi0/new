@@ -3,14 +3,15 @@
   "site": "play",
   "slug": "world-time-planner",
   "status": "queued",
-  "stage": "design",
+  "stage": "build",
   "attempts": 1,
   "maxAttempts": 3,
   "owner": "claude",
   "pr": null,
   "artifacts": {
     "research": "01-research.md",
-    "idea": "02-idea.md"
+    "idea": "02-idea.md",
+    "review": "05-review.md"
   },
   "history": [
     {
@@ -24,6 +25,30 @@
       "stage": "idea",
       "status": "approved",
       "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-26T13:36:13.487Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-26T13:39:24.939Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-26T13:44:51.453Z",
+      "stage": "review",
+      "status": "running",
+      "by": "codex"
+    },
+    {
+      "at": "2026-11-26T13:48:13.974Z",
+      "stage": "review",
+      "status": "approved",
+      "by": "codex"
     }
   ],
   "focus": "a timer, counter or tracker people would open daily (kind tool)"
