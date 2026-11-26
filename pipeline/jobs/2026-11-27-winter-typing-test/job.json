@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-winter-typing-test",
+  "site": "play",
+  "slug": "winter-typing-test",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-26T23:40:49.109Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-26T23:43:49.626Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
+}
