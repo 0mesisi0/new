@@ -1,0 +1,51 @@
+{
+  "id": "2026-11-27-pending-7",
+  "site": "play",
+  "slug": null,
+  "status": "failed",
+  "stage": "idea",
+  "attempts": 3,
+  "maxAttempts": 3,
+  "owner": "claude-opus",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-26T19:12:49.182Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-26T19:12:52.420Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "claude-opus",
+      "error": "claude-opus exited with 1: You've hit your 5-hour limit · resets 8:10am (Asia/Seoul)"
+    },
+    {
+      "at": "2026-11-26T19:12:55.582Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "claude-opus",
+      "error": "claude-opus exited with 1: You've hit your 5-hour limit · resets 8:10am (Asia/Seoul)"
+    },
+    {
+      "at": "2026-11-26T19:12:58.766Z",
+      "stage": "idea",
+      "status": "retry",
+      "by": "claude-opus",
+      "error": "claude-opus exited with 1: You've hit your 5-hour limit · resets 8:10am (Asia/Seoul)"
+    },
+    {
+      "at": "2026-11-26T19:12:58.767Z",
+      "stage": "idea",
+      "status": "failed",
+      "by": "claude-opus",
+      "error": "gave up after 3 attempts"
+    }
+  ],
+  "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
+}
