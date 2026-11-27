@@ -1,0 +1,42 @@
+{
+  "id": "2026-11-27-running-pace-calculator",
+  "site": "play",
+  "slug": "running-pace-calculator",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T04:18:37.368Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-27T04:19:25.140Z",
+      "stage": "research",
+      "status": "approved",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-27T04:19:25.776Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T04:20:50.474Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
