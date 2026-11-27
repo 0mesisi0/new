@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-snowy-hedgehog-brush",
+  "site": "play",
+  "slug": "snowy-hedgehog-brush",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T09:19:03.370Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T09:21:07.314Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
