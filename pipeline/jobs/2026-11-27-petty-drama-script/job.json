@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-petty-drama-script",
+  "site": "play",
+  "slug": "petty-drama-script",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T09:21:10.600Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T09:24:36.922Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
