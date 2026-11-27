@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-korean-age-calculator-2027",
+  "site": "play",
+  "slug": "korean-age-calculator-2027",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T04:29:22.740Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T04:31:52.673Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "an information cheat sheet, checklist or guide for everyday Korean life (kind tool)"
+}
