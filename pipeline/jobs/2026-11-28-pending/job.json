@@ -1,0 +1,48 @@
+{
+  "id": "2026-11-28-pending",
+  "site": "play",
+  "slug": null,
+  "status": "failed",
+  "stage": "research",
+  "attempts": 3,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {},
+  "history": [
+    {
+      "at": "2026-11-27T19:10:04.965Z",
+      "stage": "research",
+      "status": "running",
+      "by": "claude"
+    },
+    {
+      "at": "2026-11-27T19:10:08.677Z",
+      "stage": "research",
+      "status": "retry",
+      "by": "claude",
+      "error": "claude exited with 1: You've hit your weekly limit · resets 3am (Asia/Seoul)"
+    },
+    {
+      "at": "2026-11-27T19:10:11.849Z",
+      "stage": "research",
+      "status": "retry",
+      "by": "claude",
+      "error": "claude exited with 1: You've hit your weekly limit · resets 3am (Asia/Seoul)"
+    },
+    {
+      "at": "2026-11-27T19:10:15.038Z",
+      "stage": "research",
+      "status": "retry",
+      "by": "claude",
+      "error": "claude exited with 1: You've hit your weekly limit · resets 3am (Asia/Seoul)"
+    },
+    {
+      "at": "2026-11-27T19:10:15.039Z",
+      "stage": "research",
+      "status": "failed",
+      "by": "claude",
+      "error": "gave up after 3 attempts"
+    }
+  ]
+}
