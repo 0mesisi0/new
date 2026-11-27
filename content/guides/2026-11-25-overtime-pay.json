@@ -1,0 +1,39 @@
+{
+  "id": "overtimePay",
+  "slug": "overtime-pay",
+  "date": "2026-11-25",
+  "sources": [
+    ["시프티: 5인 미만 사업장 근로자도 야근수당을 받을 수 있을까?", "https://shiftee.io/ko/blog/article/overtime-pay-under-5-employees"],
+    ["컷라인체크: 연장·야간·휴일근로수당 계산", "https://cutlinecheck.com/overtime-pay/"],
+    ["유리지갑: 근로기준법 근무시간 총정리", "https://glasswallet.com/calculate/time-calculator/labor-law-hours"],
+    ["시프트: 주 52시간제 규칙과 계산 기준", "https://www.shoplworks.com/blog-insight/summarize-52-hour-workweek-rules-calculation-guidelines"],
+    ["서울신문: 주 52시간 지키면 연속 밤샘도 적법, 대법원 첫 계산법 (2023-12-26)", "https://m.seoul.co.kr/news/2023/12/26/20231226001005"],
+    ["뉴시스: 고용부, 대법 판결에 연장근로 한도 위반 행정해석 변경 (2024-01-22)", "https://mobile.newsis.com/view/NISX20240122_0002599918"]
+  ],
+  "ko": {
+    "nav": "연장·야간·휴일수당",
+    "title": "주 52시간제와 연장·야간·휴일근로수당 계산법 (5인 미만 예외 포함)",
+    "desc": "법정근로시간은 주 40시간, 연장근로는 주 12시간까지입니다. 연장·야간근로는 통상임금의 50%, 휴일근로는 8시간까지 50%·넘으면 100%를 더 받고, 겹치면 가산이 더해집니다.",
+    "h1": "주 52시간제와 연장·야간·휴일근로수당",
+    "lead": "법정근로시간은 1주 40시간이고, 합의하면 1주 12시간까지 연장할 수 있어 최대 52시간입니다. 연장근로와 밤 10시~아침 6시 야간근로는 통상임금의 50%를 더 받습니다. 휴일근로는 8시간까지 50%, 8시간을 넘는 부분은 100%를 더 받습니다. 상시 근로자 5인 미만 사업장에는 이 가산수당 규정이 적용되지 않습니다.",
+    "body": "<h2>근로시간 한도</h2><ul><li><strong>법정근로시간:</strong> 1일 8시간, 1주 40시간</li><li><strong>연장근로:</strong> 당사자가 합의하면 1주 12시간까지. 그래서 1주 최대 52시간입니다.</li><li><strong>1주의 범위:</strong> 휴일을 포함한 7일입니다. 휴일근로 시간도 52시간에 들어갑니다.</li><li><strong>계산 단위:</strong> 2023년 대법원 판결 이후 고용노동부는 연장근로 한도를 하루 단위가 아니라 1주 단위로 판단합니다. 어느 하루 8시간을 넘어도, 그 주 연장근로가 12시간 이내면 한도 위반이 아닙니다.</li></ul><h2>가산수당 (근로기준법 제56조)</h2><div class=\"table-scroll\"><table><thead><tr><th>구분</th><th>가산</th><th>시급 12,000원일 때 1시간</th></tr></thead><tbody><tr><td>연장근로</td><td>+50%</td><td>18,000원</td></tr><tr><td>야간근로 (22시~06시)</td><td>+50%</td><td>18,000원</td></tr><tr><td>연장 + 야간</td><td>+100%</td><td>24,000원</td></tr><tr><td>휴일근로 8시간까지</td><td>+50%</td><td>18,000원</td></tr><tr><td>휴일근로 8시간 초과분</td><td>+100%</td><td>24,000원</td></tr></tbody></table></div><p>야간 가산은 근무 시간대에 붙습니다. 그래서 연장근로나 휴일근로와 겹치면 각각 더해집니다. 휴일근로 8시간을 넘는 부분은 100% 가산이며, 연장 가산을 한 번 더 붙이지는 않습니다. 기준은 통상임금입니다. 내 시급으로 주휴수당 포함 월급을 먼저 계산해 보려면 <a href=\"{{weekly}}\">주휴수당·시급 계산기</a>를 쓰세요.</p><h2>5인 미만 사업장</h2><p>상시 근로자가 4명 이하인 사업장에는 제56조가 적용되지 않습니다. 그래서 연장·야간·휴일 가산수당을 받을 법적 권리가 없습니다. 다만 일한 시간만큼의 임금은 당연히 받아야 하고, 근로계약서나 취업규칙에 가산수당을 주기로 정했다면 그 약정대로 받을 수 있습니다. 상시 근로자 수는 아르바이트를 포함해 계산합니다. 5명 이상인 날이 많다면 5인 이상 사업장으로 볼 수도 있습니다.</p>",
+    "faq": [
+      ["밤 10시 넘어 야근하면 시급의 몇 배를 받나요?", "연장근로이면서 야간근로이므로 50%씩 두 번 가산돼 통상시급의 2배를 받습니다. 시급 12,000원이면 1시간에 24,000원입니다."],
+      ["5인 미만 회사인데 야근수당을 못 받나요?", "법정 가산(50%)은 받을 권리가 없지만, 일한 시간의 기본 임금은 받아야 합니다. 근로계약서나 취업규칙에 가산수당이 적혀 있으면 그대로 받을 수 있습니다."],
+      ["하루 12시간 일한 날이 있으면 불법인가요?", "고용노동부는 2024년부터 연장근로 한도를 1주 단위로 봅니다. 그 주의 연장근로가 12시간 이내라면 하루 근무가 길었다는 이유만으로 한도 위반은 아닙니다."]
+    ]
+  },
+  "en": {
+    "nav": "Overtime pay",
+    "title": "Overtime, Night and Holiday Pay in Korea (52-Hour Workweek)",
+    "desc": "Korea's 52-hour week explained: 40 regular hours plus up to 12 overtime. Overtime and night work (10 pm–6 am) earn an extra 50%, holiday work 50% or 100%, and the premiums stack.",
+    "h1": "Overtime, night and holiday pay in Korea",
+    "lead": "The standard working week in Korea is 40 hours. With your agreement, up to 12 hours of overtime can be added, for a 52-hour maximum. Overtime and night work (10 pm to 6 am) each earn an extra 50% of your ordinary wage. Holiday work earns an extra 50% for the first 8 hours and 100% after that. Workplaces with fewer than 5 regular employees are exempt from these premiums. The rules apply to foreign workers as well.",
+    "body": "<h2>Working-hour limits</h2><ul><li><strong>Standard hours:</strong> 8 a day, 40 a week</li><li><strong>Overtime:</strong> up to 12 hours a week by agreement, so 52 hours at most</li><li><strong>What a week means:</strong> seven days including rest days, so holiday work counts towards the 52 hours</li><li><strong>How it is counted:</strong> since a 2023 Supreme Court ruling, the Ministry of Employment and Labor checks the overtime limit by the week, not by the day. A long day is not a violation if that week's overtime stays within 12 hours.</li></ul><h2>Premiums (Labor Standards Act, Article 56)</h2><div class=\"table-scroll\"><table><thead><tr><th>Work</th><th>Extra</th><th>One hour at ₩12,000/h</th></tr></thead><tbody><tr><td>Overtime</td><td>+50%</td><td>₩18,000</td></tr><tr><td>Night (10 pm–6 am)</td><td>+50%</td><td>₩18,000</td></tr><tr><td>Overtime at night</td><td>+100%</td><td>₩24,000</td></tr><tr><td>Holiday, first 8 hours</td><td>+50%</td><td>₩18,000</td></tr><tr><td>Holiday, beyond 8 hours</td><td>+100%</td><td>₩24,000</td></tr></tbody></table></div><p>The night premium depends on the time of day, so it stacks on top of overtime or holiday pay. Holiday hours beyond 8 get +100% in total, with no extra overtime premium on top. Premiums are based on your ordinary wage. To turn your hourly wage into monthly pay first, use the <a href=\"{{weekly}}\">hourly and weekly holiday pay calculator</a>.</p><h2>Small workplaces</h2><p>Article 56 does not apply to workplaces with 4 or fewer regular employees, so there is no legal right to the premiums there. You must still be paid for every hour worked, and if your contract or the work rules promise premiums, those apply. Part-timers count towards the headcount, so a business with 5 or more people on most days may count as a 5+ workplace.</p>",
+    "faq": [
+      ["How much do I get for overtime after 10 pm?", "Twice your ordinary hourly wage: +50% for overtime and +50% for night work. At ₩12,000 an hour that is ₩24,000."],
+      ["Do these rules apply to foreign workers?", "Yes. The Labor Standards Act applies regardless of nationality or visa, subject to the same small-workplace exemption."],
+      ["Is a 12-hour day illegal?", "Not by itself. Since 2024 the overtime limit is checked per week, so a long day is lawful if that week's overtime is 12 hours or less."]
+    ]
+  }
+}

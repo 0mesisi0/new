@@ -1,0 +1,39 @@
+{
+  "id": "severanceTax",
+  "slug": "severance-tax",
+  "date": "2026-11-24",
+  "sources": [
+    ["국세청: 퇴직소득 (계산 방법과 근속연수공제)", "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=6444&cntntsId=7880"],
+    ["미래에셋투자와연금센터: 퇴직급여를 일시에 수령하면 세금을 얼마나 내나요?", "https://investpension.miraeasset.com/contents/view.do?idx=13929"],
+    ["미래에셋투자와연금센터: 퇴직급여 수령과 세금 납부", "https://investpension.miraeasset.com/contents/view.do?idx=13932"],
+    ["미래에셋투자와연금센터: 퇴직금, 일시금 아닌 연금으로 받으면 세 부담 덜어", "https://investpension.miraeasset.com/contents/view.do?idx=22080"],
+    ["KB Think: 퇴직연금 세금, 과세이연 및 절세 혜택", "https://kbthink.com/retirement-pension/tax.html"],
+    ["머니네스트랩: 퇴직소득세 계산방법 (근속연수공제표·환산급여)", "https://www.moneynestlab.com/retirement-income-tax/guide/calculation-method"]
+  ],
+  "ko": {
+    "nav": "퇴직소득세 계산",
+    "title": "퇴직소득세 계산 방법 – 근속연수공제·환산급여공제와 IRP 절세",
+    "desc": "퇴직금 세금은 근속연수공제와 환산급여공제를 거쳐 계산해 일반 월급보다 훨씬 적습니다. 근속 5년, 퇴직금 2,000만 원이면 약 30만 8천 원입니다. IRP로 받으면 세금을 미루고 줄일 수 있습니다.",
+    "h1": "퇴직소득세 계산 방법",
+    "lead": "퇴직금에 붙는 세금(퇴직소득세)은 근속연수공제와 환산급여공제를 거쳐 계산하기 때문에 생각보다 훨씬 적습니다. 근속 5년에 퇴직금 2,000만 원이면 지방소득세를 포함해 약 30만 8천 원, 실효세율은 1.5% 정도입니다. 퇴직금을 IRP 계좌로 받아 연금으로 나눠 받으면 세금을 미루고 30~40% 줄일 수 있습니다.",
+    "body": "<h2>계산 순서</h2><ol><li><strong>근속연수공제:</strong> 퇴직금에서 아래 표의 금액을 뺍니다. 근속연수는 1년 미만이면 1년으로 올립니다.</li><li><strong>환산급여:</strong> (퇴직금 − 근속연수공제) × 12 ÷ 근속연수</li><li><strong>환산급여공제:</strong> 환산급여에서 아래 표의 금액을 뺀 것이 과세표준입니다.</li><li><strong>환산산출세액:</strong> 과세표준 × 기본세율(6~45%)</li><li><strong>퇴직소득세:</strong> 환산산출세액 ÷ 12 × 근속연수. 여기에 지방소득세 10%가 더해집니다.</li></ol><h2>근속연수공제</h2><div class=\"table-scroll\"><table><thead><tr><th>근속연수</th><th>공제액</th></tr></thead><tbody><tr><td>5년 이하</td><td>100만 원 × 근속연수</td></tr><tr><td>5년 초과 10년 이하</td><td>500만 원 + 200만 원 × (근속연수 − 5)</td></tr><tr><td>10년 초과 20년 이하</td><td>1,500만 원 + 250만 원 × (근속연수 − 10)</td></tr><tr><td>20년 초과</td><td>4,000만 원 + 300만 원 × (근속연수 − 20)</td></tr></tbody></table></div><h2>환산급여공제</h2><div class=\"table-scroll\"><table><thead><tr><th>환산급여</th><th>공제액</th></tr></thead><tbody><tr><td>800만 원 이하</td><td>전액</td></tr><tr><td>800만 원 초과 7,000만 원 이하</td><td>800만 원 + 초과분의 60%</td></tr><tr><td>7,000만 원 초과 1억 원 이하</td><td>4,520만 원 + 초과분의 55%</td></tr><tr><td>1억 원 초과 3억 원 이하</td><td>6,170만 원 + 초과분의 45%</td></tr><tr><td>3억 원 초과</td><td>1억 5,170만 원 + 초과분의 35%</td></tr></tbody></table></div><h2>계산 예시: 근속 5년, 퇴직금 2,000만 원</h2><ul><li>근속연수공제: 100만 원 × 5 = 500만 원</li><li>환산급여: (2,000만 − 500만) × 12 ÷ 5 = 3,600만 원</li><li>환산급여공제: 800만 + (3,600만 − 800만) × 60% = 2,480만 원</li><li>과세표준: 3,600만 − 2,480만 = 1,120만 원</li><li>환산산출세액: 1,120만 × 6% = 67만 2천 원</li><li>퇴직소득세: 67만 2천 ÷ 12 × 5 = <strong>28만 원</strong>, 지방소득세 2만 8천 원을 더해 <strong>30만 8천 원</strong></li></ul><p>같은 방식으로 근속 10년, 퇴직금 5,000만 원이면 지방소득세 포함 약 74만 8천 원입니다. 세전 퇴직금은 <a href=\"{{severance}}\">퇴직금 계산기</a>로 먼저 구해 보세요.</p><h2>IRP로 받으면</h2><ul><li>만 55세 미만이 퇴직하면 퇴직금은 원칙적으로 IRP 계좌로 들어가고, 이때는 퇴직소득세를 떼지 않고 전액이 이체됩니다(과세이연).</li><li>나중에 55세 이후 연금으로 받으면 퇴직소득세의 70%(연금 수령 11년차부터는 60%)만 연금소득세로 냅니다.</li><li>IRP를 해지해 한 번에 찾으면 그때 미뤄 둔 퇴직소득세를 냅니다.</li><li>이미 세금을 떼고 받은 퇴직금도 받은 날로부터 60일 안에 IRP에 넣으면 원천징수된 세금을 돌려받을 수 있습니다.</li></ul>",
+    "faq": [
+      ["퇴직금 세금은 월급처럼 많이 떼나요?", "아니요. 근속연수공제와 환산급여공제 덕분에 실효세율이 낮습니다. 근속 5~10년에 퇴직금 2,000만~5,000만 원이면 지방소득세를 포함해도 1.5% 안팎입니다."],
+      ["퇴직소득세는 누가 신고하나요?", "회사가 퇴직금을 줄 때 원천징수합니다. IRP로 이체되면 회사는 세금을 떼지 않고, 나중에 IRP에서 돈을 꺼낼 때 금융회사가 원천징수합니다."],
+      ["근속연수는 어떻게 세나요?", "입사일부터 퇴사일까지를 연 단위로 세고, 1년 미만 기간은 1년으로 올립니다. 예를 들어 4년 2개월이면 5년으로 계산합니다."]
+    ]
+  },
+  "en": {
+    "nav": "Severance tax",
+    "title": "How Severance Pay Is Taxed in Korea (Retirement Income Tax)",
+    "desc": "Korean severance pay is taxed as retirement income with generous deductions, so the rate is low: about ₩308,000 on ₩20 million after five years. Here is the formula and how an IRP defers it.",
+    "h1": "How severance pay is taxed in Korea",
+    "lead": "Severance pay in Korea is taxed as retirement income, not as salary. Two large deductions, one for years of service and one for the converted amount, keep the effective rate low. After five years, tax on ₩20 million of severance is about ₩308,000 including local tax, roughly 1.5%. Taking it into an IRP account defers the tax, and drawing it as a pension later cuts it by 30–40%.",
+    "body": "<h2>The formula</h2><ol><li><strong>Service deduction:</strong> subtract the amount in the first table below. Part years count as a full year.</li><li><strong>Converted pay:</strong> (severance − service deduction) × 12 ÷ years of service</li><li><strong>Converted pay deduction:</strong> subtract the amount in the second table. What is left is the tax base.</li><li><strong>Converted tax:</strong> tax base × the normal income tax rates (6–45%)</li><li><strong>Severance tax:</strong> converted tax ÷ 12 × years of service, plus 10% local income tax</li></ol><h2>Service deduction</h2><div class=\"table-scroll\"><table><thead><tr><th>Years of service</th><th>Deduction</th></tr></thead><tbody><tr><td>Up to 5</td><td>₩1M × years</td></tr><tr><td>Over 5 to 10</td><td>₩5M + ₩2M × (years − 5)</td></tr><tr><td>Over 10 to 20</td><td>₩15M + ₩2.5M × (years − 10)</td></tr><tr><td>Over 20</td><td>₩40M + ₩3M × (years − 20)</td></tr></tbody></table></div><h2>Converted pay deduction</h2><div class=\"table-scroll\"><table><thead><tr><th>Converted pay</th><th>Deduction</th></tr></thead><tbody><tr><td>Up to ₩8M</td><td>All of it</td></tr><tr><td>₩8M to ₩70M</td><td>₩8M + 60% of the excess</td></tr><tr><td>₩70M to ₩100M</td><td>₩45.2M + 55% of the excess</td></tr><tr><td>₩100M to ₩300M</td><td>₩61.7M + 45% of the excess</td></tr><tr><td>Over ₩300M</td><td>₩151.7M + 35% of the excess</td></tr></tbody></table></div><h2>Example: 5 years, ₩20 million</h2><ul><li>Service deduction: ₩1M × 5 = ₩5M</li><li>Converted pay: (₩20M − ₩5M) × 12 ÷ 5 = ₩36M</li><li>Converted pay deduction: ₩8M + (₩36M − ₩8M) × 60% = ₩24.8M</li><li>Tax base: ₩36M − ₩24.8M = ₩11.2M</li><li>Converted tax: ₩11.2M × 6% = ₩672,000</li><li>Severance tax: ₩672,000 ÷ 12 × 5 = <strong>₩280,000</strong>, plus ₩28,000 local tax = <strong>₩308,000</strong></li></ul><p>On the same basis, 10 years and ₩50 million comes to about ₩748,000. Work out your gross severance first with the <a href=\"{{severance}}\">severance pay calculator</a>.</p><h2>Taking it into an IRP</h2><ul><li>If you are under 55 when you leave, severance normally goes into an Individual Retirement Pension (IRP) account in full, with no tax withheld.</li><li>If you later draw it as a pension from age 55, you pay 70% of the severance tax (60% from the 11th year of payments).</li><li>If you close the IRP and take the money out in one go, the deferred severance tax is withheld at that point.</li><li>If tax was already withheld, you can still move the severance into an IRP within 60 days of receiving it and get the tax refunded.</li></ul><p>Foreign employees are taxed the same way. If you plan to leave Korea, ask your bank how and when to close the IRP before you go.</p>",
+    "faq": [
+      ["Is severance taxed like my salary?", "No. It is taxed separately as retirement income, with deductions that keep the effective rate low, around 1.5% for 5–10 years of service and ₩20–50 million."],
+      ["Who pays the tax?", "Your employer withholds it when it pays you. If the money goes into an IRP, nothing is withheld until you withdraw it, and then the bank withholds it."],
+      ["How are years of service counted?", "From your first day to your last, rounding any part year up. Four years and two months counts as five years."]
+    ]
+  }
+}
