@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-geminid-wish-catch",
+  "site": "play",
+  "slug": "geminid-wish-catch",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T09:38:40.172Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T09:41:08.859Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a humor or parody generator, receipt, certificate or meme maker (kind tool)"
+}
