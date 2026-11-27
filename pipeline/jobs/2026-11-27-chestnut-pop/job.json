@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-chestnut-pop",
+  "site": "play",
+  "slug": "chestnut-pop",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T09:34:06.976Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T09:36:24.099Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a useful calculator or converter that Koreans search for (kind tool)"
+}
