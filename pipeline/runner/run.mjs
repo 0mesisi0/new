@@ -79,7 +79,7 @@ async function votes() {
 // ---------- agents ----------
 function quoteWin(s) { return /[\s"&|<>^]/.test(s) ? `"${s.replace(/"/g, '\\"')}"` : s; }
 
-function runAgent(agentName, instruction, outFile) {
+function runAgent(agentName, instruction, outFile, timeoutMinutes) {
   const a = CONFIG.agents[agentName];
   if (!a) throw new Error(`agent ${agentName} is not configured`);
   const fill = (s) => s.replace('{instruction}', instruction).replace('{out}', outFile);
@@ -96,7 +96,7 @@ function runAgent(agentName, instruction, outFile) {
     let err = '';
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });
-    const timer = setTimeout(() => { child.kill(); reject(new Error(`${agentName} timed out after ${CONFIG.timeoutMinutes} min`)); }, (CONFIG.timeoutMinutes || 20) * 60000);
+    const timer = setTimeout(() => { child.kill(); reject(new Error(`${agentName} timed out after ${timeoutMinutes || CONFIG.timeoutMinutes} min`)); }, (timeoutMinutes || CONFIG.timeoutMinutes || 20) * 60000);
     child.on('error', (e) => { clearTimeout(timer); reject(e); });
     child.on('close', (code) => {
       clearTimeout(timer);
@@ -139,11 +139,12 @@ Do not invent sources. Mark anything uncertain as low confidence.`;
     },
   },
   idea: {
-    agent: 'codex', file: '02-idea.md', next: 'design',
+    // Claude plans and designs. Codex (ChatGPT) writes the code in the build stage.
+    agent: 'claude', file: '02-idea.md', next: 'build',
     async brief(job) {
       return `# Idea brief (${job.id})
 
-You are the PLANNER for "하루한판 / Daily Toybox". Read these files in this repository first:
+You are the PLANNER and DESIGNER for "하루한판 / Daily Toybox". A different AI (Codex) will write the code from your document alone, so be exact and complete: it must not have to guess. Read these files in this repository first:
 - pipeline/jobs/${job.id}/01-research.md (today's research)
 - play/ITEMS.md (hard rules for items)
 - play/ideas.md (backlog)
@@ -155,7 +156,7 @@ ${itemsList().join('\n') || '(none)'}
 Votes so far (make more of what is liked):
 ${await votes()}
 
-Propose 3 concepts in different categories, score each 1–5 on value in the first 10 seconds, originality, Korean search/share demand, and buildability in one HTML file; pick one, and write its full spec in the same structure as the example: meta (slug, category, kind, aspect, tags, ko/en title/desc/howto/about), pitch, flow, controls, every screen, all user-facing strings in Korean and English, localStorage keys, edge cases, and must-nots.
+Propose 3 concepts in different categories, score each 1–5 on value in the first 10 seconds, originality, Korean search/share demand, and buildability in one HTML file; pick one, and write its full spec in the same structure as the example: meta (slug, category, kind, aspect, tags, ko/en title/desc/howto/about), pitch, flow, controls, every screen, all user-facing strings in Korean and English, localStorage keys, edge cases, and must-nots. Also include a "## Visual design" section: palette (hex colors and their roles), type scale, layout at 360×640 and 1024×700, what is drawn and how (canvas, CSS, SVG, emoji), motion and feedback, and what the thumbnail should show. Give concrete numbers (sizes, speeds, durations, scoring, difficulty curve) wherever behaviour depends on them.
 
 Reply with ONLY the Markdown document. Its first line must be "# Idea and spec: <ko title> / <en title>" and it must contain a line "slug \`<slug>\`".`;
     },
@@ -164,12 +165,54 @@ Reply with ONLY the Markdown document. Its first line must be "# Idea and spec: 
       if (!m) return 'no slug line';
       if (existsSync(join(REPO, 'play', 'items', m[1]))) return `slug ${m[1]} already exists`;
       if (!/[가-힣]/.test(text) || !/\| *ko *\| *en *\|/i.test(text) && !/ko:/i.test(text)) return 'missing Korean/English strings';
+      if (!/## Visual design/i.test(text)) return 'missing "## Visual design" section';
       job.slug = m[1];
       return null;
     },
   },
+  build: {
+    // Codex writes the code (workspace-write sandbox) and must make the tests pass.
+    agent: 'codexBuild', file: '04-build.md', next: 'review', timeoutMinutes: 45,
+    async brief(job) {
+      return `# Build brief (${job.id})
+
+You are the BUILDER. Implement the item described in pipeline/jobs/${job.id}/02-idea.md exactly, including every string, number and rule in it. Read first:
+- pipeline/jobs/${job.id}/02-idea.md (the spec and visual design; follow it literally)
+- play/ITEMS.md (hard rules: one self-contained index.html, no network, both languages, works from 320 px to fullscreen, touch + mouse + keyboard, localStorage in try/catch, no dialogs)
+- play/items/clock-out/index.html (a finished item, for structure and quality bar)
+
+Create ONLY these files:
+- play/items/${job.slug}/index.html
+- play/items/${job.slug}/meta.json  (format in ITEMS.md; the slug must be "${job.slug}")
+
+Then verify, from the play/ folder (run \`npm ci\` first if play/node_modules is missing):
+1. \`npm test\`
+2. \`npm run qa -- --only ${job.slug} --thumbs\`
+Fix every failure and repeat until both pass. Look at the generated play/items/${job.slug}/thumb.png: it must show the real game or page, not a blank or broken screen.
+
+Rules: do not edit any other file, do not commit, do not push, do not install anything outside play/. If the spec is ambiguous, choose the simplest reading and note it.
+
+Reply with ONLY Markdown: "# Build ${job.id}", "## Files" (list), "## Verification" (the two commands and their results), "## Decisions" (any ambiguity you resolved, or "None").`;
+    },
+    check(text, job) {
+      const dir = join(REPO, 'play', 'items', job.slug || '');
+      if (!job.slug || !existsSync(join(dir, 'index.html')) || !existsSync(join(dir, 'meta.json'))) return 'index.html or meta.json missing';
+      let meta;
+      try { meta = JSON.parse(readFileSync(join(dir, 'meta.json'), 'utf8')); } catch { return 'meta.json is not valid JSON'; }
+      if (meta.slug !== job.slug) return `meta.json slug "${meta.slug}" does not match "${job.slug}"`;
+      const sh = process.platform === 'win32';
+      const play = join(REPO, 'play');
+      const t = spawnSync('npm', ['test'], { cwd: play, encoding: 'utf8', shell: sh });
+      if (t.status !== 0) return `npm test failed: ${(t.stdout + t.stderr).trim().slice(-500)}`;
+      if (existsSync(join(play, 'node_modules', 'playwright'))) {
+        const q = spawnSync('npm', ['run', 'qa', '--', '--only', job.slug, '--thumbs'], { cwd: play, encoding: 'utf8', shell: sh, timeout: 10 * 60000 });
+        if (q.status !== 0) return `qa failed: ${(q.stdout + q.stderr).trim().slice(-500)}`;
+      }
+      return null;
+    },
+  },
   review: {
-    agent: 'codex', file: '05-review.md', next: 'build',
+    agent: 'claude', file: '05-review.md', next: 'build',
     async brief(job) {
       return `# Review brief (${job.id})
 
@@ -216,14 +259,14 @@ async function runStage(stageName, job) {
     job.attempts++;
     try {
       log(`${stageName}: calling ${st.agent} (attempt ${job.attempts}/${job.maxAttempts})`);
-      await runAgent(st.agent, instruction, outFile);
+      await runAgent(st.agent, instruction, outFile, st.timeoutMinutes);
       const text = readFileSync(outFile, 'utf8');
       const problem = st.check(text, job);
       if (problem) throw new Error(`output rejected: ${problem}`);
       job.artifacts[stageName] = st.file;
       job.stage = st.next || stageName;
       job.status = st.next ? 'queued' : 'approved';
-      job.owner = st.next === 'design' || st.next === 'build' ? 'claude' : st.next ? STAGES[st.next].agent : 'claude';
+      job.owner = st.next ? STAGES[st.next].agent : 'claude';
       record(job, stageName, 'approved', st.agent);
       log(`${stageName}: done -> ${rel(outFile)}`);
       if (job.slug && /-pending(-\d+)?$/.test(job.id)) {
@@ -250,6 +293,7 @@ async function runStage(stageName, job) {
 function publish(job, message) {
   if (flag('no-push') || flag('dry-run')) return;
   git('add', rel(join(JOBS, job.id)));
+  if (job.slug && existsSync(join(REPO, 'play', 'items', job.slug))) git('add', rel(join(REPO, 'play', 'items', job.slug)));
   const staged = spawnSync('git', ['diff', '--cached', '--quiet'], { cwd: REPO });
   if (staged.status === 0) return;
   git('commit', '-m', message);
@@ -288,9 +332,9 @@ async function main() {
   syncBranch();
   if (cmd === 'daily') {
     const job = newJob();
-    if (await runStage('research', job)) await runStage('idea', job);
+    if (await runStage('research', job) && await runStage('idea', job)) await runStage('build', job);
     if (job.slug && job.id.endsWith('pending')) log(`slug chosen: ${job.slug}`);
-    publish(job, `pipeline: ${job.id} research + idea (${job.status})`);
+    publish(job, `pipeline: ${job.id} research, idea and build (${job.stage}, ${job.status})`);
     process.exitCode = job.status === 'failed' ? 1 : 0;
     return;
   }
