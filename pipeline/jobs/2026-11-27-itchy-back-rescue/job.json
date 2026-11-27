@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-itchy-back-rescue",
+  "site": "play",
+  "slug": "itchy-back-rescue",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T09:36:27.556Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T09:38:35.646Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a relaxing satisfying toy, sound or ASMR-like interaction (kind tool)"
+}
