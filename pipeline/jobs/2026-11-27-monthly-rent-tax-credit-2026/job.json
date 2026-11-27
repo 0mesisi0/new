@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-monthly-rent-tax-credit-2026",
+  "site": "play",
+  "slug": "monthly-rent-tax-credit-2026",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T04:34:24.402Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T04:37:10.570Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a random generator or picker with a funny twist (kind tool)"
+}
