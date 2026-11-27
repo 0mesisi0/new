@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-27-christmas-market-cocoa",
+  "site": "play",
+  "slug": "christmas-market-cocoa",
+  "status": "queued",
+  "stage": "design",
+  "attempts": 1,
+  "maxAttempts": 3,
+  "owner": "claude",
+  "pr": null,
+  "artifacts": {
+    "research": "01-research.md",
+    "idea": "02-idea.md"
+  },
+  "history": [
+    {
+      "at": "2026-11-27T04:27:16.479Z",
+      "stage": "idea",
+      "status": "running",
+      "by": "claude-opus"
+    },
+    {
+      "at": "2026-11-27T04:29:19.421Z",
+      "stage": "idea",
+      "status": "approved",
+      "by": "claude-opus"
+    }
+  ],
+  "focus": "a quick quiz or trivia with funny wrong answers (kind tool)"
+}
